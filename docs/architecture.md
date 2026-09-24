@@ -29,8 +29,23 @@ Each service owns its database tables and publishes events. No service reads ano
 Activity execution and award management are one bounded service and one API
 deployment. Locally, both route families are exposed on port `8004`; award
 paths remain distinct (`/v1/awards`) but do not create a second service or
-port. The activity service persists award definitions, requests, issuances and
-its outbox in the activity-owned state boundary.
+port. The activity service owns normalized activation, QSO, aggregate, award,
+import, correction, job, statistic and notification tables. It does not use
+the generic JSONB `service_state` projection in durable mode. Activity and
+award writes use bounded psycopg pools and transaction-local idempotency.
+
+The service exposes two ingestion paths: ordinary idempotent QSO writes and a
+PostgreSQL `COPY` staging path for batches and ADIF worker output. Distinct
+subject/callsign/entity membership tables support precomputed activator and
+hunter facts, while `activity_award_progress` stores a versioned evaluation
+for historical award definitions. Reads never scan the full QSO table to
+render participant progress.
+
+The API deployment is stateless and horizontally scalable. Helm defaults to
+three activity replicas; `activity_worker` handles ADIF parsing, award-rule
+recalculation, PDF rendering, statistics and notification delivery, while the
+notification consumer translates geodata and identity events into participant
+notices. Each workload has its own bounded database pool.
 
 Award background images, manager signatures and generated certificate objects
 are addressed through an S3-compatible object store. Local Compose provides
@@ -75,3 +90,18 @@ Required adapters are represented in the contract and storage model: `PARKSERVE_
 - Every mutation accepts `Idempotency-Key`; service outboxes make event publication retry-safe.
 - Rate limits apply at gateway, with stricter limits for import and proposal endpoints.
 - JSON logs carry request, correlation, actor and programme IDs. Health/readiness endpoints are available per service.
+
+## Activity execution boundary
+
+Activation start/close captures a programme-rule snapshot and evaluates
+validity windows, location requirements, operator/callsign authorization,
+minimum QSOs, band/mode rules and correction state. Programme policy remains
+owned by the programme service; the snapshot is retained so a later policy
+change cannot silently rewrite a historical activation decision.
+
+ADIF uploads are stored as objects after size and malware gates, then processed
+as durable jobs. Parsing and normalization are separate from programme policy:
+the worker validates callsign, timestamp, band, mode and worked-station
+identity before the activity repository applies deduplication and aggregate
+updates. Corrections are proposed and reviewed rather than mutating history
+without an audit trail.

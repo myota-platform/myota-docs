@@ -48,11 +48,30 @@ the operator; hunter progress uses QSO records carrying the participant's
 snapshot for reconciliation and tests. Participant requests use the account's
 `identity.me` scope and cannot request for another account.
 
-QSO ingestion also preserves normalized worked callsign, timestamp, band, mode,
-RST, source, and optional `workedEntityId` fields. These are the activity facts
-available to future programme-specific validation and recalculation workers;
-the current evaluator deliberately does not impose a universal band, mode, or
-minimum-QSO policy.
+QSO ingestion preserves normalized worked callsign, worked-station identity,
+timestamp, band, mode, RST, source, import identity and optional
+`workedEntityId`. The service validates supported band/mode values, activation
+time windows and deduplication keys. Programme rules may further restrict
+bands, modes, location, duration and minimum QSOs; those checks are evaluated
+when an activation closes. Corrections are proposed and reviewed with an
+explicit audit status.
+
+Activation start captures the programme rule snapshot, operator/callsign
+context and location. Close evaluates validity, location/rule violations and
+produces `CLOSED` or `CLOSED_INVALID` without deleting the historical QSO
+facts. Verified callsign authorization remains programme-aware and does not
+make a platform-wide eligibility assumption.
+
+The service-owned relational schema uses indexed QSO rows and aggregate
+membership tables for activators and hunters. Award progress is materialized by
+versioned background jobs, so participant requests do not rescan all QSOs.
+Award definitions can be explicitly retired; existing progress and issuance
+records still point to the original definition/version.
+
+ADIF is uploaded to MinIO/S3 only after size and malware gates, then parsed and
+validated asynchronously. Valid rows enter the same COPY/deduplication path as
+manual batches. Failed records remain visible in the import result and trigger
+notifications; the original upload is retained for reconciliation.
 
 ## Certificate assets and print readiness
 
@@ -96,5 +115,10 @@ and signature are explicit and auditable.
 The activity service emits `awards.definition.saved.v1`,
 `awards.definition.published.v1`, `awards.request.created.v1`, and
 `awards.issued.v1` through the same durable outbox used for activation and QSO
-events. Consumers should use event IDs for idempotency and treat issuance
-records as append-only history.
+events. Geodata review and identity security events are consumed into the
+activity notification table. Consumers should use event IDs for idempotency
+and treat issuance records as append-only history.
+
+Public execution endpoints expose masked activation history, leaderboards and
+JSON/CSV result downloads. Full callsign display is not the default public
+representation.

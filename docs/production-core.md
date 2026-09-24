@@ -1,14 +1,18 @@
 # Production-grade platform core
 
-Phase 1 uses a service-owned PostgreSQL boundary with a practical compatibility
-projection (`service_state`) for the current vertical slice. Domain migrations
-remain relational and are the target for replacing individual JSON projections as
-each service grows. No service talks directly to another service's tables.
+The platform uses service-owned PostgreSQL boundaries. The generic
+`service_state` table remains for older identity/programme/geodata bootstrap
+paths, but `myota-activity-service` now uses only its normalized relational
+schema in durable mode. No service talks directly to another service's tables.
+
+Activity's migration source is in `myota-activity-service/migrations/`; the
+deployment repository applies its reviewed copy as part of the shared release
+migration job. This keeps ownership and deployment ordering explicit.
 
 ## Durability and events
 
 The runtime selects PostgreSQL whenever `CORE_DATABASE_URL` or
-`GEO_DATABASE_URL` is set. Psycopg's bounded connection pool provides one
+`GEO_DATABASE_URL` is set. Psycopg's bounded connection pools provide one
 transaction boundary per request, startup retries five times with exponential
 backoff, and shutdown closes the pool. State, idempotency responses and events
 are committed together. `outbox_event` is relayed by the core and geodata
@@ -20,6 +24,11 @@ The current runtime event envelope is versioned by its `*.v1` event type. A
 consumer must tolerate additive fields, reject incompatible schema versions, and
 record a checkpoint/idempotency key before applying a side effect. The
 `consumer_checkpoint` table is reserved for those consumers.
+
+The activity API uses a bounded request server and defaults to three stateless
+Helm replicas. Activity workers claim jobs with `FOR UPDATE SKIP LOCKED` and
+are independently scaled for ADIF parsing, award recalculation, PDF rendering,
+statistics and notification delivery.
 
 ## API conventions
 
@@ -48,7 +57,8 @@ API flows, and record the recovery point/time before using it for production.
 ## Local stack
 
 `docker compose -f compose.yaml up --build` starts PostGIS, migrations, four
-services, the gateway, NATS JetStream, and two outbox relays. The first run
+services, the activity worker and notification consumer, the gateway, NATS
+JetStream, and two outbox relays. The first run
 creates `myota_core` and `myota_geo`; a named volume preserves them across runs.
 Use `docker compose -f compose.yaml run --rm migrations` after changing a
 migration on an existing volume.
