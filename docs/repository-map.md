@@ -14,11 +14,16 @@ The following split is justified and intentionally small:
 | `myota-deploy` | Helm charts, environments, migration orchestration, Compose, worker deployments, observability | `deploy/`, `db/migrations/`, `compose.yaml` |
 | `myota-docs` | architecture, ADRs, operator and migration docs | `docs/` |
 
-Migration ownership follows the service boundary: the activity repository is
+Migration ownership follows the service boundary. The activity repository is
 the source of truth for `migrations/001_activity_relational.sql`, while
 `myota-deploy` carries the deployment-applied copy as
-`db/migrations/core/002_activity.sql` and runs it in release order. This keeps
-schema review close to the owning code without making every service perform
+`db/migrations/core/002_activity.sql` and runs it in release order. The
+geodata repository is the source of truth for its complete ordered migration
+set in `migrations/`; `myota-platform/db/migrations/geo/` is the synchronized
+vertical-slice bootstrap mirror and `myota-deploy/db/migrations/geo/` is the
+synchronized deployment mirror. The mirrors must not be edited independently.
+Shared platform tables belong only to the core migration. This keeps schema
+review close to the owning service without making every service perform
 cluster migration orchestration.
 
 The bootstrap repository is a temporary integration workspace; it is not a reason to create many more repositories. Each row is wired together by pinned contract versions.

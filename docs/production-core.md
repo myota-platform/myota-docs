@@ -7,7 +7,12 @@ schema in durable mode. No service talks directly to another service's tables.
 
 Activity's migration source is in `myota-activity-service/migrations/`; the
 deployment repository applies its reviewed copy as part of the shared release
-migration job. This keeps ownership and deployment ordering explicit.
+migration job. Geodata follows the same model: the complete ordered source is
+in `myota-geodata-service/migrations/`, with synchronized copies in
+`myota-platform/db/migrations/geo/` for the bootstrap and
+`myota-deploy/db/migrations/geo/` for release execution. The mirrors are
+updated from the service source and must remain byte-for-byte identical. This
+keeps ownership and deployment ordering explicit.
 
 ## Durability and events
 
