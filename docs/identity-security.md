@@ -27,9 +27,19 @@ be retired while primary without an active replacement. Verification requires
 pending evidence and the `callsign.verify` scope.
 
 Roles can be global or scoped to a programme, jurisdiction and entity type.
-The geodata service checks the signed role claims before accepting a review; a
-`GEO_APPROVER` grant for one programme or entity type cannot review another.
-Roles and scope changes produce audit/security events.
+The built-in administration hierarchy includes Global administrator, Identity
+administrator, GIS administrator, Geodata approver, Programme administrator,
+Activity administrator and Auditor. Global administrators can create custom
+roles from the allowlisted administrative permission catalogue; wildcard
+access remains reserved for the global administrator. The geodata service
+checks the signed role claims before accepting a review; a `GEO_APPROVER`
+grant for one programme or entity type cannot review another. Roles and scope
+changes produce audit/security events.
+
+The administration web supports editing account status and credentials and
+replacing a user's active role assignments atomically. The last global
+administrator cannot be stripped of the global role, preventing accidental
+loss of platform administration.
 
 Per-programme OIDC provider mappings store issuer, client ID, requested scopes
 and enabled state. These mappings define the internal-account integration

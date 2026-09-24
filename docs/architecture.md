@@ -86,7 +86,8 @@ Required adapters are represented in the contract and storage model: `PARKSERVE_
 
 - Short-lived access tokens are verified at the gateway; the identity service issues radio-native claims (`account_id`, participation type, verified callsigns, scopes).
 - OAuth/OIDC is optional per programme configuration and is never the identity source of truth. External subject mappings point to an internal account.
-- Approver authorization is scope-based: programme + jurisdiction + entity type. Review mutations require an approver scope and are audit events.
+- Approver authorization is scope-based: programme + jurisdiction + entity type. Review mutations require an approver scope and are audit events. Global and GIS administrators may convert point/polygon geometry with an audit record, and only they may permanently delete rejected entities; deletion removes the entity's audit record as part of the same operation.
+- The admin review queue sends the visible map bounding box to geodata, so list results are spatially limited to the selected viewport rather than loading the entire GIS catalogue.
 - Every mutation accepts `Idempotency-Key`; service outboxes make event publication retry-safe.
 - Rate limits apply at gateway, with stricter limits for import and proposal endpoints.
 - JSON logs carry request, correlation, actor and programme IDs. Health/readiness endpoints are available per service.
