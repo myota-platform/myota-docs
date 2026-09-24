@@ -48,6 +48,12 @@ the operator; hunter progress uses QSO records carrying the participant's
 snapshot for reconciliation and tests. Participant requests use the account's
 `identity.me` scope and cannot request for another account.
 
+QSO ingestion also preserves normalized worked callsign, timestamp, band, mode,
+RST, source, and optional `workedEntityId` fields. These are the activity facts
+available to future programme-specific validation and recalculation workers;
+the current evaluator deliberately does not impose a universal band, mode, or
+minimum-QSO policy.
+
 ## Certificate assets and print readiness
 
 Backgrounds and manager signatures are registered as image metadata pointing to
