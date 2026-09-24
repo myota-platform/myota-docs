@@ -10,8 +10,8 @@ The following split is justified and intentionally small:
 | `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review | `services/geodata.py`, geo migrations |
 | `myota-activity-service` | activations, QSOs, award calculations | `services/activity.py`, core migrations |
 | `myota-web` | universal programme UI and generated API client | `web/` |
+| `myota-admin-web` | authenticated global administration web, programme context, review queues, and operational views | `admin web/` |
 | `myota-deploy` | Helm charts, environments, migrations, observability | `deploy/`, `compose.yaml` |
 | `myota-docs` | architecture, ADRs, operator and migration docs | `docs/` |
 
 The bootstrap repository is a temporary integration workspace; it is not a reason to create many more repositories. Once the MyOTA organization is available, each row can be created from the corresponding paths and wired together by pinned contract versions.
-
