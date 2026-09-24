@@ -116,8 +116,11 @@ The activity service emits `awards.definition.saved.v1`,
 `awards.definition.published.v1`, `awards.request.created.v1`, and
 `awards.issued.v1` through the same durable outbox used for activation and QSO
 events. Geodata review and identity security events are consumed into the
-activity notification table. Consumers should use event IDs for idempotency
-and treat issuance records as append-only history.
+activity notification table. Consumers should use event IDs for idempotency;
+the notification table also uses deduplication keys, including the reached
+award levels, so retries do not duplicate delivery while newly reached levels
+can generate a new qualification notice. Treat issuance records as append-only
+history.
 
 Public execution endpoints expose masked activation history, leaderboards and
 JSON/CSV result downloads. Full callsign display is not the default public
