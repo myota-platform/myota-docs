@@ -26,6 +26,19 @@ flowchart LR
 
 Each service owns its database tables and publishes events. No service reads another service's tables. The gateway/ingress is a routing boundary, not a domain owner.
 
+Activity execution and award management are one bounded service and one API
+deployment. Locally, both route families are exposed on port `8004`; award
+paths remain distinct (`/v1/awards`) but do not create a second service or
+port. The activity service persists award definitions, requests, issuances and
+its outbox in the activity-owned state boundary.
+
+Award background images, manager signatures and generated certificate objects
+are addressed through an S3-compatible object store. Local Compose provides
+MinIO; production Helm values point the activity service at the selected
+managed or self-hosted object store. Metadata and immutable issuance render
+specifications remain in the activity service so object storage can be replaced
+without changing the API.
+
 ## Geodata lifecycle
 
 ```mermaid

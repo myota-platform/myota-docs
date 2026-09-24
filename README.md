@@ -7,7 +7,7 @@ This repository is a runnable vertical-slice bootstrap for the service repositor
 ## What works now
 
 - Amateur-radio-aware identity: operator/SWL participation, multiple callsigns, one primary callsign, lifecycle and verification fields.
-- Programme configuration: programme-owned entity types, rules, minimum QSOs, awards, theme and optional OIDC settings.
+- Programme configuration: programme-owned entity types, rules, minimum QSOs, theme and optional OIDC settings; activity owns award execution linked to those programmes.
 - Geodata lifecycle: imported candidate → community proposal → approver review → approved entity.
 - Provenance-aware imports with adapter metadata for ParkServe, OSM, government GIS and manual proposals.
 - Activation and QSO primitives with idempotency keys and audit events.
@@ -23,7 +23,7 @@ python3 -m unittest discover -s tests -v
 python3 services/dev_server.py
 ```
 
-Open <http://127.0.0.1:8080>. The dev server starts the four services on ports 8001–8004 and proxies the browser API calls. It is intentionally dependency-free.
+Open <http://127.0.0.1:8080>. The dev server starts the four services on ports 8001–8004 and proxies the browser API calls. Activations and awards share the activity service on port 8004. It is intentionally dependency-free.
 
 For a containerized PostGIS environment, use `docker compose up --build` after starting Colima. The image uses the same service code with `SERVICE=identity|programmes|geodata|activity`.
 
