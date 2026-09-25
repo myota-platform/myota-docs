@@ -30,7 +30,7 @@ For a containerized PostGIS environment, use `docker compose up --build` after s
 
 ## Architecture
 
-Read [`docs/architecture.md`](docs/architecture.md), [`docs/entity-categories.md`](docs/entity-categories.md), [`docs/diagrams/geodata-category-assignment.md`](docs/diagrams/geodata-category-assignment.md), [`docs/adr/0001-storage-topology.md`](docs/adr/0001-storage-topology.md), and [`docs/repository-map.md`](docs/repository-map.md). The current bootstrap is kept together to make the vertical slice easy to run; the repository map defines the justified GitHub split once the MyOTA organization is available.
+Read [`docs/architecture.md`](docs/architecture.md), [`docs/entity-categories.md`](docs/entity-categories.md), [`docs/programme-configuration-gap-analysis.md`](docs/programme-configuration-gap-analysis.md), [`docs/diagrams/geodata-category-assignment.md`](docs/diagrams/geodata-category-assignment.md), [`docs/adr/0001-storage-topology.md`](docs/adr/0001-storage-topology.md), and [`docs/repository-map.md`](docs/repository-map.md). The current bootstrap is kept together to make the vertical slice easy to run; the repository map defines the justified GitHub split once the MyOTA organization is available.
 
 ## Source project
 
