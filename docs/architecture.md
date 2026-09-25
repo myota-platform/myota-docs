@@ -34,6 +34,13 @@ import, correction, job, statistic and notification tables. It does not use
 the generic JSONB `service_state` projection in durable mode. Activity and
 award writes use bounded psycopg pools and transaction-local idempotency.
 
+Geodata uses the same compatibility snapshot during the migration period, but
+the authoritative entity catalogue is also upserted into the PostGIS-owned
+`geodata_entity`, `source_reference`, and review tables. Manual candidates and
+their lifecycle changes therefore remain durable independently of the JSON
+snapshot and are visible to QGIS. Hydration merges relational-only entities;
+only an explicit API deletion removes a relational entity.
+
 The service exposes two ingestion paths: ordinary idempotent QSO writes and a
 PostgreSQL `COPY` staging path for batches and ADIF worker output. Distinct
 subject/callsign/entity membership tables support precomputed activator and

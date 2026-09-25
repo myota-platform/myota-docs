@@ -1,9 +1,11 @@
 # Production-grade platform core
 
 The platform uses service-owned PostgreSQL boundaries. The generic
-`service_state` table remains for older identity/programme/geodata bootstrap
-paths, but `myota-activity-service` now uses only its normalized relational
-schema in durable mode. No service talks directly to another service's tables.
+`service_state` table remains for compatibility during the identity/programme/
+geodata transition, but activity uses only its normalized relational schema in
+durable mode. Geodata now writes its entity catalogue to the PostGIS-owned
+relational tables as well as retaining the compatibility snapshot. No service
+talks directly to another service's tables.
 
 Activity's migration source is in `myota-activity-service/migrations/`; the
 deployment repository applies its reviewed copy as part of the shared release
