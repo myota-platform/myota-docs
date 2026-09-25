@@ -14,9 +14,13 @@ administrator, and Auditor. Custom roles may select only allowlisted
 administrative permissions; wildcard access remains reserved for the global
 administrator. The last global administrator cannot be removed.
 
-The geodata review queue sends the current map bounding box to the geodata API,
-which applies the spatial filter before pagination. Global or GIS
-administrators may convert point and polygon entity geometries; the old
+The geodata review queue applies catalogue filters in the geodata API before
+deterministic pagination. It supports programme (including unassigned
+entities), entity type, continent, country, region/subdivision,
+province, city/municipality, and multi-select lifecycle status. The map renders
+the current result page and remains independently pannable/zoomable; selecting
+an item centres the map without changing the queue. Global or GIS
+administrators may convert point, line, and polygon entity geometries; the old
 geometry and reason remain in history. Reviewers may also change shared category
 codes and display names for platform-wide or programme-assigned entities; the
 old value and reason remain in review history. Only rejected entities may be permanently
