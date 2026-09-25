@@ -17,7 +17,7 @@ flowchart LR
 
   Admin -->|GET catalogue| Catalogue
   Catalogue -->|codes + labels + geometry kinds| Admin
-  Admin -->|entityTypes[]| Geo
+  Admin -->|entity types list| Geo
   Geo -->|first code| Primary
   Geo -->|replace assignment set| Assignments
   Geo -->|compatibility projection| Snapshot
