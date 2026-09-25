@@ -120,10 +120,12 @@ The administration web has a dedicated Geodata imports page. It loads every cate
 
 The administration web also provides a read-only **Entity map** page. It loads
 the complete paged entity catalogue, renders all geometries in Leaflet with
-lifecycle-specific colours, and opens a popup containing the entity name,
-location metadata, shared categories, and derived programme memberships. The
-page is intentionally separate from Geodata Review: it never enables geometry
-editing or changes review state. Programme membership is derived from explicit
+lifecycle-specific colours, clusters entity location markers with
+Leaflet.markercluster, and opens a popup containing the entity name, location
+metadata, shared categories, and derived programme memberships. Line and
+polygon geometries remain visible as selectable overlays. The page is
+intentionally separate from Geodata Review: it never enables geometry editing
+or changes review state. Programme membership is derived from explicit
 entity assignment when present and from the shared category assignments held by
 the programme service, so unassigned entities remain visible.
 
