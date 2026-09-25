@@ -28,14 +28,21 @@ review close to the owning service without making every service perform
 cluster migration orchestration.
 
 The geodata import page is owned by `myota-admin-web`, but import semantics
-remain owned by `myota-geodata-service`: text is parsed at the intake boundary,
-uploads are malware-scanned and stored in MinIO/S3-compatible object storage,
-and durable `geodata.import.queued.v1` events are published through the geo
-outbox to NATS. Dataset imports select one or more shared Master data entity categories,
+remain owned by `myota-geodata-service`: text and uploaded files are accepted
+as bounded request envelopes, return `202 QUEUED`, and are parsed,
+normalized, reverse-geocoded, deduplicated, and persisted by a bounded
+background import worker. Uploads are malware-scanned and stored in
+MinIO/S3-compatible object storage, and durable
+`geodata.import.queued.v1` events are published through the geo outbox to
+NATS. Dataset imports select one or more shared Master data entity categories,
 are not tied to a programme, and write `CANDIDATE` entities only. Programme
 assignment remains a separate eligibility concern. Supported intake formats are GeoJSON, KML, GPX,
 WFS/ArcGIS GeoJSON, Shapefile archives, OSM PBF, and ParkServe US payloads;
-PBF/ParkServe binary objects remain queued for the corresponding source worker.
+PBF/ParkServe binary objects remain queued for the corresponding source
+worker. `GET /v1/geodata/imports/{runId}` is the status and summary endpoint;
+the admin web opens it in a modal showing entity counts, provenance, and
+errors. The default geodata request envelope is 32 MiB via
+`MYOTA_MAX_BODY_BYTES`.
 
 Global entity deletion is an explicit cross-service workflow. The activity
 service owns the impact calculation, valid-QSO deletion, aggregate rebuild and
