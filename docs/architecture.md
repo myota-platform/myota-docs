@@ -80,13 +80,15 @@ conflate(feature, existing) -> match candidates + score
 apply(feature, policy) -> candidate/update/retire
 ```
 
-Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual proposals use the same entity/review path and do not bypass approval.
+Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual proposals use the same entity/review path and do not bypass approval. Dataset imports require a programme-assigned category and always create or refresh `CANDIDATE` records; they never promote an existing entity to `APPROVED`.
+
+The administration web has a dedicated Geodata imports page. It supports copy/paste for text documents and file upload for binary or text documents. Uploads pass a size/malware gate, are stored under the geodata-import bucket, and generate an outbox event for NATS processing. The synchronous local decoder covers GeoJSON, KML, GPX and Shapefile archives; OSM PBF and ParkServe binary records are retained as queued source objects for their adapter workers. Compose can use its local object-store fallback when MinIO is unavailable; production Helm deployments use MinIO/S3 credentials.
 
 ## Security and operations
 
 - Short-lived access tokens are verified at the gateway; the identity service issues radio-native claims (`account_id`, participation type, verified callsigns, scopes).
 - OAuth/OIDC is optional per programme configuration and is never the identity source of truth. External subject mappings point to an internal account.
-- Approver authorization is scope-based: programme + jurisdiction + entity type. Review mutations require an approver scope and are audit events. Global and GIS administrators may convert point/way/polygon geometry with an audit record, and only they may permanently delete rejected entities; deletion removes the entity's audit record as part of the same operation.
+- Approver authorization is scope-based: programme + jurisdiction + entity type. Review mutations require an approver scope and are audit events. Global and GIS administrators may convert point/way/polygon geometry with an audit record. GIS administrators may permanently delete rejected entities; a global administrator may delete any status. The global deletion workflow first calculates impact in the activity service, deletes linked valid QSOs, rebuilds aggregates and queues award recalculation, then removes the entity, conflation links and its audit record.
 - The admin review queue sends the visible map bounding box to geodata, so list results are spatially limited to the selected viewport rather than loading the entire GIS catalogue.
 - Every mutation accepts `Idempotency-Key`; service outboxes make event publication retry-safe.
 - Rate limits apply at gateway, with stricter limits for import and proposal endpoints.
