@@ -3,16 +3,18 @@
 The platform uses service-owned PostgreSQL boundaries. The generic
 `service_state` table remains for compatibility during the identity/programme/
 geodata transition, but activity uses only its normalized relational schema in
-durable mode. Geodata now writes its entity catalogue to the PostGIS-owned
-relational tables as well as retaining the compatibility snapshot. No service
-talks directly to another service's tables.
+durable mode. Geodata now writes its entity catalogue and relational category
+assignments to the PostGIS-owned tables as well as retaining the compatibility
+snapshot. No service talks directly to another service's tables.
 
 Activity's migration source is in `myota-activity-service/migrations/`; the
 deployment repository applies its reviewed copy as part of the shared release
 migration job. Geodata follows the same model: the complete ordered source is
 in `myota-geodata-service/migrations/`, with synchronized copies in
 `myota-platform/db/migrations/geo/` for the bootstrap and
-`myota-deploy/db/migrations/geo/` for release execution. The mirrors are
+`myota-deploy/db/migrations/geo/` for release execution. Migration
+`008_entity_category_assignments.sql` creates the many-category assignment
+relation and backfills the legacy primary category. The mirrors are
 updated from the service source and must remain byte-for-byte identical. This
 keeps ownership and deployment ordering explicit.
 

@@ -7,8 +7,9 @@ This repository is a runnable vertical-slice bootstrap for the service repositor
 ## What works now
 
 - Amateur-radio-aware identity: operator/SWL participation, multiple callsigns, one primary callsign, lifecycle and verification fields.
-- Programme configuration: programme-owned entity types, rules, minimum QSOs, theme and optional OIDC settings; activity owns award execution linked to those programmes.
+- Shared entity-category catalogue and programme assignments; programme-owned rules, minimum QSOs, themes and optional OIDC settings; activity owns award execution linked to those programmes.
 - Geodata lifecycle: imported candidate → community proposal → approver review → approved entity.
+- Shared entity categories can be assigned to multiple programmes and multiple categories can be assigned to one entity; the first category remains the primary compatibility value and all assignments are relationally persisted.
 - Provenance-aware imports with adapter metadata for ParkServe, OSM, government GIS and manual proposals.
 - Activation and QSO primitives with idempotency keys and audit events.
 - Universal themed frontend with verified/candidate map distinction.
@@ -29,7 +30,7 @@ For a containerized PostGIS environment, use `docker compose up --build` after s
 
 ## Architecture
 
-Read [`docs/architecture.md`](docs/architecture.md), [`docs/adr/0001-storage-topology.md`](docs/adr/0001-storage-topology.md), and [`docs/repository-map.md`](docs/repository-map.md). The current bootstrap is kept together to make the vertical slice easy to run; the repository map defines the justified GitHub split once the MyOTA organization is available.
+Read [`docs/architecture.md`](docs/architecture.md), [`docs/entity-categories.md`](docs/entity-categories.md), [`docs/diagrams/geodata-category-assignment.md`](docs/diagrams/geodata-category-assignment.md), [`docs/adr/0001-storage-topology.md`](docs/adr/0001-storage-topology.md), and [`docs/repository-map.md`](docs/repository-map.md). The current bootstrap is kept together to make the vertical slice easy to run; the repository map defines the justified GitHub split once the MyOTA organization is available.
 
 ## Source project
 

@@ -36,10 +36,11 @@ award writes use bounded psycopg pools and transaction-local idempotency.
 
 Geodata uses the same compatibility snapshot during the migration period, but
 the authoritative entity catalogue is also upserted into the PostGIS-owned
-`geodata_entity`, `source_reference`, and review tables. Manual candidates and
-their lifecycle changes therefore remain durable independently of the JSON
-snapshot and are visible to QGIS. Hydration merges relational-only entities;
-only an explicit API deletion removes a relational entity.
+`geodata_entity`, `geodata_entity_category`, `source_reference`, and review
+tables. Manual candidates and their lifecycle changes therefore remain durable
+independently of the JSON snapshot and are visible to QGIS. Hydration merges
+relational-only entities and overlays category assignments onto legacy
+snapshot entities; only an explicit API deletion removes a relational entity.
 
 The service exposes two ingestion paths: ordinary idempotent QSO writes and a
 PostgreSQL `COPY` staging path for batches and ADIF worker output. Distinct
@@ -87,7 +88,33 @@ conflate(feature, existing) -> match candidates + score
 apply(feature, policy) -> candidate/update/retire
 ```
 
-Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual proposals use the same entity/review path and do not bypass approval. Dataset imports select a shared Master data category, are programme-independent, and always create or refresh `CANDIDATE` records; programme assignment is handled separately and imports never promote an existing entity to `APPROVED`.
+Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual proposals use the same entity/review path and do not bypass approval. Dataset imports select one or more shared Master data categories, are programme-independent, and always create or refresh `CANDIDATE` records; programme assignment is handled separately and imports never promote an existing entity to `APPROVED`.
+
+### Shared category selection and persistence
+
+```mermaid
+sequenceDiagram
+  participant Admin as Admin web
+  participant Programme as Programme service
+  participant Geo as Geodata service
+  participant Entity as geodata_entity
+  participant Assignment as geodata_entity_category
+
+  Admin->>Programme: GET /v1/entity-types
+  Programme-->>Admin: active shared category catalogue
+  Admin->>Geo: proposal/import with entityTypes[]
+  Geo->>Geo: normalize, deduplicate, choose first as entityType
+  Geo->>Entity: upsert geometry and primary compatibility code
+  Geo->>Assignment: replace all category assignments
+  Assignment-->>Geo: primary + additional categories durable
+  Geo-->>Admin: entityType + entityTypes + entityTypeCodes
+```
+
+The browser never owns the category catalogue. The first category in the
+ordered request is retained as the singular compatibility value, while
+`geodata_entity_category` is authoritative for the complete assignment. The
+same relation supports entities with no programme assignment and categories
+assigned to several programmes.
 
 The administration web has a dedicated Geodata imports page. It loads every category from the database-backed shared `/v1/entity-types` catalogue rather than a programme-scoped or hardcoded list. It supports copy/paste for text documents and file upload for binary or text documents. Uploads pass a size/malware gate, are stored under the geodata-import bucket, and generate an outbox event for NATS processing. The synchronous local decoder covers GeoJSON, KML, GPX and Shapefile archives; OSM PBF and ParkServe binary records are retained as queued source objects for their adapter workers. Compose can use its local object-store fallback when MinIO is unavailable; production Helm deployments use MinIO/S3 credentials.
 

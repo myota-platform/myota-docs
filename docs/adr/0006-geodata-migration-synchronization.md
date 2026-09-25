@@ -8,7 +8,8 @@ Accepted
 
 `myota-geodata-service/migrations/` is the canonical source for the complete
 ordered schema of the isolated `myota_geo` database. It contains the core
-PostGIS schema, QGIS views, and production pipeline additions.
+PostGIS schema, QGIS views, production pipeline additions, and the relational
+entity-category assignment migration `008_entity_category_assignments.sql`.
 
 `myota-platform/db/migrations/geo/` is a synchronized copy for the runnable
 vertical-slice bootstrap. `myota-deploy/db/migrations/geo/` is a synchronized

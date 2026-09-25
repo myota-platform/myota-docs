@@ -11,7 +11,7 @@ Standard GeoJSON is preferred:
   "type": "Feature",
   "properties": {
     "name": "Sendero de ejemplo",
-    "entityType": "TRAIL"
+    "entityTypes": ["TRAIL"]
   },
   "geometry": {
     "type": "LineString",
@@ -29,4 +29,6 @@ For OSM-style adapter records, the service also accepts `type: "way"` with a top
 - GIS or global administrators can change the geometry kind between Point, Way / trail, and Polygon. Point-to-way and polygon-to-way conversions are deterministic convenience conversions and should be reviewed before approval.
 - The map renders ways as linear features and fits the viewport to the full trail extent when selected.
 
-The programme still owns the meaning of the entity type, eligibility rules, and activation policy. MyOTA provides only the reusable geospatial representation and review workflow.
+The category definition is shared Master data. Each programme separately owns
+which categories it accepts, their eligibility rules, and activation policy.
+MyOTA provides the reusable geospatial representation and review workflow.
