@@ -19,7 +19,10 @@ keeps ownership and deployment ordering explicit.
 ## Durability and events
 
 The runtime selects PostgreSQL whenever `CORE_DATABASE_URL` or
-`GEO_DATABASE_URL` is set. Psycopg's bounded connection pools provide one
+`GEO_DATABASE_URL` is set. Local Compose and production-like deployments also
+set `MYOTA_REQUIRE_DURABILITY=1`; a service-owned store or activity repository
+with a missing configured URL then fails during startup instead of silently
+falling back to process memory. Psycopg's bounded connection pools provide one
 transaction boundary per request, startup retries five times with exponential
 backoff, and shutdown closes the pool. State, idempotency responses and events
 are committed together. `outbox_event` is relayed by the core and geodata
