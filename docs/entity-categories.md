@@ -15,6 +15,8 @@ The administration Master data page edits shared category definitions. Programme
 - `POST /v1/programmes/{slug}/entity-types/assign`
 - `POST /v1/programmes/{slug}/entity-types/unassign`
 
-The same category can therefore be assigned to multiple programmes without duplicating or redefining it. The Geodata Review page loads the selected programme’s assigned catalogue and allows an authorized reviewer to change an entity’s category. The geodata service records the previous and new codes, editor, note, and timestamp in the entity audit history.
+The same category can therefore be assigned to multiple programmes without duplicating or redefining it. The Geodata Review page loads the complete shared catalogue, not only the categories assigned to the selected programme. An authorized reviewer can change an entity’s category even when the entity has no programme assignment; programme assignment remains a separate eligibility decision. The geodata service records the previous and new codes, editor, note, and timestamp in the entity audit history.
+
+Geodata Review also allows an authorized reviewer to correct an entity’s display name. Name edits are separate from source provenance and are recorded in the same audit history with the previous name, new name, editor, note, and timestamp.
 
 Changing a category assignment does not change geometry. Changing a shared category definition affects every programme to which it is assigned, so definition changes should be reviewed before publication or use; the category’s geometry types are catalogue hints and import validation contracts. Existing single `geometry` values are read as a one-item `geometryTypes` list for compatibility.

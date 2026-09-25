@@ -17,7 +17,9 @@ administrator. The last global administrator cannot be removed.
 The geodata review queue sends the current map bounding box to the geodata API,
 which applies the spatial filter before pagination. Global or GIS
 administrators may convert point and polygon entity geometries; the old
-geometry and reason remain in history. Only rejected entities may be permanently
+geometry and reason remain in history. Reviewers may also change shared category
+codes and display names for platform-wide or programme-assigned entities; the
+old value and reason remain in review history. Only rejected entities may be permanently
 deleted, and deletion removes the entity, related conflation candidates, and
 its audit record.
 
