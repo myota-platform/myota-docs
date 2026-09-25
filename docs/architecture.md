@@ -66,7 +66,7 @@ flowchart TD
   A --> M[Public map + activation eligibility]
 ```
 
-The UI distinguishes `APPROVED` from `CANDIDATE` and never exposes a candidate as a programme reference until approval. Import refreshes update source provenance and geometry while preserving review state; an explicit policy can retire records that disappear from an authoritative source. Areas use GeoJSON `Polygon`/`MultiPolygon`, locations use `Point`, and trails/routes use GeoJSON `LineString` (called a `way` in the administration UI). The importer also accepts the non-standard `way` geometry alias and normalizes it to `LineString`. Entity categories such as `MUNICIPAL_PARK` and `TRAIL` are shared master-data definitions that can be assigned to multiple programmes; review changes are made through the geodata API and recorded in entity history.
+The UI distinguishes `APPROVED` from `CANDIDATE` and never exposes a candidate as a programme reference until approval. Import refreshes update source provenance and geometry while preserving review state; an explicit policy can retire records that disappear from an authoritative source. Supported GeoJSON geometry types are `Point`, `LineString`, `MultiLineString`, `Polygon`, and `MultiPolygon`; trails/routes commonly use `LineString` (called a `way` in the administration UI). The importer also accepts the non-standard `way` geometry alias and normalizes it to `LineString`. Entity categories such as `MUNICIPAL_PARK` and `TRAIL` are shared master-data definitions that can be assigned to multiple programmes and can allow more than one geometry type; review changes are made through the geodata API and recorded in entity history.
 
 ## Import adapters
 
