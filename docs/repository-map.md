@@ -31,7 +31,7 @@ The geodata import page is owned by `myota-admin-web`, but import semantics
 remain owned by `myota-geodata-service`: text is parsed at the intake boundary,
 uploads are malware-scanned and stored in MinIO/S3-compatible object storage,
 and durable `geodata.import.queued.v1` events are published through the geo
-outbox to NATS. Dataset imports select a shared Master data entity category,
+outbox to NATS. Dataset imports select one or more shared Master data entity categories,
 are not tied to a programme, and write `CANDIDATE` entities only. Programme
 assignment remains a separate eligibility concern. Supported intake formats are GeoJSON, KML, GPX,
 WFS/ArcGIS GeoJSON, Shapefile archives, OSM PBF, and ParkServe US payloads;
