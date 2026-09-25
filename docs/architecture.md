@@ -118,6 +118,15 @@ assigned to several programmes.
 
 The administration web has a dedicated Geodata imports page. It loads every category from the database-backed shared `/v1/entity-types` catalogue rather than a programme-scoped or hardcoded list. It supports copy/paste for text documents and file upload for binary or text documents. Uploads pass a size/malware gate, are stored under the geodata-import bucket, and generate an outbox event for NATS processing. The synchronous local decoder covers GeoJSON, KML, GPX and Shapefile archives; OSM PBF and ParkServe binary records are retained as queued source objects for their adapter workers. Compose can use its local object-store fallback when MinIO is unavailable; production Helm deployments use MinIO/S3 credentials.
 
+The administration web also provides a read-only **Entity map** page. It loads
+the complete paged entity catalogue, renders all geometries in Leaflet with
+lifecycle-specific colours, and opens a popup containing the entity name,
+location metadata, shared categories, and derived programme memberships. The
+page is intentionally separate from Geodata Review: it never enables geometry
+editing or changes review state. Programme membership is derived from explicit
+entity assignment when present and from the shared category assignments held by
+the programme service, so unassigned entities remain visible.
+
 ## Security and operations
 
 - Short-lived access tokens are verified at the gateway; the identity service issues radio-native claims (`account_id`, participation type, verified callsigns, scopes).
