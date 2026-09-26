@@ -14,7 +14,7 @@ flowchart LR
   Core[(Core PostgreSQL schema)]
   GeoDB[(Geodata PostgreSQL + PostGIS)]
   ActivityDB[(Activity PostgreSQL schema)]
-  Objects[(MinIO / S3 object storage)]
+  Objects[(SeaweedFS / S3 object storage)]
 
   Participant --> Gateway
   Admin --> Gateway

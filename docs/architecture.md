@@ -59,7 +59,7 @@ notices. Each workload has its own bounded database pool.
 
 Award background images, manager signatures and generated certificate objects
 are addressed through an S3-compatible object store. Local Compose provides
-MinIO; production Helm values point the activity service at the selected
+SeaweedFS; production Helm values point the activity service at the selected
 managed or self-hosted object store. Metadata and immutable issuance render
 specifications remain in the activity service so object storage can be replaced
 without changing the API.
@@ -118,7 +118,7 @@ ordered request is retained as the singular compatibility value, while
 same relation supports entities with no programme assignment and categories
 assigned to several programmes.
 
-The administration web has a dedicated Geodata imports page. It loads every category from the database-backed shared `/v1/entity-types` catalogue rather than a programme-scoped or hardcoded list. It supports copy/paste for text documents and file upload for binary or text documents. Uploads pass a size/malware gate, are stored under the geodata-import bucket, and generate an outbox event for NATS processing. The synchronous local decoder covers GeoJSON, KML, GPX and Shapefile archives; OSM PBF and ParkServe binary records are retained as queued source objects for their adapter workers. Compose can use its local object-store fallback when MinIO is unavailable; production Helm deployments use MinIO/S3 credentials.
+The administration web has a dedicated Geodata imports page. It loads every category from the database-backed shared `/v1/entity-types` catalogue rather than a programme-scoped or hardcoded list. It supports copy/paste for text documents and file upload for binary or text documents. Uploads pass a size/malware gate, are stored under the geodata-import bucket, and generate an outbox event for NATS processing. The synchronous local decoder covers GeoJSON, KML, GPX and Shapefile archives; OSM PBF and ParkServe binary records are retained as queued source objects for their adapter workers. Compose uses SeaweedFS through its S3-compatible API; production Helm deployments can use the optional single-node SeaweedFS chart or an externally operated SeaweedFS endpoint with S3 credentials.
 
 The administration web also provides a read-only **Entity map** page. It loads
 the complete paged entity catalogue, renders all geometries in Leaflet with

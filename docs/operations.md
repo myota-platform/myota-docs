@@ -18,7 +18,7 @@ dependency-free `make run` process for data you need to keep.
 
 `make test` remains dependency-free by design: unit tests explicitly exercise
 the in-memory adapter and do not represent the production or Compose storage
-path. Binary imports and award assets are stored in the mounted MinIO volume;
+path. Binary imports and award assets are stored in the mounted SeaweedFS volume;
 their metadata, queues, audit events, QSO data and award state are persisted in
 PostgreSQL.
 

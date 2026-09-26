@@ -36,7 +36,7 @@ cluster execution.
 - Historical awards remain reproducible because progress records include the
   award definition version.
 - API pods can be scaled independently from import/render/notification workers.
-- PostgreSQL remains the transactional source of truth; MinIO/S3 stores only
+- PostgreSQL remains the transactional source of truth; SeaweedFS/S3 stores only
   binary uploads and generated documents.
 - The old JSONB state projection is not a migration target for activity data;
   existing prototype data must be imported through an explicit reconciliation

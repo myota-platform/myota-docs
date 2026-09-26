@@ -32,7 +32,7 @@ remain owned by `myota-geodata-service`: text and uploaded files are accepted
 as bounded request envelopes, return `202 QUEUED`, and are parsed,
 normalized, reverse-geocoded, deduplicated, and persisted by a bounded
 background import worker. Uploads are malware-scanned and stored in
-MinIO/S3-compatible object storage, and durable
+SeaweedFS/S3-compatible object storage, and durable
 `geodata.import.queued.v1` events are published through the geo outbox to
 NATS. Dataset imports select one or more shared Master data entity categories,
 are not tied to a programme, and write `CANDIDATE` entities only. Programme
