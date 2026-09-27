@@ -1,4 +1,4 @@
-# Proposed MyOTA repositories
+# Current MyOTA repository map
 
 The following split is justified and intentionally small:
 
@@ -51,4 +51,32 @@ service remove the entity, conflation links and entity audit history. The UI
 must show the QSO/activation impact and require confirmation before invoking
 the irreversible operation.
 
-The bootstrap repository is a temporary integration workspace; it is not a reason to create many more repositories. Each row is wired together by pinned contract versions.
+The bootstrap repository is a temporary integration workspace; it is not a
+reason to create many more repositories. Each row is wired together by pinned
+contract versions. The public participant experience belongs in `myota-web`;
+administrator-only workflows belong in `myota-admin-web`. Android and iOS,
+when implemented, are participant applications only and must not become an
+alternate administration surface.
+
+## Documentation synchronization rule
+
+`myota-docs` is the authoritative home for cross-repository architecture,
+ADRs, ownership boundaries, operational guidance, and gap analysis. The
+organization `.github` profile is the concise public summary and checkbox
+roadmap. Service repositories keep implementation-specific README and API
+notes, but must link back here for cross-service claims.
+
+When a service boundary, API, migration owner, deployment topology, storage
+provider, or user-facing capability changes:
+
+1. update the owning service README/API notes;
+2. update this repository map and the relevant central architecture/ADR;
+3. update `.github/profile/README.md` if the public summary or roadmap status
+   changed; and
+4. update diagrams and deployment/operator docs when topology or lifecycle
+   changed.
+
+Documentation changes should be committed with the implementation change or
+as an immediately following documentation commit. A repository README must
+not claim a capability is production-ready merely because a dependency-free
+test adapter or local vertical slice exists.

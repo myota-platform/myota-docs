@@ -1,37 +1,46 @@
-# MyOTA Outdoor Activation Platform
+# MyOTA documentation
 
-MyOTA is a programme-agnostic platform for outdoor activation programmes. MPOTA is represented as a configured programme, not as the platform itself. No rules or charter text are copied from POTA or any other programme: every programme supplies its own configuration, policy, eligibility, awards and public charter.
+MyOTA is open infrastructure for geographic amateur-radio activation
+programmes. MPOTA is retained as synthetic sample data, not as the platform
+definition. Every programme supplies its own charter, eligibility, rules,
+awards, content, and governance policy; MyOTA does not copy rules from POTA,
+MPOTA, or another initiative.
 
-This repository is a runnable vertical-slice bootstrap for the service repositories described in [`docs/repository-map.md`](docs/repository-map.md). It contains four independently runnable Python services, an API-first contract, a universal browser UI, PostGIS migrations, and Kubernetes/Helm deployment assets.
+This repository is the documentation hub for the organization. It does not
+own service runtime code. The current repository ownership, migration
+synchronization rule, and deployment boundaries are defined in
+[`docs/repository-map.md`](docs/repository-map.md).
 
-## What works now
+## Start here
 
-- Amateur-radio-aware identity: operator/SWL participation, multiple callsigns, one primary callsign, lifecycle and verification fields.
-- Shared entity-category catalogue and programme assignments; programme-owned rules, minimum QSOs, themes and optional OIDC settings; activity owns award execution linked to those programmes.
-- Geodata lifecycle: imported candidate → community proposal → approver review → approved entity.
-- Shared entity categories can be assigned to multiple programmes and multiple categories can be assigned to one entity; the first category remains the primary compatibility value and all assignments are relationally persisted.
-- Provenance-aware imports with adapter metadata for ParkServe, OSM, government GIS and manual proposals.
-- Activation and QSO primitives with idempotency keys and audit events.
-- Universal themed frontend with verified/candidate map distinction.
-- OpenAPI and event contracts, ADRs, migration notes, health endpoints and local deployment manifests.
+- [Project purpose, motivation, and charter](docs/project-charter.md)
+- [Charter-derived gap analysis and delivery sequence](docs/charter-gap-analysis.md)
+- [Architecture](docs/architecture.md)
+- [Repository map and ownership boundaries](docs/repository-map.md)
+- [Programme configuration gap analysis](docs/programme-configuration-gap-analysis.md)
+- [Operations and production-readiness notes](docs/operations.md)
+- [Security/threat model](docs/security/threat-model.md)
+- [Diagrams](docs/diagrams/)
 
-The default test/runtime adapter is in-memory so the slice can be exercised without third-party Python packages. PostgreSQL/PostGIS is the production storage target and is defined in `db/migrations/`.
+## Current implementation baseline
 
-## Run the vertical slice
+The repositories contain a meaningful local vertical slice: amateur-radio
+identity with callsigns and SWL participation; programme-owned configuration;
+PostgreSQL/PostGIS geodata with candidate/proposed/approved lifecycle;
+provenance-aware imports; a relational activity/QSO schema; programme-linked
+award execution; a universal public web slice; a separate admin web; and a
+durable Colima/Compose deployment using SeaweedFS as the S3-compatible object
+store. Activities and awards share the activity API on port 8004.
 
-```bash
-python3 -m unittest discover -s tests -v
-python3 services/dev_server.py
-```
-
-Open <http://127.0.0.1:8080>. The dev server starts the four services on ports 8001–8004 and proxies the browser API calls. Activations and awards share the activity service on port 8004. It is intentionally dependency-free.
-
-For a containerized PostGIS environment, use `docker compose up --build` after starting Colima. The image uses the same service code with `SERVICE=identity|programmes|geodata|activity`.
-
-## Architecture
-
-Read [`docs/architecture.md`](docs/architecture.md), [`docs/entity-categories.md`](docs/entity-categories.md), [`docs/programme-configuration-gap-analysis.md`](docs/programme-configuration-gap-analysis.md), [`docs/diagrams/data-model.md`](docs/diagrams/data-model.md), [`docs/diagrams/programme-configuration-lifecycle.md`](docs/diagrams/programme-configuration-lifecycle.md), [`docs/diagrams/service-boundaries.md`](docs/diagrams/service-boundaries.md), [`docs/diagrams/geodata-category-assignment.md`](docs/diagrams/geodata-category-assignment.md), [`docs/adr/0001-storage-topology.md`](docs/adr/0001-storage-topology.md), and [`docs/repository-map.md`](docs/repository-map.md). The current bootstrap is kept together to make the vertical slice easy to run; the repository map defines the justified GitHub split once the MyOTA organization is available.
+That baseline is not a claim that the platform is ready for an unrestricted
+public launch. The remaining Explorer, participant, governance, integration,
+observability, scale, security, and beta-community work is tracked in the
+[charter gap analysis](docs/charter-gap-analysis.md) and the organization
+[profile roadmap](https://github.com/myota-platform/.github/tree/main/profile).
 
 ## Source project
 
-The original `ea7klk/mpota` repository remains untouched. Its charter and planned flows are treated as the migration source; see [`docs/migration-from-mpota.md`](docs/migration-from-mpota.md).
+The original `ea7klk/mpota` repository remains untouched. Its source and
+charter are migration input only; see
+[`docs/migration-from-mpota.md`](docs/migration-from-mpota.md) and
+[`docs/source-inspection.md`](docs/source-inspection.md).

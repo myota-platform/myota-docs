@@ -6,6 +6,12 @@ Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diag
 
 MyOTA is an Outdoor Activation Platform. A programme is configuration and policy data consumed by platform capabilities. MPOTA is only sample seed data; future programmes use the same APIs without cloning a codebase. The platform does not copy, inherit or silently normalize another programme's charter, rules, minimum QSOs, award logic or eligibility policy. Those are programme-owned inputs, versioned and auditable as configuration or programme code.
 
+The product motivation and working charter are documented in
+[`project-charter.md`](project-charter.md). The current architecture is a
+meaningful local vertical slice, not a claim that the participant experience,
+community governance, public Explorer, or Internet-facing operational gates
+are complete; see [`charter-gap-analysis.md`](charter-gap-analysis.md).
+
 ## Service boundaries
 
 ```mermaid
