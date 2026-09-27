@@ -22,13 +22,15 @@ synchronization rule, and deployment boundaries are defined in
 - [Operations and production-readiness notes](docs/operations.md)
 - [Security/threat model](docs/security/threat-model.md)
 - [Diagrams](docs/diagrams/)
+  - [Geodata import validation and promotion](docs/diagrams/geodata-import-validation.md)
 
 ## Current implementation baseline
 
 The repositories contain a meaningful local vertical slice: amateur-radio
 identity with callsigns and SWL participation; programme-owned configuration;
 PostgreSQL/PostGIS geodata with candidate/approved/rejected lifecycle;
-provenance-aware imports; a relational activity/QSO schema; programme-linked
+provenance-aware, two-stage imports with administrator validation and queued
+promotion; a relational activity/QSO schema; programme-linked
 award execution; a universal public web slice; a separate admin web; and a
 durable Colima/Compose deployment using SeaweedFS as the S3-compatible object
 store. Activities and awards share the activity API on port 8004.

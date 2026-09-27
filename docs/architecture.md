@@ -75,9 +75,12 @@ without changing the API.
 ```mermaid
 flowchart TD
   S[Authoritative/imported source] --> R[Adapter + import run]
-  R --> C[CANDIDATE]
+  R --> P[Pre-process and normalize]
+  P --> V[Admin validation queue]
+  V -->|NATS promotion queue| C[CANDIDATE]
+  V -->|NATS promotion queue| A[APPROVED]
   Q[Community proposal] --> C
-  C -->|approver scope + review| A[APPROVED]
+  C -->|approver scope + review| A
   C -->|approver decision| X[REJECTED]
   A --> M[Public map + activation eligibility]
 ```
@@ -96,7 +99,18 @@ conflate(feature, existing) -> match candidates + score
 apply(feature, policy) -> candidate/update/retire
 ```
 
-Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual community proposals use the same entity/review path and do not bypass approval. They are a candidate source alongside adapter/import runs, not a separate lifecycle state. Dataset imports select one or more shared Master data categories, are programme-independent, and always create or refresh `CANDIDATE` records; programme assignment is handled separately and imports never promote an existing entity to `APPROVED`.
+Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual community proposals use the same entity/review path and do not bypass approval. They are a candidate source alongside adapter/import runs, not a separate lifecycle state. Dataset imports select one or more shared Master data categories and are programme-independent. File and pasted imports first create durable `geodata_import_candidate` records and stop at `PREPROCESSED`; they do not enter the entity catalogue yet. An administrator validates a paged selection, then publishes a separate processing request to the `myota.geodata.import.process.v1` NATS subject with target `CANDIDATE` or `APPROVED`. Only that worker creates or updates `geodata_entity`; programme assignment is handled separately.
+
+The import safety boundary is explicit in both the API and schema. `GET
+/v1/geodata/imports/{runId}/candidates` returns compact pages, while
+`POST .../candidates/validate` records the administrator confirmation. `POST
+/v1/geodata/imports/{runId}/process` creates a durable processing-queue record
+and an outbox event. Local development uses the same bounded worker as a
+fallback; production NATS consumers use the event payload and are idempotent.
+Records must be `CONFIRMED` before promotion, and the selected target is
+restricted to `CANDIDATE` or `APPROVED`. The PostGIS geometry and full normalized
+payload remain available for validation without exposing an unconfirmed record
+as a live entity.
 
 ### Shared category selection and persistence
 
