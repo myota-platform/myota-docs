@@ -27,7 +27,7 @@ synchronization rule, and deployment boundaries are defined in
 
 The repositories contain a meaningful local vertical slice: amateur-radio
 identity with callsigns and SWL participation; programme-owned configuration;
-PostgreSQL/PostGIS geodata with candidate/proposed/approved lifecycle;
+PostgreSQL/PostGIS geodata with candidate/approved/rejected lifecycle;
 provenance-aware imports; a relational activity/QSO schema; programme-linked
 award execution; a universal public web slice; a separate admin web; and a
 durable Colima/Compose deployment using SeaweedFS as the S3-compatible object

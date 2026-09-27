@@ -25,7 +25,7 @@ The current vertical slice already provides these foundations:
 | Content workflow | Localized content drafts, review/publish states, fallback locale field, and coverage reporting | Programme service and admin web |
 | Award execution | Programme-linked hunter/activator awards, conditions, levels, assets, signatures, requests, and issuances | `myota-activity-service` |
 | Identity primitives | Accounts, callsigns, roles, scoped role assignments, and stored per-programme OIDC provider mappings | `myota-identity-service` |
-| Geodata lifecycle | Programme-independent imports and provenance; candidate, proposed, approved, retired, and rejected review states | `myota-geodata-service` |
+| Geodata lifecycle | Programme-independent imports and provenance; candidate, approved, retired, and rejected review states | `myota-geodata-service` |
 | Activity execution | Activation/QSO primitives, idempotency, callsign checks, time/band/mode inputs, and rule-evaluation hooks | `myota-activity-service` |
 
 These capabilities are useful primitives, but several are still exposed as
@@ -133,7 +133,7 @@ configuration is the policy that determines how shared geodata may be used:
   source/provenance/licence requirements.
 - [ ] Jurisdiction acceptance, source freshness, duplicate/conflation
   thresholds, and disappearance/retirement semantics.
-- [ ] Candidate/proposed/approved transition requirements, approver scope,
+- [ ] Candidate/approved/rejected transition requirements, approver scope,
   review SLA, evidence requirements, and rejection/reconsideration policy.
 - [ ] Multiple-category semantics, including whether a primary category is
   required for a legacy integration and how category changes affect rules.

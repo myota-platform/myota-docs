@@ -76,13 +76,13 @@ without changing the API.
 flowchart TD
   S[Authoritative/imported source] --> R[Adapter + import run]
   R --> C[CANDIDATE]
-  C -->|community proposal| P[PROPOSED]
-  P -->|approver scope + review| A[APPROVED]
-  P -->|reject / changes| X[REJECTED]
+  Q[Community proposal] --> C
+  C -->|approver scope + review| A[APPROVED]
+  C -->|approver decision| X[REJECTED]
   A --> M[Public map + activation eligibility]
 ```
 
-The UI distinguishes `APPROVED` from `CANDIDATE` and never exposes a candidate as a programme reference until approval. Import refreshes update source provenance and geometry while preserving review state; an explicit policy can retire records that disappear from an authoritative source. Supported GeoJSON geometry types are `Point`, `LineString`, `MultiLineString`, `Polygon`, and `MultiPolygon`; trails/routes commonly use `LineString` (called a `way` in the administration UI). The importer also accepts the non-standard `way` geometry alias and normalizes it to `LineString`. Entity categories such as `MUNICIPAL_PARK` and `TRAIL` are shared master-data definitions that can be assigned to multiple programmes and can allow more than one geometry type; review changes are made through the geodata API and recorded in entity history.
+The UI distinguishes `APPROVED` from `CANDIDATE` and never exposes a candidate as a programme reference until approval. Candidate provenance records whether the record came from an `ADAPTER_IMPORT` (with adapter/import-run identifiers) or a `COMMUNITY_PROPOSAL` (with proposal/proposer identifiers). Import refreshes update source provenance and geometry while preserving review state; an explicit policy can retire records that disappear from an authoritative source. Supported GeoJSON geometry types are `Point`, `LineString`, `MultiLineString`, `Polygon`, and `MultiPolygon`; trails/routes commonly use `LineString` (called a `way` in the administration UI). The importer also accepts the non-standard `way` geometry alias and normalizes it to `LineString`. Entity categories such as `MUNICIPAL_PARK` and `TRAIL` are shared master-data definitions that can be assigned to multiple programmes and can allow more than one geometry type; review changes are made through the geodata API and recorded in entity history.
 
 ## Import adapters
 
@@ -96,7 +96,7 @@ conflate(feature, existing) -> match candidates + score
 apply(feature, policy) -> candidate/update/retire
 ```
 
-Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual proposals use the same entity/review path and do not bypass approval. Dataset imports select one or more shared Master data categories, are programme-independent, and always create or refresh `CANDIDATE` records; programme assignment is handled separately and imports never promote an existing entity to `APPROVED`.
+Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual community proposals use the same entity/review path and do not bypass approval. They are a candidate source alongside adapter/import runs, not a separate lifecycle state. Dataset imports select one or more shared Master data categories, are programme-independent, and always create or refresh `CANDIDATE` records; programme assignment is handled separately and imports never promote an existing entity to `APPROVED`.
 
 ### Shared category selection and persistence
 

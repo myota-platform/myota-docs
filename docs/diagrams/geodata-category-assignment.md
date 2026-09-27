@@ -1,12 +1,13 @@
 # Geodata category assignment
 
-This diagram shows the ownership and persistence path for a candidate or
-imported entity. Categories are shared Master data; programme assignment is a
-separate eligibility relationship.
+This diagram shows the ownership and persistence path for a candidate from
+either an adapter/import run or a community proposal. Categories are shared
+Master data; programme assignment is a separate eligibility relationship.
 
 ```mermaid
 flowchart LR
   Admin[Admin web\nNew candidate / import / review]
+  Community[Community proposal\nuser-submitted feature]
   Catalogue[Programme service\nshared entity category catalogue]
   Geo[Geodata API\nnormalize and authorize]
   Primary[geodata_entity\nentity_type_code = primary]
@@ -18,6 +19,7 @@ flowchart LR
   Admin -->|GET catalogue| Catalogue
   Catalogue -->|codes + labels + geometry kinds| Admin
   Admin -->|entity types list| Geo
+  Community -->|candidate source| Geo
   Geo -->|first code| Primary
   Geo -->|replace assignment set| Assignments
   Geo -->|compatibility projection| Snapshot
@@ -32,8 +34,9 @@ Rules:
   `is_primary` assignment.
 - The relational assignment table is authoritative for multi-category reads;
   the JSON snapshot is retained for compatibility and export.
-- Imports and manual proposals are programme-independent and always create
-  `CANDIDATE` entities.
+- Imports and community proposals are programme-independent and always create
+  `CANDIDATE` entities. The candidate source distinguishes `ADAPTER_IMPORT`
+  from `COMMUNITY_PROPOSAL`.
 - A category can be assigned to multiple programmes, and an entity may have
   multiple categories.
 

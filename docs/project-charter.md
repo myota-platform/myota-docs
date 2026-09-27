@@ -58,7 +58,8 @@ and integrations.
 
 The initial regional laboratory is Sevilla/Andalucía. The local dataset is a
 development and beta asset, not a worldwide completeness claim. Candidate,
-community-proposed, and approved entities must remain visibly distinct.
+approved, and rejected entities must remain visibly distinct; community
+proposals are represented as a candidate source, not a separate status.
 
 ## Charter principles
 
