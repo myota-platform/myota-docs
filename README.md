@@ -16,6 +16,7 @@ synchronization rule, and deployment boundaries are defined in
 - [Project purpose, motivation, and charter](docs/project-charter.md)
 - [Charter-derived gap analysis and delivery sequence](docs/charter-gap-analysis.md)
 - [Architecture](docs/architecture.md)
+- [REST API consolidation plan](docs/api-rest-consolidation-plan.md)
 - [Repository map and ownership boundaries](docs/repository-map.md)
 - [Programme configuration gap analysis](docs/programme-configuration-gap-analysis.md)
 - [Operations and production-readiness notes](docs/operations.md)
