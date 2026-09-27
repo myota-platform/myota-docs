@@ -34,8 +34,10 @@ Rules:
   `is_primary` assignment.
 - The relational assignment table is authoritative for multi-category reads;
   the JSON snapshot is retained for compatibility and export.
-- Imports and community proposals are programme-independent and always create
-  `CANDIDATE` entities. The candidate source distinguishes `ADAPTER_IMPORT`
+- Imports and community proposals are programme-independent. File and pasted
+  imports first become pre-processed records; confirmed processing creates an
+  explicit `CANDIDATE` or authorized `APPROVED` entity. Community proposals
+  enter the normal `CANDIDATE` path. The candidate source distinguishes `ADAPTER_IMPORT`
   from `COMMUNITY_PROPOSAL`.
 - A category can be assigned to multiple programmes, and an entity may have
   multiple categories.
