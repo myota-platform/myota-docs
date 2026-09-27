@@ -7,7 +7,7 @@ The following split is justified and intentionally small:
 | `myota-contracts` | OpenAPI, event schemas, compatibility rules, generated client release | `contracts/` |
 | `myota-identity-service` | accounts, callsigns, auth claims, OIDC mappings | `services/identity.py`, core migrations |
 | `myota-programme-service` | programmes, shared entity category master data and programme assignments, programme-owned rules and themes | `services/programmes.py`, core migrations |
-| `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, candidate-only dataset intake and source decoding | `services/geodata.py`, `import_formats.py`, geo migrations |
+| `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, staged dataset intake and source decoding | `services/geodata.py`, `import_formats.py`, geo migrations |
 | `myota-activity-service` | activations, normalized/indexed QSOs, COPY/ADIF ingestion, activity aggregates, corrections, programme-owned award definitions and versioned progress, object-storage assets, requests, rendering, notifications, statistics and issuance records | `activity.py`, `awards.py`, `activity_repository.py`, `activity_worker.py`, `migrations/` |
 | `myota-web` | universal programme UI, published award progress and participant requests | `web/` |
 | `myota-admin-web` | authenticated global administration web, programme context, review queues, award designer, asset management and operational views | `myota-admin-web/web/` |
