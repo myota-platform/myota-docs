@@ -76,16 +76,47 @@ without changing the API.
 flowchart TD
   S[Authoritative/imported source] --> R[Adapter + import run]
   R --> P[Pre-process and normalize]
-  P --> V[Admin validation queue]
-  V -->|NATS promotion queue| C[CANDIDATE]
-  V -->|NATS promotion queue| A[APPROVED]
-  Q[Community proposal] --> C
+  P --> D[Duplicate verification]
+  D --> Store[Pre-processed candidate store]
+  D -.-> W[Possible duplicate warning]
+  Store --> V[Admin validation queue]
+  W -. review in queue .-> V
+  V --> Q[NATS promotion queue]
+  Q --> C[CANDIDATE]
+  Q --> A[APPROVED]
+  Community[Community proposal] --> C
   C -->|approver scope + review| A
   C -->|approver decision| X[REJECTED]
   A --> M[Public map + activation eligibility]
 ```
 
-The UI distinguishes `APPROVED` from `CANDIDATE` and never exposes a candidate as a programme reference until approval. Candidate provenance records whether the record came from an `ADAPTER_IMPORT` (with adapter/import-run identifiers) or a `COMMUNITY_PROPOSAL` (with proposal/proposer identifiers). Import refreshes update source provenance and geometry while preserving review state; an explicit policy can retire records that disappear from an authoritative source. Supported GeoJSON geometry types are `Point`, `LineString`, `MultiLineString`, `Polygon`, and `MultiPolygon`; trails/routes commonly use `LineString` (called a `way` in the administration UI). The importer also accepts the non-standard `way` geometry alias and normalizes it to `LineString`. Entity categories such as `MUNICIPAL_PARK` and `TRAIL` are shared master-data definitions that can be assigned to multiple programmes and can allow more than one geometry type; review changes are made through the geodata API and recorded in entity history.
+The UI distinguishes the **pre-processing queue** from **Geodata Review**. An
+import run first reaches `QUEUED`, `PROCESSING`, and then `PREPROCESSED`; its
+normalized records are stored as `geodata_import_candidate` rows and are not
+entities or programme references yet. During pre-processing each record is
+checked against existing entity geometry. Identical geometry or a centroid
+distance below 50 metres produces `dedupeWarning=POSSIBLE_DUPLICATE` and
+comparison geometry/details. This warning is deliberately non-blocking: an
+administrator reviews it in the import queue's map modal and decides whether
+to confirm, reject, or leave the record pending. The admin imports page keeps
+these runs in a visible pre-processing queue, separate from completed import
+history and Geodata Review.
+
+Candidate provenance records whether the record came from an `ADAPTER_IMPORT`
+(with adapter/import-run identifiers) or a `COMMUNITY_PROPOSAL` (with
+proposal/proposer identifiers). After selection and confirmation, the admin
+publishes a durable NATS processing request. Only that queue worker materializes
+the selected record as `CANDIDATE` or authorized `APPROVED`; a resulting
+`CANDIDATE` then enters normal Geodata Review. Import refreshes update source
+provenance and geometry while preserving review state; an explicit policy can
+retire records that disappear from an authoritative source. Supported GeoJSON
+geometry types are `Point`, `LineString`, `MultiLineString`, `Polygon`, and
+`MultiPolygon`; trails/routes commonly use `LineString` (called a `way` in the
+administration UI). The importer also accepts the non-standard `way` geometry
+alias and normalizes it to `LineString`. Entity categories such as
+`MUNICIPAL_PARK` and `TRAIL` are shared master-data definitions that can be
+assigned to multiple programmes and can allow more than one geometry type;
+review changes are made through the geodata API and recorded in entity history.
 
 ## Import adapters
 
@@ -99,10 +130,12 @@ conflate(feature, existing) -> match candidates + score
 apply(feature, policy) -> candidate/update/retire
 ```
 
-Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual community proposals use the same entity/review path and do not bypass approval. They are a candidate source alongside adapter/import runs, not a separate lifecycle state. Dataset imports select one or more shared Master data categories and are programme-independent. File and pasted imports first create durable `geodata_import_candidate` records and stop at `PREPROCESSED`; they do not enter the entity catalogue yet. An administrator validates a paged selection, then publishes a separate processing request to the `myota.geodata.import.process.v1` NATS subject with target `CANDIDATE` or `APPROVED`. Only that worker creates or updates `geodata_entity`; programme assignment is handled separately.
+Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual community proposals use the same entity/review path and do not bypass approval. They are a candidate source alongside adapter/import runs, not a separate lifecycle state. Dataset imports select one or more shared Master data categories and are programme-independent. File and pasted imports first create durable `geodata_import_candidate` records and stop at `PREPROCESSED`; duplicate verification is part of this step, not a silent merge. An administrator validates a paged selection in the separate pre-processing queue, then publishes a processing request to the `myota.geodata.import.process.v1` NATS subject with target `CANDIDATE` or `APPROVED`. Only that worker creates or updates `geodata_entity`; programme assignment is handled separately.
 
 The import safety boundary is explicit in both the API and schema. `GET
-/v1/geodata/imports/{runId}/candidates` returns compact pages, while
+/v1/geodata/imports` returns import-run status plus pending, confirmed,
+processed, and rejected candidate counts for the visible pre-processing queue.
+`GET /v1/geodata/imports/{runId}/candidates` returns compact pages, while
 `POST .../candidates/validate` records the administrator confirmation. `POST
 /v1/geodata/imports/{runId}/process` creates a durable processing-queue record
 and an outbox event. Local development uses the same bounded worker as a

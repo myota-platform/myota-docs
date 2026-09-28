@@ -29,8 +29,9 @@ synchronization rule, and deployment boundaries are defined in
 The repositories contain a meaningful local vertical slice: amateur-radio
 identity with callsigns and SWL participation; programme-owned configuration;
 PostgreSQL/PostGIS geodata with candidate/approved/rejected lifecycle;
-provenance-aware, two-stage imports with administrator validation and queued
-promotion; a relational activity/QSO schema; programme-linked
+provenance-aware, two-stage imports with pre-processing, duplicate verification,
+administrator validation, a visible pre-processing queue, and queued promotion;
+a relational activity/QSO schema; programme-linked
 award execution; a universal public web slice; a separate admin web; and a
 durable Colima/Compose deployment using SeaweedFS as the S3-compatible object
 store. Activities and awards share the activity API on port 8004.

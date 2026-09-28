@@ -28,6 +28,8 @@ erDiagram
   GEODATA_ENTITY ||--o{ ENTITY_REVIEW : receives
   GEODATA_ENTITY ||--o{ CONFLATION_CANDIDATE : participates
   IMPORT_RUN ||--o{ SOURCE_REFERENCE : produces
+  IMPORT_RUN ||--o{ IMPORT_CANDIDATE : stages
+  IMPORT_PROCESSING_QUEUE }o--o{ IMPORT_CANDIDATE : promotes
 
   PROGRAMME ||--o{ ACTIVITY_ACTIVATION : governs
   GEODATA_ENTITY ||--o{ ACTIVITY_ACTIVATION : is_activated
@@ -115,6 +117,22 @@ erDiagram
     uuid id PK
     text adapter_code
     text source_key
+    text status
+  }
+  IMPORT_CANDIDATE {
+    uuid id PK
+    uuid import_run_id FK
+    geometry normalized_geom
+    text validation_status
+    text dedupe_warning
+    jsonb possible_duplicates
+    text target_status
+  }
+  IMPORT_PROCESSING_QUEUE {
+    uuid id PK
+    uuid import_run_id FK
+    text candidate_ids
+    text target_status
     text status
   }
   ACTIVITY_ACTIVATION {
