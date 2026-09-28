@@ -22,6 +22,22 @@ path. Binary imports and award assets are stored in the mounted SeaweedFS volume
 their metadata, queues, audit events, QSO data and award state are persisted in
 PostgreSQL.
 
+### Import recovery
+
+Import history is durable and should be used as the operational source for
+file visibility and processing status. A queued or processing import has its
+source document in SeaweedFS and an execution lease in the geodata
+`import_run` table. Heartbeats keep active work leased; a restart or worker
+failure leaves an expired lease that the next geodata instance requeues
+automatically. A recovered run increments `attempt_count` and continues from
+the original source. Runs with no recoverable source are changed to `FAILED`
+with `last_error`, so they do not appear indefinitely as active work.
+
+For diagnosis, inspect `status`, `attempt_count`, `heartbeat_at`,
+`lease_until`, `last_error`, `filename` and `stats` in `import_run`, then check
+the corresponding SeaweedFS object under the recorded bucket and object key.
+Do not delete the PostGIS or SeaweedFS volumes while investigating an import.
+
 ## Production notes
 
 Use managed PostgreSQL where possible, enable PostGIS, store credentials in Kubernetes Secrets or an external secret manager, and back up core and geodata databases independently. Pin image digests, enforce network policies so services reach only their own database, and expose QGIS access only through a private network or bastion.

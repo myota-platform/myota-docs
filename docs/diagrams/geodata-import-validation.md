@@ -8,6 +8,9 @@ the public entity catalogue.
 flowchart LR
   Source[File or pasted source] --> Intake[Import API]
   Intake --> Pre[Pre-processing worker]
+  Pre --> Lease[(PostgreSQL import_run lease + heartbeat)]
+  Lease --> Recover[Restart recovery]
+  Recover --> Pre
   Pre --> Dedup[Duplicate verification]
   Dedup --> Store[(Pre-processed candidate store)]
   Dedup -.-> Warning[Possible duplicate warning]

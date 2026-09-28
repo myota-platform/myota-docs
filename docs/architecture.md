@@ -145,6 +145,18 @@ restricted to `CANDIDATE` or `APPROVED`. The PostGIS geometry and full normalize
 payload remain available for validation without exposing an unconfirmed record
 as a live entity.
 
+Import execution is restart-safe. Before a queued background run starts, its
+uploaded or pasted source is stored in SeaweedFS and the `import_run` row is
+claimed with a PostgreSQL lease. The worker refreshes `heartbeat_at` and
+`lease_until` while it parses, normalizes, reverse-geocodes and persists
+candidates. On service startup, queued runs and processing runs with an
+expired lease are requeued from their immutable object-storage source. If the
+source is missing or was never durably recorded, the run is marked `FAILED`
+with a visible recovery error rather than remaining indefinitely in
+`PROCESSING`. The default lease is 15 minutes; operators can tune it with
+`MYOTA_IMPORT_LEASE_SECONDS` and the heartbeat interval with
+`MYOTA_IMPORT_HEARTBEAT_SECONDS`.
+
 ### Shared category selection and persistence
 
 ```mermaid
