@@ -21,6 +21,10 @@ flowchart LR
   NATS --> Candidate[CANDIDATE entity]
   NATS --> Approved[APPROVED entity]
   Candidate --> Review[Geodata Review]
+  Admin --> Preview[Candidate name map preview]
+  Admin --> Finalize[Mark import as PROCESSED]
+  Finalize --> Cleanup[Delete staged candidate and queue rows]
+  Cleanup --> Summary[Keep import summary and audit metadata]
 ```
 
 The candidate store is represented by `geodata_import_candidate` in the

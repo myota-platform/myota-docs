@@ -145,6 +145,15 @@ restricted to `CANDIDATE` or `APPROVED`. The PostGIS geometry and full normalize
 payload remain available for validation without exposing an unconfirmed record
 as a live entity.
 
+After validation and any desired promotion, an administrator can finalize the
+run with `POST /v1/geodata/imports/{runId}/processed`. This is an explicit,
+idempotent cleanup action: it deletes that run's staged candidate rows and
+promotion-queue rows, records the actor and timestamp, changes the run to
+`PROCESSED`, and preserves the top-level import summary for audit and history.
+It does not delete entities that were already materialized by the promotion
+worker. The import UI hides the validation queue after finalization and keeps
+only that summary.
+
 Import execution is restart-safe. Before a queued background run starts, its
 uploaded or pasted source is stored in SeaweedFS and the `import_run` row is
 claimed with a PostgreSQL lease. The worker refreshes `heartbeat_at` and
