@@ -23,6 +23,7 @@ synchronization rule, and deployment boundaries are defined in
 - [Security/threat model](docs/security/threat-model.md)
 - [Diagrams](docs/diagrams/)
   - [Geodata import validation and promotion](docs/diagrams/geodata-import-validation.md)
+  - [Administration web UX](docs/admin-web-ux.md)
 
 ## Current implementation baseline
 

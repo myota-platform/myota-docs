@@ -10,7 +10,7 @@ The following split is justified and intentionally small:
 | `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, staged dataset intake and source decoding | `services/geodata.py`, `import_formats.py`, geo migrations |
 | `myota-activity-service` | activations, normalized/indexed QSOs, COPY/ADIF ingestion, activity aggregates, corrections, programme-owned award definitions and versioned progress, object-storage assets, requests, rendering, notifications, statistics and issuance records | `activity.py`, `awards.py`, `activity_repository.py`, `activity_worker.py`, `migrations/` |
 | `myota-web` | universal programme UI, published award progress and participant requests | `web/` |
-| `myota-admin-web` | authenticated global administration web, programme context, review queues, award designer, asset management and operational views | `myota-admin-web/web/` |
+| `myota-admin-web` | authenticated global administration web, programme context, grouped workspaces, import detail workspace, review queues, award designer, asset management and operational views | `myota-admin-web/web/` |
 | `myota-deploy` | Helm charts, environments, migration orchestration, Compose, worker deployments, observability | `deploy/`, `db/migrations/`, `compose.yaml` |
 | `myota-docs` | architecture, ADRs, operator and migration docs | `docs/` |
 
