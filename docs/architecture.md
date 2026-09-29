@@ -135,8 +135,11 @@ Required adapters are represented in the contract and storage model: `PARKSERVE_
 The import safety boundary is explicit in both the API and schema. `GET
 /v1/geodata/imports` returns import-run status plus pending, confirmed,
 processed, and rejected candidate counts for the visible pre-processing queue.
-`GET /v1/geodata/imports/{runId}/candidates` returns compact pages, while
-`POST .../candidates/validate` records the administrator confirmation. `POST
+`GET /v1/geodata/imports/{runId}/candidates` returns compact pages of pending
+records only. Confirmed, rejected, and processed staging records are omitted
+from the detail queue; rejected records are deleted immediately and successful
+promotion deletes the staged record. `POST .../candidates/validate` records
+the administrator confirmation or rejection. `POST
 /v1/geodata/imports/{runId}/process` creates a durable processing-queue record
 and an outbox event. Local development uses the same bounded worker as a
 fallback; production NATS consumers use the event payload and are idempotent.
