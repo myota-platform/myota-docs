@@ -44,6 +44,17 @@ Binary formats without an installed parser remain visibly queued. Runs with no
 recoverable source are changed to `FAILED` with `last_error`, so they do
 not appear indefinitely as active work.
 
+### Coordinate reference systems
+
+The geodata intake boundary stores validated geometry in WGS84 longitude and
+latitude (`EPSG:4326`). GeoJSON and ArcGIS `spatialReference` declarations are
+read before validation and supported source CRSs are reprojected with `pyproj`.
+Shapefile ZIP uploads use a matching `.prj` sidecar. This allows projected
+datasets such as Spain's ETRS89 / UTM 30N (`EPSG:25830`) to be imported without
+manual coordinate conversion. The original declaration is retained in
+`provenance.sourceCrs`; datasets without a declaration retain the legacy
+WGS84 assumption.
+
 For diagnosis, inspect `status`, `attempt_count`, `heartbeat_at`,
 `lease_until`, `last_error`, `filename` and `stats` in `import_run`, then check
 the corresponding SeaweedFS object under the recorded bucket and object key.
