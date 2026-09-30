@@ -60,6 +60,21 @@ For diagnosis, inspect `status`, `attempt_count`, `heartbeat_at`,
 the corresponding SeaweedFS object under the recorded bucket and object key.
 Do not delete the PostGIS or SeaweedFS volumes while investigating an import.
 
+### Database restart recovery and large staged imports
+
+The local Compose stack uses `restart: unless-stopped` for the database,
+service, gateway, worker, and outbox containers. This is important because a
+PostgreSQL restart temporarily rejects connections; workers must be restarted
+automatically instead of exiting permanently on the first connection error.
+Kubernetes Deployments provide the equivalent restart behavior.
+
+Large GeoJSON imports can create substantial staged candidate data because the
+candidate geometry and provenance remain reviewable before promotion. Local
+Compose therefore runs one geodata import worker at a time to bound concurrent
+memory use. A large run should be allowed to finish preprocessing before
+validation or finalization; do not remove the database or object-store volumes
+to recover from a transient outage.
+
 ## Production notes
 
 Use managed PostgreSQL where possible, enable PostGIS, store credentials in Kubernetes Secrets or an external secret manager, and back up core and geodata databases independently. Pin image digests, enforce network policies so services reach only their own database, and expose QGIS access only through a private network or bastion.
