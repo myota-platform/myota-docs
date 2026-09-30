@@ -46,7 +46,11 @@ to a programme, and programme assignment remains a separate eligibility
 concern. Supported intake formats are GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON,
 Shapefile archives, OSM PBF, and ParkServe US payloads; PBF/ParkServe binary
 objects remain queued for the corresponding source worker. The default
-geodata request envelope is 32 MiB via `MYOTA_MAX_BODY_BYTES`.
+geodata request and upload envelopes default to 1 GiB via
+`MYOTA_MAX_BODY_BYTES` and `MYOTA_UPLOAD_MAX_BYTES`; deployments can lower
+both values. Browser multipart uploads are spooled to a temporary file and
+streamed into SeaweedFS, while the gateway forwards the request without
+buffering a second full copy.
 
 Global entity deletion is an explicit cross-service workflow. The activity
 service owns the impact calculation, valid-QSO deletion, aggregate rebuild and
