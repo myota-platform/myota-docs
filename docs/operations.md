@@ -22,6 +22,13 @@ path. Binary imports and award assets are stored in the mounted SeaweedFS volume
 their metadata, queues, audit events, QSO data and award state are persisted in
 PostgreSQL.
 
+Large browser uploads are spooled to the geodata upload-spool volume and the
+HTTP endpoint returns `202 UPLOAD_PENDING` after the request body has been
+received and scanned. The background handoff stores the source in SeaweedFS
+and then queues preprocessing. `UPLOAD_PENDING` runs and their spool files are
+recovered after a geodata restart; the browser should follow the import run
+status rather than wait for SeaweedFS storage to finish.
+
 ### Import recovery
 
 Import history is durable and should be used as the operational source for
