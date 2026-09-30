@@ -1,7 +1,7 @@
 # REST API consolidation plan
 
 Status: proposal only — no runtime code changed  
-Reviewed: 2026-09-27  
+Reviewed: 2026-09-30
 Owner: myota-contracts with the affected service repositories
 
 This review compares the current OpenAPI documents and route registries in the
@@ -53,6 +53,52 @@ Refresh, deletion/cascade, statistics rebuild, award recalculation, and PDF
 rendering are not ordinary synchronous updates. They should create explicit
 job resources that can be polled, retried, audited, and correlated with events.
 
+## Current contract and route baseline
+
+The following is the current implementation baseline as of 2026-09-30. The
+activity and awards APIs are served by the same `myota-activity-service` HTTP
+process and port (`8004` locally), but remain separate resource namespaces and
+data boundaries.
+
+| Service area | Current implemented surface | Current contract/route note |
+| --- | --- | --- |
+| Identity and administration | `/v1/identity/auth/*`, `/v1/identity/me`, account/callsign/role/security-event routes under `/v1/identity/` | Authentication commands remain explicit. Account, role, callsign, and export/deactivation routes are candidates for resource aliases. |
+| Programme configuration | `/v1/programmes`, `/v1/programmes/{slug}`, `/update`, `/archive`, policy, content, policy-draft, and entity-type assignment routes | Programme rules, awards, content, and category membership remain programme-owned; no POTA rules are implied by the transport model. |
+| Geodata catalogue | `/v1/geodata/entities`, `{entityId}`, `/audit`, `/bbox`, `/tiles/{z}/{x}/{y}`, `/adapters`, `/location-options`, and `/conflation` | Entity listing already supports programme-independent filters, multi-status values, location filters, pagination, and map bounds. |
+| Geodata intake | `POST /v1/geodata/imports`, `/imports/manual`, `/imports/upload`; run, candidate, validation, processing, and finalization routes | Imports are programme-independent. The staged lifecycle is `UPLOAD_PENDING`/`QUEUED` → `PROCESSING` → `PREPROCESSED` or `PREPROCESSED_WITH_ERRORS`; only validated records enter the promotion queue. |
+| Geodata review/editing | `POST /entities/{id}/review`, `/status`, `/geometry`, `/geometry-type`, `/location`, `/entity-type`, `/name`, `/delete` | Candidate review and entity management are separate UI workflows, but the API still has several overlapping action routes. Approved entities may only become `RETIRED`. |
+| Activity | `/v1/activations`, activation QSOs and batch QSOs, close, ADIF imports, QSO corrections, public history/leaderboards/results, statistics, notifications | ADIF and batch ingestion are asynchronous/high-volume candidates for ingestion resources; close and correction review are audited commands. |
+| Awards | `/v1/awards`, assets, submit/review/publish/retire, evaluate/progress, requests, issuances, render, download | Awards are programme-owned and versioned. Asset uploads, evaluation, recalculation, rendering, and issuance should expose durable job/resource state. |
+| Cross-service deletion | Activity deletion-impact and cascade-delete routes followed by geodata deletion | This is intentionally a coordinated workflow, not a simple entity delete. It invalidates linked QSOs and may trigger award recalculation. |
+
+### Latest contract gaps
+
+The canonical OpenAPI contract now describes the staged geodata import queue,
+candidate validation and promotion targets, location hierarchy, geometry-type
+conversion, activity deletion impact, programme-owned awards, award assets,
+issuance, and certificate rendering. It still needs reconciliation with the
+live registries in these areas:
+
+- Add or document the live geodata `status`, `geometry`, `audit`, `bbox`, tile,
+  adapter, schedule, and conflation operations consistently in the canonical
+  contract and generated mirrors.
+- Document the multipart upload representation and the 1 GiB deployment limit;
+  the JSON/Base64 upload remains a compatibility path, not the preferred
+  browser path.
+- Add the live activity ADIF, batch-QSO, correction, public-results,
+  statistics, notifications, and deletion workflow operations to the same
+  contract revision.
+- Add identity primary-callsign, callsign retirement, evidence, OIDC mapping,
+  and account role-assignment details where they are currently only present in
+  the service registry.
+- Keep the root contract copy and the platform integration copy generated or
+  CI-checked against `myota-contracts/contracts/openapi.yaml`; do not manually
+  maintain divergent route definitions.
+
+The route inventory above is evidence for the consolidation work. It is not a
+request to remove the current compatibility routes before aliases and client
+migrations exist.
+
 ## Proposed endpoint consolidation
 
 The table lists the proposed target and the current routes it would replace or
@@ -72,18 +118,18 @@ alias. This is a migration target, not a list of routes to remove immediately.
 | Programme category membership | PUT /v1/programmes/{slug}/entity-types/{categoryCode}; DELETE on the same URI | POST .../entity-types/assign and POST .../entity-types/unassign | Model membership as a relationship resource. |
 | Content lifecycle | PATCH /v1/programmes/{slug}/content/{contentId} with status/effectiveFrom | POST .../submit, .../review, and .../publish | Keep reviewer identity, notes, version, and effective date in the audit/version record. |
 | Policy-draft lifecycle | PATCH /v1/programmes/{slug}/policy-drafts/{draftId} with status/effectiveFrom | POST .../submit, .../review, and .../publish | Use the same lifecycle model as localized content. |
-| Geodata imports | POST /v1/geodata/imports using JSON, multipart, or object-reference input | POST /v1/geodata/imports/manual; POST /v1/geodata/imports; POST /v1/geodata/imports/upload | One import collection; representation identifies source format and adapter; queued work returns the run resource. |
+| Geodata imports | POST /v1/geodata/imports using JSON, multipart, or object-reference input; GET/POST `/imports/{runId}/candidates`, `/validate`, `/process`, and `/processed` remain explicit staged subresources | POST /v1/geodata/imports/manual; POST /v1/geodata/imports; POST /v1/geodata/imports/upload; GET `/imports/{runId}` and `/candidates`; POST `/candidates/validate`, `/process`, `/processed` | Consolidate only the three intake representations behind one import collection. Keep preprocessing, validation, promotion, and finalization as explicit resources because they are durable queues and review boundaries. |
 | Refresh execution | POST /v1/geodata/refresh-schedules/{scheduleId}/runs; GET /v1/geodata/refresh-runs/{runId} | POST /v1/geodata/refresh-schedules/{scheduleId}/run | Create a refresh-run resource instead of hiding worker execution behind a synchronous action. |
 | Manual proposal creation | POST /v1/geodata/proposals | POST /v1/geodata/proposals/draw | Geometry is the representation; the UI may still call the operation draw. |
 | Conflation resolution | PATCH /v1/geodata/conflation/{candidateId} or POST .../resolutions | POST /v1/geodata/conflation/{candidateId}/resolve | Use PATCH for one current decision or a resolution subresource for decision history. |
-| Entity review decision | POST /v1/geodata/entities/{entityId}/reviews | POST /v1/geodata/entities/{entityId}/review and POST .../status | A review owns the audited lifecycle transition; avoid competing status mutation paths. |
+| Entity review decision | POST /v1/geodata/entities/{entityId}/reviews | POST /v1/geodata/entities/{entityId}/review and POST /v1/geodata/entities/{entityId}/status | A review owns the audited lifecycle transition; migrate both current paths to one review resource while retaining the approved→retired invariant. |
 | Entity metadata | PATCH /v1/geodata/entities/{entityId} | POST .../name and POST .../location | Use partial updates while preserving manual-field precedence and audit entries. |
 | Entity categories | PUT /v1/geodata/entities/{entityId}/categories | POST .../entity-type | Replace the ordered multi-category relationship; first item remains the compatibility primary. |
-| Entity geometry | PUT /v1/geodata/entities/{entityId}/geometry | POST .../geometry and POST .../geometry-type | Derive geometry type from GeoJSON, validate allowed kinds, and preserve the edit note. |
+| Entity geometry | PUT /v1/geodata/entities/{entityId}/geometry | POST .../geometry and POST .../geometry-type | Derive geometry type from GeoJSON, validate allowed kinds, and preserve the edit note. Keep geometry-type conversion as a compatibility operation until all editors submit complete GeoJSON. |
 | Entity listing by extent | GET /v1/geodata/entities?bbox=minLon,minLat,maxLon,maxLat | GET /v1/geodata/bbox | Use one entity collection with standard filters and pagination; keep tiles separate. |
 | Entity deletion workflow | POST /v1/geodata/entity-deletion-jobs; GET /v1/geodata/entity-deletion-jobs/{jobId} | POST /v1/geodata/entities/{entityId}/delete; GET and POST activation deletion-impact/cascade-delete routes | Keep deletion as a job because it spans QSOs, aggregates, awards, and audit cleanup. |
 | Activation close | PATCH /v1/activations/{activationId} with status=CLOSED | POST /v1/activations/{activationId}/close | A close transition is a state update with rule evaluation and audit. |
-| QSO batch ingestion | POST /v1/activations/{activationId}/qso-ingestions; GET .../{ingestionId} | POST /v1/activations/{activationId}/qsos/batch | Keep single-QSO POST for interactive entry; represent COPY/ADIF/high-volume work as an ingestion resource. |
+| QSO batch ingestion | POST /v1/qso-ingestions; GET /v1/qso-ingestions/{ingestionId} | POST /v1/activations/{activationId}/qsos/batch; POST /v1/adif/imports; GET /v1/adif/imports/{importId} | Keep single-QSO POST for interactive entry; represent COPY, ADIF, and high-volume work as one asynchronous ingestion resource with source format and activation scope. |
 | QSO corrections | POST /v1/qsos/{qsoId}/corrections; PATCH /v1/qsos/{qsoId}/corrections/{correctionId} | POST /v1/qsos/{qsoId}/corrections; POST /v1/qso-corrections/{correctionId}/review | Nest review under the correction resource rather than using an unrelated global route. |
 | Statistics rebuild | POST /v1/statistics/rebuild-jobs; GET .../{jobId} | POST /v1/statistics/rebuild | Treat reproducible aggregation as a job; retain GET /v1/statistics for results. |
 | Award lifecycle | PATCH /v1/awards/{awardId} with status/effectiveFrom | POST /v1/awards/{awardId}/submit, /review, /publish, and /retire | Use one versioned award resource; retain audited review decisions. |
