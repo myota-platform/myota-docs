@@ -78,9 +78,9 @@ to recover from a transient outage.
 Geodata entity lifecycle, geometry, and category edits are persisted in the
 relational PostGIS tables. The geodata service's JSON `service_state` row is a
 compatibility snapshot only; on startup, PostgreSQL entity columns take
-precedence over an older snapshot. The built-in Sevilla sample entities are
-insert-only seed data, so an administrator's approval or geometry edit is not
-replaced during a restart.
+precedence over an older snapshot. The geodata service has no built-in entity
+seed data; populate a local catalogue through the import or community-proposal
+workflow instead.
 
 ## Production notes
 
