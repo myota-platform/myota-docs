@@ -27,11 +27,15 @@ PostgreSQL.
 Import history is durable and should be used as the operational source for
 file visibility and processing status. A queued or processing import has its
 source document in SeaweedFS and an execution lease in the geodata
-`import_run` table. Heartbeats keep active work leased; a restart or worker
-failure leaves an expired lease that the next geodata instance requeues
-automatically. A recovered run increments `attempt_count` and continues from
-the original source. Runs with no recoverable source are changed to `FAILED`
-with `last_error`, so they do not appear indefinitely as active work.
+`import_run` table. Heartbeats keep active work leased. When the geodata
+service starts, queued runs and runs left in `PROCESSING` by the previous
+instance are requeued immediately and persisted before recovery workers are
+dispatched; this does not wait for the normal lease timeout. A recovered run
+increments `attempt_count` when it claims the work and continues from the
+original source. Pasted KML/GPX uses its normalized GeoJSON recovery snapshot.
+Binary formats without an installed parser remain visibly queued. Runs with no
+recoverable source are changed to `FAILED` with `last_error`, so they do
+not appear indefinitely as active work.
 
 For diagnosis, inspect `status`, `attempt_count`, `heartbeat_at`,
 `lease_until`, `last_error`, `filename` and `stats` in `import_run`, then check
