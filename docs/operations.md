@@ -75,6 +75,13 @@ memory use. A large run should be allowed to finish preprocessing before
 validation or finalization; do not remove the database or object-store volumes
 to recover from a transient outage.
 
+Geodata entity lifecycle, geometry, and category edits are persisted in the
+relational PostGIS tables. The geodata service's JSON `service_state` row is a
+compatibility snapshot only; on startup, PostgreSQL entity columns take
+precedence over an older snapshot. The built-in Sevilla sample entities are
+insert-only seed data, so an administrator's approval or geometry edit is not
+replaced during a restart.
+
 ## Production notes
 
 Use managed PostgreSQL where possible, enable PostGIS, store credentials in Kubernetes Secrets or an external secret manager, and back up core and geodata databases independently. Pin image digests, enforce network policies so services reach only their own database, and expose QGIS access only through a private network or bastion.
