@@ -133,13 +133,14 @@ separate persistent targets, with PostGIS only on `myota_geo`; it is
 single-instance and requires off-host backups. Keep credential values out of
 Fleet values files and Git.
 
-The chart supports separate Traefik hostnames: `ingress.host` (the public/API
-hostname, default `myota.top`) routes to the API gateway, while
+The chart supports separate Traefik hostnames: `ingress.host` (the API gateway,
+default `api.myota.top`) routes to the API gateway, while
 `ingress.adminHost` routes to the administration web. The admin web proxies
 same-origin `/v1` requests to the gateway. The Spainip sample relies on the
 existing Traefik installation to provision certificates automatically and
 leaves TLS secret names empty; explicit secrets remain configurable for other
-clusters. It uses `admin.myota.top` for the admin UI. The `myota-web`
+clusters. Defaults are `api.myota.top` for the API and `admin.myota.top` for
+the admin UI; both can be changed independently in Helm values. The `myota-web`
 participant client is not yet packaged as a container, so the public hostname
 currently exposes the API rather than a participant website. Helm lint/render
 runs in GitHub Actions; Fleet performs deployment from the reviewed Git
