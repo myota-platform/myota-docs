@@ -25,7 +25,8 @@ flowchart LR
   Activity[Activity service\nPostgreSQL QSOs and aggregates]
   Collector[OpenTelemetry Collector\nOTLP + Prometheus receiver]
   Prometheus[Prometheus\nmetrics storage and queries]
-  Grafana[Grafana\nreal-data dashboard]
+  Grafana[Grafana\nreal-data dashboards + rules]
+  Alertmanager[Alertmanager\nlocal grouped alerts]
   Tempo[Tempo\ntrace storage]
   Identity -->|/metrics + OTLP| Collector
   Programmes -->|/metrics + OTLP| Collector
@@ -35,6 +36,8 @@ flowchart LR
   Collector --> Tempo
   Grafana --> Prometheus
   Grafana --> Tempo
+  Prometheus --> Alertmanager
+  Grafana --> Alertmanager
 ```
 
 The collector is infrastructure owned by `myota-deploy`; a separate business
@@ -43,6 +46,34 @@ identity, geodata, programme, and activity services. Prometheus scrapes the
 collector's `:8889` endpoint. The collector also scrapes each service's
 Prometheus-compatible `/metrics` endpoint, allowing durable gauges to remain
 available during an OTLP exporter or collector restart.
+
+## API endpoint telemetry
+
+The OpenTelemetry HTTP instruments use the service name, normalized route
+template, HTTP method, response status, and duration as dimensions. The
+`MyOTA API performance` Grafana dashboard repeats four graphs for each observed
+service and splits each graph into route/method series: request rate, p95
+response time in milliseconds, 5xx server-error rate, and calculated
+availability percentage. The route label is the registered API template (for
+example `/v1/entities/{id}`), not an unbounded URL containing identifiers.
+This keeps cardinality bounded and makes the dashboard usable for the new REST
+resource API as well as the remaining compatibility aliases.
+
+## Alerting
+
+Prometheus evaluates the source-of-truth rules in
+`myota-deploy/observability/rules.yml` and sends alerts to Alertmanager. The
+rules cover collector availability, service scrape availability, per-route 5xx
+error rate above 5% for five minutes, p95 latency above one second for ten
+minutes, and a critical p95 threshold above five seconds for five minutes.
+
+Grafana provisions two equivalent Grafana-managed rules for API error rate and
+latency. They use the provisioned Prometheus datasource and forward through the
+local Alertmanager contact point, so operators can inspect both Grafana rule
+state and Alertmanager grouping without an external notification account. The
+local receiver intentionally has no outbound integration; production values
+must replace it with an approved email, chat, webhook, or paging receiver and
+should move Alertmanager storage to a persistent volume.
 
 ## Business metrics
 
@@ -74,13 +105,15 @@ curl http://localhost:8889/metrics
 ```
 
 Grafana is at `http://localhost:3000`; Prometheus is at
-`http://localhost:9090`; Tempo's local API is at `http://localhost:3200`.
-The provisioned `MyOTA operations` dashboard is tagged `real-data`.
+`http://localhost:9090`; Alertmanager is at `http://localhost:9093`; Tempo's
+local API is at `http://localhost:3200`. The provisioned `MyOTA operations` and
+`MyOTA API performance` dashboards are tagged `real-data`.
 
-Kubernetes enables the same collector, Prometheus and Tempo resources with
-`observability.enabled=true`. Production should add persistent volumes for
-Prometheus and Tempo, resource limits, alert rules, retention settings, and
-network policies appropriate to the cluster.
+Kubernetes enables the same collector, Prometheus, Alertmanager, Grafana and
+Tempo resources with `observability.enabled=true`. Production should add
+persistent volumes for Prometheus, Alertmanager and Tempo, resource limits,
+retention settings, real notification receivers, and network policies
+appropriate to the cluster.
 
 ## Operational interpretation
 
