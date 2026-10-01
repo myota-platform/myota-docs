@@ -182,11 +182,28 @@ data.
 
 ### Phase 1 — low-risk resource updates
 
-- [ ] Add PATCH programme and account resources.
-- [ ] Add idempotent PUT category memberships and primary callsign.
-- [ ] Add PATCH award/content/policy-draft lifecycle resources.
-- [ ] Keep action routes as aliases and test identical authorization, audit,
-  event, and idempotency behavior.
+- [x] Add PATCH programme and account resources. See the
+  [Phase 1 resource update record](api-phase1-resource-updates.md) and the
+  canonical [`patchIdentityAccount`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml)
+  and [`patchProgramme`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml)
+  operations.
+- [x] Add idempotent PUT category memberships and primary callsign. See the
+  [`replaceAccountRoleAssignments`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml),
+  [`setPrimaryCallsign`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml),
+  [`assignProgrammeEntityCategory`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml),
+  and [`unassignProgrammeEntityCategory`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml)
+  contract operations.
+- [x] Add PATCH award/content/policy-draft lifecycle resources. See the
+  [`patchAward`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml),
+  [`patchProgrammeContent`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml),
+  and [`patchProgrammePolicyDraft`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml)
+  operations.
+- [x] Keep action routes as aliases and test identical authorization, audit,
+  event, and idempotency behavior. Compatibility behavior, deprecation
+  headers, and the sunset policy are documented in
+  [api-phase1-resource-updates.md](api-phase1-resource-updates.md); route and
+  mirror checks run in
+  [`contract-freeze.yml`](https://github.com/myota-platform/myota-contracts/blob/main/.github/workflows/contract-freeze.yml).
 
 ### Phase 2 — geodata resource model
 
