@@ -26,18 +26,23 @@ remain explicit where the contract requires them.
 
 ## Operational telemetry
 
-Each HTTP service exposes `/metrics` in Prometheus text format. The counters
-include:
+Each HTTP service exposes `/metrics` in Prometheus text format. The
+OpenTelemetry Collector scrapes those endpoints and receives OTLP telemetry;
+Prometheus stores collected metrics and Tempo stores distributed traces. The
+service metrics include:
 
 - `myota_http_requests_total` by service, route, method, and status;
 - `myota_legacy_route_requests_total` by deprecated alias;
+- durable identity, programme, geodata, import, activity, QSO, participant and
+  award aggregates;
 - activity job gauges for queued, running, succeeded, and failed work;
 - oldest queued activity-job lag; and
 - pending QSO correction count.
 
-Metrics are best-effort and in-memory for request counters. Durable activity
-gauges are read from PostgreSQL on scrape, so a restart does not erase the
-backlog view. Metrics never block API writes when PostgreSQL is unavailable.
+Request counters reset with a service process, but durable business gauges are
+read from PostgreSQL/PostGIS on scrape, so a restart does not erase the domain
+view. OTLP exporters are asynchronous and best-effort; metrics never block API
+writes when PostgreSQL or the collector is unavailable.
 
 The dashboard files are maintained in
 [`myota-deploy/observability`](https://github.com/myota-platform/myota-deploy/tree/main/observability)
@@ -49,8 +54,11 @@ docker compose --profile observability up -d prometheus grafana
 ```
 
 Grafana is exposed at `http://localhost:3000`; Prometheus is exposed at
-`http://localhost:9090`. The dashboard highlights alias traffic, queue lag,
-failed jobs, pending corrections, and HTTP errors.
+`http://localhost:9090`; the collector exporter is at `http://localhost:8889`;
+and Tempo is at `http://localhost:3200`. The dashboard highlights real users,
+entities, QSOs, participants, programmes, imports, awards, queue lag, HTTP
+errors, OpenTelemetry request rates and p95 latency. It intentionally does not
+use synthetic `vector(1)` or placeholder business values.
 
 ## Verification gate
 

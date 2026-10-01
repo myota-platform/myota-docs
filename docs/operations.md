@@ -65,14 +65,24 @@ Do not delete the PostGIS or SeaweedFS volumes while investigating an import.
 Phase 4 moves first-party lifecycle writes to the preferred resource APIs. The
 contract clients and migration rules are recorded in
 [`api-phase4-client-operational-migration.md`](api-phase4-client-operational-migration.md).
-All HTTP services expose `/metrics`; Prometheus collects request status and
-deprecated-alias usage, while the activity service also reports durable job
-backlog, queued-job lag, failed jobs, and pending QSO corrections. Start the
-optional local dashboard with:
+All HTTP services expose `/metrics`; OpenTelemetry adds request traces and
+request duration metrics, and the OpenTelemetry Collector is the single
+collection boundary for Prometheus and Tempo. Domain gauges are read from
+durable identity, programme, PostGIS, and activity state. They include users,
+callsigns, programmes, categories, entities, imports, activations, QSOs,
+participants, awards, jobs, corrections and queue lag. Start the optional
+local dashboard with:
 
 ```bash
 docker compose --profile observability up -d prometheus grafana
 ```
+
+The collector is started automatically by the `observability` profile. Grafana
+is available at `http://localhost:3000`, Prometheus at
+`http://localhost:9090`, the collector's Prometheus exporter at
+`http://localhost:8889`, and Tempo at `http://localhost:3200`. See
+[`observability.md`](observability.md) for the trust model and interpretation
+of empty or unavailable series.
 
 Use `make verify-phase4` after rebuilding the durable stack. It runs the
 authorization, idempotency, audit, activity, award, and geodata regression
