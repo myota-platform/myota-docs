@@ -146,6 +146,27 @@ currently exposes the API rather than a participant website. Helm lint/render
 runs in GitHub Actions; Fleet performs deployment from the reviewed Git
 revision.
 
+### Container image publishing
+
+GitHub Actions builds and publishes chart images to GHCR on pushes to `main`;
+each owning repository also exposes `workflow_dispatch` for an immediate
+build. These workflows currently publish the mutable `latest` tag, so pin
+immutable tags before treating a rollout as a reproducible production release.
+Image ownership is aligned with the Helm values:
+
+| GHCR image | Build repository |
+| --- | --- |
+| `ghcr.io/myota-platform/myota-service` and `myota-gateway` | `myota-deploy` |
+| `ghcr.io/myota-platform/myota-admin-web` | `myota-admin-web` |
+| `ghcr.io/myota-platform/myota-identity-service` | `myota-identity-service` |
+| `ghcr.io/myota-platform/myota-programme-service` | `myota-programme-service` |
+| `ghcr.io/myota-platform/myota-geodata-service` | `myota-geodata-service` |
+| `ghcr.io/myota-platform/myota-activity-service` | `myota-activity-service` |
+
+The participant `myota-web` is not yet in the Helm release and has no
+container image workflow. The workflows require the repository Actions token
+to have GHCR package write permission.
+
 ## Activity capacity controls
 
 The activity API is stateless and can be scaled horizontally. Each pod has a
