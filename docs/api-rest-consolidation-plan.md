@@ -223,13 +223,18 @@ data.
 
 ### Phase 3 — activity and award jobs
 
-- [ ] Add activation PATCH close semantics and preserve rule snapshots.
-- [ ] Add QSO-ingestion resources for COPY, ADIF, and high-volume submissions.
-- [ ] Nest correction review under the QSO correction resource.
-- [ ] Add statistics, award recalculation, evaluation, and certificate-render
-  job resources with retry and progress status.
-- [ ] Add issuance and artifact resources without changing permanent issuance
-  semantics.
+- [x] Add activation PATCH close semantics and preserve rule snapshots. See the
+  [Phase 3 activity and award jobs](api-phase3-activity-award-jobs.md).
+- [x] Add QSO-ingestion resources for COPY, ADIF, and high-volume submissions.
+  See the [ingestion resource table](api-phase3-activity-award-jobs.md#preferred-resources).
+- [x] Nest correction review under the QSO correction resource. See the
+  [correction review resource](api-phase3-activity-award-jobs.md#preferred-resources).
+- [x] Add statistics, award recalculation, evaluation, and certificate-render
+  job resources with retry and progress status. See the
+  [durable job lifecycle](api-phase3-activity-award-jobs.md#durable-job-lifecycle)
+  and [job diagram](diagrams/activity-award-jobs.md).
+- [x] Add issuance and artifact resources without changing permanent issuance
+  semantics. See the [issuance resources](api-phase3-activity-award-jobs.md#preferred-resources).
 
 ### Phase 4 — client and operational migration
 

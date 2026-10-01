@@ -18,6 +18,7 @@ synchronization rule, and deployment boundaries are defined in
 - [Architecture](docs/architecture.md)
 - [REST API consolidation plan](docs/api-rest-consolidation-plan.md)
 - [Phase 2 geodata resource model](docs/api-phase2-geodata-resource-model.md)
+- [Phase 3 activity and award jobs](docs/api-phase3-activity-award-jobs.md)
 - [Repository map and ownership boundaries](docs/repository-map.md)
 - [Programme configuration gap analysis](docs/programme-configuration-gap-analysis.md)
 - [Operations and production-readiness notes](docs/operations.md)
@@ -25,6 +26,7 @@ synchronization rule, and deployment boundaries are defined in
 - [Diagrams](docs/diagrams/)
   - [Geodata import validation and promotion](docs/diagrams/geodata-import-validation.md)
   - [Geodata resource lifecycle](docs/diagrams/geodata-resource-lifecycle.md)
+  - [Activity and award jobs](docs/diagrams/activity-award-jobs.md)
   - [Administration web UX](docs/admin-web-ux.md)
 
 ## Current implementation baseline
