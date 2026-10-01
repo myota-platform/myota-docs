@@ -223,6 +223,9 @@ data.
 
 ### Phase 3 — activity and award jobs
 
+The resource layer and execution hardening are recorded in the
+[Phase 3 activity and award jobs](api-phase3-activity-award-jobs.md) document.
+
 - [x] Add activation PATCH close semantics and preserve rule snapshots. See the
   [Phase 3 activity and award jobs](api-phase3-activity-award-jobs.md).
 - [x] Add QSO-ingestion resources for COPY, ADIF, and high-volume submissions.

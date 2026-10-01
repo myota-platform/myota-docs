@@ -61,6 +61,21 @@ routes are retained as aliases. They emit `Deprecation: true` and
 handlers delegate to the same repository and worker methods, so authorization,
 idempotency, audit, deduplication, and retry behavior cannot diverge.
 
+## Execution hardening
+
+Participant mutations require a bearer token belonging to the activation
+operator; administrators may act with `activity.admin`. The same ownership
+check applies to direct QSOs, batch and queued ingestion, ADIF uploads,
+activation closure, and correction requests. Correction review remains an
+administrator operation. Participant award evaluations cannot submit forged
+fact snapshots; the worker reads the service-owned aggregate facts instead.
+
+Award recalculation jobs are scoped to the requested award and rule version.
+When no subject list is supplied, the worker derives all subjects for that
+programme/category from the relational aggregate tables. Statistics rebuilds
+replace the current `activity-v2` snapshot set for each programme, making a
+repeated rebuild deterministic instead of accumulating duplicate snapshots.
+
 Award rules remain programme-owned. Recalculation captures the award version;
 publishing a new definition does not silently rewrite historical issuance
 records. New qualification and import outcomes are notification events, while
