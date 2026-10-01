@@ -60,6 +60,26 @@ For diagnosis, inspect `status`, `attempt_count`, `heartbeat_at`,
 the corresponding SeaweedFS object under the recorded bucket and object key.
 Do not delete the PostGIS or SeaweedFS volumes while investigating an import.
 
+### Client migration and operational dashboard
+
+Phase 4 moves first-party lifecycle writes to the preferred resource APIs. The
+contract clients and migration rules are recorded in
+[`api-phase4-client-operational-migration.md`](api-phase4-client-operational-migration.md).
+All HTTP services expose `/metrics`; Prometheus collects request status and
+deprecated-alias usage, while the activity service also reports durable job
+backlog, queued-job lag, failed jobs, and pending QSO corrections. Start the
+optional local dashboard with:
+
+```bash
+docker compose --profile observability up -d prometheus grafana
+```
+
+Use `make verify-phase4` after rebuilding the durable stack. It runs the
+authorization, idempotency, audit, activity, award, and geodata regression
+suite, verifies typed-client coverage, and probes gateway/service health and
+metrics endpoints. Keep compatibility aliases enabled until the dashboard
+shows no remaining callers and the Phase 5 review approves their removal.
+
 ### Database restart recovery and large staged imports
 
 The local Compose stack uses `restart: unless-stopped` for the database,

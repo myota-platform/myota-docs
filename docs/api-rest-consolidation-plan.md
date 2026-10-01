@@ -1,7 +1,7 @@
 # REST API consolidation plan
 
-Status: proposal only — no runtime code changed  
-Reviewed: 2026-09-30
+Status: Phases 0–4 implemented; Phase 5 remains planned  
+Reviewed: 2026-10-01
 Owner: myota-contracts with the affected service repositories
 
 This review compares the current OpenAPI documents and route registries in the
@@ -241,12 +241,19 @@ The resource layer and execution hardening are recorded in the
 
 ### Phase 4 — client and operational migration
 
-- [ ] Regenerate the typed client and update admin/public web clients.
-- [ ] Update examples, READMEs, diagrams, and operator runbooks.
-- [ ] Add dashboards for legacy-route traffic, job lag, failed transitions,
-  and alias usage.
-- [ ] Test the durable Compose/PostgreSQL stack for contract, authorization,
-  idempotency, and audit regressions.
+- [x] Regenerate/check in typed Python and TypeScript client façades and update
+  the admin/public web clients. See the [Phase 4 client migration record](api-phase4-client-operational-migration.md#client-migration)
+  and [`check_generated_clients.py`](https://github.com/myota-platform/myota-contracts/blob/main/scripts/check_generated_clients.py).
+- [x] Update examples, READMEs, diagrams, and operator runbooks. See the
+  [Phase 4 operations record](api-phase4-client-operational-migration.md)
+  and [operations diagram](diagrams/api-phase4-operational-migration.md).
+- [x] Add dashboards for legacy-route traffic, job lag, failed transitions,
+  HTTP errors, pending corrections, and alias usage. See the
+  [Prometheus/Grafana deployment configuration](https://github.com/myota-platform/myota-deploy/tree/main/observability).
+- [x] Test the durable Compose/PostgreSQL stack for contract, authorization,
+  idempotency, and audit regressions. See the
+  [`verify_phase4.sh`](https://github.com/myota-platform/myota-deploy/blob/main/scripts/verify_phase4.sh)
+  verification gate.
 
 ### Phase 5 — deprecation and cleanup
 
@@ -265,5 +272,7 @@ The resource layer and execution hardening are recorded in the
 - Release gate: generated clients, web migration, durable-stack tests,
   observability, deprecation headers, and external contract review.
 
-This roadmap improves the transport and resource model used by every
+Phase 4 is complete for the current client and local-operational surface;
+Phase 5 is intentionally gated on observed alias traffic and an explicit
+compatibility review. This roadmap improves the transport and resource model used by every
 programme; it does not change programme rules.
