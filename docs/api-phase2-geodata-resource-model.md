@@ -71,6 +71,14 @@ resource operations do not emit those headers.
 
 ## Cross-service deletion safety
 
+The geodata deletion job owns the user-facing confirmation boundary. During
+job creation it calls the activity service through the preferred resource
+endpoints `GET /v1/activations/entity-deletion-impacts/{entityId}` and
+`POST /v1/activations/entity-deletion-cascades`, rather than the deprecated
+`/admin/entities/.../deletion-impact` and `/cascade-delete` action routes.
+The cascade request creates the activity-owned QSO deletion and award
+recalculation work after the geodata job has been explicitly confirmed.
+
 Deletion is deliberately a resource/job, not a single destructive request. The
 creation response exposes the impact returned by the activity service. A
 separate confirmation request is required. Confirmation queues the activity

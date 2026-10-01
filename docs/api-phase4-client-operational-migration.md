@@ -19,7 +19,10 @@ The canonical contract repository now contains checked-in lightweight clients:
   verifies preferred operation coverage in CI.
 
 The Vue administration client uses `src/lib/myotaClient.ts` for programme,
-identity, geodata, and award lifecycle writes. The public web client uses the
+identity, geodata, and award lifecycle writes, including custom-role creation,
+account deactivation through the account PATCH resource, and the deletion-job
+workflow. The geodata service calls the activity service through the preferred
+entity-deletion impact/cascade resources. The public web client uses the
 candidate proposal resource and the GET award-progress resource. Reads,
 uploads, authentication commands, and genuinely asynchronous job resources
 remain explicit where the contract requires them.

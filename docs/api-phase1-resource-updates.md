@@ -11,6 +11,7 @@ while giving new clients a stable resource-oriented surface.
 | Bounded context | Preferred route | Replaces or consolidates | Semantics |
 | --- | --- | --- | --- |
 | Identity | `PATCH /v1/identity/accounts/{accountId}` | `POST /v1/identity/admin/accounts/{accountId}/update` | Partial account update; `roles` may replace active assignments |
+| Identity | `POST /v1/identity/roles` | `POST /v1/identity/admin/roles` | Create a custom administrative role as a top-level identity resource |
 | Identity | `PATCH /v1/identity/roles/{roleCode}` | `POST /v1/identity/admin/roles/{roleCode}/update` | Partial custom-role update |
 | Identity | `PUT /v1/identity/accounts/{accountId}/role-assignments` | `POST /v1/identity/accounts/{accountId}/roles` | Idempotent replacement of active role assignments |
 | Identity | `PUT /v1/identity/accounts/{accountId}/primary-callsign` | `POST /v1/identity/accounts/{accountId}/primary-callsign` | Idempotent primary-callsign replacement |
@@ -40,6 +41,10 @@ account ownership checks, audit/event emission, validation errors, and durable
 idempotency behavior. `PATCH` lifecycle requests intentionally preserve the
 existing state machines: invalid transitions remain errors, and publication
 still requires explicit effective dates and publisher identity.
+
+Administrative account deactivation is now sent as a PATCH of the account
+resource with `status: DEACTIVATED` and, when requested, `anonymize: true`.
+The old `/deactivate` action remains a compatibility route only.
 
 ## Verification
 
