@@ -1,6 +1,6 @@
 # REST API consolidation plan
 
-Status: Phases 0–4 implemented; Phase 5 remains planned  
+Status: Phases 0–4 implemented; Phase 5 remains planned
 Reviewed: 2026-10-01
 Owner: myota-contracts with the affected service repositories
 
