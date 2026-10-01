@@ -121,6 +121,24 @@ workflow instead.
 
 Use managed PostgreSQL where possible, enable PostGIS, store credentials in Kubernetes Secrets or an external secret manager, and back up core and geodata databases independently. Pin image digests, enforce network policies so services reach only their own database, and expose QGIS access only through a private network or bastion.
 
+### Rancher Fleet on K3s
+
+The Fleet bundle and Traefik ingress configuration are maintained in
+[`myota-deploy/deploy/helm/myota`](https://github.com/myota-platform/myota-deploy/tree/main/deploy/helm/myota).
+The [Spainip deployment guide](https://github.com/myota-platform/myota-deploy/blob/main/deploy/helm/myota/DEPLOYMENT.md)
+covers DNS/TLS, the three database StatefulSets or external database endpoints,
+required Kubernetes Secrets, Fleet GitRepo setup, persistent volumes, rollout
+checks, and current chart limits. The chart-managed option provides three
+separate persistent targets, with PostGIS only on `myota_geo`; it is
+single-instance and requires off-host backups. Keep credential values out of
+Fleet values files and Git.
+
+The chart routes the configurable public hostname (default `myota.top`) through
+Traefik to the administration web; that web proxies `/v1` to the API gateway on
+the same origin. The `myota-web` participant client is not yet packaged as a
+container and is not included in this release bundle. Helm lint/render runs in
+GitHub Actions; Fleet performs deployment from the reviewed Git revision.
+
 ## Activity capacity controls
 
 The activity API is stateless and can be scaled horizontally. Each pod has a

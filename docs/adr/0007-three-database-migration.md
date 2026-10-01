@@ -14,9 +14,12 @@ The platform has three database targets with explicit ownership:
 | `myota_activity` | PostgreSQL | activity service | activations, QSOs, aggregates, awards, imports, jobs, statistics, notifications and activity outbox |
 | `myota_geo` | PostgreSQL + PostGIS | geodata service | geometries, categories, provenance, imports, preprocessing, conflation, review and geodata outbox |
 
-Local Compose runs three database containers. Helm does not provision these
-database servers; it receives three independently addressable URLs through
-the existing database Secret. Only geodata requires PostGIS.
+Local Compose runs three database containers. The Helm chart can either
+provision three separate single-replica StatefulSets with persistent volume
+claims or connect to externally managed PostgreSQL endpoints. The core and
+activity instances use plain PostgreSQL; only geodata requires PostGIS. The
+chart-managed database option is persistent but not highly available and needs
+off-host backups.
 
 The migration runner applies each service-owned migration set to its target.
 During the first local split it copies activity rows from the old activity
@@ -24,8 +27,13 @@ tables in the existing `myota_core` database into an empty `myota_activity`
 database. It also copies application geodata tables from the legacy
 core-hosted `myota_geo` database into an empty PostGIS target. Copies are
 guarded by source/target row-presence checks, so rerunning the job is
-idempotent. The legacy geodata database remains as a recoverable source until
-operators verify counts and explicitly retire it.
+idempotent. The geodata copy includes service-local operational state (outbox,
+idempotency, consumer checkpoints/processed events, dead letters and service
+state), in addition to domain tables. Operators verify row counts in each
+destination before retiring the legacy source. In the local Colima environment,
+the copied operational rows were verified, duplicate activity tables were
+removed from the old core database, and the old core-hosted `myota_geo` copy was
+dropped; the active `myota_geo` PostGIS database remains authoritative.
 
 ## Consequences
 
