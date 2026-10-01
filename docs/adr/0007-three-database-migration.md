@@ -30,6 +30,9 @@ operators verify counts and explicitly retire it.
 ## Consequences
 
 - Core and activity avoid the PostGIS extension and spatial maintenance cost.
+- Each database has its own `service_state`, idempotency, outbox, consumer
+  checkpoint and dead-letter tables; these are service-local infrastructure,
+  not shared control-plane tables.
 - Activity QSO ingestion, worker pools and backups can scale independently of
   control-plane and geodata workloads.
 - Cross-service relationships use opaque IDs, slugs and events rather than
