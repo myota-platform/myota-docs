@@ -142,13 +142,14 @@ processed, and rejected candidate counts for the visible pre-processing queue.
 `GET /v1/geodata/imports/{runId}/candidates` returns compact pages of pending
 records only. Confirmed, rejected, and processed staging records are omitted
 from the detail queue; rejected records are deleted immediately and successful
-promotion deletes the staged record. `POST .../candidates/validate` records
-the administrator confirmation or rejection. `POST
-/v1/geodata/imports/{runId}/process` creates a durable processing-queue record
+promotion deletes the staged record. `POST .../candidates/validate` remains
+available for explicit administrator confirmation or rejection. The import UI
+uses `POST /v1/geodata/imports/{runId}/process` to create a durable
+processing-queue record
 and an outbox event. Local development uses the same bounded worker as a
 fallback; production NATS consumers use the event payload and are idempotent.
-Records must be `CONFIRMED` before promotion, and the selected target is
-restricted to `CANDIDATE` or `APPROVED`. The PostGIS geometry and full normalized
+Pending or confirmed records may be promoted directly, and the selected target
+is restricted to `CANDIDATE` or `APPROVED`. The PostGIS geometry and full normalized
 payload remain available for validation without exposing an unconfirmed record
 as a live entity.
 
