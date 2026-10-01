@@ -45,6 +45,12 @@ POST /imports
   -> explicit import finalization
 ```
 
+`PREPROCESSED_WITH_ERRORS` is a partial-success state, not a discarded import.
+Each feature is normalized independently. Valid features remain as pending
+staging records for administrator validation, while failed feature indexes and
+messages are retained in the import-run error summary and those failed features
+are excluded from the validation queue.
+
 Preprocessed records are not catalogue entities. Rejected, confirmed, and
 processed staging records are removed according to the existing queue
 semantics; the import summary remains available. All promoted records have

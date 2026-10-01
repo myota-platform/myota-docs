@@ -91,9 +91,13 @@ flowchart TD
 ```
 
 The UI distinguishes the **pre-processing queue** from **Geodata Review**. An
-import run first reaches `QUEUED`, `PROCESSING`, and then `PREPROCESSED`; its
-normalized records are stored as `geodata_import_candidate` rows and are not
-entities or programme references yet. During pre-processing each record is
+import run first reaches `QUEUED`, `PROCESSING`, and then `PREPROCESSED` (or
+`PREPROCESSED_WITH_ERRORS`); its normalized records are stored as
+`geodata_import_candidate` rows and are not entities or programme references
+yet. Pre-processing isolates failures per feature: successfully normalized
+records remain staged for validation, while failed feature indexes and messages
+are retained in the run summary and only those records are omitted from the
+candidate queue. During pre-processing each record is
 checked against existing entity geometry. Identical geometry or a centroid
 distance below 50 metres produces `dedupeWarning=POSSIBLE_DUPLICATE` and
 comparison geometry/details. This warning is deliberately non-blocking: an
@@ -130,7 +134,7 @@ conflate(feature, existing) -> match candidates + score
 apply(feature, policy) -> candidate/update/retire
 ```
 
-Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual community proposals use the same entity/review path and do not bypass approval. They are a candidate source alongside adapter/import runs, not a separate lifecycle state. Dataset imports select one or more shared Master data categories and are programme-independent. File and pasted imports first create durable `geodata_import_candidate` records and stop at `PREPROCESSED`; duplicate verification is part of this step, not a silent merge. An administrator validates a paged selection in the separate pre-processing queue, then publishes a processing request to the `myota.geodata.import.process.v1` NATS subject with target `CANDIDATE` or `APPROVED`. Only that worker creates or updates `geodata_entity`; programme assignment is handled separately.
+Required adapters are represented in the contract and storage model: `PARKSERVE_US`, `OSM`, `GOVERNMENT_GIS`, and `MANUAL`. Intake accepts GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON, Shapefile archives (`.shp` with `.shx`/`.dbf` sidecars), OSM PBF, and ParkServe US binary payloads. ParkServe and government feeds remain source-specific integrations; OSM imports preserve ODbL attribution and retrieval metadata. Manual community proposals use the same entity/review path and do not bypass approval. They are a candidate source alongside adapter/import runs, not a separate lifecycle state. Dataset imports select one or more shared Master data categories and are programme-independent. File and pasted imports first create durable `geodata_import_candidate` records and stop at `PREPROCESSED` or `PREPROCESSED_WITH_ERRORS`; duplicate verification is part of this step, not a silent merge. A feature-level preprocessing failure does not discard the rest of the import: valid records remain pending and failed indexes/messages remain in the run summary. An administrator validates a paged selection in the separate pre-processing queue, then publishes a processing request to the `myota.geodata.import.process.v1` NATS subject with target `CANDIDATE` or `APPROVED`. Only that worker creates or updates `geodata_entity`; programme assignment is handled separately.
 
 The import safety boundary is explicit in both the API and schema. `GET
 /v1/geodata/imports` returns import-run status plus pending, confirmed,
