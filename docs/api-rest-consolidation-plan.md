@@ -174,12 +174,11 @@ data.
 
 ### Phase 0 — freeze and reconcile the contract
 
-- [ ] Declare myota-contracts/contracts/openapi.yaml canonical.
-- [ ] Decide whether root myota-contracts/openapi.yaml is generated or removed.
-- [ ] Make myota-platform/contracts/openapi.yaml a generated/pinned mirror.
-- [ ] Generate a route inventory and compare it to every service registry in CI.
-- [ ] Add checks for duplicate operation IDs, semantic duplicates, and missing
-  registrations.
+- [x] Declare [`myota-contracts/contracts/openapi.yaml`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml) canonical. See the [Phase 0 contract-freeze record](api-contract-freeze.md).
+- [x] Keep root [`myota-contracts/openapi.yaml`](https://github.com/myota-platform/myota-contracts/blob/main/openapi.yaml) as a generated mirror, synchronized by [`sync_contract_mirrors.py`](https://github.com/myota-platform/myota-contracts/blob/main/scripts/sync_contract_mirrors.py).
+- [x] Make [`myota-platform/contracts/openapi.yaml`](https://github.com/myota-platform/myota-platform/blob/main/contracts/openapi.yaml) a generated/pinned mirror.
+- [x] Generate the [`route-inventory.json`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/route-inventory.json) inventory and compare it to every deployed service registry in [CI](https://github.com/myota-platform/myota-contracts/blob/main/.github/workflows/contract-freeze.yml).
+- [x] Add checks for duplicate operation IDs, reviewed semantic duplicates, and missing registrations; the reviewed baseline is [`semantic-duplicates.json`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/semantic-duplicates.json).
 
 ### Phase 1 — low-risk resource updates
 
