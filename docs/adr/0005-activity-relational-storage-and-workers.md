@@ -24,10 +24,12 @@ retries. NATS/outbox events remain the cross-service integration mechanism.
 ## Migration ownership
 
 The activity repository contains the canonical migration. `myota-deploy`
-applies a reviewed deployment copy during the shared migration job. This is a
-deliberate compromise: the owning service reviews its schema, while one
-deployment repository controls ordering, credentials, rollback guidance and
-cluster execution.
+applies a reviewed copy under `db/migrations/activity/` to `myota_activity`
+during the shared migration job; `myota-platform` carries the synchronized
+bootstrap copy. The service, deployment and platform copies must be byte-for-
+byte synchronized. The deployment repository controls ordering, credentials,
+rollback guidance and cluster execution, while the owning service reviews its
+schema.
 
 ## Consequences
 

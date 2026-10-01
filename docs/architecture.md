@@ -25,12 +25,20 @@ flowchart LR
   P -. events .-> Bus
   Geo -. events .-> Bus
   A -. events .-> Bus
-  I --> C[(myota_core)]
+  I --> C[(myota_core\nPostgreSQL)]
   P --> C
-  A --> C
-  Geo --> D[(myota_geo\nPostGIS)]
+  A --> ADB[(myota_activity\nPostgreSQL)]
+  Geo --> D[(myota_geo\nPostgreSQL + PostGIS)]
   Admin[QGIS / browser map editor] --> Geo
 ```
+
+The deployment has three database containers/targets. `myota_core` is the
+control plane for identity, programmes and shared configuration;
+`myota_activity` owns activations, normalized QSOs, aggregates, awards and
+execution workers; and `myota_geo` owns spatial entities and import/review
+processing. Core and activity use plain PostgreSQL. PostGIS is installed only
+where spatial indexes, geometry validation, conflation and QGIS integration
+require it: `myota_geo`.
 
 Each service owns its database tables and publishes events. No service reads another service's tables. The gateway/ingress is a routing boundary, not a domain owner.
 

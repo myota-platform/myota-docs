@@ -6,6 +6,25 @@ not every audit, outbox, job, or index table. The service boundary is more
 important than a single physical database: cross-service links such as
 `entity_id`, `programme_slug`, and `subject_id` are API-level references.
 
+The physical database ownership is:
+
+```mermaid
+flowchart LR
+  Core[(myota_core\nPostgreSQL)] --> Identity[Identity]
+  Core --> Programme[Programmes + configuration]
+  Activity[(myota_activity\nPostgreSQL)] --> Execution[Activations + QSOs]
+  Activity --> Awards[Awards + aggregates]
+  Geo[(myota_geo\nPostgreSQL + PostGIS)] --> Entities[Entities + categories]
+  Geo --> Imports[Imports + review]
+  Identity -. opaque IDs/events .-> Execution
+  Programme -. programme policies/events .-> Execution
+  Entities -. entity IDs/events .-> Execution
+```
+
+Only `myota_geo` requires PostGIS. The logical relationships below therefore
+do not imply cross-database foreign keys: service APIs and versioned events
+carry those references.
+
 ```mermaid
 erDiagram
   ACCOUNT ||--o{ CALLSIGN : owns

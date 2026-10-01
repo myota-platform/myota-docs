@@ -8,12 +8,17 @@
 4. For the durable local stack: `make compose-up`.
 5. For Kubernetes: `make k8s-install`, then `kubectl -n myota get pods` and `kubectl -n myota port-forward svc/myota-gateway 8080:8080`.
 
-The Compose stack is the supported local runtime for persisted data. It
-supplies `CORE_DATABASE_URL` to identity, programme, activity and worker
-processes, `GEO_DATABASE_URL` to geodata, and
-`MYOTA_REQUIRE_DURABILITY=1` to every database-backed workload. A service
+The Compose stack is the supported local runtime for persisted data. It runs
+three database containers: plain PostgreSQL for `myota_core` and
+`myota_activity`, and PostGIS for `myota_geo`. It supplies
+`CORE_DATABASE_URL` to identity/programme/control-plane processes,
+`ACTIVITY_DATABASE_URL` to activity, award, worker and activity-outbox
+processes, and `GEO_DATABASE_URL` to geodata/import processes. Every
+database-backed workload receives
+`MYOTA_REQUIRE_DURABILITY=1`. A service
 with a missing database URL exits during startup rather than using process
-memory. The named PostGIS volume survives container restarts; do not use the
+memory. The named core, activity and geodata volumes survive container
+restarts; do not use the
 dependency-free `make run` process for data you need to keep.
 
 `make test` remains dependency-free by design: unit tests explicitly exercise

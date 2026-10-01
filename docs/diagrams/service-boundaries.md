@@ -11,9 +11,9 @@ flowchart LR
   Admin[Admin web]
   Gateway[Ingress / API gateway]
   Events[(NATS / durable outbox events)]
-  Core[(Core PostgreSQL schema)]
-  GeoDB[(Geodata PostgreSQL + PostGIS)]
-  ActivityDB[(Activity PostgreSQL schema)]
+  Core[(myota_core\nPostgreSQL)]
+  ActivityDB[(myota_activity\nPostgreSQL)]
+  GeoDB[(myota_geo\nPostgreSQL + PostGIS)]
   Objects[(SeaweedFS / S3 object storage)]
 
   Participant --> Gateway
@@ -38,6 +38,14 @@ flowchart LR
   Workers --> Activity
   Workers --> Geodata
 ```
+
+The runtime uses three database containers in local development and three
+independently addressable database targets in Kubernetes. `myota_core` holds
+identity, programmes, configuration, and shared control-plane data;
+`myota_activity` holds activations, QSOs, aggregates, awards, jobs and
+notifications; `myota_geo` holds PostGIS geometry, imports, provenance and
+review data. Only `myota_geo` requires PostGIS. Cross-service references are
+IDs, slugs and events rather than database foreign keys.
 
 ## Ownership rules
 

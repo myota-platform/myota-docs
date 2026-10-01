@@ -20,9 +20,10 @@ keeps ownership and deployment ordering explicit.
 
 ## Durability and events
 
-The runtime selects PostgreSQL whenever `CORE_DATABASE_URL` or
-`GEO_DATABASE_URL` is set. Local Compose and production-like deployments also
-set `MYOTA_REQUIRE_DURABILITY=1`; a service-owned store or activity repository
+The runtime selects PostgreSQL whenever `CORE_DATABASE_URL`,
+`ACTIVITY_DATABASE_URL`, or `GEO_DATABASE_URL` is set. Local Compose and
+production-like deployments also set `MYOTA_REQUIRE_DURABILITY=1`; a
+service-owned store or activity repository
 with a missing configured URL then fails during startup instead of silently
 falling back to process memory. Psycopg's bounded connection pools provide one
 transaction boundary per request, startup retries five times with exponential
@@ -70,7 +71,7 @@ API flows, and record the recovery point/time before using it for production.
 
 `docker compose -f compose.yaml up --build` starts PostGIS, migrations, four
 services, the activity worker and notification consumer, the gateway, NATS
-JetStream, and two outbox relays. The first run
-creates `myota_core` and `myota_geo`; a named volume preserves them across runs.
+JetStream, and three outbox relays. The first run creates `myota_core`,
+`myota_activity`, and `myota_geo`; named volumes preserve them across runs.
 Use `docker compose -f compose.yaml run --rm migrations` after changing a
 migration on an existing volume.

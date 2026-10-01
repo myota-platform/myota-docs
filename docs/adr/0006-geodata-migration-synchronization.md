@@ -23,9 +23,11 @@ When a geodata schema change is required:
    mirrors.
 3. Verify equality and run the migration/bootstrap tests before committing.
 
-Shared tables for service state, idempotency, outbox delivery and consumer
-bookkeeping belong to the core migration. They are not repeated in the
-geodata migration set.
+Shared control-plane tables for identity, programmes, idempotency and core
+outbox delivery belong to `myota_core`; activity outbox/job tables belong to
+`myota_activity`. They are not repeated in the geodata migration set. The
+geodata database contains only PostGIS and geodata-owned tables plus its own
+outbox records needed for event publication.
 
 ## Rationale
 

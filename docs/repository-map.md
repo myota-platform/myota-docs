@@ -16,9 +16,10 @@ The following split is justified and intentionally small:
 
 Migration ownership follows the service boundary. The activity repository is
 the source of truth for `migrations/001_activity_relational.sql`, while
-`myota-deploy` carries the deployment-applied copy as
-`db/migrations/core/002_activity.sql` plus subsequent additive activity
-migrations and runs them in release order. The
+`myota-deploy/db/migrations/activity/` and
+`myota-platform/db/migrations/activity/` carry synchronized deployment and
+bootstrap copies. The deployment runner applies these files to
+`myota_activity`, never to `myota_core`. The
 geodata repository is the source of truth for its complete ordered migration
 set in `migrations/`; `myota-platform/db/migrations/geo/` is the synchronized
 vertical-slice bootstrap mirror and `myota-deploy/db/migrations/geo/` is the
@@ -26,6 +27,12 @@ synchronized deployment mirror. The mirrors must not be edited independently.
 Shared platform tables belong only to the core migration. This keeps schema
 review close to the owning service without making every service perform
 cluster migration orchestration.
+
+The physical storage split is intentional: `myota_core` and
+`myota_activity` use plain PostgreSQL; only `myota_geo` uses PostGIS. Local
+Compose runs three database containers. Helm expects three independent
+database URLs in the `myota-postgres` secret (`core-database-url`,
+`activity-database-url`, and `geo-database-url`).
 
 The geodata import page is owned by `myota-admin-web`, but import semantics
 remain owned by `myota-geodata-service`: text and uploaded files are accepted
