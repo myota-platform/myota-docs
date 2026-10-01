@@ -207,13 +207,19 @@ data.
 
 ### Phase 2 — geodata resource model
 
-- [ ] Consolidate import representations under POST /geodata/imports.
-- [ ] Add POST proposals and PUT entity geometry.
-- [ ] Add PATCH entity metadata and PUT entity categories.
-- [ ] Add POST entity reviews as the lifecycle decision path.
-- [ ] Replace bbox with entity collection filters while retaining tile routes.
-- [ ] Introduce the cross-service deletion-job resource with impact and
-  confirmation state.
+- [x] Consolidate import representations under POST /geodata/imports. See the
+  [Phase 2 geodata resource model](api-phase2-geodata-resource-model.md).
+- [x] Add POST proposals and PUT entity geometry. See the
+  [preferred resource table](api-phase2-geodata-resource-model.md#preferred-resources).
+- [x] Add PATCH entity metadata and PUT entity categories. See the
+  [metadata and categories resources](api-phase2-geodata-resource-model.md#preferred-resources).
+- [x] Add POST entity reviews as the lifecycle decision path. See the
+  [review compatibility policy](api-phase2-geodata-resource-model.md#compatibility-policy).
+- [x] Replace bbox with entity collection filters while retaining tile routes. See the
+  [entity collection resource](api-phase2-geodata-resource-model.md#preferred-resources)
+  and [lifecycle diagram](diagrams/geodata-resource-lifecycle.md).
+- [x] Introduce the cross-service deletion-job resource with impact and
+  confirmation state. See the [deletion safety workflow](api-phase2-geodata-resource-model.md#cross-service-deletion-safety).
 
 ### Phase 3 — activity and award jobs
 
