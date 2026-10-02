@@ -41,7 +41,7 @@ operational convenience of centralized migration ordering.
 
 - Geodata schema review stays with the geodata service.
 - Platform and deployment changes must include synchronized migration copies.
-- Release automation can apply core and geodata databases in a deterministic
-  order.
+- Release automation can apply core, activity, and geodata databases in a
+  deterministic order.
 - Cross-database references remain opaque IDs and events rather than foreign
   keys.

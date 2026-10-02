@@ -119,7 +119,11 @@ workflow instead.
 
 ## Production notes
 
-Use managed PostgreSQL where possible, enable PostGIS, store credentials in Kubernetes Secrets or an external secret manager, and back up core and geodata databases independently. Pin image digests, enforce network policies so services reach only their own database, and expose QGIS access only through a private network or bastion.
+Use managed PostgreSQL where possible, store credentials in Kubernetes Secrets
+or an external secret manager, and back up `myota_core`, `myota_activity`, and
+`myota_geo` independently. Only `myota_geo` needs PostGIS. Pin image digests,
+enforce network policies so services reach only their own database, and expose
+QGIS access only through a private network or bastion.
 
 ### Rancher Fleet on K3s
 
@@ -132,6 +136,26 @@ checks, and current chart limits. The chart-managed option provides three
 separate persistent targets, with PostGIS only on `myota_geo`; it is
 single-instance and requires off-host backups. Keep credential values out of
 Fleet values files and Git.
+
+#### Fleet rollout and readiness troubleshooting
+
+The gateway's liveness and readiness probes target `/healthz`; `/` is not a
+health endpoint. The geodata import processor is a singleton consumer of a
+durable JetStream stream and rolls with `maxSurge: 0` and
+`maxUnavailable: 1`. This intentionally permits a brief processing pause
+during replacement so old and new pods do not compete for the same durable
+consumer. Pending work is retained and the processor's recovery path resumes it
+after the replacement is ready.
+
+Fleet's GitRepo polling interval controls when a pushed revision is fetched.
+A bundle force-sync/reconcile can re-apply the revision already fetched without
+fetching a newer commit. When expected changes are missing, compare the GitRepo
+observed commit with the pushed commit, check its polling interval, then inspect
+the Bundle, Helm release, migration Job, pod events, and Deployment readiness.
+The migration Job is release-revision-scoped and gates database-backed pods
+until all three schemas are ready. A failed migration or unready pod should be
+diagnosed from its logs/events; do not delete or reinitialize database PVCs as
+a generic recovery step. See the detailed [deployment guide](https://github.com/myota-platform/myota-deploy/blob/main/deploy/helm/myota/DEPLOYMENT.md#rollouts-and-operational-checks).
 
 The chart supports separate Traefik hostnames: `ingress.host` (the API gateway,
 default `api.myota.top`) routes to the API gateway, while
