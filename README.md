@@ -21,6 +21,7 @@ synchronization rule, and deployment boundaries are defined in
 - [Phase 3 activity and award jobs](docs/api-phase3-activity-award-jobs.md)
 - [Phase 4 client and operational migration](docs/api-phase4-client-operational-migration.md)
 - [Repository map and ownership boundaries](docs/repository-map.md)
+- [Deferred Geodata API horizontal-scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md)
 - [Programme configuration gap analysis](docs/programme-configuration-gap-analysis.md)
 - [Operations and production-readiness notes](docs/operations.md)
 - [Object-storage bucket boundaries](docs/operations.md#object-storage-bucket-boundaries)
