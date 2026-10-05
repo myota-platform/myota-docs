@@ -53,11 +53,13 @@ python3 migrate_award_asset_buckets.py
 python3 migrate_award_asset_buckets.py --apply
 ```
 
-The migration copies and verifies objects before updating each asset's recorded
-bucket, is safe to re-run, and intentionally leaves the old source objects in
-place. Verify no metadata still references `myota-awards` and take a backup
-before retiring/deleting that legacy bucket. Never apply a blanket 30-day
-lifecycle rule to all object buckets.
+Run the migration in an environment that can reach both the durable activity
+database and object store. It copies and verifies stored objects before
+updating each asset's recorded bucket, safely re-points `MISSING` placeholders,
+is safe to re-run, and intentionally leaves old source objects in place.
+Verify no metadata still references `myota-awards` and take a backup before
+retiring/deleting that legacy bucket. Never apply a blanket 30-day lifecycle
+rule to all object buckets.
 
 Large browser uploads are spooled to the geodata upload-spool volume and the
 HTTP endpoint returns `202 UPLOAD_PENDING` after the request body has been
