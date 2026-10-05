@@ -9,6 +9,7 @@ bucket.
 flowchart LR
   Geo[Geodata service] -->|source files + snapshots| GeoBucket[(myota-geodata-imports)]
   Activity[Activity API + workers] -->|ADIF uploads| AdifBucket[(myota-adif)]
+  AdifRetention[15-day completed ADIF cleanup] -->|completed source objects only| AdifBucket
   Activity -->|editable backgrounds| BackgroundBucket[(myota-award-assets)]
   Activity -->|manager signatures| SignatureBucket[(myota-award-signatures)]
   Activity -->|issued certificate PDFs| CertificateBucket[(myota-certificates)]
@@ -17,4 +18,6 @@ flowchart LR
 
 Background and signature bucket selection is server-side based on the asset
 kind. Certificates remain durable issuance records and are never subject to
-geodata import cleanup. ADIF retention follows the activity/privacy policy.
+either import cleanup. ADIF cleanup deletes only source objects for completed
+imports; import results remain in the activity database. Failed, pending, and
+processing imports are excluded from the 15-day policy.

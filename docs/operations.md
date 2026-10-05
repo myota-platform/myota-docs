@@ -35,7 +35,7 @@ buckets:
 | Bucket (configurable) | Owner / contents | Retention boundary |
 |---|---|---|
 | `myota-geodata-imports` | Geodata source files and import snapshots | Geodata cleanup removes eligible import objects and logs after 30 days, including stale, failed, pending and stalled runs. |
-| `myota-adif` | Uploaded ADIF source logs | Activity/privacy policy; geodata cleanup never touches it. |
+| `myota-adif` | Uploaded ADIF source logs | Completed source objects are deleted 15 days after processing; import results remain in PostgreSQL. Queued, processing, and failed imports are excluded. |
 | `myota-award-assets` | Editable award background artwork | Retain while referenced by draft or published awards. |
 | `myota-award-signatures` | Award-manager signature images | Retain while referenced by award issuance/template records. |
 | `myota-certificates` | Generated issued certificate PDFs | Durable issuance artifacts; no short import-retention policy. |
@@ -60,6 +60,18 @@ is safe to re-run, and intentionally leaves old source objects in place.
 Verify no metadata still references `myota-awards` and take a backup before
 retiring/deleting that legacy bucket. Never apply a blanket 30-day lifecycle
 rule to all object buckets.
+
+The activity service runs a separate daily ADIF source-retention job against
+`activity_import`. It selects only `COMPLETED` imports whose `completed_at` is
+at least 15 days old and whose source has not already been removed. The job
+deletes the object from the configured ADIF bucket, then sets
+`source_deleted_at`; if object deletion or the marker update fails, a later
+pass retries safely. The import row, result counts, diagnostics, and QSO
+records remain in PostgreSQL. Failed, queued, and processing uploads are not
+eligible. Award backgrounds, signatures, and issued certificates are never
+touched. Configure Helm with `activityAdifRetention.enabled`, `schedule`,
+`retentionDays`, and `batchSize`; local Compose uses the corresponding
+`MYOTA_ADIF_RETENTION_*` settings and runs the worker daily.
 
 Large browser uploads are spooled to the geodata upload-spool volume and the
 HTTP endpoint returns `202 UPLOAD_PENDING` after the request body has been

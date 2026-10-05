@@ -28,7 +28,7 @@ synchronization rule, and deployment boundaries are defined in
 - [Security/threat model](docs/security/threat-model.md)
 - [Diagrams](docs/diagrams/)
   - [Geodata import validation and promotion](docs/diagrams/geodata-import-validation.md)
-  - [Local and production operations, including import retention](docs/operations.md)
+  - [Local and production operations, including 15-day ADIF and 30-day geodata import retention](docs/operations.md)
   - [Geodata resource lifecycle](docs/diagrams/geodata-resource-lifecycle.md)
   - [Activity and award jobs](docs/diagrams/activity-award-jobs.md)
   - [Phase 4 client and operations](docs/diagrams/api-phase4-operational-migration.md)
