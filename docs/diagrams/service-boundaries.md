@@ -9,6 +9,9 @@ are not cross-database foreign keys.
 flowchart LR
   Participant[Participant web / Android / iOS]
   Admin[Admin web]
+  Grafana[Grafana dashboards]
+  Prometheus[(Prometheus)]
+  Alertmanager[Alertmanager]
   Gateway[Ingress / API gateway]
   Events[(NATS / durable outbox events)]
   Core[(myota_core\nPostgreSQL)]
@@ -18,6 +21,10 @@ flowchart LR
 
   Participant --> Gateway
   Admin --> Gateway
+  Admin -->|JWT-checked /observability proxy| Grafana
+  Admin -. auth subrequest .-> Gateway
+  Grafana --> Prometheus
+  Grafana --> Alertmanager
   Gateway --> Identity[Identity service\naccounts, callsigns, roles, OIDC]
   Gateway --> Programme[Programme service\nprogramme config, policies, locales, jurisdictions]
   Gateway --> Geodata[Geodata service\nentities, imports, provenance, review]

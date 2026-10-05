@@ -170,6 +170,20 @@ currently exposes the API rather than a participant website. Helm lint/render
 runs in GitHub Actions; Fleet performs deployment from the reviewed Git
 revision.
 
+The Helm observability stack is enabled by default and persists Prometheus,
+Alertmanager, Grafana, and Tempo data on separate PVCs. Grafana is served only
+at `/observability/` on the Admin UI host: the Admin UI first refreshes its
+MyOTA access token, then its Nginx proxy validates that token against the
+identity API for each Grafana request. Anonymous access and Grafana's own login
+form are disabled; proxy-authenticated users receive the Grafana Viewer role.
+Prometheus, Alertmanager, Tempo, and the collector have only cluster-internal
+Services and no public ingress. See the
+[deployment guide](https://github.com/myota-platform/myota-deploy/blob/main/deploy/helm/myota/DEPLOYMENT.md#rollouts-and-operational-checks)
+for the path, storage sizing, and rollout checks. Alertmanager is deployed and
+receives Prometheus/Grafana-managed alerts, but no email or paging destination
+is configured by default; add an approved receiver before relying on external
+notifications.
+
 ### Container image publishing
 
 GitHub Actions builds and publishes chart images to GHCR on pushes to `main`;

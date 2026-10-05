@@ -42,6 +42,20 @@ require it: `myota_geo`.
 
 Each service owns its database tables and publishes events. No service reads another service's tables. The gateway/ingress is a routing boundary, not a domain owner.
 
+### Authenticated observability
+
+Prometheus, Alertmanager, Tempo and the OpenTelemetry Collector are exposed as
+cluster-internal Services only. Grafana is reverse-proxied at
+`/observability/` by the Admin UI web server, not by a separate public
+IngressRoute. The Vue UI mirrors its short-lived MyOTA access token into a
+path-limited, SameSite=Strict cookie; the proxy sends that token to the identity
+API through an Nginx `auth_request` check for every Grafana request. Grafana
+anonymous access and its own login form are disabled, and successful proxy
+authentication maps to a read-only Viewer. Prometheus, Alertmanager and Tempo
+are only reached through Grafana's server-side data sources. See the
+[operations guide](operations.md#rancher-fleet-on-k3s) for deployment and
+storage details.
+
 Activity execution and award management are one bounded service and one API
 deployment. Locally, both route families are exposed on port `8004`; award
 paths remain distinct (`/v1/awards`) but do not create a second service or
