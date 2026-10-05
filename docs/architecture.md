@@ -95,9 +95,11 @@ API selects the background/signature bucket from asset kind; issued PDFs are
 written only to the certificate bucket. Local Compose and Helm expose each
 bucket as independent configuration. Award metadata and immutable issuance
 render specifications remain in the activity service so object storage can be
-replaced without changing the API. Import retention applies only to the
-geodata-import bucket; it must not be applied to award assets, signatures,
-uploaded ADIF logs, or issued certificates.
+replaced without changing the API. Geodata import retention applies only to
+the geodata-import bucket. A separate activity-owned 15-day policy removes
+source objects for completed and failed ADIF imports while retaining their
+import results in PostgreSQL; queued and processing uploads are excluded.
+Neither policy applies to award assets, signatures, or issued certificates.
 
 ## Geodata lifecycle
 
