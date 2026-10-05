@@ -157,6 +157,23 @@ is available at `http://localhost:3000`, Prometheus at
 [`observability.md`](observability.md) for the trust model and interpretation
 of empty or unavailable series.
 
+The **MyOTA Geodata capacity baseline** dashboard provisions request rate and
+p50/p95/p99 latency, 5xx rate, active requests, request-body size, process CPU
+and memory per service instance, Postgres pool/connection/lock-wait signals,
+import queue age/heartbeat, feature/attempt totals, and unpublished geodata
+outbox depth/age. Application metrics use bounded service/route/method/status
+labels and do not label series with entity IDs, import IDs, or filenames.
+
+The repeatable external baseline uses Grafana k6, available on macOS through
+Homebrew. See the [geodata service load-test instructions](https://github.com/myota-platform/myota-geodata-service#read-only-load-baseline-grafana-k6).
+It defaults to `https://api.myota.top`, requires `MYOTA_ALLOW_PRODUCTION=YES`,
+and is read-only: it samples up to ten public entities in memory, caps the run
+at four virtual users/five minutes, and creates no application records or
+objects. Therefore no production fixture cleanup is needed after success; the
+ordinary operational telemetry is retained. This baseline does not test large
+uploads, writes, or synthetic high-cardinality data. Do not treat it as a
+stress test.
+
 Use `make verify-phase4` after rebuilding the durable stack. It runs the
 authorization, idempotency, audit, activity, award, and geodata regression
 suite, verifies typed-client coverage, and probes gateway/service health and

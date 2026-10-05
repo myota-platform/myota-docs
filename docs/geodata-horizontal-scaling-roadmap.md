@@ -2,10 +2,10 @@
 
 ## Status and scope
 
-**Deferred work — not implemented.** This checklist records the work needed
-before increasing the Geodata API beyond one replica in production. It is an
-implementation roadmap, not a claim that the current service is horizontally
-safe.
+**Phase 0 read-only baseline delivered; remaining Phase 0 work and Phases 1–5
+are deferred.** This checklist records the work needed before increasing the
+Geodata API beyond one replica in production. The baseline does not make the
+current service horizontally safe.
 
 The goal is to scale the HTTP API independently from large dataset processing
 while preserving entity, review, import, provenance, and audit correctness.
@@ -56,22 +56,39 @@ executor queue, or pod filesystem is authoritative for accepted work.
 
 ### Phase 0 — establish a measurable baseline
 
-- [ ] Define expected request and import workloads, including large uploads,
-  map/catalogue queries, simultaneous edits, and queue backlogs.
-- [ ] Record API request rate, p50/p95/p99 latency, errors, in-flight requests,
-  request sizes, and per-pod CPU/memory.
-- [ ] Record Postgres pool wait time, active connections, slow query plans,
-  PostGIS query latency, lock waits, and database saturation.
-- [ ] Record JetStream pending/ack-pending counts, oldest-message age, worker
-  throughput, retry counts, and import lease/heartbeat age.
-- [ ] Add or confirm metrics for upload bytes and duration, preprocessing
-  duration and feature counts, and queue depth by job type. Avoid labels with
-  unbounded values such as entity IDs, import IDs, or filenames.
-- [ ] Establish a repeatable load-test dataset and scripts without using
-  production personal data.
+- [x] Define a bounded production-safe workload for health, paged catalogue,
+  bounding-box catalogue, and entity-detail reads. This is a closed-loop
+  read-only profile (2 VUs/60s by default; hard cap 4 VUs/5m), not a write,
+  import, or stress test. See the [geodata service k6 instructions](https://github.com/myota-platform/myota-geodata-service#read-only-load-baseline-grafana-k6).
+- [ ] Define separate representative workload profiles for large uploads,
+  simultaneous edits, preprocessing, promotion, and sustained queue backlog;
+  run those only in a non-production environment.
+- [x] Export API request rate, response-duration histogram (p50/p95/p99 in
+  Grafana), errors, active requests, and request body size through OpenTelemetry.
+- [x] Export process CPU time and resident memory with a unique
+  `service.instance.id` resource attribute for per-process views.
+- [x] Export Postgres connection-pool size/availability/waiters, cumulative
+  pool-wait time, active connections, max connections, and lock waits.
+- [ ] Add query-level slow-query/`EXPLAIN (ANALYZE, BUFFERS)` evidence and
+  dedicated PostGIS query timing. API route latency is visible, but it does
+  not identify the query plan by itself.
+- [x] Export durable geodata import queue depth/age, processing heartbeat age,
+  retry attempts, feature totals, and unpublished outbox depth/age.
+- [ ] Export JetStream consumer pending/ack-pending counts, redeliveries, and
+  oldest message age; the current outbox and database import metrics do not
+  measure broker consumer lag.
+- [x] Provision the **MyOTA Geodata capacity baseline** dashboard and backlog,
+  pool, and heartbeat alerts in local Compose and Helm Grafana/Prometheus files.
+- [x] Add a repeatable macOS Grafana k6 script. It samples at most ten public
+  production entities in memory and makes no application writes or uploads;
+  there are no persisted fixture records or objects to clean up after success.
+  The script also refuses production runs without an explicit acknowledgement.
 
-**Exit criteria:** the team can identify whether API, PostGIS, object storage,
-or import workers are the bottleneck under a representative test.
+**Exit criteria: partially met.** The production-safe read baseline exposes API,
+process, and database-pool signals in Grafana. This phase remains open until
+non-production import/write load profiles and query-plan evidence identify
+whether PostGIS, object storage, or workers are the bottleneck under a
+representative ingestion workload.
 
 ### Phase 1 — remove cross-replica mutable process state
 
