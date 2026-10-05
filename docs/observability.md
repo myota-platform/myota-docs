@@ -1,6 +1,6 @@
 # MyOTA observability
 
-Status: implemented for the local Compose stack and Helm packaging (2026-10-01).
+Status: implemented for the local Compose stack and Helm packaging (updated 2026-10-05).
 
 ## What was confirmed
 
@@ -11,9 +11,10 @@ measurements behind them. The only consistently visible value was gateway
 health traffic. The old dashboard therefore did not provide a trustworthy
 project-wide view.
 
-The current dashboard uses only measurements derived from persisted service
-state. A zero is a real zero; a missing value indicates that the source service
-or collector is unavailable.
+The current dashboards use measurements derived from persisted service state,
+live API/database execution, or direct JetStream consumer state. A zero is a
+real zero; a missing value indicates that the source service or collector is
+unavailable.
 
 ## Collection architecture
 
@@ -59,6 +60,13 @@ example `/v1/entities/{id}`), not an unbounded URL containing identifiers.
 This keeps cardinality bounded and makes the dashboard usable for the new REST
 resource API as well as the remaining compatibility aliases.
 
+API latency is distinct from query-level timings. The geodata service observes
+the PostGIS bounding-box query and entity upsert under
+`myota_geodata_postgis_query_duration_seconds{query=...}` and counts operations
+above the configured slow-query threshold. A guarded non-production tool
+captures actual `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` plans; see the
+[geodata load and query-evidence runbook](geodata-load-test-and-query-evidence.md).
+
 ## Alerting
 
 Prometheus evaluates the source-of-truth rules in
@@ -89,6 +97,11 @@ emails, callsigns, or entity identifiers:
 - Activity: valid and void QSOs, activations by status, participants,
   activators, hunters, aggregate callsign/entity rows, award definitions and
   progress, ADIF imports, jobs, corrections, and queue lag.
+- JetStream: per-stream/consumer pending and ack-pending messages, broker
+  redeliveries, oldest outstanding message age, and metrics-poller health. The
+  age lookup is marked unavailable if the broker no longer retains the target
+  sequence. These are broker-side measurements, distinct from outbox/import
+  database counts.
 
 All service-specific values are read from the service's durable store at scrape
 time. Request counters and distributed request histograms are emitted through
@@ -106,8 +119,9 @@ curl http://localhost:8889/metrics
 
 Grafana is at `http://localhost:3000`; Prometheus is at
 `http://localhost:9090`; Alertmanager is at `http://localhost:9093`; Tempo's
-local API is at `http://localhost:3200`. The provisioned `MyOTA operations` and
-`MyOTA API performance` dashboards are tagged `real-data`.
+local API is at `http://localhost:3200`. The provisioned `MyOTA operations`,
+`MyOTA API performance`, `MyOTA Geodata capacity baseline`, and `MyOTA JetStream
+backlog and PostGIS query performance` dashboards are tagged `real-data`.
 
 Kubernetes enables the same collector, Prometheus, Alertmanager, Grafana and
 Tempo resources with `observability.enabled=true`. Production should add

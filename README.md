@@ -22,6 +22,7 @@ synchronization rule, and deployment boundaries are defined in
 - [Phase 4 client and operational migration](docs/api-phase4-client-operational-migration.md)
 - [Repository map and ownership boundaries](docs/repository-map.md)
 - [Geodata API horizontal-scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md)
+- [Geodata non-production load tests and query evidence](docs/geodata-load-test-and-query-evidence.md)
 - [Programme configuration gap analysis](docs/programme-configuration-gap-analysis.md)
 - [Operations and production-readiness notes](docs/operations.md)
 - [Geodata API load baseline and Grafana dashboard](docs/geodata-horizontal-scaling-roadmap.md#phase-0--establish-a-measurable-baseline)

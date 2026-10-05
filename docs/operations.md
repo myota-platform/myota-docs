@@ -164,6 +164,14 @@ import queue age/heartbeat, feature/attempt totals, and unpublished geodata
 outbox depth/age. Application metrics use bounded service/route/method/status
 labels and do not label series with entity IDs, import IDs, or filenames.
 
+The separate **MyOTA JetStream backlog and PostGIS query performance**
+dashboard shows broker-reported consumer pending/ack-pending counts,
+redeliveries, oldest outstanding message age and age-lookup availability, plus
+PostGIS query-time percentiles and slow-query rate. These are distinct from
+outbox rows waiting to publish and database import queue state. The
+[`geodata load and query-evidence runbook`](geodata-load-test-and-query-evidence.md)
+documents profile safety, cleanup, metrics, and read-only query-plan capture.
+
 The repeatable external baseline uses Grafana k6, available on macOS through
 Homebrew. See the [geodata service load-test instructions](https://github.com/myota-platform/myota-geodata-service#read-only-load-baseline-grafana-k6).
 It defaults to `https://api.myota.top`, requires `MYOTA_ALLOW_PRODUCTION=YES`,
@@ -173,6 +181,14 @@ objects. Therefore no production fixture cleanup is needed after success; the
 ordinary operational telemetry is retained. This baseline does not test large
 uploads, writes, or synthetic high-cardinality data. Do not treat it as a
 stress test.
+
+Separate upload, simultaneous-edit, preprocessing, promotion, and sustained
+queue-backlog profiles are mutating and non-production-only. They refuse
+production-like hostnames and require a staging/test/development acknowledgement;
+successful k6 teardown deletes tagged fixtures only after checking for linked
+activity and award progress. Do not point these profiles at `api.myota.top`.
+Their status and execution evidence are tracked in the
+[geodata scaling roadmap](geodata-horizontal-scaling-roadmap.md#phase-0--establish-a-measurable-baseline).
 
 Use `make verify-phase4` after rebuilding the durable stack. It runs the
 authorization, idempotency, audit, activity, award, and geodata regression

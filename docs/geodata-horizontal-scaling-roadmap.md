@@ -60,35 +60,49 @@ executor queue, or pod filesystem is authoritative for accepted work.
   bounding-box catalogue, and entity-detail reads. This is a closed-loop
   read-only profile (2 VUs/60s by default; hard cap 4 VUs/5m), not a write,
   import, or stress test. See the [geodata service k6 instructions](https://github.com/myota-platform/myota-geodata-service#read-only-load-baseline-grafana-k6).
-- [ ] Define separate representative workload profiles for large uploads,
-  simultaneous edits, preprocessing, promotion, and sustained queue backlog;
-  run those only in a non-production environment.
+- [x] Define isolated representative workload profiles for large uploads,
+  simultaneous edits, preprocessing, promotion, and sustained queue backlog.
+  They require an explicit non-production environment and acknowledgement,
+  reject production hostnames, cap VUs/data/time, and clean tagged fixtures on
+  successful completion. See the [workload and query-evidence runbook](geodata-load-test-and-query-evidence.md)
+  and the [k6 profile implementation](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/geodata-workloads.js).
+- [ ] Execute each write profile in a non-production deployment and retain its
+  result summary. Do not run these profiles against production.
 - [x] Export API request rate, response-duration histogram (p50/p95/p99 in
   Grafana), errors, active requests, and request body size through OpenTelemetry.
 - [x] Export process CPU time and resident memory with a unique
   `service.instance.id` resource attribute for per-process views.
 - [x] Export Postgres connection-pool size/availability/waiters, cumulative
   pool-wait time, active connections, max connections, and lock waits.
-- [ ] Add query-level slow-query/`EXPLAIN (ANALYZE, BUFFERS)` evidence and
-  dedicated PostGIS query timing. API route latency is visible, but it does
-  not identify the query plan by itself.
+- [x] Add query-level slow-query counters and dedicated PostGIS timings for
+  bounding-box reads and entity upserts. Provide a guarded, read-only
+  `EXPLAIN (ANALYZE, BUFFERS)` evidence tool for development, test, or staging;
+  the API latency histogram is kept separate from query execution time. See
+  the [query-evidence runbook](geodata-load-test-and-query-evidence.md) and
+  [evidence tool](https://github.com/myota-platform/myota-geodata-service/blob/main/scripts/geodata-query-plan-evidence.py).
 - [x] Export durable geodata import queue depth/age, processing heartbeat age,
   retry attempts, feature totals, and unpublished outbox depth/age.
-- [ ] Export JetStream consumer pending/ack-pending counts, redeliveries, and
-  oldest message age; the current outbox and database import metrics do not
-  measure broker consumer lag.
+- [x] Export JetStream consumer pending/ack-pending counts, broker redelivery
+  counts, and oldest outstanding message age directly from JetStream consumer
+  state. Age is explicitly marked unavailable if retention removes the
+  referenced message before its timestamp is read. See the
+  [JetStream metrics implementation](https://github.com/myota-platform/myota-geodata-service/blob/main/jetstream_observability.py).
 - [x] Provision the **MyOTA Geodata capacity baseline** dashboard and backlog,
   pool, and heartbeat alerts in local Compose and Helm Grafana/Prometheus files.
+- [x] Provision a separate **MyOTA JetStream backlog and PostGIS query
+  performance** dashboard in Compose and Helm, with broker-lag and dedicated
+  PostGIS query percentiles/slow-query panels.
 - [x] Add a repeatable macOS Grafana k6 script. It samples at most ten public
   production entities in memory and makes no application writes or uploads;
   there are no persisted fixture records or objects to clean up after success.
   The script also refuses production runs without an explicit acknowledgement.
 
-**Exit criteria: partially met.** The production-safe read baseline exposes API,
-process, and database-pool signals in Grafana. This phase remains open until
-non-production import/write load profiles and query-plan evidence identify
-whether PostGIS, object storage, or workers are the bottleneck under a
-representative ingestion workload.
+**Exit criteria: partially met.** The production-safe read baseline and
+non-production write profiles are implemented, and the dashboards now separate
+API latency, query time/plan evidence, durable import state, and JetStream
+consumer lag. Phase 0 remains open until all write profiles have been run in a
+non-production deployment and representative query-plan/load evidence has been
+reviewed for PostGIS, object storage, and worker bottlenecks.
 
 ### Phase 1 — remove cross-replica mutable process state
 
