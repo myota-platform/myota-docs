@@ -49,6 +49,27 @@ Binary formats without an installed parser remain visibly queued. Runs with no
 recoverable source are changed to `FAILED` with `last_error`, so they do
 not appear indefinitely as active work.
 
+### Geodata import retention
+
+The `geodata-import-retention` worker runs once daily in Compose and as a
+Kubernetes CronJob. It permanently removes source objects and import history/
+log records after 30 days. A `PROCESSED` run ages from `processed_at`; queued,
+upload-pending, processing, preprocessed, legacy completed, and failed runs
+age from their latest start, completion, or heartbeat timestamp. Active work
+continues to be retained while heartbeats advance; stalled imports and records
+awaiting review expire after 30 days without activity. This includes failed
+imports after 30 days, so preserve diagnostics externally if a longer failure
+investigation period is required.
+
+Cleanup removes source files, the import run/summary, snapshot manifests, and
+published import-run outbox/consumer logs. It does not delete geodata entities
+or their source provenance. The object is deleted before its database history;
+if the object store or database cleanup fails, the run stays eligible and a
+later run retries it. The chart settings `geodataImportRetention.enabled`,
+`schedule`, `retentionDays`, and `batchSize` control Kubernetes. Local Compose
+uses `GEODATA_IMPORT_RETENTION_DAYS` and drains all eligible runs in bounded
+batches during each daily pass.
+
 ### Coordinate reference systems
 
 The geodata intake boundary stores validated geometry in WGS84 longitude and

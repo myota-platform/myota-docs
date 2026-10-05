@@ -59,6 +59,13 @@ both values. Browser multipart uploads are spooled to a temporary file and
 streamed into SeaweedFS, while the gateway forwards the request without
 buffering a second full copy.
 
+The geodata service also owns import retention. A daily worker expires
+`PROCESSED` runs 30 days after `processed_at`; queued, preprocessed, failed, and
+stalled runs expire after 30 days without a newer start/completion/heartbeat.
+Active processing is retained while its heartbeat advances. The worker deletes
+stored source files and import-specific history/log data, while promoted
+entities and their source provenance remain.
+
 Global entity deletion is an explicit cross-service workflow. The activity
 service owns the impact calculation, valid-QSO deletion, aggregate rebuild and
 award-progress recalculation job; only after that succeeds does the geodata

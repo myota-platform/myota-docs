@@ -25,7 +25,17 @@ flowchart LR
   Admin --> Finalize[Mark import as PROCESSED]
   Finalize --> Cleanup[Delete staged candidate and queue rows]
   Cleanup --> Summary[Keep import summary and audit metadata]
+  Summary --> Retention{30 days since finalization or activity?}
+  Retention -->|No| Summary
+  Retention -->|Yes| Expunge[Delete source object and import logs]
+  Expunge -.-> Entities[Keep promoted entities and provenance]
 ```
+
+The daily retention worker expunges the source object, import history, and
+import-specific logs after 30 days. Finalized runs age from `processed_at`;
+pending, failed, and stalled runs age from their latest start, completion, or
+heartbeat. Active processing remains while its heartbeat advances. The worker
+does not delete promoted entities or their provenance.
 
 The candidate store is represented by `geodata_import_candidate` in the
 geodata PostGIS schema. Duplicate verification compares normalized geometry
