@@ -23,9 +23,41 @@ dependency-free `make run` process for data you need to keep.
 
 `make test` remains dependency-free by design: unit tests explicitly exercise
 the in-memory adapter and do not represent the production or Compose storage
-path. Binary imports and award assets are stored in the mounted SeaweedFS volume;
-their metadata, queues, audit events, QSO data and award state are persisted in
-PostgreSQL.
+path. Binary imports, ADIF uploads, award assets and issued certificates are
+stored in the mounted SeaweedFS volume; their metadata, queues, audit events,
+QSO data and award state are persisted in PostgreSQL.
+
+### Object-storage bucket boundaries
+
+The S3 endpoint and credentials are shared, but distinct purposes use distinct
+buckets:
+
+| Bucket (configurable) | Owner / contents | Retention boundary |
+|---|---|---|
+| `myota-geodata-imports` | Geodata source files and import snapshots | Geodata cleanup removes eligible import objects and logs after 30 days, including stale, failed, pending and stalled runs. |
+| `myota-adif` | Uploaded ADIF source logs | Activity/privacy policy; geodata cleanup never touches it. |
+| `myota-award-assets` | Editable award background artwork | Retain while referenced by draft or published awards. |
+| `myota-award-signatures` | Award-manager signature images | Retain while referenced by award issuance/template records. |
+| `myota-certificates` | Generated issued certificate PDFs | Durable issuance artifacts; no short import-retention policy. |
+
+The award API assigns background/signature buckets by asset kind; the
+client-supplied `bucket` property is read-only and cannot select a destination.
+Existing object references retain their recorded bucket. When upgrading from
+the former shared `myota-awards` bucket, copy the objects and update asset
+metadata before retiring that bucket. From the activity-service checkout, set
+`ACTIVITY_DATABASE_URL` and the S3 endpoint/credentials, review a dry run, then
+apply it:
+
+```bash
+python3 migrate_award_asset_buckets.py
+python3 migrate_award_asset_buckets.py --apply
+```
+
+The migration copies and verifies objects before updating each asset's recorded
+bucket, is safe to re-run, and intentionally leaves the old source objects in
+place. Verify no metadata still references `myota-awards` and take a backup
+before retiring/deleting that legacy bucket. Never apply a blanket 30-day
+lifecycle rule to all object buckets.
 
 Large browser uploads are spooled to the geodata upload-spool volume and the
 HTTP endpoint returns `202 UPLOAD_PENDING` after the request body has been

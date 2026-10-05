@@ -85,12 +85,19 @@ recalculation, PDF rendering, statistics and notification delivery, while the
 notification consumer translates geodata and identity events into participant
 notices. Each workload has its own bounded database pool.
 
-Award background images, manager signatures and generated certificate objects
-are addressed through an S3-compatible object store. Local Compose provides
-SeaweedFS; production Helm values point the activity service at the selected
-managed or self-hosted object store. Metadata and immutable issuance render
-specifications remain in the activity service so object storage can be replaced
-without changing the API.
+Object storage is split into purpose-specific buckets on the same S3-compatible
+SeaweedFS (or configured provider) endpoint: `myota-geodata-imports` for source
+imports, `myota-adif` for submitted logs, `myota-award-assets` for editable
+award backgrounds, `myota-award-signatures` for manager signatures, and
+`myota-certificates` for generated issued certificates. These are separate
+retention/access-policy boundaries, not separate storage clusters. The activity
+API selects the background/signature bucket from asset kind; issued PDFs are
+written only to the certificate bucket. Local Compose and Helm expose each
+bucket as independent configuration. Award metadata and immutable issuance
+render specifications remain in the activity service so object storage can be
+replaced without changing the API. Import retention applies only to the
+geodata-import bucket; it must not be applied to award assets, signatures,
+uploaded ADIF logs, or issued certificates.
 
 ## Geodata lifecycle
 

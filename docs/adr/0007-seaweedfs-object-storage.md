@@ -9,7 +9,9 @@ Accepted
 MinIO's former public community image is no longer a dependable distribution
 path for the local and Kubernetes environments. MyOTA needs S3-compatible
 storage for ADIF uploads, geodata source objects, award backgrounds,
-signatures, and generated certificates. The application must remain portable
+signatures, and generated certificates. These have different access and
+retention needs, so a shared bucket makes accidental cross-purpose deletion or
+policy application too easy. The application must remain portable
 to another S3 provider and must not depend on an object-store-specific SDK.
 
 ## Decision
@@ -21,6 +23,15 @@ SeaweedFS image in single-node `weed mini` mode. The Helm chart can optionally
 run the same single-node mode for development; production deployments should
 use a separately operated SeaweedFS cluster or its supported Kubernetes
 deployment pattern and provide the endpoint and credentials through a Secret.
+Use separate purpose buckets on that endpoint: `myota-geodata-imports`,
+`myota-adif`, `myota-award-assets`, `myota-award-signatures`, and
+`myota-certificates`. Award background/signature buckets are selected
+server-side by asset kind. The geodata 30-day cleanup is scoped only to the
+geodata bucket; issued certificates remain durable. Bucket separation provides
+independent lifecycle/access-policy boundaries without a separate object-store
+cluster for every purpose. Upgrades from the former shared award bucket use the
+activity service's idempotent copy-and-reference migration; source objects are
+retained until operators verify the migration and retire the legacy bucket.
 
 The filesystem adapter remains available only for dependency-free unit tests.
 `myota-deploy/scripts/migrate-local-object-store.py` preserves its

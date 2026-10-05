@@ -76,8 +76,12 @@ notifications; the original upload is retained for reconciliation.
 ## Certificate assets and print readiness
 
 Backgrounds and manager signatures are registered as image metadata pointing to
-an object key in SeaweedFS or another S3-compatible store. The service records the
-bucket, endpoint, media type, dimensions and optional checksum. The admin web
+an object key in SeaweedFS or another S3-compatible store. The service selects
+their bucket by asset kind; clients cannot override it. Editable award
+backgrounds use `myota-award-assets`, manager signatures use
+`myota-award-signatures`, and generated issued PDF certificates use
+`myota-certificates`. The service records the bucket, endpoint, media type,
+dimensions and optional checksum. The admin web
 uploads through a short-lived presigned URL, with a small JSON/base64 fallback
 for local administration. The certificate
 template stores normalized `x`, `y`, `width`, and `height` positions for the
