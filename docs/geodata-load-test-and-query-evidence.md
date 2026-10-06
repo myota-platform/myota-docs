@@ -120,6 +120,12 @@ admin, and submit the exact confirmation to the endpoint. Cleanup intentionally 
 closed if the activity API cannot verify that entities have no protected
 activity.
 
+In Kubernetes, ensure the geodata deployment's `MYOTA_ACTIVITY_URL` resolves to
+the Activity Service. The MyOTA Helm chart sets it from
+`services.activity.internalUrl` (default `http://myota-activity:8004`). Cleanup
+fails closed before deleting fixtures when this cross-service safety check
+cannot reach the activity API.
+
 The harness's `cleanup-only` mode performs only the tagged-run cleanup and
 prints sanitized API problem details and correlation IDs if the endpoint fails.
 Use it to recover a failed teardown; do not start another workload until it
