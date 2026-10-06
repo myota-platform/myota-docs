@@ -96,6 +96,14 @@ Binary formats without an installed parser remain visibly queued. Runs with no
 recoverable source are changed to `FAILED` with `last_error`, so they do
 not appear indefinitely as active work.
 
+Preprocessing replay is idempotent per `(import_run_id, ordinal)`: it updates
+the existing staged candidate while retaining its database identity and review
+fields, rather than attempting a duplicate insert. Tagged load-test cleanup
+deletes only the selected run's relational rows and persists only the service
+snapshot/outbox afterward; it must not flush unrelated dirty candidate rows
+from another active import. If a cleanup attempt removed some rows before
+failing, retry the same exact-tag cleanup request safely.
+
 ### Geodata import retention
 
 The `geodata-import-retention` worker runs once daily in Compose and as a
