@@ -101,8 +101,9 @@ the test. After teardown confirms cleanup, turn both options off and redeploy
 immediately. If cleanup fails, stop further writes and resolve the tagged run
 before proceeding.
 
-The endpoint also requires a `GLOBAL_ADMIN` role and the exact confirmation
-`DELETE LOAD TEST DATA <testRunId>`. It refuses active uploads/imports or
+The endpoint also requires the identity service's global-administrator role
+(`GLOBAL_OPERATOR`; legacy `GLOBAL_ADMIN` tokens are also accepted) and the exact
+confirmation `DELETE LOAD TEST DATA <testRunId>`. It refuses active uploads/imports or
 promotion queues, and checks every generated entity for linked activations,
 QSOs, or award progress before deletion. On success it removes the tagged
 source objects from the geodata-import bucket, upload spool files, staged
