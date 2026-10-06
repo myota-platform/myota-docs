@@ -133,6 +133,10 @@ reports successful cleanup. Reuse the failed run's exact identifier, for
 example `MYOTA_LOAD_TEST_PROFILE=cleanup-only`
 `MYOTA_LOAD_TEST_RUN_ID=lt-20261006123955-simultaneous-edits`, with the same
 target and credentials used for the original run.
+The harness treats only the endpoint's explicit active-import/promotion
+responses as retryable during cleanup, excludes those waits from failed-request
+thresholds, and allows up to six minutes for cleanup; other client errors fail
+immediately.
 
 ## Query-level timing and plans
 
