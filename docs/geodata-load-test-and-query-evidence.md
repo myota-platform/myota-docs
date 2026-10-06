@@ -136,7 +136,11 @@ target and credentials used for the original run.
 The harness treats only the endpoint's explicit active-import/promotion
 responses as retryable during cleanup, excludes those waits from failed-request
 thresholds, and allows up to six minutes for cleanup; other client errors fail
-immediately.
+immediately. Failed import submissions print the HTTP status and bounded,
+credential-redacted problem response, including request/correlation IDs when
+available. Cleanup retry waits print the safe API detail and attempt number.
+Use these diagnostics to identify the service-side cause; do not weaken the
+workload acceptance or request-failure thresholds.
 
 ## Query-level timing and plans
 
