@@ -141,6 +141,10 @@ credential-redacted problem response, including request/correlation IDs when
 available. Cleanup retry waits print the safe API detail and attempt number.
 Use these diagnostics to identify the service-side cause; do not weaken the
 workload acceptance or request-failure thresholds.
+The preprocessing path protects shared manifest/candidate/run state and
+durable snapshots with the geodata service lock while leaving parsing and
+enrichment outside the critical section. A concurrent-import regression test
+covers this worker race class.
 
 ## Query-level timing and plans
 
