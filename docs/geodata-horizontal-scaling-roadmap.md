@@ -62,9 +62,10 @@ executor queue, or pod filesystem is authoritative for accepted work.
   import, or stress test. See the [geodata service k6 instructions](https://github.com/myota-platform/myota-geodata-service#read-only-load-baseline-grafana-k6).
 - [x] Define isolated representative workload profiles for large uploads,
   simultaneous edits, preprocessing, promotion, and sustained queue backlog.
-  They require an explicit non-production environment and acknowledgement,
-  reject production hostnames, cap VUs/data/time, and clean tagged fixtures on
-  successful completion. See the [workload and query-evidence runbook](geodata-load-test-and-query-evidence.md)
+  They require explicit environment acknowledgement and exact host allowlisting;
+  production additionally requires its own opt-in, retains hard safety caps,
+  and requires separately enabled production cleanup. All profiles clean tagged
+  fixtures on successful completion. See the [workload and query-evidence runbook](geodata-load-test-and-query-evidence.md)
   and the [k6 profile implementation](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/geodata-workloads.js).
 - [ ] Execute each write profile in a non-production deployment and retain its
   result summary. Do not run these profiles against production.
@@ -98,7 +99,7 @@ executor queue, or pod filesystem is authoritative for accepted work.
   The script also refuses production runs without an explicit acknowledgement.
 
 **Exit criteria: partially met.** The production-safe read baseline and
-non-production write profiles are implemented, and the dashboards now separate
+explicitly gated write profiles are implemented, and the dashboards now separate
 API latency, query time/plan evidence, durable import state, and JetStream
 consumer lag. Phase 0 remains open until all write profiles have been run in a
 non-production deployment and representative query-plan/load evidence has been

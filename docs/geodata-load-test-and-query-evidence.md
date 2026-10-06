@@ -1,9 +1,11 @@
-# Geodata non-production load tests and query evidence
+# Geodata load tests and query evidence
 
-This runbook defines the bounded write workloads and database evidence used to
-continue the [geodata horizontal-scaling roadmap](geodata-horizontal-scaling-roadmap.md).
-The mutating profiles are strictly for development, test, or staging. They are
-not production benchmarks and must never be pointed at production.
+This runbook defines bounded write workloads and database evidence for the
+[geodata horizontal-scaling roadmap](geodata-horizontal-scaling-roadmap.md).
+Write profiles can target production only through explicit hostname and
+environment acknowledgement, and production fixture cleanup must be enabled
+separately. Production execution is operator-controlled and is never started
+by CI.
 
 ## Workload profiles
 
@@ -19,7 +21,7 @@ It uses Grafana k6, available on macOS through `brew install k6`.
 | `promotion` | Preprocess, validate, and enqueue selected candidates | Exercises the approval queue and creates tagged approved entities |
 | `queue-backlog` | Steady accepted submissions without waiting on workers | Builds a bounded import-worker queue for backlog observation |
 
-Every run requires all three protections:
+Non-production runs require all three protections:
 
 1. `MYOTA_ENV` must be `development`, `test`, or `staging`.
 2. The target must be a local, `.test`, or `.local` hostname, or an exact
@@ -28,6 +30,15 @@ Every run requires all three protections:
    the `spainip.es` domain are rejected independently of that allowlist.
 3. `MYOTA_LOAD_TEST_ALLOW_NONPROD=YES` must be supplied explicitly.
 
+Production runs instead require `MYOTA_ENV=production`,
+`MYOTA_LOAD_TEST_ALLOW_PRODUCTION=YES`, and an exact hostname entry in
+`MYOTA_LOAD_TEST_PRODUCTION_HOSTS`. Known production hosts still have to be
+explicitly listed. Existing per-profile hard caps remain in force in
+production: 10 minutes, 20 VUs (8 uploads), feature and import caps, 4 KiB
+maximum padding per feature, and at most one queue-backlog submission per
+second. These are intentional safety bounds, not configurable away for a
+production target.
+
 The harness caps duration at 10 minutes, ordinary profiles at 20 VUs, uploads
 at 8 VUs, features per import at 100 (50 for queue backlog; 25 for promotion;
 5,000 for uploads), and submissions at five per VU (30 for queue backlog; two
@@ -35,8 +46,9 @@ for promotion). Upload features include 1 KiB synthetic
 padding by default, adjustable up to 4 KiB per feature, so the file exercises
 transfer/storage as well as geometry parsing. The steady backlog profile is
 capped at one submission per second.
-Use a dedicated global-admin account created in that non-production
-environment; never put credentials in the repository or command history.
+Use a dedicated global-admin account created for the target environment; never
+put credentials in the repository or command history. Production tests should
+use a dedicated test administrator, not an everyday operator account.
 
 Example against the local gateway:
 
@@ -50,13 +62,28 @@ MYOTA_LOAD_TEST_PROFILE=preprocessing \
 k6 run myota-geodata-service/loadtests/geodata-workloads.js
 ```
 
+Production example (select one profile and execute it only during an approved
+window):
+
+```bash
+MYOTA_ENV=production \
+MYOTA_LOAD_TEST_ALLOW_PRODUCTION=YES \
+MYOTA_LOAD_TEST_PRODUCTION_HOSTS=api.myota.top \
+MYOTA_BASE_URL=https://api.myota.top \
+MYOTA_LOAD_TEST_EMAIL="$MYOTA_PRODUCTION_TEST_ADMIN_EMAIL" \
+MYOTA_LOAD_TEST_PASSWORD="$MYOTA_PRODUCTION_TEST_ADMIN_PASSWORD" \
+MYOTA_LOAD_TEST_PROFILE=simultaneous-edits \
+k6 run myota-geodata-service/loadtests/geodata-workloads.js
+```
+
 `MYOTA_LOAD_TEST_PROFILE` selects one of the five profiles. Optional controls
 include `MYOTA_LOAD_TEST_VUS`, `MYOTA_LOAD_TEST_DURATION`,
 `MYOTA_LOAD_TEST_FEATURES`, `MYOTA_LOAD_TEST_PADDING_BYTES`, and
 `MYOTA_LOAD_TEST_IMPORTS_PER_VU`; the service
 and harness reject values above their safety caps. Set
 `MYOTA_LOAD_TEST_ALLOWED_HOSTS` only for an approved non-production staging
-host.
+host; production uses the separate exact `MYOTA_LOAD_TEST_PRODUCTION_HOSTS`
+allowlist.
 
 ## Fixture cleanup
 
@@ -64,11 +91,17 @@ Each import's source metadata and each created entity's provenance carry the
 unique `loadTestRunId`. k6 teardown invokes
 `DELETE /v1/geodata/load-test-runs/{testRunId}` and retries while a tagged job is
 still active. The cleanup endpoint is disabled unless
-`MYOTA_LOAD_TEST_CLEANUP_ENABLED=1` and `MYOTA_ENV` explicitly identifies a
-non-production environment. Local Compose enables it; Helm does not enable it
-by default.
+`MYOTA_LOAD_TEST_CLEANUP_ENABLED=1` and `MYOTA_ENV` is explicitly declared.
+Production additionally requires `MYOTA_LOAD_TEST_ALLOW_PRODUCTION_CLEANUP=YES`.
+Local Compose enables cleanup; Helm defaults it off. For a production test
+window, set `geodataLoadTestCleanup.enabled=true` and
+`geodataLoadTestCleanup.allowProductionCleanup=true` while
+`auth.environment=production`. Verify the deployment is ready before running
+the test. After teardown confirms cleanup, turn both options off and redeploy
+immediately. If cleanup fails, stop further writes and resolve the tagged run
+before proceeding.
 
-The endpoint also requires a global administrator and the exact confirmation
+The endpoint also requires a `GLOBAL_ADMIN` role and the exact confirmation
 `DELETE LOAD TEST DATA <testRunId>`. It refuses active uploads/imports or
 promotion queues, and checks every generated entity for linked activations,
 QSOs, or award progress before deletion. On success it removes the tagged
@@ -79,8 +112,8 @@ JetStream cannot be recalled by this database cleanup and expire according to
 the configured stream-retention policy.
 
 If k6 is interrupted, do not start another profile until the run has been
-cleaned up. Reuse its run ID, sign in with the dedicated non-production admin,
-and submit the exact confirmation to the endpoint. Cleanup intentionally fails
+cleaned up. Reuse its run ID, sign in with the dedicated target-environment
+admin, and submit the exact confirmation to the endpoint. Cleanup intentionally fails
 closed if the activity API cannot verify that entities have no protected
 activity.
 
