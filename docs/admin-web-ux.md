@@ -32,6 +32,9 @@ blocking summary dialog:
 2. The left column contains the preprocessing queue, including uploaded/queued,
    processing and ready-for-validation runs. It includes older active runs,
    not just the first history page.
+   Pending uploads and queued/active preprocessing runs have a **Cancel** action
+   with a confirmation. Active work reports `CANCELLING` until the worker stops
+   at a safe checkpoint; completed preprocessing cannot be cancelled.
 3. Selecting a run fills the detail panel on the right and keeps the queue
    visible for comparison.
 4. Validation, duplicate comparison, promotion, refresh, and finalization are

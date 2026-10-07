@@ -194,6 +194,16 @@ is restricted to `CANDIDATE` or `APPROVED`. The PostGIS geometry and full normal
 payload remain available for validation without exposing an unconfirmed record
 as a live entity.
 
+Preprocessing cancellation is an idempotent resource operation:
+`PUT /v1/geodata/imports/{runId}/cancellation`. A queued or upload-pending run
+transitions directly to `CANCELLED`; a claimed worker transitions through
+`CANCELLING` and observes the durable status at safe feature checkpoints.
+Cancellation deletes staged candidate rows and temporary source bytes but
+retains the import summary for history/retention. The route returns 202 while
+an active worker is stopping and 200 after immediate or previously completed
+cancellation. Runs already in the reviewable `PREPROCESSED` states are outside
+the cancellation window.
+
 After validation and any desired promotion, an administrator can finalize the
 run with `POST /v1/geodata/imports/{runId}/processed`. This is an explicit,
 idempotent cleanup action: it deletes that run's staged candidate rows and

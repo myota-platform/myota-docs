@@ -14,7 +14,11 @@ flowchart LR
   Outbox --> NATS[NATS JetStream durable subject]
   NATS --> Pre[Separately scaled geodata worker]
   Pre --> Lease[(PostgreSQL import_run lease + heartbeat)]
-  Pre --> Dedup[Duplicate verification]
+  Pre --> CancelCheck{Cancellation requested?}
+  CancelCheck -->|No| Dedup[Duplicate verification]
+  CancelCheck -->|Yes| Cancel[Stop at feature boundary]
+  Cancel --> CancelCleanup[Delete staged rows + temporary source]
+  CancelCleanup --> Cancelled[Retain summary as CANCELLED]
   Dedup --> Store[(Pre-processed candidate store)]
   Dedup -.-> Warning[Possible duplicate warning]
   Store --> Admin[Visible pre-processing queue]
@@ -45,6 +49,15 @@ import-specific logs after 30 days. Finalized runs age from `processed_at`;
 pending, failed, and stalled runs age from their latest start, completion, or
 heartbeat. Active processing remains while its heartbeat advances. The worker
 does not delete promoted entities or their provenance.
+
+## Cancelling geodata preprocessing
+
+Before review begins, administrators can idempotently cancel an upload or
+preprocessing run with `PUT /v1/geodata/imports/{runId}/cancellation`. Queued
+runs become `CANCELLED` immediately. Active runs become `CANCELLING`; the worker
+stops at a feature boundary, removes staged candidate rows and temporary source
+bytes, and preserves the run summary. A restart finalizes an outstanding
+`CANCELLING` run. Reviewable `PREPROCESSED` runs cannot be cancelled.
 
 The upload session stores the authenticated owner, file metadata, declared size,
 expiry, object key, S3 multipart id, and each part's size, SHA-256, and ETag.

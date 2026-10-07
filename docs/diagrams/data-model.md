@@ -138,7 +138,9 @@ erDiagram
     uuid id PK
     text adapter_code
     text source_key
-    text status
+    text status "QUEUED|PROCESSING|CANCELLING|CANCELLED|..."
+    timestamptz cancellation_requested_at
+    text cancellation_requested_by
   }
   IMPORT_CANDIDATE {
     uuid id PK

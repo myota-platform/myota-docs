@@ -129,6 +129,19 @@ without an installed parser remain visibly queued. Runs with no recoverable
 source are changed to `FAILED` with `last_error`, so they do not appear
 indefinitely as active work.
 
+### Cancelling geodata preprocessing
+
+The admin UI calls `PUT /v1/geodata/imports/{runId}/cancellation` for runs in
+`UPLOAD_PENDING`, `QUEUED`, or `PROCESSING`. The endpoint is idempotent and
+requires the existing `geodata.import` permission. Queued runs are cancelled
+immediately; processing runs enter `CANCELLING` and the worker polls the
+database, stops at a feature boundary, deletes staged candidates and source
+objects, then records `CANCELLED`. The 202 response means that this checkpoint
+is still pending. A worker restart finalizes an outstanding `CANCELLING` run
+instead of resuming it. A stale JetStream delivery after cancellation is
+acknowledged without starting work. Preprocessed runs cannot be cancelled;
+administrators should use import finalization after review instead.
+
 Preprocessing replay is idempotent per `(import_run_id, ordinal)`: it updates
 the existing staged candidate while retaining its database identity and review
 fields, rather than attempting a duplicate insert. Tagged load-test cleanup
@@ -142,7 +155,8 @@ failing, retry the same exact-tag cleanup request safely.
 The `geodata-import-retention` worker runs once daily in Compose and as a
 Kubernetes CronJob. It permanently removes source objects and import history/
 log records after 30 days. A `PROCESSED` run ages from `processed_at`; queued,
-upload-pending, processing, preprocessed, legacy completed, and failed runs
+upload-pending, processing, cancelling/cancelled, preprocessed, legacy
+completed, and failed runs
 age from their latest start, completion, or heartbeat timestamp. Active work
 continues to be retained while heartbeats advance; stalled imports and records
 awaiting review expire after 30 days without activity. This includes failed
