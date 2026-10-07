@@ -55,6 +55,9 @@ public launch. The remaining Explorer, participant, governance, integration,
 observability, scale, security, and beta-community work is tracked in the
 [charter gap analysis](docs/charter-gap-analysis.md) and the organization
 [profile roadmap](https://github.com/myota-platform/.github/tree/main/profile).
+Geodata resumable upload handoff and isolated JetStream workers are implemented
+with integration gates still open; see the [horizontal-scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md)
+before increasing API or worker replicas.
 
 ## Source project
 

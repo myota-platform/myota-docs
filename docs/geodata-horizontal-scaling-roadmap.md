@@ -2,8 +2,10 @@
 
 ## Status and scope
 
-**Phase 0 read-only baseline delivered; remaining Phase 0 work and Phases 1–5
-are deferred.** This checklist records the work needed before increasing the
+**Phase 0 read-only baseline delivered; Phase 2 upload handoff and Phase 3
+worker isolation are implemented, with integration and failure-injection
+gates still open. Remaining Phase 0 work and Phases 1, 4, and 5 are deferred.**
+This checklist records the work needed before increasing the
 Geodata API beyond one replica in production. The baseline does not make the
 current service horizontally safe.
 
@@ -18,18 +20,18 @@ Current implementation hazards to resolve:
 - The geodata service hydrates catalogue/import state into process memory and
   persists compatibility snapshots. Multiple processes can therefore hold
   stale state while another replica changes the database.
-- The upload path uses a persistent `ReadWriteOnce` spool and records its local
-  path in import metadata. That volume is not a safe shared upload handoff for
-  replicas that may run on different nodes.
-- Import preprocessing uses in-process thread pools. Durable import leases and
-  restart recovery exist, but API requests also dispatch local processing.
-- Promotion has both an outbox/JetStream route and a local development fallback.
-  A single authoritative execution path is required in production.
+- The API still hydrates compatibility catalogue state into memory; targeted
+  refreshes prevent worker decisions from relying on stale import queue rows,
+  but Phase 1 is required before scaling entity mutations across API replicas.
+- Durable imports now use resumable object-storage multipart sessions and a
+  separately deployed JetStream worker. Large-source parsing and compatibility
+  catalogue memory are not yet streaming/bounded end to end.
 
 See [overall architecture](architecture.md),
 [operations](operations.md),
 [geodata import validation and promotion](diagrams/geodata-import-validation.md),
-and the upload spool claim in `myota-deploy` for current behavior.
+and the upload-session/worker deployment in `myota-deploy` for current
+behavior.
 
 ## Target shape
 
@@ -131,54 +133,64 @@ serialized or return an explicit conflict.
 
 ### Phase 2 — make upload handoff durable without a shared pod volume
 
-- [ ] Design an upload-session record with explicit states, owner, filename,
+- [x] Design an upload-session record with explicit states, owner, filename,
   expected size, checksum, object key, expiry, and completion status.
-- [ ] Test SeaweedFS S3 multipart/resumable upload, checksum validation, abort,
-  and restart behavior against the deployed SeaweedFS version before choosing
-  the upload protocol.
-- [ ] Implement a bounded streaming or multipart upload path that does not
-  materialize the complete file in API memory or a shared `ReadWriteOnce` PVC.
-- [ ] Persist the completed object reference and import metadata before
+- [x] Test SeaweedFS multipart create/upload/complete/read-checksum/delete and
+  abort against the locally deployed pinned image
+  `chrislusf/seaweedfs:latest@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882`.
+- [ ] Test resumable API-session recovery across API termination and object
+  storage restart against the production SeaweedFS image before closing the
+  version-specific integration gate.
+- [x] Implement bounded 16 MiB multipart-part transfer through the API to
+  object storage; do not materialize the complete upload in API memory or a
+  shared `ReadWriteOnce` PVC.
+- [x] Persist the completed object reference and import metadata before
   publishing work. Do not report an import as accepted until this durable
   handoff succeeds.
-- [ ] Keep malware scanning and file/type/size validation in the durable
+- [x] Keep malware scanning and file/type/size validation in the durable
   lifecycle. Define how multipart parts and abandoned sessions are cleaned up.
-- [ ] Make upload retries idempotent and define whether an incomplete upload is
+- [x] Make upload retries idempotent and define whether an incomplete upload is
   resumed or restarted after a client/network failure.
-- [ ] Remove the shared upload-spool PVC dependency after the replacement path
-  passes restart and failure tests. Any remaining local scratch space must be
-  bounded, ephemeral, and reconstructible from the client or object store.
+- [x] Remove the shared upload-spool PVC dependency. Any remaining local
+  scratch space is bounded per part and reconstructible from the client or
+  object store; the restart/failure test is still outstanding.
 
-**Exit criteria:** a completed upload remains processable after its receiving
-pod is terminated, and a replacement pod on another node can continue without
-access to the original pod filesystem.
+**Exit criteria: not yet verified.** Multipart operations and checksums pass
+against the pinned local SeaweedFS image. API-session resume after API/SeaweedFS
+restart must still pass against the deployed image before this phase can close.
 
 ### Phase 3 — isolate preprocessing and promotion from API pods
 
-- [ ] Make the API write a durable import/job row and transactional outbox
+- [x] Make the API write a durable import/job row and transactional outbox
   event, then return; remove API-local submission of durable preprocessing or
   promotion work in production mode.
-- [ ] Use one authoritative production dispatch path through JetStream. Keep a
+- [x] Use one authoritative production dispatch path through JetStream. Keep a
   local development fallback only if it preserves the same durable claim,
   retry, and idempotency semantics and cannot run alongside the production
   consumer for the same job.
-- [ ] Move preprocessing into a geodata-owned worker Deployment that reads
+- [x] Move preprocessing into a geodata-owned worker Deployment that reads
   immutable source objects and claims work from a database lease/queue.
-- [ ] Make worker claims atomic and recoverable with lease expiry, heartbeat,
+- [x] Make worker claims atomic and recoverable with lease expiry, heartbeat,
   attempt count, bounded retry/backoff, and a visible terminal error state.
-- [ ] Make each feature/candidate write idempotent; use stable import and
+- [x] Make each feature/candidate write idempotent; use stable import and
   source-record identity so a retry cannot create duplicate candidates.
 - [ ] Persist progress in bounded batches. Avoid holding an entire large
   dataset or all entity geometries in worker memory when a streaming parser or
-  indexed spatial query can be used.
-- [ ] Make promotion consume only confirmed candidate IDs and record the
-  resulting status/entity IDs and audit information atomically.
-- [ ] Add worker shutdown/drain behavior and test pod termination during
-  parsing, enrichment, candidate persistence, and promotion.
+  indexed spatial query can be used. Part transfer is bounded; feature parsing
+  and legacy compatibility-state hydration are still whole-run/in-memory.
+- [x] Make promotion consume only confirmed candidate IDs and record the
+  resulting status/entity IDs and audit information with idempotent stable IDs.
+  Atomic audit/result transaction behavior still needs a database integration
+  test.
+- [x] Add worker shutdown/drain behavior: stop fetching on SIGTERM/SIGINT,
+  finish the active delivery, and drain the NATS connection.
+- [ ] Test pod termination during parsing, enrichment, candidate persistence,
+  and promotion, including forced termination after the grace period.
 
-**Exit criteria:** API replicas can scale without increasing parser memory or
-CPU, and worker restarts or duplicate JetStream delivery do not lose or
-duplicate entities.
+**Exit criteria: partially met.** API requests no longer execute durable
+preprocessing or promotion locally; worker retries use database leases and
+stable identities. The parser is not yet batch/stream bounded, and termination,
+duplicate-delivery, and audit atomicity tests remain required.
 
 ### Phase 4 — remove unsafe infrastructure constraints
 

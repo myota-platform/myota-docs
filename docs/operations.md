@@ -74,27 +74,43 @@ Configure Helm with `activityAdifRetention.enabled`, `schedule`,
 `retentionDays`, and `batchSize`; local Compose uses the corresponding
 `MYOTA_ADIF_RETENTION_*` settings and runs the worker daily.
 
-Large browser uploads are spooled to the geodata upload-spool volume and the
-HTTP endpoint returns `202 UPLOAD_PENDING` after the request body has been
-received and scanned. The background handoff stores the source in SeaweedFS
-and then queues preprocessing. `UPLOAD_PENDING` runs and their spool files are
-recovered after a geodata restart; the browser should follow the import run
-status rather than wait for SeaweedFS storage to finish.
+Large browser uploads use `POST /v1/geodata/import-uploads` to create a
+user-owned, 24-hour upload session, then send bounded binary parts to
+`POST /v1/geodata/import-uploads/{uploadId}/parts/{partNumber}`. The browser
+persists its session key and resumes by checking the received part list; a
+retry of the same part number replaces that part, and each part SHA-256 is
+verified. The default part size is 16 MiB (minimum 5 MiB except the last part),
+and the maximum file size remains 1 GiB. `POST .../{uploadId}/complete` checks
+contiguous parts, total size, object checksum, and malware gates before creating
+the import run and durable outbox event. Source bytes live only in SeaweedFS;
+the API uses bounded ephemeral scratch only for one part at a time. There is
+no upload-spool PVC. A daily cleanup sweep aborts abandoned multipart sessions
+after 24 hours and retains compact session history for 30 days. Keep any
+SeaweedFS incomplete-multipart lifecycle rule aligned with this database
+expiry.
 
 ### Import recovery
 
 Import history is durable and should be used as the operational source for
-file visibility and processing status. A queued or processing import has its
-source document in SeaweedFS and an execution lease in the geodata
-`import_run` table. Heartbeats keep active work leased. When the geodata
-service starts, queued runs and runs left in `PROCESSING` by the previous
-instance are requeued immediately and persisted before recovery workers are
-dispatched; this does not wait for the normal lease timeout. A recovered run
-increments `attempt_count` when it claims the work and continues from the
-original source. Pasted KML/GPX uses its normalized GeoJSON recovery snapshot.
-Binary formats without an installed parser remain visibly queued. Runs with no
-recoverable source are changed to `FAILED` with `last_error`, so they do
-not appear indefinitely as active work.
+file visibility and processing status. The HTTP API only accepts durable work;
+the outbox relay publishes preprocessing and promotion events to JetStream.
+`geodata_import_worker.py` owns separate durable pull consumers with explicit
+acknowledgement, one outstanding delivery per consumer per replica by default,
+bounded redelivery, and PostgreSQL leases/heartbeats. The API has no local
+durable-work executor. JetStream redelivers work when a worker exits before
+acknowledging; atomic lease claims prevent simultaneous execution, and
+idempotent candidate/entity identifiers prevent duplicate entities. The
+`015_jetstream_worker_dispatch.sql` migration emits recovery events for queued
+and processing records created before this worker became authoritative.
+On SIGTERM/SIGINT each worker stops fetching new messages, finishes its active
+delivery, and drains the NATS connection. Compose allows three minutes for
+shutdown; Helm gives the worker a 180-second termination grace period. If the
+worker is force-killed, JetStream redelivers the unacknowledged message and the
+database lease/idempotent identity protects the retry.
+Pasted KML/GPX uses its normalized GeoJSON recovery snapshot. Binary formats
+without an installed parser remain visibly queued. Runs with no recoverable
+source are changed to `FAILED` with `last_error`, so they do not appear
+indefinitely as active work.
 
 Preprocessing replay is idempotent per `(import_run_id, ordinal)`: it updates
 the existing staged candidate while retaining its database identity and review
@@ -214,10 +230,14 @@ Kubernetes Deployments provide the equivalent restart behavior.
 
 Large GeoJSON imports can create substantial staged candidate data because the
 candidate geometry and provenance remain reviewable before promotion. Local
-Compose therefore runs one geodata import worker at a time to bound concurrent
-memory use. A large run should be allowed to finish preprocessing before
-validation or finalization; do not remove the database or object-store volumes
-to recover from a transient outage.
+Compose runs one geodata import worker by default; Helm configures worker
+replicas independently from geodata API replicas. Each replica limits JetStream
+ack-pending work to one message per consumer. The parser and legacy catalogue
+compatibility projection still materialize large objects and entity state in
+worker memory, so do not increase worker concurrency before completing the
+remaining streaming/batched processing and non-production load evidence. A
+large run should be allowed to finish before validation/finalization; do not
+remove database or object-store volumes to recover from a transient outage.
 
 Geodata entity lifecycle, geometry, and category edits are persisted in the
 relational PostGIS tables. The geodata service's JSON `service_state` row is a
@@ -249,12 +269,11 @@ Fleet values files and Git.
 #### Fleet rollout and readiness troubleshooting
 
 The gateway's liveness and readiness probes target `/healthz`; `/` is not a
-health endpoint. The geodata import processor is a singleton consumer of a
-durable JetStream stream and rolls with `maxSurge: 0` and
-`maxUnavailable: 1`. This intentionally permits a brief processing pause
-during replacement so old and new pods do not compete for the same durable
-consumer. Pending work is retained and the processor's recovery path resumes it
-after the replacement is ready.
+health endpoint. The geodata import processor uses durable JetStream pull
+consumers and may run multiple replicas; PostgreSQL leases and idempotency
+protect side effects. Rollouts use `maxSurge: 0` and `maxUnavailable: 1`,
+allowing a brief worker-capacity pause while unacknowledged messages remain in
+JetStream and are redelivered after termination.
 
 Fleet's GitRepo polling interval controls when a pushed revision is fetched.
 A bundle force-sync/reconcile can re-apply the revision already fetched without

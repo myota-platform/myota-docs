@@ -193,21 +193,21 @@ It does not delete entities that were already materialized by the promotion
 worker. The import UI hides the validation queue after finalization and keeps
 only that summary.
 
-Import execution is restart-safe. Before a queued background run starts, its
-uploaded or pasted source is stored in SeaweedFS and the `import_run` row is
-claimed with a PostgreSQL lease. The worker refreshes `heartbeat_at` and
-`lease_until` while it parses, normalizes, reverse-geocodes and persists
-candidates. On service startup, queued runs and all runs left in
-`PROCESSING` by the previous instance are requeued from their immutable
-object-storage source, and the requeue is persisted before workers are
-dispatched. Pasted KML/GPX is replayed from the normalized GeoJSON snapshot;
-uploaded files retain their original parser format. Durable binary uploads
-whose parser adapter is not available remain queued with a visible status
-instead of being incorrectly failed. If the source is missing or was never
-durably recorded, the run is marked `FAILED` with a visible recovery error
-rather than remaining indefinitely in `PROCESSING`. The default lease is
-15 minutes; operators can tune it with `MYOTA_IMPORT_LEASE_SECONDS` and
-the heartbeat interval with `MYOTA_IMPORT_HEARTBEAT_SECONDS`.
+Import execution is restart-safe and no longer runs in API pod executors in
+durable deployments. The geodata API persists the import row and outbox event;
+the outbox relay publishes a versioned preprocessing subject to JetStream.
+The geodata-owned worker uses durable pull consumers with explicit ack, bounded
+pending deliveries, bounded redelivery, a PostgreSQL execution lease, and a
+heartbeat while parsing. Promotion uses a separate durable consumer and queue
+lease. Duplicate delivery is safe: import runs are claimed atomically and
+promotion candidates retain a stable planned entity ID and processed marker
+until finalization. The migration also creates recovery events for pre-existing
+queued/processing runs and promotion queues. The default lease is 15 minutes;
+operators can tune it with `MYOTA_IMPORT_LEASE_SECONDS` and the heartbeat
+interval with `MYOTA_IMPORT_HEARTBEAT_SECONDS`. The current decoder still
+materializes a source document and catalogue compatibility state in worker
+memory; truly streaming feature batches and multi-replica data-state
+reconciliation remain explicit open work in the horizontal-scaling roadmap.
 
 ### Shared category selection and persistence
 
@@ -235,7 +235,7 @@ ordered request is retained as the singular compatibility value, while
 same relation supports entities with no programme assignment and categories
 assigned to several programmes.
 
-The administration web has a dedicated Geodata imports page. It loads every category from the database-backed shared `/v1/entity-types` catalogue rather than a programme-scoped or hardcoded list. It supports copy/paste for text documents and file upload for binary or text documents, including an explicit OpenStreetMap GeoJSON option that routes GeoJSON through the OSM tag adapter. Browser file uploads use `multipart/form-data` with the metadata JSON and original file as separate parts; the legacy JSON/Base64 representation remains available for non-browser clients. This avoids constructing a potentially oversized in-memory Base64 string in the browser. Upload requests are capped at 1 GiB by default and the gateway disables request buffering for them; the geodata service spools multipart files to a temporary file, scans them incrementally, and streams that file to SeaweedFS with a single S3 `PutObject` request. This avoids multipart-upload finalization stalls with SeaweedFS while preserving bounded memory use. Uploads pass a size/malware gate, are stored under the geodata-import bucket, and generate an outbox event for NATS processing. The synchronous local decoder covers GeoJSON, KML, GPX and Shapefile archives; OSM PBF and ParkServe binary records are retained as queued source objects for their adapter workers. During pre-processing, each normalized record is checked against existing entity geometry; identical geometry or a centroid distance below 50 metres produces a `POSSIBLE_DUPLICATE` warning with comparison geometry, while the administrator retains the final decision. The imports collection exposes pending/confirmed/processed candidate counts, allowing the admin web to display a dedicated pre-processing queue before records are explicitly promoted into Geodata Review. Compose uses SeaweedFS through its S3-compatible API; production Helm deployments can use the optional single-node SeaweedFS chart or an externally operated SeaweedFS endpoint with S3 credentials.
+The administration web has a dedicated Geodata imports page. It loads every category from the database-backed shared `/v1/entity-types` catalogue rather than a programme-scoped or hardcoded list. It supports copy/paste for text documents and file upload for binary or text documents, including an explicit OpenStreetMap GeoJSON option that routes GeoJSON through the OSM tag adapter. Browser file uploads use owner-bound resumable sessions (`/v1/geodata/import-uploads`), backed by SeaweedFS S3 multipart objects and relational session/part records; the browser sends independently retryable 16 MiB parts rather than one 1 GiB request. Session creation is idempotent, each part is SHA-256 checked, the completed object is size/checksum/malware checked, and a daily worker aborts expired multipart sessions. The accepted source object and import row are durable before a JetStream outbox event is published. No shared upload-spool PVC or pod-local path is part of the accepted-file handoff. The legacy single-request file endpoint is deprecated and rejected when durable storage is enabled; pasted JSON remains a separate API request path. GeoJSON, KML, GPX and Shapefile decoding is performed by a separately deployable geodata-owned worker, while OSM PBF and ParkServe binary records remain visibly queued for their source adapters. During pre-processing, each normalized record is checked against existing entity geometry; identical geometry or a centroid distance below 50 metres produces a `POSSIBLE_DUPLICATE` warning with comparison geometry, while the administrator retains the final decision. The imports collection exposes pending/confirmed/processed candidate counts, allowing the admin web to display a dedicated pre-processing queue before records are explicitly promoted into Geodata Review. Compose and Helm use the same geodata image in separate API, retention, and JetStream worker processes; the worker scales independently from HTTP API replicas. Production Helm can use the optional single-node SeaweedFS chart or an externally operated S3-compatible endpoint.
 
 Import normalization also derives a canonical display name before a record enters the preprocessing queue. An explicit `name` wins, followed by common source aliases such as `SITE_NAME`, `official_name`, `NOMBRE`, `DENOMINACION`, `title`, and `label`; source codes, identifiers, geometry fields, and administrative metadata are excluded from name inference. The original property map remains unchanged in provenance, so the derived `name` is a review-friendly projection rather than a loss of source data. Records without a usable alias retain the `Unnamed candidate` fallback.
 

@@ -35,13 +35,18 @@ database URLs in the `myota-postgres` secret (`core-database-url`,
 `activity-database-url`, and `geo-database-url`).
 
 The geodata import page is owned by `myota-admin-web`, but import semantics
-remain owned by `myota-geodata-service`: text and uploaded files are accepted
-as bounded request envelopes, return `202 QUEUED`, and are parsed,
-normalized, reverse-geocoded, duplicate-checked, and persisted by a bounded
-background import worker. Uploads are malware-scanned and stored in
-SeaweedFS/S3-compatible object storage, and durable
-`geodata.import.queued.v1` events are published through the geo outbox to
-NATS. File and pasted imports stop at `PREPROCESSED` as durable
+remain owned by `myota-geodata-service`: pasted text is accepted through the
+import resource, while files use a user-bound resumable session and bounded S3
+multipart parts. The database stores upload metadata and per-part checksums;
+the bytes are stored in SeaweedFS/S3-compatible object storage, not a shared
+pod spool volume. The browser retries parts and can resume from the stored
+part list. Object verification and malware gates run before the import run and
+outbox event are accepted. Durable `geodata.import.queued.v1` events are
+published through the geo outbox to NATS JetStream. The same geodata-owned
+worker image runs separately from the HTTP Deployment and consumes durable
+pull queues for preprocessing and administrator-requested promotion with
+explicit ack, bounded redelivery, database leases/heartbeats, and idempotent
+effects. File and pasted imports stop at `PREPROCESSED` as durable
 `geodata_import_candidate` records. Identical geometry or a centroid distance
 under 50 metres creates a non-blocking `POSSIBLE_DUPLICATE` warning with
 comparison geometry. The admin web exposes these records in a dedicated
@@ -55,9 +60,8 @@ Shapefile archives, OSM PBF, and ParkServe US payloads; PBF/ParkServe binary
 objects remain queued for the corresponding source worker. The default
 geodata request and upload envelopes default to 1 GiB via
 `MYOTA_MAX_BODY_BYTES` and `MYOTA_UPLOAD_MAX_BYTES`; deployments can lower
-both values. Browser multipart uploads are spooled to a temporary file and
-streamed into SeaweedFS, while the gateway forwards the request without
-buffering a second full copy.
+both values. Browser file parts have a smaller configurable request-body cap;
+the legacy full-file upload route is disabled when durable storage is on.
 
 The geodata service also owns import retention. A daily worker expires
 `PROCESSED` runs 30 days after `processed_at`; queued, preprocessed, failed, and

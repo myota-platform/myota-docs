@@ -65,7 +65,7 @@ data boundaries.
 | Identity and administration | `/v1/identity/auth/*`, `/v1/identity/me`, account/callsign/role/security-event routes under `/v1/identity/` | Authentication commands remain explicit. Account, role, callsign, and export/deactivation routes are candidates for resource aliases. |
 | Programme configuration | `/v1/programmes`, `/v1/programmes/{slug}`, `/update`, `/archive`, policy, content, policy-draft, and entity-type assignment routes | Programme rules, awards, content, and category membership remain programme-owned; no POTA rules are implied by the transport model. |
 | Geodata catalogue | `/v1/geodata/entities`, `{entityId}`, `/audit`, `/bbox`, `/tiles/{z}/{x}/{y}`, `/adapters`, `/location-options`, and `/conflation` | Entity listing already supports programme-independent filters, multi-status values, location filters, pagination, and map bounds. |
-| Geodata intake | `POST /v1/geodata/imports`, `/imports/manual`, `/imports/upload`; run, candidate, validation, processing, and finalization routes | Imports are programme-independent. The staged lifecycle is `UPLOAD_PENDING`/`QUEUED` → `PROCESSING` → `PREPROCESSED` or `PREPROCESSED_WITH_ERRORS`; only validated records enter the promotion queue. |
+| Geodata intake | `POST /v1/geodata/imports`, resumable `/import-uploads` sessions and parts, run, candidate, validation, processing, and finalization resources | Imports are programme-independent. Browser uploads use resumable SeaweedFS multipart sessions; durable worker execution is separate from the API. The staged lifecycle is `QUEUED` → `PROCESSING` → `PREPROCESSED` or `PREPROCESSED_WITH_ERRORS`; only validated records enter the promotion queue. See the [horizontal-scaling roadmap](geodata-horizontal-scaling-roadmap.md#phase-2--make-upload-handoff-durable-without-a-shared-pod-volume). |
 | Geodata review/editing | `POST /entities/{id}/review`, `/status`, `/geometry`, `/geometry-type`, `/location`, `/entity-type`, `/name`, `/delete` | Candidate review and entity management are separate UI workflows, but the API still has several overlapping action routes. Approved entities may only become `RETIRED`. |
 | Activity | `/v1/activations`, activation QSOs and batch QSOs, close, ADIF imports, QSO corrections, public history/leaderboards/results, statistics, notifications | ADIF and batch ingestion are asynchronous/high-volume candidates for ingestion resources; close and correction review are audited commands. |
 | Awards | `/v1/awards`, assets, submit/review/publish/retire, evaluate/progress, requests, issuances, render, download | Awards are programme-owned and versioned. Asset uploads, evaluation, recalculation, rendering, and issuance should expose durable job/resource state. |
@@ -76,15 +76,19 @@ data boundaries.
 The canonical OpenAPI contract now describes the staged geodata import queue,
 candidate validation and promotion targets, location hierarchy, geometry-type
 conversion, activity deletion impact, programme-owned awards, award assets,
-issuance, and certificate rendering. It still needs reconciliation with the
-live registries in these areas:
+issuance, certificate rendering, and resumable geodata upload sessions. The
+upload session lifecycle and separately deployed worker are documented in the
+[geodata scaling roadmap](geodata-horizontal-scaling-roadmap.md) and
+[operations runbook](operations.md#import-recovery). The contract still needs
+reconciliation with the live registries in these areas:
 
 - Add or document the live geodata `status`, `geometry`, `audit`, `bbox`, tile,
   adapter, schedule, and conflation operations consistently in the canonical
   contract and generated mirrors.
-- Document the multipart upload representation and the 1 GiB deployment limit;
-  the JSON/Base64 upload remains a compatibility path, not the preferred
-  browser path.
+- [x] Document the resumable multipart upload representation and upload
+  session lifecycle in the canonical OpenAPI contract. The 1 GiB service limit
+  and SeaweedFS restart verification are deployment/operations gates, not
+  contract semantics.
 - Add the live activity ADIF, batch-QSO, correction, public-results,
   statistics, notifications, and deletion workflow operations to the same
   contract revision.
