@@ -15,7 +15,7 @@ It uses Grafana k6, available on macOS through `brew install k6`.
 
 | Profile | Representative operation | Fixture/result |
 | --- | --- | --- |
-| `large-upload` | Multipart GeoJSON upload; one upload per VU | Upload/preprocess run tagged with a unique run ID; defaults to about 3–4 MiB per file and is capped around 23 MiB |
+| `large-upload` | Resumable GeoJSON session and bounded binary parts; one real upload iteration per VU | Upload/preprocess run tagged with a unique run ID; defaults to about 3–4 MiB per file and is capped around 23 MiB |
 | `simultaneous-edits` | Concurrent PATCH edits against one shared entity | Test-owned entity; edits remain isolated to its run tag |
 | `preprocessing` | Repeated bounded dataset submissions | Imports remain available for validation; no promotion |
 | `promotion` | Preprocess, validate, and enqueue selected candidates | Exercises the approval queue and creates tagged approved entities |
@@ -49,6 +49,15 @@ capped at one submission per second.
 Use a dedicated global-admin account created for the target environment; never
 put credentials in the repository or command history. Production tests should
 use a dedicated test administrator, not an everyday operator account.
+
+Uploads use the existing `/v1/geodata/import-uploads` session API, not the
+disabled single-request `/imports/upload` route. SHA-256 checks protect the
+whole fixture and each raw part; client parts are bounded at 16 MiB. Completion
+reads `importRun.id`, reconciles an uncertain response against session state,
+and aborts incomplete sessions. Duration is the upload scenario's maximum
+budget, not an idle looping period. See the
+[upload verification and recovery record](geodata-load-test-upload-verification.md)
+for regression tests and local results.
 
 Example against the local gateway:
 
@@ -124,7 +133,10 @@ promotion queues, and checks every generated entity for linked activations,
 QSOs, or award progress before deletion. On success it removes the tagged
 source objects from the geodata-import bucket, upload spool files, staged
 candidates, processing queue records, geodata entities, import runs, and local
-outbox records. It records one cleanup event. Events already published to
+outbox records. Terminal upload sessions and their part metadata are removed
+by exact source tag, with `uploadSessionsDeleted` in the response; session and
+import references to the same object are deleted once. Active upload sessions
+are refused, not force-aborted. It records one cleanup event. Events already published to
 JetStream cannot be recalled by this database cleanup and expire according to
 the configured stream-retention policy.
 
@@ -147,7 +159,7 @@ reports successful cleanup. Reuse the failed run's exact identifier, for
 example `MYOTA_LOAD_TEST_PROFILE=cleanup-only`
 `MYOTA_LOAD_TEST_RUN_ID=lt-20261006123955-simultaneous-edits`, with the same
 target and credentials used for the original run.
-The harness treats only the endpoint's explicit active-import/promotion
+The harness treats only the endpoint's explicit active-upload/import/promotion
 responses as retryable during cleanup, excludes those waits from failed-request
 thresholds, and allows up to six minutes for cleanup; other client errors fail
 immediately. Failed import submissions print the HTTP status and bounded,
@@ -155,10 +167,12 @@ credential-redacted problem response, including request/correlation IDs when
 available. Cleanup retry waits print the safe API detail and attempt number.
 Use these diagnostics to identify the service-side cause; do not weaken the
 workload acceptance or request-failure thresholds.
-The preprocessing path protects shared manifest/candidate/run state and
-durable snapshots with the geodata service lock while leaving parsing and
-enrichment outside the critical section. A concurrent-import regression test
-covers this worker race class.
+After an interrupted resumable transfer, abort only the logged upload ID
+through its user-bound upload DELETE endpoint, then retry exact-tag cleanup.
+The service's current authority is relational: import/entity updates use
+request transactions and optimistic revisions, not shared JSON snapshots.
+See the [relational authority rollout](geodata-phase1-relational-authority.md)
+and its concurrency regression coverage.
 
 ## Query-level timing and plans
 

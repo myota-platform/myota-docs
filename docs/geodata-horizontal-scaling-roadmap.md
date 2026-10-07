@@ -100,6 +100,11 @@ executor queue, or pod filesystem is authoritative for accepted work.
 - [ ] Execute each write profile in a non-production deployment and retain its
   result summary. Qualification for this roadmap must use non-production;
   the separately gated production tool mode is not evidence that this gate passed.
+- [x] Reconcile large-upload profiles with the resumable upload contract and
+  remove tagged terminal session/part records during cleanup. Add automated
+  upload/abort/checksum/cleanup regressions and a real-k6 localhost transport
+  smoke; see the [verification record](geodata-load-test-upload-verification.md).
+  These correctness checks do not close the representative workload gate above.
 - [x] Export API request rate, response-duration histogram (p50/p95/p99 in
   Grafana), errors, active requests, and request body size through OpenTelemetry.
 - [x] Export process CPU time and resident memory with a unique
