@@ -47,6 +47,11 @@ node loadtests/tests/k6-smoke.mjs
 | [Upload cleanup tests](https://github.com/myota-platform/myota-geodata-service/blob/main/tests/test_load_test_upload_fixtures.py) | Five unit cases plus real-database cascade test passed | Exact tag/ID/status predicates and transaction/foreign-key behavior |
 | Ruff | Format and lint checks passed | Service Python files, including cleanup helper/tests |
 
+After push, the [GitHub regression and image workflow](https://github.com/myota-platform/myota-geodata-service/actions/runs/37654639231)
+passed: all 90 Python tests ran successfully, including the two independent API
+processes, alongside the 14 harness regressions. The updated geodata image was
+published successfully. This still is not a production load-test result.
+
 The [image workflow](https://github.com/myota-platform/myota-geodata-service/blob/main/.github/workflows/build-and-publish.yml)
 gates publication on both harness and Python/database regressions. Pull requests
 run those checks without publishing an image. Real SeaweedFS transfer/restart
