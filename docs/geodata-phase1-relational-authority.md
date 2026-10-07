@@ -86,6 +86,9 @@ confirm them rather than granting implicit permission during recovery.
   independent running API containers (84 tests in total).
 - [x] 27 integration regressions, 18 admin-client tests, four operations
   authorization/broker tests, UI type checking/build and Python quality checks pass.
+- [x] 20 seed-free platform mirror tests pass without third-party runtime
+  packages. Supporting import, location, metrics and storage modules are
+  synchronized; activity/award object-storage compatibility is retained.
 - [x] Two independent stores serialize simultaneous edits and preserve both fields.
 - [x] Stale worker edits conflict rather than undoing another instance's approval.
 - [x] A stale instance cannot resurrect an entity deleted by another instance.
