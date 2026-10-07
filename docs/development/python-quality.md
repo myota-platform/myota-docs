@@ -6,20 +6,21 @@ core PEP 8 errors, import problems, and unused or undefined names. A reusable
 GitHub Actions workflow runs these checks on pushes and pull requests.
 
 For local commit and push checks, install the development tools and hooks from
-the root of a Python repository:
+the root of each Python repository:
 
 ```sh
-python3 -m pip install -r requirements-dev.txt
 ./scripts/install-quality-hooks.sh
 ```
 
-The hook runs Ruff formatting and lint checks before commits and pushes. CI
-repeats the checks so that bypassing a local hook does not bypass review-time
-validation. To fix formatting and supported lint issues:
+The installer creates a repository-local `.venv-quality`, installs pinned
+Ruff there, and configures Git to use the tracked `.githooks` scripts. They
+run Ruff formatting and lint checks before commits and pushes. CI repeats the
+checks so bypassing local hooks does not bypass review-time validation. To fix
+formatting and supported lint issues:
 
 ```sh
-python3 -m ruff format .
-python3 -m ruff check --fix .
+.venv-quality/bin/ruff format .
+.venv-quality/bin/ruff check --fix .
 ```
 
 Ruff's formatter targets 79 columns, but does not safely rewrite every long
