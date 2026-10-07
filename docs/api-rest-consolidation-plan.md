@@ -1,13 +1,30 @@
 # REST API consolidation plan
 
 Status: Phases 0–4 implemented; Phase 5 remains planned
-Reviewed: 2026-10-01
+Reviewed: 2026-10-07
 Owner: myota-contracts with the affected service repositories
 
 This review compares the current OpenAPI documents and route registries in the
 MyOTA repositories. It identifies redundant action-style routes and proposes
 a more consistent REST resource model. It is a design and migration plan,
-not an authorization to change the API yet.
+and records the implemented phases and subsequent compatible contract updates.
+
+## Latest compatible contract additions
+
+| Resource | Current contract / implementation |
+|---|---|
+| Entity metadata, geometry, categories and reviews | Optional `If-Match`, database `version` and detail `ETag`; stale edits or conflicting idempotency reuse return 409. No extra action endpoint was added. |
+| Import promotion | Selected PENDING/CONFIRMED rows are atomically confirmed and assigned to a durable job before dispatch; duplicate queue assignment is rejected. |
+| Entity deletion jobs | Same create/confirm/job resources; confirmation now dispatches a recoverable JetStream job, not an API-local executor. |
+| `GET /v1/operations/jetstream` | Authenticated latest broker status sample with health/staleness, streams and consumer details. |
+| `GET /v1/operations/jetstream/snapshots` | Paged persistent status-history resource, not a message-consumption action. |
+
+See [Phase 1 authority and concurrency evidence](geodata-phase1-relational-authority.md),
+[JetStream status API/runbook](jetstream-admin-status.md) and
+[canonical OpenAPI](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml).
+All browser access remains through APIs; no database or NATS credentials are
+exposed to either web client. Contract mirrors and the route inventory are
+reconciled in CI. These additions do not close Phase 5 legacy-route retirement.
 
 ## Executive summary
 

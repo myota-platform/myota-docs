@@ -4,7 +4,7 @@
 
 **Phase 0 read-only baseline delivered; Phase 2 upload handoff and Phase 3
 worker isolation are implemented, with integration and failure-injection
-gates still open. Remaining Phase 0 work and Phases 1, 4, and 5 are deferred.**
+gates still open. Phase 1 database authority is implemented and verified; remaining Phase 0 work and Phases 4 and 5 remain open.**
 This checklist records the work needed before increasing the
 Geodata API beyond one replica in production. The baseline does not make the
 current service horizontally safe.
@@ -17,15 +17,13 @@ and cross-service events.
 
 Current implementation hazards to resolve:
 
-- The geodata service hydrates catalogue/import state into process memory and
-  persists compatibility snapshots. Multiple processes can therefore hold
-  stale state while another replica changes the database.
-- The API still hydrates compatibility catalogue state into memory; targeted
-  refreshes prevent worker decisions from relying on stale import queue rows,
-  but Phase 1 is required before scaling entity mutations across API replicas.
+- Phase 1 no longer hydrates a mutable catalogue snapshot. Request/job-scoped
+  projections read authoritative rows and flush only changed rows, with locks,
+  revisions and database idempotency. See the [Phase 1 evidence and rollout
+  record](geodata-phase1-relational-authority.md).
 - Durable imports now use resumable object-storage multipart sessions and a
-  separately deployed JetStream worker. Large-source parsing and compatibility
-  catalogue memory are not yet streaming/bounded end to end.
+  separately deployed JetStream worker. Large-source parsing and worker-side broad candidate/spatial traversals
+  are not yet streaming/bounded end to end.
 
 See [overall architecture](architecture.md),
 [operations](operations.md),
@@ -109,25 +107,33 @@ reviewed for PostGIS, object storage, and worker bottlenecks.
 
 ### Phase 1 — remove cross-replica mutable process state
 
-- [ ] Inventory every `GeoHandler.store.items`, `store.data`, `store.events`,
+- [x] Inventory every `GeoHandler.store.items`, `store.data`, `store.events`,
   and `store.idempotency` read/write path and classify its source of truth.
-- [ ] Replace entity catalogue reads with indexed, paginated PostGIS repository
+- [x] Replace entity catalogue reads with indexed, paginated PostGIS repository
   queries, including map bounds, category, status, and location filters.
-- [ ] Replace entity edits, status changes, category assignments, geometry
+- [x] Replace entity edits, status changes, category assignments, geometry
   updates, reviews, and audit writes with narrowly scoped database
   transactions and optimistic/version checks where concurrent edits matter.
-- [ ] Replace whole-state snapshot persistence for durable geodata operations
+- [x] Replace whole-state snapshot persistence for durable geodata operations
   with row-level repository writes. Keep any compatibility projection
   read-only or remove it after an explicit migration/reconciliation plan.
-- [ ] Make import runs, staged candidates, processing queues, audit history,
+- [x] Make import runs, staged candidates, processing queues, audit history,
   and idempotency records database-authoritative; do not merge stale pod-local
   snapshots back into Postgres.
-- [ ] Ensure every mutating endpoint has database-enforced idempotency or a
+- [x] Ensure every mutating endpoint has database-enforced idempotency or a
   safe conditional update, including concurrent duplicate requests.
-- [ ] Add concurrency tests with two independent service instances editing and
+- [x] Add concurrency tests with two independent service instances editing and
   reading the same entity/import state.
 
-**Exit criteria:** restarting or adding an API pod cannot overwrite a newer
+Implementation, complete source-of-truth inventory, API concurrency behavior,
+migration/rollout guidance and test links are in the
+[Phase 1 delivery record](geodata-phase1-relational-authority.md).
+Local Colima validation includes 83 unit/database tests plus one HTTP test against
+two independent running API containers. CI runs the same database and two-process
+HTTP tests before image publication. The database fence rejects obsolete writers,
+including during mixed-image rollout.
+
+**Exit criteria: met for Phase 1.** Restarting or adding an API pod cannot overwrite a newer
 database value with an older in-memory copy; concurrent updates are either
 serialized or return an explicit conflict.
 
@@ -177,11 +183,13 @@ restart must still pass against the deployed image before this phase can close.
 - [ ] Persist progress in bounded batches. Avoid holding an entire large
   dataset or all entity geometries in worker memory when a streaming parser or
   indexed spatial query can be used. Part transfer is bounded; feature parsing
-  and legacy compatibility-state hydration are still whole-run/in-memory.
+  and some worker candidate/conflation traversals remain whole-run/in-memory; no
+  catalogue snapshot is authoritative or rewritten. Phase 1 now commits entity,
+  candidate-result and audit/outbox rows atomically at checkpoints.
 - [x] Make promotion consume only confirmed candidate IDs and record the
   resulting status/entity IDs and audit information with idempotent stable IDs.
-  Atomic audit/result transaction behavior still needs a database integration
-  test.
+  Entity/result/audit atomicity and duplicate promotion replay now have local
+  database integration coverage in the [Phase 1 tests](geodata-phase1-relational-authority.md).
 - [x] Add worker shutdown/drain behavior: stop fetching on SIGTERM/SIGINT,
   finish the active delivery, and drain the NATS connection.
 - [ ] Test pod termination during parsing, enrichment, candidate persistence,
@@ -190,9 +198,14 @@ restart must still pass against the deployed image before this phase can close.
 **Exit criteria: partially met.** API requests no longer execute durable
 preprocessing or promotion locally; worker retries use database leases and
 stable identities. The parser is not yet batch/stream bounded, and termination,
-duplicate-delivery, and audit atomicity tests remain required.
+forced-termination and concurrent multi-worker delivery scenarios remain required.
 
 ### Phase 4 — remove unsafe infrastructure constraints
+
+Phase 1 removes the shared snapshot correctness blocker, but does not authorize
+production replica increases. Apply the [write-fenced migration/rollout
+procedure](geodata-phase1-relational-authority.md#migration-and-rollout) first;
+then complete the infrastructure and operational gates below.
 
 - [ ] Remove the geodata API's dependency on a shared `ReadWriteOnce` upload
   spool, then review all remaining volumes mounted by API pods.
@@ -217,6 +230,10 @@ duplicate-delivery, and audit atomicity tests remain required.
 queue, database-connection, or availability constraints.
 
 ### Phase 5 — staged rollout and operational proof
+
+Current CI now covers relational migrations, concurrent independent repositories,
+promotion replay, migration replay, and two actual API processes. Large-source
+memory, forced termination, storage restart and load/canary proof remain open.
 
 - [ ] Run contract, integration, migration, multi-instance concurrency, and
   worker recovery tests in CI.

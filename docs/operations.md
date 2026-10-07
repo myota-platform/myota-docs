@@ -91,6 +91,23 @@ expiry.
 
 ### Import recovery
 
+The browser supports pause/resume and discard of incomplete uploads, preserves
+session state on transient errors and checks saved-part hashes against the
+reselected original file. Each new submission after completion uses a fresh
+attempt key. Transfer completion, server verification and worker preprocessing
+are separate stages. Selected import detail refreshes while workers progress.
+
+Geodata persistence no longer writes whole service snapshots. Follow the
+[Phase 1 write-fenced migration/rollout procedure](geodata-phase1-relational-authority.md#migration-and-rollout)
+when updating API and worker images; obsolete writers are rejected instead of
+overwriting current rows. Keep replica counts unchanged until the remaining
+infrastructure/load/failure gates pass.
+
+For broker troubleshooting use the authenticated admin `/jetstream` page or
+the [status/history API and runbook](jetstream-admin-status.md). Samples are
+persisted by the operations service in `myota_core`; history does not depend
+on a browser session or geodata pod cache.
+
 Import history is durable and should be used as the operational source for
 file visibility and processing status. The HTTP API only accepts durable work;
 the outbox relay publishes preprocessing and promotion events to JetStream.

@@ -4,7 +4,7 @@ Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diag
 
 ## Scope
 
-MyOTA is an Outdoor Activation Platform. A programme is configuration and policy data consumed by platform capabilities. MPOTA is only sample seed data; future programmes use the same APIs without cloning a codebase. The platform does not copy, inherit or silently normalize another programme's charter, rules, minimum QSOs, award logic or eligibility policy. Those are programme-owned inputs, versioned and auditable as configuration or programme code.
+MyOTA is an Outdoor Activation Platform. A programme is configuration and policy data consumed by platform capabilities. MPOTA is only an optional programme-configuration example; entity seed data is no longer replayed. Future programmes use the same APIs without cloning a codebase. The platform does not copy, inherit or silently normalize another programme's charter, rules, minimum QSOs, award logic or eligibility policy. Those are programme-owned inputs, versioned and auditable as configuration or programme code.
 
 The product motivation and working charter are documented in
 [`project-charter.md`](project-charter.md). The current architecture is a
@@ -21,12 +21,15 @@ flowchart LR
   G --> P[Programme service\nconfiguration, rules, themes]
   G --> Geo[Geodata service\nPostGIS, imports, review]
   G --> A[Activity service\nactivations, QSOs, awards]
+  G --> Ops[Operations service\nJetStream status and sampled history]
   I -. events .-> Bus[(Event broker / outbox)]
   P -. events .-> Bus
   Geo -. events .-> Bus
   A -. events .-> Bus
   I --> C[(myota_core\nPostgreSQL)]
   P --> C
+  Ops --> C
+  Ops -->|Read-only status| Bus
   A --> ADB[(myota_activity\nPostgreSQL)]
   Geo --> D[(myota_geo\nPostgreSQL + PostGIS)]
   Admin[QGIS / browser map editor] --> Geo
@@ -41,6 +44,13 @@ where spatial indexes, geometry validation, conflation and QGIS integration
 require it: `myota_geo`.
 
 Each service owns its database tables and publishes events. No service reads another service's tables. The gateway/ingress is a routing boundary, not a domain owner.
+
+The operations service owns timestamped broker samples in the control-plane
+database; domain workers still consume their own queues. Its
+[authenticated JetStream page/API](jetstream-admin-status.md) is read-only.
+Geodata now uses [database-authoritative, request-scoped row repositories](geodata-phase1-relational-authority.md),
+with transactionally coupled entity/candidate/audit writes and a write-fenced
+rollout. This closes Phase 1 correctness, not the remaining scalability gates.
 
 ### Authenticated observability
 

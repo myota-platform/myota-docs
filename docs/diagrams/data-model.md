@@ -12,6 +12,7 @@ The physical database ownership is:
 flowchart LR
   Core[(myota_core\nPostgreSQL)] --> Identity[Identity]
   Core --> Programme[Programmes + configuration]
+  Core --> Operations[Operational JetStream samples]
   Activity[(myota_activity\nPostgreSQL)] --> Execution[Activations + QSOs]
   Activity --> Awards[Awards + aggregates]
   Geo[(myota_geo\nPostgreSQL + PostGIS)] --> Entities[Entities + categories]
@@ -111,6 +112,7 @@ erDiagram
     text name
     geometry geom
     text lifecycle_status
+    bigint revision
     jsonb location_metadata
   }
   GEODATA_ENTITY_CATEGORY {
@@ -146,6 +148,8 @@ erDiagram
     text dedupe_warning
     jsonb possible_duplicates
     text target_status
+    uuid processing_queue_id
+    uuid existing_entity_id
   }
   IMPORT_PROCESSING_QUEUE {
     uuid id PK
@@ -153,6 +157,26 @@ erDiagram
     text candidate_ids
     text target_status
     text status
+    jsonb job_metadata
+  }
+  GEODATA_CONTROL_RECORD {
+    text kind PK
+    text id PK
+    jsonb payload
+    timestamptz updated_at
+  }
+  GEODATA_AUDIT_EVENT {
+    uuid event_id PK
+    text aggregate_id
+    jsonb event
+    timestamptz occurred_at
+  }
+  OPERATIONS_JETSTREAM_SNAPSHOT {
+    bigint id PK
+    bigint capture_slot UK
+    timestamptz captured_at
+    text status
+    jsonb payload
   }
   ACTIVITY_ACTIVATION {
     uuid id PK

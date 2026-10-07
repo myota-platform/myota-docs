@@ -17,6 +17,8 @@ synchronization rule, and deployment boundaries are defined in
 - [Charter-derived gap analysis and delivery sequence](docs/charter-gap-analysis.md)
 - [Architecture](docs/architecture.md)
 - [REST API consolidation plan](docs/api-rest-consolidation-plan.md)
+- [Geodata Phase 1 database authority, concurrency evidence and rollout](docs/geodata-phase1-relational-authority.md)
+- [NATS / JetStream admin status and durable history](docs/jetstream-admin-status.md)
 - [Phase 2 geodata resource model](docs/api-phase2-geodata-resource-model.md)
 - [Phase 3 activity and award jobs](docs/api-phase3-activity-award-jobs.md)
 - [Phase 4 client and operational migration](docs/api-phase4-client-operational-migration.md)

@@ -29,9 +29,12 @@ flowchart LR
   Gateway --> Programme[Programme service\nprogramme config, policies, locales, jurisdictions]
   Gateway --> Geodata[Geodata service\nentities, imports, provenance, review]
   Gateway --> Activity[Activity service\nactivations, QSOs, awards, statistics]
+  Gateway --> Operations[Operations service\nJetStream status and sampled history]
 
   Identity --> Core
   Programme --> Core
+  Operations --> Core
+  Operations -->|Read-only broker inspection| Events
   Geodata --> GeoDB
   Activity --> ActivityDB
   Geodata --> Objects

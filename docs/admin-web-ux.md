@@ -6,7 +6,7 @@ administrator to understand service boundaries or database terminology.
 
 ## Workspace structure
 
-The shell groups work into four areas:
+The shell groups work into domain workspaces and platform health:
 
 - **Overview**: dashboard and service signals.
 - **Programme setup**: programme configuration, policy, content, and the
@@ -15,6 +15,8 @@ The shell groups work into four areas:
   and the read-only map explorer.
 - **Operations & access**: activations/QSOs, award certificates, and users and
   roles.
+- **Platform health**: Grafana observability and authenticated
+  [NATS / JetStream status and history](jetstream-admin-status.md).
 
 The programme scope selector is in the top bar so it remains visible while an
 administrator moves between programme-owned pages. “All programmes” is an
@@ -27,14 +29,38 @@ The Geodata Imports page uses an in-page detail workspace instead of a large
 blocking summary dialog:
 
 1. Intake stays at the top and accepts pasted or uploaded source data.
-2. The left column contains the preprocessing queue and complete import
-   history, including active runs.
+2. The left column contains the preprocessing queue, including uploaded/queued,
+   processing and ready-for-validation runs. It includes older active runs,
+   not just the first history page.
 3. Selecting a run fills the detail panel on the right and keeps the queue
    visible for comparison.
 4. Validation, duplicate comparison, promotion, refresh, and finalization are
    actions within that selected-run context.
 5. The duplicate/location map remains a focused modal because the comparison
    needs temporary map space and does not replace the selected import context.
+6. Complete import history is below the workspace, paged ten runs at a time.
+
+File uploads use owner-scoped resumable sessions. Each new attempt gets a fresh
+idempotency key, retained through pauses, transient errors and lost responses;
+submitting the same completed file later creates a new import. Completed parts
+are checksum-checked against the reselected original file. Transfer, server
+verification and preprocessing are separate progress stages. Pause/resume and
+discard controls preserve server progress; a file still undergoing verification
+must be resumed rather than aborted. File input state is reset after success.
+
+History and the selected detail refresh every five seconds while the page is
+visible; the complete active queue is reconciled every thirty seconds. Summary
+counts use authoritative source totals, staging counts and worker statistics.
+Selections survive candidate pagination, including select-all across pages.
+Actions are disabled while submitting, and records are not offered for promotion
+before preprocessing finishes. Finalization retains the summary, not staged
+records or obsolete action controls.
+
+Entity edits submit the database revision with `If-Match`. A concurrent edit
+returns a conflict instead of overwriting another administrator's change. The
+error offers **Reload selected entity**, with confirmation before discarding
+unsaved edits. Successful geometry/category/name/location saves refresh the
+selected revision. Bulk approval only applies to CANDIDATE entities.
 
 This layout makes a long-running upload observable and prevents the user from
 losing the history list behind a modal. On narrow screens the columns stack and
