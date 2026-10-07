@@ -25,6 +25,7 @@ synchronization rule, and deployment boundaries are defined in
 - [Geodata non-production load tests and query evidence](docs/geodata-load-test-and-query-evidence.md)
 - [Programme configuration gap analysis](docs/programme-configuration-gap-analysis.md)
 - [Operations and production-readiness notes](docs/operations.md)
+- [Python style, commit/push hooks, and CI checks](docs/development/python-quality.md)
 - [Geodata API load baseline and Grafana dashboard](docs/geodata-horizontal-scaling-roadmap.md#phase-0--establish-a-measurable-baseline)
 - [Object-storage bucket boundaries](docs/operations.md#object-storage-bucket-boundaries)
 - [Object-storage purpose and retention diagram](docs/diagrams/object-storage-buckets.md)
