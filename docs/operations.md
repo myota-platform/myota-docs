@@ -149,6 +149,9 @@ discarding unfinished worker changes, then deletes staged records and persists
 the terminal state while holding that lock. Repeating the request preserves
 the original cancellation actor/time and returns the current status; a worker
 heartbeat or stale projection does not require an administrator to reload.
+Staged cleanup deletes by the indexed `import_run_id` and discards only this
+run's pending projections; it never enumerates other imports or decodes their
+geometries. This keeps cancellation responsive when other datasets are large.
 
 ### Activity notification consumer rollouts
 
