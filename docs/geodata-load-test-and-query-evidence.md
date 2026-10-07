@@ -87,6 +87,14 @@ and harness reject values above their safety caps. Set
 host; production uses the separate exact `MYOTA_LOAD_TEST_PRODUCTION_HOSTS`
 allowlist.
 
+After an import POST is accepted, the asynchronous upload handoff may briefly
+return 404 from `GET /v1/geodata/imports/{runId}` before the durable run record
+is visible. The harness retries that specific status-poll 404 and excludes it
+from `http_req_failed`; other statuses, including 5xx responses, remain
+failures. If polling times out, it reports the final HTTP status and sanitized
+API details. This preserves the request-failure threshold while accounting for
+the documented registration handoff.
+
 ## Fixture cleanup
 
 Each import's source metadata and each created entity's provenance carry the
