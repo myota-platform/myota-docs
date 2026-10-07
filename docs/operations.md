@@ -142,6 +142,39 @@ instead of resuming it. A stale JetStream delivery after cancellation is
 acknowledged without starting work. Preprocessed runs cannot be cancelled;
 administrators should use import finalization after review instead.
 
+Cancellation timestamps, actor and completion status are written by the row
+repository in the same transaction as the cancellation event. There is no
+parallel SQL timestamp update. Finalization reloads the locked run before
+discarding unfinished worker changes, then deletes staged records and persists
+the terminal state while holding that lock. Repeating the request preserves
+the original cancellation actor/time and returns the current status; a worker
+heartbeat or stale projection does not require an administrator to reload.
+
+### Activity notification consumer rollouts
+
+The Activity notifications deployment uses the JetStream pull durable
+`activity-notifications-pull-v1` on `MYOTA_EVENTS`, with the filter
+`myota.events.>`, explicit acknowledgements, a 60-second acknowledgement
+window, at most 64 unacknowledged deliveries, and at most 10 deliveries per
+message. Replicas can fetch from the same durable during scaling and rolling
+updates. On SIGTERM, the worker stops fetching, completes its current
+notification and drains NATS; Helm allows 60 seconds for termination.
+
+The earlier `activity-notifications` push durable cannot be converted in place
+because its delivery mode is immutable. The new durable replays retained
+events using the unchanged database consumer identity `activity-notifications`
+and the notification's `event:{eventId}` idempotency key. Already processed
+events are acknowledged without creating another notice. After all old pods
+have exited and the new consumer is healthy, remove only the obsolete
+`activity-notifications` broker consumer; keep its database checkpoints and
+processed-event records. Do not purge the event stream.
+
+`myota-activity-service/tests/test_notification_consumer.py` proves two
+overlapping bindings, acknowledgement and restart against isolated JetStream
+(`NATS_TEST_URL`). The geodata relational suite proves immediate cancellation,
+idempotent retries, and finalization from a stale worker against isolated
+PostGIS (`GEO_TEST_DATABASE_URL`, an `*_tests` database).
+
 Preprocessing replay is idempotent per `(import_run_id, ordinal)`: it updates
 the existing staged candidate while retaining its database identity and review
 fields, rather than attempting a duplicate insert. Tagged load-test cleanup

@@ -93,7 +93,12 @@ The API deployment is stateless and horizontally scalable. Helm defaults to
 three activity replicas; `activity_worker` handles ADIF parsing, award-rule
 recalculation, PDF rendering, statistics and notification delivery, while the
 notification consumer translates geodata and identity events into participant
-notices. Each workload has its own bounded database pool.
+notices. It uses the shared durable pull consumer
+`activity-notifications-pull-v1` with explicit acknowledgements and bounded
+pending deliveries; replica overlap during deployment is supported. Its
+database deduplication identity stays `activity-notifications` across the
+transition from the old push consumer. Each workload has its own bounded
+database pool.
 
 Object storage is split into purpose-specific buckets on the same S3-compatible
 SeaweedFS (or configured provider) endpoint: `myota-geodata-imports` for source
@@ -203,6 +208,11 @@ retains the import summary for history/retention. The route returns 202 while
 an active worker is stopping and 200 after immediate or previously completed
 cancellation. Runs already in the reviewable `PREPROCESSED` states are outside
 the cancellation window.
+
+The row repository is the only writer of cancellation timestamps and lifecycle
+fields. Finalization reloads the authoritative row and holds its lock through
+staged-record deletion and persistence, preventing timestamp conflicts and
+stale worker changes from overwriting the cancellation request.
 
 After validation and any desired promotion, an administrator can finalize the
 run with `POST /v1/geodata/imports/{runId}/processed`. This is an explicit,
