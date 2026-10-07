@@ -131,6 +131,17 @@ appropriate to the cluster.
 
 ## Operational interpretation
 
+For authenticated stream/consumer inspection, choose **Platform health →
+NATS / JetStream** (`/jetstream`) in the admin UI. The
+[operations service](jetstream-admin-status.md) reads actual broker metadata
+and persists sampled history in its own `myota_core` table every 30 seconds
+by default, retaining seven days. The browser polls visible status every ten
+seconds; it neither connects to NATS nor reads a database. Sampling failures
+remain explicit `PARTIAL`/`UNAVAILABLE` records rather than zero backlog.
+Availability and stalled-history alerts complement the Grafana broker panels.
+The page is an observer, not a queue-redrive or consumer-management console.
+See the [scaling delivery evidence and remaining gates](geodata-horizontal-scaling-roadmap.md#latest-delivery-and-evidence--7-october-2026).
+
 - A missing series is not converted to a made-up value.
 - Scrape and exporter health should be checked before interpreting an empty
   chart as zero activity.

@@ -132,9 +132,9 @@ indefinitely as active work.
 Preprocessing replay is idempotent per `(import_run_id, ordinal)`: it updates
 the existing staged candidate while retaining its database identity and review
 fields, rather than attempting a duplicate insert. Tagged load-test cleanup
-deletes only the selected run's relational rows and persists only the service
-snapshot/outbox afterward; it must not flush unrelated dirty candidate rows
-from another active import. If a cleanup attempt removed some rows before
+deletes only the selected run's relational rows and writes associated row-level
+control/audit/outbox changes; it never rewrites a service snapshot or flushes
+unrelated candidate rows from another active import. If cleanup removed some rows before
 failing, retry the same exact-tag cleanup request safely.
 
 ### Geodata import retention
@@ -249,17 +249,17 @@ Large GeoJSON imports can create substantial staged candidate data because the
 candidate geometry and provenance remain reviewable before promotion. Local
 Compose runs one geodata import worker by default; Helm configures worker
 replicas independently from geodata API replicas. Each replica limits JetStream
-ack-pending work to one message per consumer. The parser and legacy catalogue
-compatibility projection still materialize large objects and entity state in
-worker memory, so do not increase worker concurrency before completing the
+ack-pending work to one message per consumer. The parser and some broad candidate
+and spatial traversals still materialize large objects in worker memory, but
+there is no authoritative whole-catalogue snapshot. Do not increase worker concurrency before completing the
 remaining streaming/batched processing and non-production load evidence. A
 large run should be allowed to finish before validation/finalization; do not
 remove database or object-store volumes to recover from a transient outage.
 
 Geodata entity lifecycle, geometry, and category edits are persisted in the
-relational PostGIS tables. The geodata service's JSON `service_state` row is a
-compatibility snapshot only; on startup, PostgreSQL entity columns take
-precedence over an older snapshot. The geodata service has no built-in entity
+relational PostGIS tables. Migration 016 retains the old `service_state` row as
+an archive; the durable runtime never reads or writes it. Request/job-scoped
+repositories read authoritative rows and flush only changed rows. The service has no built-in entity
 seed data; populate a local catalogue through the import or community-proposal
 workflow instead.
 

@@ -20,7 +20,8 @@ flowchart LR
   Store --> Admin[Visible pre-processing queue]
   Warning -.-> Admin
   Admin --> Validate[Confirmed selection]
-  Validate --> PromoteOutbox[(Promotion outbox event)]
+  Validate --> Confirm[(Atomic confirmation, job association and outbox)]
+  Confirm --> PromoteOutbox[(Promotion outbox event)]
   PromoteOutbox --> PromoteNATS[NATS JetStream durable subject]
   PromoteNATS --> PromoteWorker[Promotion worker + atomic lease]
   PromoteWorker --> Candidate[CANDIDATE entity]
@@ -34,6 +35,9 @@ flowchart LR
   Retention -->|No| Summary
   Retention -->|Yes| Expunge[Delete source object and import logs]
   Expunge -.-> Entities[Keep promoted entities and provenance]
+  Observer[Read-only operations service] -. metadata only .-> NATS
+  Observer -. metadata only .-> PromoteNATS
+  Observer --> History[(myota_core sampled history)]
 ```
 
 The daily retention worker expunges the source object, import history, and
@@ -61,8 +65,22 @@ request. Local Compose and Helm run the same geodata-owned JetStream worker
 separately from the API; durable pull consumers use explicit acknowledgements,
 bounded redelivery, and PostgreSQL leases. The pre-processing queue remains
 separate from Geodata Review until the worker materializes a confirmed record
-as an entity. Streaming parser batches and removing the remaining compatibility
-catalogue from worker memory are still roadmap work.
+as an entity. Preprocessing uses durable consumer `geodata-preprocessing-v1`;
+promotion uses `geodata-import-processing-v2`. Confirmation, candidate/job
+association and dispatch outbox commit together. Entity, candidate result and
+audit/outbox changes commit atomically at promotion checkpoints. Queued
+candidates cannot be rejected or submitted to another promotion job.
+Streaming parser batches and bounded candidate/spatial traversals remain
+[scaling roadmap work](../geodata-horizontal-scaling-roadmap.md); durable
+repositories no longer hydrate or rewrite a service-wide snapshot.
+
+Permanent entity deletion is a separate geodata-owned execution path on
+`myota.geodata.entity.delete.v1`, consumer `geodata-entity-deletion-v1`, not
+part of import validation. It performs the activity impact/cascade workflow
+before removing geodata rows and audit history. The
+[operations observer](../jetstream-admin-status.md) only samples metadata for
+these three consumers; it does not receive/ACK business deliveries or change
+consumer state. Persistent sampled history is not a per-message audit log.
 
 The target status is chosen only after confirmation. The imports collection
 returns candidate counts so the admin page can keep active pre-processing runs

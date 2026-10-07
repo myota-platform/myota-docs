@@ -2,18 +2,20 @@
 
 The following split is justified and intentionally small:
 
-| Repository | Owns | Initial source here |
+| Repository | Owns | Current implementation / artifacts |
 |---|---|---|
 | `myota-contracts` | OpenAPI, event schemas, compatibility rules, generated client release | `contracts/` |
-| `myota-identity-service` | accounts, callsigns, auth claims, OIDC mappings | `services/identity.py`, core migrations |
-| `myota-programme-service` | programmes, shared entity category master data and programme assignments, programme-owned rules and themes | `services/programmes.py`, core migrations |
-| `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, staged dataset intake and source decoding | `services/geodata.py`, `import_formats.py`, geo migrations |
+| `myota-identity-service` | accounts, callsigns, auth claims, OIDC mappings and assignable operations permissions | `identity.py`, `run_identity.py` |
+| `myota-programme-service` | programmes, shared entity category master data and programme assignments, programme-owned rules and themes | `programmes.py`, `run_programmes.py` |
+| `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, staged dataset intake, source decoding and durable domain workers | `geodata.py`, `relational_state.py`, `relational_queries.py`, `geodata_import_worker.py`, `migrations/` |
 | `myota-activity-service` | activations, normalized/indexed QSOs, COPY/ADIF ingestion, activity aggregates, corrections, programme-owned award definitions and versioned progress, object-storage assets, requests, rendering, notifications, statistics and issuance records | `activity.py`, `awards.py`, `activity_repository.py`, `activity_worker.py`, `migrations/` |
 | `myota-operations-service` | authenticated domain-neutral NATS/JetStream status inspection and persistent sampled history; no business-domain queue processing | `operations.py`, operations-owned core migration |
 | `myota-web` | universal programme UI, published award progress and participant requests | `web/` |
-| `myota-admin-web` | Vue 3/TypeScript administration, programme context, grouped workspaces, resumable import intake, review queues, award designer, asset management, JetStream status and operational views | `myota-admin-web/src/` |
-| `myota-deploy` | Helm charts, environments, migration orchestration, Compose, worker deployments, observability | `deploy/`, `db/migrations/`, `compose.yaml` |
+| `myota-admin-web` | Vue 3/TypeScript administration, programme context, grouped workspaces, resumable import intake, review queues, award designer, asset management, JetStream status and operational views | `src/`, `public/vendor/` |
+| `myota-deploy` | Helm charts, environments, migration orchestration, Compose, worker deployments, observability | `deploy/helm/myota/`, `db/migrations/`, `compose.yaml` |
 | `myota-docs` | architecture, ADRs, operator and migration docs | `docs/` |
+| `myota-platform` | integration bootstrap and synchronized runtime, migration and contract mirrors; not domain ownership | `services/`, `db/migrations/`, `contracts/`, `tests/` |
+| `.github` | public organization profile, delivery checklist and shared quality workflow | `profile/README.md`, `.github/workflows/python-quality.yml` |
 
 Migration ownership follows the service boundary. The activity repository is
 the source of truth for `migrations/001_activity_relational.sql`, while
@@ -80,6 +82,15 @@ award-progress recalculation job; only after that succeeds does the geodata
 service remove the entity, conflation links and entity audit history. The UI
 must show the QSO/activation impact and require confirmation before invoking
 the irreversible operation.
+
+Deletion is dispatched through the third geodata durable pull consumer,
+`geodata-entity-deletion-v1`, on `myota.geodata.entity.delete.v1`. The job
+stores verified authorization context, leases execution and uses idempotent
+activity API calls; it is not an API-local executor. Preprocessing uses
+`geodata-preprocessing-v1`; promotion uses `geodata-import-processing-v2`.
+The operations service inspects these consumers but never executes their work.
+See the [Phase 1 authority/rollout record](geodata-phase1-relational-authority.md)
+and [latest scaling delivery evidence](geodata-horizontal-scaling-roadmap.md#latest-delivery-and-evidence--7-october-2026).
 
 The bootstrap repository is a temporary integration workspace; it is not a
 reason to create many more repositories. Each row is wired together by pinned

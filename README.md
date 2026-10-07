@@ -1,8 +1,8 @@
 # MyOTA documentation
 
 MyOTA is open infrastructure for geographic amateur-radio activation
-programmes. MPOTA is retained as synthetic sample data, not as the platform
-definition. Every programme supplies its own charter, eligibility, rules,
+programmes. MPOTA is an optional programme-configuration example, not the platform
+definition; built-in geodata seed entities are no longer replayed. Every programme supplies its own charter, eligibility, rules,
 awards, content, and governance policy; MyOTA does not copy rules from POTA,
 MPOTA, or another initiative.
 
@@ -24,6 +24,8 @@ synchronization rule, and deployment boundaries are defined in
 - [Phase 4 client and operational migration](docs/api-phase4-client-operational-migration.md)
 - [Repository map and ownership boundaries](docs/repository-map.md)
 - [Geodata API horizontal-scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md)
+- [Latest geodata scaling delivery and published CI evidence](docs/geodata-horizontal-scaling-roadmap.md#latest-delivery-and-evidence--7-october-2026)
+- [Organization documentation and migration-mirror reconciliation](docs/documentation-reconciliation-2026-10-07.md)
 - [Geodata non-production load tests and query evidence](docs/geodata-load-test-and-query-evidence.md)
 - [Programme configuration gap analysis](docs/programme-configuration-gap-analysis.md)
 - [Operations and production-readiness notes](docs/operations.md)

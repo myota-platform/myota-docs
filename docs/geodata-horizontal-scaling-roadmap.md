@@ -15,7 +15,7 @@ PostgreSQL/PostGIS remains the system of record; object storage remains the
 durable source for uploaded datasets; NATS JetStream carries asynchronous work
 and cross-service events.
 
-Current implementation hazards to resolve:
+Current implementation and remaining hazards:
 
 - Phase 1 no longer hydrates a mutable catalogue snapshot. Request/job-scoped
   projections read authoritative rows and flush only changed rows, with locks,
@@ -31,6 +31,32 @@ See [overall architecture](architecture.md),
 and the upload-session/worker deployment in `myota-deploy` for current
 behavior.
 
+## Latest delivery and evidence — 7 October 2026
+
+This reconciliation records published implementation, not a new production
+rollout or a claim that every scaling phase is complete. Phase 1 is closed;
+Phases 2 and 3 have delivered capabilities but still need the failure and
+memory qualification below. Phases 4 and 5 remain rollout gates.
+
+| Delivered capability | Documentation and implementation evidence |
+|---|---|
+| Database-authoritative geodata rows, conditional edits, idempotency, atomic entity/candidate/audit/outbox checkpoints and obsolete-writer fence | [Phase 1 inventory, migration 016, rollout and 84-test record](geodata-phase1-relational-authority.md); [published geodata implementation](https://github.com/myota-platform/myota-geodata-service/commit/ab991891840590a2be9c4c458e1771a45e2c64d8); [successful database/two-API CI](https://github.com/myota-platform/myota-geodata-service/actions/runs/37642572170) |
+| Owner-bound resumable uploads, pause/resume/discard, bounded checksummed parts, fresh completed-file submissions, revision-conflict reloads and active import refresh | [Admin workflow](admin-web-ux.md); [published Vue changes](https://github.com/myota-platform/myota-admin-web/commit/e17603fdcc6e3b85d7c062fbdc8ef7b9e2e1baae); [successful admin tests/build](https://github.com/myota-platform/myota-admin-web/actions/runs/37640776687) |
+| Separate durable preprocessing, promotion and entity-deletion consumers with database leases and replay-safe effects | [Import lifecycle diagram](diagrams/geodata-import-validation.md), [recovery runbook](operations.md#import-recovery), [deletion authorization and lease boundary](geodata-phase1-relational-authority.md#mutation-and-api-behavior) |
+| Read-only broker inspection and durable sampled history, separate from business workers | [JetStream status API/UI and operational semantics](jetstream-admin-status.md); [successful operations service CI](https://github.com/myota-platform/myota-operations-service/actions/runs/37642579946) |
+| Canonical contracts, conditional-write clients and runtime route reconciliation | [Contract repository validation](https://github.com/myota-platform/myota-contracts#validate-contracts-and-clients); [successful contract freeze/client CI](https://github.com/myota-platform/myota-contracts/actions/runs/37642816616) |
+| Compose/Helm worker separation, migration mirrors, operations service, scrape targets and availability/history alerts | [Deployment ownership](repository-map.md), [published deployment integration](https://github.com/myota-platform/myota-deploy/commit/6ceac513834554ddcf77768c8ccd0bbfa2f98813), [successful deployment tests/image build](https://github.com/myota-platform/myota-deploy/actions/runs/37642540219), [GitHub Helm validation](https://github.com/myota-platform/myota-deploy/actions/runs/37642215588) |
+
+The Helm validation link records the chart-changing commit; later deployment
+changes have their own test/image result above. Local Colima evidence is recorded
+in the Phase 1 delivery record. These results do not substitute for termination,
+SeaweedFS restart, multi-worker, sustained-load or production-canary tests.
+
+The [organization documentation reconciliation](documentation-reconciliation-2026-10-07.md)
+records coverage of all twelve repositories, current contract checks and the
+42 service-owned migration mirrors, including the restored platform activity
+retention copies. This is a synchronization repair, not a new live schema change.
+
 ## Target shape
 
 ```mermaid
@@ -41,9 +67,13 @@ flowchart LR
   API --> Obj[(Object storage: durable import source)]
   API --> Outbox[(Transactional outbox)]
   Outbox --> NATS[NATS JetStream]
-  NATS --> Workers[Geodata preprocessing and promotion workers]
+  NATS --> Workers[Geodata preprocessing, promotion and deletion workers]
   Workers --> DB
   Workers --> Obj
+  Workers -->|Deletion impact and cascade API| Activity[Activity service]
+  Ops[Read-only operations service] -. broker metadata .-> NATS
+  Ops --> Core[(myota_core sampled history)]
+  Client -->|Authenticated status API| Ops
   DB --> API
 ```
 
@@ -68,7 +98,8 @@ executor queue, or pod filesystem is authoritative for accepted work.
   fixtures on successful completion. See the [workload and query-evidence runbook](geodata-load-test-and-query-evidence.md)
   and the [k6 profile implementation](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/geodata-workloads.js).
 - [ ] Execute each write profile in a non-production deployment and retain its
-  result summary. Do not run these profiles against production.
+  result summary. Qualification for this roadmap must use non-production;
+  the separately gated production tool mode is not evidence that this gate passed.
 - [x] Export API request rate, response-duration histogram (p50/p95/p99 in
   Grafana), errors, active requests, and request body size through OpenTelemetry.
 - [x] Export process CPU time and resident memory with a unique
@@ -124,6 +155,9 @@ reviewed for PostGIS, object storage, and worker bottlenecks.
   safe conditional update, including concurrent duplicate requests.
 - [x] Add concurrency tests with two independent service instances editing and
   reading the same entity/import state.
+- [x] Migrate admin entity mutations to revision-aware requests and explicit
+  reload guidance on HTTP 409; see the [admin workflow](admin-web-ux.md) and
+  [concurrency/API behavior](geodata-phase1-relational-authority.md#mutation-and-api-behavior).
 
 Implementation, complete source-of-truth inventory, API concurrency behavior,
 migration/rollout guidance and test links are in the
@@ -157,6 +191,9 @@ serialized or return an explicit conflict.
   lifecycle. Define how multipart parts and abandoned sessions are cleaned up.
 - [x] Make upload retries idempotent and define whether an incomplete upload is
   resumed or restarted after a client/network failure.
+- [x] Integrate browser pause/resume/discard, saved-part verification, recovery
+  after response loss and fresh submission identities after completion. See
+  [admin upload behavior](admin-web-ux.md) and the [admin test/build evidence](#latest-delivery-and-evidence--7-october-2026).
 - [x] Remove the shared upload-spool PVC dependency. Any remaining local
   scratch space is bounded per part and reconstructible from the client or
   object store; the restart/failure test is still outstanding.
@@ -190,6 +227,14 @@ restart must still pass against the deployed image before this phase can close.
   resulting status/entity IDs and audit information with idempotent stable IDs.
   Entity/result/audit atomicity and duplicate promotion replay now have local
   database integration coverage in the [Phase 1 tests](geodata-phase1-relational-authority.md).
+- [x] Move confirmed permanent entity deletion to the separate
+  `geodata-entity-deletion-v1` durable consumer, with saved authorization,
+  recoverable leases and idempotent activity-cascade calls. See
+  [deletion execution semantics](geodata-phase1-relational-authority.md#mutation-and-api-behavior).
+- [x] Expose real streams, consumers, pending/ack-pending deliveries, redelivery
+  state and persistent sampled history through the authenticated
+  [operations service and admin page](jetstream-admin-status.md). The observer
+  does not consume, acknowledge, redrive or purge domain work.
 - [x] Add worker shutdown/drain behavior: stop fetching on SIGTERM/SIGINT,
   finish the active delivery, and drain the NATS connection.
 - [ ] Test pod termination during parsing, enrichment, candidate persistence,
@@ -207,11 +252,14 @@ production replica increases. Apply the [write-fenced migration/rollout
 procedure](geodata-phase1-relational-authority.md#migration-and-rollout) first;
 then complete the infrastructure and operational gates below.
 
-- [ ] Remove the geodata API's dependency on a shared `ReadWriteOnce` upload
-  spool, then review all remaining volumes mounted by API pods.
-- [ ] Make NATS consumers explicitly scale-safe (queue-group or pull-consumer
-  design, durable identity, acknowledgement, and idempotent side effects)
-  before increasing consumer replicas.
+- [x] Remove the geodata API's shared `ReadWriteOnce` upload-spool dependency;
+  see [Phase 2](#phase-2--make-upload-handoff-durable-without-a-shared-pod-volume).
+- [ ] Review all other volumes mounted by API pods before increasing replicas.
+- [x] Implement durable pull consumers, explicit acknowledgement, database
+  leases and idempotent side effects for the three geodata queues; see the
+  [worker lifecycle](diagrams/geodata-import-validation.md).
+- [ ] Qualify concurrent multi-worker delivery and failure recovery before
+  increasing consumer replicas; implementation alone does not prove this gate.
 - [ ] Keep PostGIS connection use bounded across all API and worker replicas;
   size per-pod pools from the database connection budget and consider
   PgBouncer if appropriate.
@@ -235,8 +283,11 @@ Current CI now covers relational migrations, concurrent independent repositories
 promotion replay, migration replay, and two actual API processes. Large-source
 memory, forced termination, storage restart and load/canary proof remain open.
 
-- [ ] Run contract, integration, migration, multi-instance concurrency, and
-  worker recovery tests in CI.
+- [x] Run contract, integration, migration/replay and independent-instance
+  concurrency checks in CI; see the [delivery evidence](#latest-delivery-and-evidence--7-october-2026)
+  and [Phase 1 test inventory](geodata-phase1-relational-authority.md#recorded-validation).
+- [ ] Add and pass forced worker-recovery and API/object-storage restart
+  failure-injection tests in CI.
 - [ ] Load-test the API at one, two, and increasing replica counts; verify
   throughput and latency improve without shifting saturation to Postgres or
   object storage.
@@ -245,12 +296,17 @@ memory, forced termination, storage restart and load/canary proof remain open.
   restart scenarios.
 - [ ] Deploy a two-replica canary in a non-production environment and compare
   error rate, latency, lost/duplicate work, DB pool waits, and JetStream lag.
-- [ ] Document rollback steps, in-flight import recovery, queue redrive, and
-  upload-session cleanup before production rollout.
+- [x] Document the Phase 1 write fence, coordinated API/worker rollout and
+  rollback restrictions in the [migration/rollout record](geodata-phase1-relational-authority.md#migration-and-rollout).
+- [ ] Complete and drill the end-to-end operational rollback, in-flight import
+  recovery, queue redrive and upload-session cleanup procedure before scaling production.
 - [ ] Increase production API replicas gradually and retain a tested rollback
   to the prior deployment and schema-compatible code version.
-- [ ] Update `myota-deploy` Helm values, Compose development topology,
-  dashboards/alerts, and operator documentation as each phase is completed.
+- [x] Update current Compose/Helm topology, migration mirrors, operations
+  scrape/alerts and operator docs for the delivered work; see the
+  [deployment evidence](#latest-delivery-and-evidence--7-october-2026).
+- [ ] Update and revalidate deployment limits, autoscaling, dashboards/alerts
+  and operator documentation when the remaining qualification gates close.
 
 **Overall completion criteria:** multiple Geodata API replicas can be rolled,
 rescheduled, and autoscaled while large imports continue to recover; catalogue
@@ -261,12 +317,21 @@ storage; and measured tests show the intended throughput/latency improvement.
 
 - `myota-geodata-service`: repository/query changes, upload API, worker logic,
   idempotency, concurrency tests, and service-level telemetry.
+- `myota-admin-web`: resumable upload UX, active queue/detail refresh,
+  revision-conflict handling and authenticated JetStream views; API access only.
+- `myota-operations-service`: read-only broker inspection and service-owned
+  sampled history in `myota_core`, not geodata job execution.
+- `myota-identity-service`: assignable operations/observability permissions;
+  do not grant broker visibility automatically to ordinary participants.
 - `myota-deploy`: worker/API separation, Helm and Compose topology, storage
   claims, autoscaling, resource limits, probes, alerts, and rollout procedures.
-- `myota-contracts`: only if upload-session or job APIs/events change; freeze
-  and document the public contract before implementation.
+- `myota-contracts`: canonical upload, conditional-update, job and operations
+  contracts/clients; reconcile runtime routes and mirrors before publication.
+- `myota-platform`: synchronized integration/migration/contract mirrors and
+  cross-service compatibility tests; not a new domain owner.
 - `myota-docs`: maintain this checklist, architecture diagrams, operational
   guidance, and phase completion links.
+- `.github`: keep the public summary/checklist aligned with this detailed roadmap.
 
 Do not mark a phase complete solely because replicas can be configured. Check
 the phase's exit criteria and attach test/deployment evidence.

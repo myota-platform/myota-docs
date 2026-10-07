@@ -44,9 +44,12 @@ flowchart LR
   Programme -. publishes/consumes .-> Events
   Geodata -. publishes/consumes .-> Events
   Activity -. publishes/consumes .-> Events
-  Events -. notifications, recalculation, imports .-> Workers[Background workers]
-  Workers --> Activity
-  Workers --> Geodata
+  Events -. geodata jobs .-> GeoWorkers[Geodata-owned workers]
+  GeoWorkers --> GeoDB
+  GeoWorkers --> Objects
+  GeoWorkers -->|Deletion cascade API| Activity
+  ActivityWorkers[Activity-owned execution and notification workers] --> ActivityDB
+  Events -. activity events .-> ActivityWorkers
 ```
 
 The runtime uses three database containers in local development and three
@@ -71,6 +74,12 @@ IDs, slugs and events rather than database foreign keys.
   notifications. Activity and awards share one API deployment.
 - `myota-admin-web` coordinates these APIs; it does not write database tables
   directly.
+- `myota-operations-service` owns read-only stream/consumer inspection and
+  sampled history in `myota_core`; it never consumes business deliveries.
+- Geodata-owned workers execute preprocessing, promotion and confirmed
+  deletion with separate durable pull consumers and recoverable database
+  leases. Activity workers remain in the activity domain. See the
+  [latest delivery evidence and remaining scaling gates](../geodata-horizontal-scaling-roadmap.md#latest-delivery-and-evidence--7-october-2026).
 - `myota-deploy` owns runtime wiring, migration orchestration, workers,
   secrets, object storage, NATS, and Kubernetes/Compose configuration.
 
