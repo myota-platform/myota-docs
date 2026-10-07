@@ -52,6 +52,13 @@ passed: all 90 Python tests ran successfully, including the two independent API
 processes, alongside the 14 harness regressions. The updated geodata image was
 published successfully. This still is not a production load-test result.
 
+The [image-sync workflow](https://github.com/myota-platform/myota-deploy/actions/runs/37658600024)
+recorded deployment revision `56726bf519ea8a2475e606eaeecfd64b0299049a`.
+K3S acknowledged that revision; the geodata deployment completed its rollout,
+the running API contains `load_test_upload_fixtures.py`, and the public gateway
+health check returned healthy. Only readiness checks were made, not a
+production write workload or fixture deletion.
+
 The [image workflow](https://github.com/myota-platform/myota-geodata-service/blob/main/.github/workflows/build-and-publish.yml)
 gates publication on both harness and Python/database regressions. Pull requests
 run those checks without publishing an image. Real SeaweedFS transfer/restart
