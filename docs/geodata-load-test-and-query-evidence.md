@@ -95,6 +95,12 @@ failures. If polling times out, it reports the final HTTP status and sanitized
 API details. This preserves the request-failure threshold while accounting for
 the documented registration handoff.
 
+For production write profiles, latency and request-failure thresholds are
+report-only during execution and evaluated after the configured workload
+finishes. This prevents an early threshold abort from leaving accepted imports
+in flight before teardown. Final threshold failures still make the k6 run fail;
+non-production profiles retain early-abort behavior.
+
 ## Fixture cleanup
 
 Each import's source metadata and each created entity's provenance carry the
