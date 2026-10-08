@@ -107,18 +107,21 @@ metric families; port 9327 is not listening in the deployed build. The
 Collector had incorrectly targeted that unsupported second port. Deploy
 commit [`3dc263a`](https://github.com/myota-platform/myota-deploy/commit/3dc263aae48c8cdfdaac6ae440dfda541a2eb1f7)
 corrects the scrape, alert selectors, and dashboard labels. Its workflow and
-Fleet reconciliation are pending, so the corrected Prometheus series and
-upload-to-worker correlation have not yet been verified. Until then, storage
-service-time and saturation evidence remains incomplete.
+Fleet reconciliation completed. Prometheus now records the SeaweedFS S3
+counters and latency histograms from the corrected 9324 target. A bounded
+one-VU upload was correlated with those metrics and post-cleanup worker/broker
+gauges; see the [sanitized storage correlation artifact](geodata-phase0-storage-correlation-2026-10-08.md).
+This is not a capacity test: object-storage saturation and sustained worker
+capacity remain unmeasured.
 
-The production gateway's HTTP telemetry was labelled
-`deployment_environment="development"`, while geodata and activity series
-were labelled production. The chart sets the production environment for domain
-services but the gateway Deployment does not currently pass `MYOTA_ENV`.
-Additionally, sampled gateway `http.route` labels included entity UUIDs and
-load-test run identifiers rather than stable route templates. Do not use
-gateway environment-filtered route totals as production qualification evidence
-until these telemetry-label issues are corrected and redeployed.
+An earlier capture showed the gateway using a development environment label
+and route labels containing identifiers. The current Prometheus sample after
+redeployment reports `deployment_environment="production"` and stable route
+templates, including `/v1/geodata/import-uploads/{uploadId}/complete`,
+`/v1/geodata/import-uploads/{uploadId}/parts/{partNumber}`, and
+`/v1/geodata/load-test-runs/{testRunId}`. Route/environment telemetry is now
+verified for the bounded upload workflow, with request records split between
+gateway and geodata service.
 
 ## Conclusion and remaining gate
 
@@ -127,10 +130,9 @@ are now delivered and retained. The query plans prove the tool operates safely
 and the current schema has GiST indexes, but 25 rows are not representative
 cardinality. Worker/broker samples show no sustained backlog at the tested
 rate. SeaweedFS S3 metrics were configured against a non-listening 9327
-endpoint; live metrics were confirmed on 9324 and the scrape correction is
-published but not yet reconciled. Gateway telemetry had an incorrect
-environment value and high-cardinality route labels; corrected telemetry is
-published and still requires live verification.
+endpoint; this is corrected and verified in Prometheus after a bounded upload.
+Earlier gateway environment and route-cardinality issues are also corrected;
+the live sample now shows production labels and stable endpoint templates.
 
 ### Scale-gate implementation status — 8 October 2026
 
@@ -154,16 +156,18 @@ checks passed. The first Fleet rollout attempted to start a second SeaweedFS
 process on the single-writer PVC; its filer LevelDB lock rejected the new pod
 while the old pod remained healthy. Helm now uses `Recreate`; the replacement
 pod reached Ready and its live port 9324 endpoint returned SeaweedFS S3
-counters and histograms. A follow-up commit corrects the Collector target and
-dashboard selectors. Helm now hashes the rendered Collector config into the
-pod template, so the ConfigMap update triggers its rollout automatically. The
-new scrape is awaiting Fleet reconciliation and live verification. No workload
-was run during the rollout issue.
+counters and histograms. The Collector target and dashboard selectors are
+corrected, and Helm hashes the rendered Collector config into the pod template
+so Fleet ConfigMap changes trigger its rollout automatically. Fleet applied
+the correction; Prometheus recorded the expected bucket operations during the
+bounded upload and worker/broker gauges were zero after cleanup. Details are in
+the [storage correlation artifact](geodata-phase0-storage-correlation-2026-10-08.md).
 
-**Phase 0 remains open.** Before checking it off, provision the approved,
-permanently retained representative fixture cardinality; capture map/catalogue
-plans; verify gateway environment and stable-route series; and correlate the
-corrected SeaweedFS server metrics with a bounded API upload and worker/broker
-measurements. Do not check off the gate until the fixture size is confirmed,
-the fixtures exist, and sanitized evidence is committed. No test changed
-service replicas or injected faults.
+**Phase 0 remains open.** A fresh read-only plan capture found a planner
+estimate of five rows, zero rows in the ordered catalogue-page scan, and zero
+map matches; its sequential scans are expected for an empty/near-empty table,
+not scale evidence. See the [current-catalogue plan snapshot](geodata-phase0-current-catalogue-plan-2026-10-08.md).
+Before checking the gate off, confirm the permanent fixture cardinality, load
+the synthetic dataset, capture and review representative map/catalogue plans,
+and assess them alongside the retained gateway, SeaweedFS, and worker/broker
+evidence. No test changed service replicas or injected faults.

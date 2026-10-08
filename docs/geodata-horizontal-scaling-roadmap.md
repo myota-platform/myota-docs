@@ -193,10 +193,12 @@ ChatGPT implementation prompt: [review remaining query and bottleneck evidence](
   permanent, unassigned 10,000-point synthetic Sevilla fixture set and refuses
   automatic cleanup; it has not yet been run pending confirmation of the
   permanent dataset size. SeaweedFS metrics have been verified on the live
-  private port 9324 endpoint; a deployment correction now scrapes that endpoint
-  and awaits Fleet reconciliation. The final evidence must include
-  representative-cardinality plans, live gateway labels, and storage/worker
-  correlation. See the [evidence limitations and next steps](geodata-phase0-production-evidence-2026-10-08.md#conclusion-and-remaining-gate)
+  private port 9324 endpoint; Fleet now scrapes it, and a bounded upload has
+  been correlated with the storage and post-cleanup worker/broker metrics. The
+  final evidence must include representative-cardinality plans. See the
+  [storage-correlation artifact](geodata-phase0-storage-correlation-2026-10-08.md),
+  [current low-cardinality plan snapshot](geodata-phase0-current-catalogue-plan-2026-10-08.md),
+  [evidence limitations and next steps](geodata-phase0-production-evidence-2026-10-08.md#conclusion-and-remaining-gate)
   and the [scale-fixture provisioner](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/provision_scale_fixtures.py).
 
 **Exit criteria: open.** The read-only baseline and all five write profiles
