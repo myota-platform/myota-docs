@@ -26,6 +26,7 @@ describe current ownership and are authoritative for the present-day system.
   [Admin UI](https://github.com/myota-platform/myota-admin-web/commit/7165c8c),
   [API contract](https://github.com/myota-platform/myota-contracts/commit/a6d7223),
   [platform migration mirror](https://github.com/myota-platform/myota-platform/commit/a2c3556),
+  [migration image workflow](https://github.com/myota-platform/myota-platform/commit/d35a5f3),
   and [Helm migration set](https://github.com/myota-platform/myota-deploy/commit/6805e6c).
 
 - **Admin web:** Changed Entity Catalogue page sizes to 25/50/100 and removed
