@@ -78,10 +78,20 @@ Review and management are separate workflows:
 - **Entity catalogue** is for name and location metadata, category assignment,
   geometry editing, GIS administration, audit history, and permanent deletion.
 
-Selecting a result always centers the Leaflet map. In Entity Catalogue it also
-scrolls to the management editor below the map. Geometry editing is opt-in;
-the map remains read-only until **Edit geometry** is selected. Destructive
-actions retain the impact warning and are only rendered for authorized roles.
+Selecting a result centers the Leaflet map. Entity Catalogue now opens a
+tabbed editor immediately, without scrolling to sections below the map. The
+catalogue map is optional/collapsible; geometry has its own map workspace in
+the editor. Tabs separate name/categories, location, geometry, source comparison
+and audit/deletion, with previous/next navigation inside the current result
+page. Filters, pagination, page position and batch selection remain in place.
+Unsaved drafts require confirmation before closing, changing entities or
+leaving the route. Saving one section preserves other drafts and refreshes
+the database revision, without reselecting/scrolling the entity. Review
+decisions remain inline on the review page. See the [catalogue editor
+guide](entity-catalogue-editor.md) and [navigation diagram](diagrams/entity-catalogue-editor.md).
+Geometry editing is opt-in; the map remains read-only until **Edit geometry
+vertices** or a replacement drawing action is selected. Destructive actions
+retain the impact warning and are only rendered for authorized roles.
 Checkbox selection for bulk actions is independent from the focused entity:
 opening an entity for inspection does not replace the selected batch. Bulk
 deletion confirms the selected jobs together, then reads their durable job

@@ -47,6 +47,7 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
 - **Architecture and decisions** — [architecture](docs/architecture.md),
   [repository map](docs/repository-map.md), [architecture decision records](docs/adr/README.md).
 - **Domain and API** — [REST consolidation plan](docs/api-rest-consolidation-plan.md),
+  [administration UX and catalogue editor](docs/entity-catalogue-editor.md),
   [programme configuration gaps](docs/programme-configuration-gap-analysis.md),
   [activity and awards](docs/awards-and-programme-execution.md),
   [entity categories](docs/entity-categories.md), [identity and security](docs/identity-security.md).

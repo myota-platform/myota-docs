@@ -13,7 +13,25 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](repository-map.md) and [architecture](architecture.md)
 describe current ownership and are authoritative for the present-day system.
 
-## 9 October 2026 — storage visibility and Grafana editing
+## 9 October 2026 — catalogue editing and observability
+
+- **Entity catalogue UX:** Replaced selection-to-scroll editing with a focused
+  native dialog and sections for name/categories, location, geometry, immutable
+  source comparison and audit/deletion. Previous/next navigation retains the
+  loaded catalogue page and independent batch selection. Partial saves preserve
+  other drafts, refresh revisions/audit and do not scroll the page. Unsaved
+  changes have discard guards; geometry has explicit vertex editing/replacement
+  drawing, container resize handling and retired restrictions. Review decisions
+  stay inline on the separate review page; single/bulk deletion keeps the
+  durable job/impact/confirmation/polling workflow. Corrected the management
+  candidate-creation button and per-field location suggestion trees. Added
+  browser regression checks, retained CI screenshots, developer instructions,
+  [editor guide](entity-catalogue-editor.md) and
+  [navigation diagram](diagrams/entity-catalogue-editor.md). Local types,
+  24 unit tests, four isolated desktop/mobile browser flows and production
+  build passed; the browser tests block public tiles and do not mutate live data.
+  Implementation: [admin `5ac4534`](https://github.com/myota-platform/myota-admin-web/commit/5ac4534).
+  Browser/CI checks: [admin `2d497e2`](https://github.com/myota-platform/myota-admin-web/commit/2d497e2).
 
 - **Storage visibility and Grafana editing:** Added a SeaweedFS Admin UI page
   at `/object-storage`, backed by operations-owned health/exporter snapshots

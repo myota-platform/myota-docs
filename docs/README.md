@@ -47,6 +47,7 @@ Status in plans and evidence:
 - [Activity, awards, and programme execution](awards-and-programme-execution.md)
 - [Identity, callsigns, and security](identity-security.md)
 - [Administration web UX](admin-web-ux.md)
+- [Entity catalogue editor and geometry workspace](entity-catalogue-editor.md)
 
 ## 4. Geodata lifecycle and scaling
 
