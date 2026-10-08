@@ -51,6 +51,11 @@ describe current ownership and are authoritative for the present-day system.
   [operator guide](production-core.md#migrations-and-recovery),
   [geodata synchronization ADR](adr/0006-geodata-migration-synchronization.md),
   and [three-database ADR](adr/0007-three-database-migration.md).
+  The new image was published and its digest recorded in the
+  [Fleet rollout commit](https://github.com/myota-platform/myota-deploy/commit/dd68ee2).
+  K3s Helm release revision 87 completed the migration Job using that image;
+  its logs show numbered migrations discovered through geodata migration 019,
+  and Fleet reported 54/54 resources ready.
 
 - **Admin web:** Changed Entity Catalogue page sizes to 25/50/100 and removed
   the overall cutoff from deletion status polling. Bulk jobs are polled in
