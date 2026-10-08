@@ -1,6 +1,8 @@
 # MyOTA observability
 
-Status: implemented for the local Compose stack and Helm packaging (updated 2026-10-05).
+Status: observability services and dashboards are implemented for local Compose
+and Helm. Live K3s verification on 2026-10-08 found incomplete service-metric
+coverage for identity and programmes; see [current verification and gaps](#live-k3s-verification-and-known-gap).
 
 ## What was confirmed
 
@@ -64,6 +66,24 @@ collector's `:8889` endpoint. The collector also scrapes each service's
 Prometheus-compatible `/metrics` endpoint, allowing durable gauges to remain
 available during an OTLP exporter or collector restart.
 
+### Live K3s verification and known gap
+
+On 2026-10-08, the Identity and Programme pods were Ready, but a request from a
+running service pod to `http://myota-identity:8001/metrics` and
+`http://myota-programmes:8002/metrics` returned HTTP 404. Prometheus reported
+`up=0` for those two scrape targets, and no Identity or Programme HTTP request
+series appeared in the recent `myota_http_server_requests_total` query. This
+is a **metrics coverage gap**, not proof that either application API is down;
+the Identity login used for the authorized import completed successfully.
+
+Do not treat missing Identity/Programme series as zero business activity or
+claim complete per-service/per-API observability until resolved. The owning
+services should expose their real aggregate and request metrics at the
+configured endpoints, or the scrape config should be aligned with their actual
+telemetry transport. Verify non-404 responses, live series, and dashboard
+coverage after the fix. This issue does not invalidate the geodata-only Phase 0
+query/load evidence below.
+
 ## API endpoint telemetry
 
 The OpenTelemetry HTTP instruments use the service name, normalized route
@@ -118,10 +138,14 @@ should move Alertmanager storage to a persistent volume.
 Service endpoints expose these real aggregates without participant names,
 emails, callsigns, or entity identifiers:
 
-- Identity: users by status and participation type, callsigns, verified
-  callsigns, roles, role definitions, security events, and locked accounts.
-- Programme: programme totals and status, shared entity-category catalogue,
-  and category-to-programme assignments.
+- Identity (intended aggregate set): users by status and participation type,
+  callsigns, verified callsigns, roles, role definitions, security events, and
+  locked accounts. **Not currently visible in K3s Prometheus** because the
+  configured `/metrics` URL returns 404; see the live gap above.
+- Programme (intended aggregate set): programme totals and status, shared
+  entity-category catalogue, and category-to-programme assignments. **Not
+  currently visible in K3s Prometheus** because the configured `/metrics` URL
+  returns 404; see the live gap above.
 - Geodata: entities by lifecycle status and GeoJSON geometry, categories,
   import runs by status, and pre-processing candidates by validation state.
 - Activity: valid and void QSOs, activations by status, participants,

@@ -2,9 +2,10 @@
 
 ## Status and scope
 
-**Phase 0 read-only baseline delivered; Phase 2 upload handoff and Phase 3
+**Phase 0 evidence gate complete at 2,875 measured entities. Phase 1 database
+authority is implemented and verified. Phase 2 upload handoff and Phase 3
 worker isolation are implemented, with integration and failure-injection
-gates still open. Phase 1 database authority is implemented and verified; remaining Phase 0 work and Phases 4 and 5 remain open.**
+gates still open; Phases 4 and 5 remain open.**
 This checklist records the work needed before increasing the
 Geodata API beyond one replica in production. The baseline does not make the
 current service horizontally safe.
@@ -187,28 +188,40 @@ ChatGPT implementation prompt: [review remaining query and bottleneck evidence](
   catalogue is empty, it clearly skips map/detail requests and still measures
   health/catalogue reads. The script refuses production runs without explicit
   acknowledgement.
-- [ ] Review query plans at representative catalogue cardinality and correlate
-  storage and worker measurements. The bounded production plan capture used
-  only 25 temporary rows. A guarded API-based provisioner now defines a
-  permanent, unassigned 10,000-point synthetic Sevilla fixture set and refuses
-  automatic cleanup; it has not yet been run pending confirmation of the
-  permanent dataset size. SeaweedFS metrics have been verified on the live
-  private port 9324 endpoint; Fleet now scrapes it, and a bounded upload has
-  been correlated with the storage and post-cleanup worker/broker metrics. The
-  final evidence must include representative-cardinality plans. See the
+- [x] Review retained results for all five bounded write profiles; the runs
+  and summaries are recorded in the [production evidence record](geodata-phase0-production-evidence-2026-10-08.md).
+- [x] Verify the real SeaweedFS S3 metrics endpoint, Fleet scrape, and
+  Prometheus series on private port 9324; correct the unsupported port 9327
+  target and add automatic Collector rollout on scrape-config changes.
+- [x] Correlate one bounded large upload with SeaweedFS request counters and
+  latency, production gateway route labels, and post-cleanup worker/JetStream
+  backlog. This confirms instrumentation and a low-load lifecycle, not capacity.
+- [x] Provision the confirmed permanent synthetic Sevilla fixture set: 10,000
+  input features in four 2,500-feature imports. The current requested sample
+  promotes 5% per import (2.5% `CANDIDATE`, 2.5% `APPROVED`) and rejects the
+  remainder from staging. The first import was already queued for full approval
+  before this change; its 2,500 approved entities cannot be downgraded, so the
+  remaining three batches use the sample and this legacy exception must be
+  included in the evidence. The guarded script has no automatic cleanup.
+  Retain the resulting import and entity counts in the [representative query review](geodata-phase0-representative-query-review-2026-10-08.md).
+- [x] Capture and review map-bounds, catalogue-count, and catalogue-page
+  `EXPLAIN (ANALYZE, BUFFERS)` plans at the resulting promoted cardinality, then
+  run the bounded read profile and correlate API/PostGIS timings with object
+  storage and worker metrics. See the [representative query review](geodata-phase0-representative-query-review-2026-10-08.md),
   [storage-correlation artifact](geodata-phase0-storage-correlation-2026-10-08.md),
-  [current low-cardinality plan snapshot](geodata-phase0-current-catalogue-plan-2026-10-08.md),
-  [evidence limitations and next steps](geodata-phase0-production-evidence-2026-10-08.md#conclusion-and-remaining-gate)
+  [pre-fixture low-cardinality plan snapshot](geodata-phase0-current-catalogue-plan-2026-10-08.md),
+  [evidence limitations](geodata-phase0-production-evidence-2026-10-08.md#conclusion-and-representative-scale-gate),
   and the [scale-fixture provisioner](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/provision_scale_fixtures.py).
 
-**Exit criteria: open.** The read-only baseline and all five write profiles
-have passed against provisional production with cleanup. The exact-query tool,
-stable gateway route/environment labels, and SeaweedFS metrics/dashboard are
-implemented and published; the SeaweedFS endpoint has been verified live, but
-the corrected scrape still needs Fleet reconciliation and metric verification
-alongside a permanent representative-cardinality fixture set. The prior
-25-row plan is not scale evidence. See the [production evidence record](geodata-phase0-production-evidence-2026-10-08.md)
-and [evidence review](geodata-load-test-and-query-evidence.md#phase-0-evidence-review-status).
+**Exit criteria: complete for the measured 2,875-entity catalogue.** The
+read-only baseline and all five write profiles passed against provisional
+production with cleanup; the permanent fixture imports were finalized; and the
+representative plans, 2-VU read results, PostGIS timings, SeaweedFS activity,
+and worker/JetStream state are reviewed in the linked evidence. This does not
+qualify capacity at 10,000 promoted entities, tens of thousands of users,
+millions of QSOs, or cold-cache/high-concurrency conditions. See the
+[production evidence record](geodata-phase0-production-evidence-2026-10-08.md)
+and [representative query review](geodata-phase0-representative-query-review-2026-10-08.md).
 
 ### Phase 1 — remove cross-replica mutable process state
 

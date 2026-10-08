@@ -123,28 +123,60 @@ templates, including `/v1/geodata/import-uploads/{uploadId}/complete`,
 verified for the bounded upload workflow, with request records split between
 gateway and geodata service.
 
-## Conclusion and remaining gate
+## Conclusion and representative-scale gate
 
-The five bounded write-profile executions and empty-catalogue read baseline
-are now delivered and retained. The query plans prove the tool operates safely
-and the current schema has GiST indexes, but 25 rows are not representative
-cardinality. Worker/broker samples show no sustained backlog at the tested
-rate. SeaweedFS S3 metrics were configured against a non-listening 9327
-endpoint; this is corrected and verified in Prometheus after a bounded upload.
-Earlier gateway environment and route-cardinality issues are also corrected;
-the live sample now shows production labels and stable endpoint templates.
+The five bounded write-profile executions and the empty-catalogue read
+baseline are delivered and retained. The representative query/load review at
+2,875 actual fixture entities is now documented in the
+[representative query review](geodata-phase0-representative-query-review-2026-10-08.md).
+The map query used its GiST index; the ordered catalogue page used its sort
+index; no disk reads or sort spill occurred in the warm-cache capture. The map
+row estimate was materially low, which is recorded for follow-up. The bounded
+2-VU/60-second read run had zero failed requests and 28.75 ms p95. Worker and
+JetStream backlog gauges returned to zero. SeaweedFS was observed handling a
+small number of import-object requests without a storage signal indicating a
+bottleneck. These observations close the current Phase 0 evidence gate at the
+measured dataset size; they do not qualify capacity at larger entity/user/QSO
+counts or under cold-cache/high-concurrency conditions.
+
+SeaweedFS S3 metrics were configured against a non-listening 9327 endpoint;
+this is corrected and verified in Prometheus after a bounded upload. Earlier
+gateway environment and route-cardinality issues are also corrected; the live
+sample now shows production labels and stable endpoint templates.
 
 ### Scale-gate implementation status — 8 October 2026
 
-The API-based fixture provisioner now defines a permanent 10,000-point
-synthetic Sevilla set in a dedicated category that is not assigned to a
-programme. The records are clearly labelled synthetic and are not real parks.
-The provisioner requires both explicit production and permanence
-acknowledgements, uses two imports within the service's 5,000-feature cap,
-finalizes staged import records, verifies the promoted catalogue count, and
-has no cleanup mode. It has not been executed; the permanent production write
-remains pending confirmation of this proposed 10,000-record size. See the
+The API-based fixture provisioner defines 10,000 synthetic point inputs in
+four Sevilla imports of 2,500, in a dedicated category not assigned to a
+programme. They are clearly labelled synthetic and are not real parks. The
+user confirmed the permanent input size and then directed that only 5% per
+import be promoted: 2.5% to `CANDIDATE` and 2.5% to `APPROVED`; the remainder
+is rejected from staging. Since 2.5% of a 2,500-feature import is fractional,
+the implementation alternates 62/63 records by status, producing 250 of each
+status in a fresh four-import run. The guarded provisioner has no cleanup
+mode. See the
 [fixture provisioner](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/provision_scale_fixtures.py).
+
+#### Provisioning exception and current progress
+
+Before the 5% split was requested, the first 2,500-feature import had already
+been queued to promote every record as `APPROVED`. The worker completed it
+before the provisioner was stopped. As of the read-only verification at
+`2026-10-08T13:34Z`, that import contained 2,500 approved entities and its
+processing queue was `COMPLETED`. The import was then finalized through the
+public API; the response reported 2,500 processed and 2,500 staged records
+discarded. Approved entities cannot be downgraded under current lifecycle
+rules, so this first batch is retained as an explicit exception rather than
+retired or deleted.
+
+The revised provisioner recognized the exact 2,500-entity legacy prefix and
+completed the remaining three imports at the requested split. The final
+catalogue contains 2,875 permanent fixtures: 2,500 approved from the
+pre-change batch, plus 375 selected across the remaining imports (187
+Candidate and 188 Approved). The remaining 7,500 input features were
+preprocessed and finalized; rejected/processed staged records were discarded.
+This is not equivalent to a fresh-run 5% sample, so the exception is retained
+in every result summary.
 
 Source-provided administrative location fields are now retained as
 `SOURCE_DATA` and skip redundant reverse-geocoder requests when a country code
@@ -163,11 +195,11 @@ the correction; Prometheus recorded the expected bucket operations during the
 bounded upload and worker/broker gauges were zero after cleanup. Details are in
 the [storage correlation artifact](geodata-phase0-storage-correlation-2026-10-08.md).
 
-**Phase 0 remains open.** A fresh read-only plan capture found a planner
-estimate of five rows, zero rows in the ordered catalogue-page scan, and zero
-map matches; its sequential scans are expected for an empty/near-empty table,
-not scale evidence. See the [current-catalogue plan snapshot](geodata-phase0-current-catalogue-plan-2026-10-08.md).
-Before checking the gate off, confirm the permanent fixture cardinality, load
-the synthetic dataset, capture and review representative map/catalogue plans,
-and assess them alongside the retained gateway, SeaweedFS, and worker/broker
-evidence. No test changed service replicas or injected faults.
+**Phase 0 representative-evidence gate: complete at 2,875 entities.** The
+pre-fixture five-row planner estimate and zero-match plans are retained only
+as a historical baseline in the
+[pre-fixture plan snapshot](geodata-phase0-current-catalogue-plan-2026-10-08.md).
+The completed post-fixture query and bounded-read review is linked above. No
+test changed service replicas or injected faults. This gate does not claim
+capacity at the original 10,000 promoted-entity level or at broader user/QSO
+loads; those remain later scaling work.

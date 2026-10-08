@@ -282,20 +282,21 @@ summaries remain historical and do not qualify these current gates.
 The empty-catalogue read run passed health and paged-list checks; a separate
 read-only run used five temporary approved test geometries to exercise map and
 detail reads, then the source promotion run removed them. Neither run created
-permanent seed entities. Both are small-cardinality checks, not a realistic
-catalogue-capacity benchmark. A new provisioner defines a permanent, synthetic
-10,000-point Sevilla dataset in the isolated `SCALE_TEST_FIXTURE` category,
-unassigned from all programmes and with no automatic cleanup. The script is
-guarded by exact-host, explicit-production, and explicit-permanence
-acknowledgements; source location metadata prevents redundant reverse-geocoder
-calls. It must be run once before the representative-cardinality plan review;
-its execution and results are not yet recorded.
+permanent seed entities. Those runs were small-cardinality checks. The
+permanent synthetic Sevilla input set (10,000 features in four 2,500-feature
+imports) is now finalized in the isolated `SCALE_TEST_FIXTURE` category,
+unassigned from all programmes and with no automatic cleanup. Three imports
+used the requested 5% promotion sample (2.5% Candidate, 2.5% Approved); the
+first import had already been queued for full approval and is a documented
+exception. The final catalogue contains 2,875 synthetic entities. The complete
+sanitized result and limitations are in the [representative query review](geodata-phase0-representative-query-review-2026-10-08.md).
 
 The guarded production plan tool produced map, catalogue-count, and
-catalogue-page plans with short execution times, but only 25 tagged rows were
-present. The planner selected sequential scans, as expected for this tiny
-table; this does not determine whether indexes serve a large catalogue. Plan
-review at representative cardinality remains open.
+catalogue-page plans both before and after fixture provisioning. The pre-fixture
+25-row sequential-scan snapshot is historical; at 2,875 entities, the map/count
+queries used the spatial GiST index and the catalogue page used its sort index.
+See the detailed evidence artifact for estimates, buffers, timings, and the map
+row-estimation gap.
 
 During the 30-import/30-second backlog profile, the ten-minute Prometheus
 window recorded a maximum import queue depth of 1 and maximum queued age of
@@ -322,13 +323,12 @@ The gateway now emits stable route templates and takes `MYOTA_ENV` from the
 chart. A live Prometheus sample now confirms production environment labels and
 identifier-free route templates for the upload and cleanup endpoints.
 
-**Phase 0 remains open.** The remaining evidence gates are to provision and
-retain the representative fixture set, capture/review production map and
-catalogue plans with the exact-query tool, verify gateway route/environment
-labels, and measure SeaweedFS operation latency alongside worker/broker signals
-during a bounded workload. Do not check off scale-level conclusions from five
-or 25 temporary rows, zero sampled broker lag, or end-to-end upload timing
-alone.
+**Phase 0 evidence gate is complete at the measured 2,875-entity catalogue.**
+The representative plans, bounded read profile, gateway route/environment
+labels, SeaweedFS operation samples, and worker/broker signals are reviewed in
+the linked evidence. Do not generalize these results to 10,000 promoted
+entities or larger user/QSO loads, and do not infer capacity from zero sampled
+broker lag or end-to-end upload timing alone.
 
 ## JetStream consumer lag
 

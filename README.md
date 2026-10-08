@@ -1,74 +1,70 @@
 # MyOTA documentation
 
 MyOTA is open infrastructure for geographic amateur-radio activation
-programmes. MPOTA is an optional programme-configuration example, not the platform
-definition; built-in geodata seed entities are no longer replayed. Every programme supplies its own charter, eligibility, rules,
-awards, content, and governance policy; MyOTA does not copy rules from POTA,
-MPOTA, or another initiative.
+programmes. MPOTA is an optional programme configuration, not the platform
+definition. Each programme owns its charter, eligibility, rules, awards,
+content, and governance; MyOTA does not copy rules from POTA, MPOTA, or another
+initiative.
 
-This repository is the documentation hub for the organization. It does not
-own service runtime code. The current repository ownership, migration
-synchronization rule, and deployment boundaries are defined in
-[`docs/repository-map.md`](docs/repository-map.md).
+This repository is the organization’s documentation hub. It does not own
+service runtime code. See the [repository map](docs/repository-map.md) for
+service ownership, deployment boundaries, and migration synchronization.
 
-## Start here
+## Project status — 8 October 2026
 
-- [Project purpose, motivation, and charter](docs/project-charter.md)
-- [Charter-derived gap analysis and delivery sequence](docs/charter-gap-analysis.md)
-- [Architecture](docs/architecture.md)
-- [REST API consolidation plan](docs/api-rest-consolidation-plan.md)
-- [Geodata Phase 1 database authority, concurrency evidence and rollout](docs/geodata-phase1-relational-authority.md)
-- [NATS / JetStream admin status and durable history](docs/jetstream-admin-status.md)
-- [Phase 2 geodata resource model](docs/api-phase2-geodata-resource-model.md)
-- [Phase 3 activity and award jobs](docs/api-phase3-activity-award-jobs.md)
-- [Phase 4 client and operational migration](docs/api-phase4-client-operational-migration.md)
-- [Repository map and ownership boundaries](docs/repository-map.md)
-- [Geodata API horizontal-scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md)
-- [Latest geodata scaling delivery and published CI evidence](docs/geodata-horizontal-scaling-roadmap.md#latest-delivery-and-evidence--8-october-2026)
-- [Organization documentation and migration-mirror reconciliation](docs/documentation-reconciliation-2026-10-07.md)
-- [Geodata provisional-production load tests and query evidence](docs/geodata-load-test-and-query-evidence.md)
-- [Sanitized provisional-production Phase 0 results — 8 October 2026](docs/geodata-phase0-production-evidence-2026-10-08.md)
-- [Programme configuration gap analysis](docs/programme-configuration-gap-analysis.md)
-- [Operations and production-readiness notes](docs/operations.md)
-- [Observability](docs/observability.md)
-- [Structured logging implementation roadmap and phase prompts](docs/observability/logging-implementation.md)
-- [Python style, commit/push hooks, and CI checks](docs/development/python-quality.md)
-- [Geodata API load baseline and Grafana dashboard](docs/geodata-horizontal-scaling-roadmap.md#phase-0--establish-a-measurable-baseline)
-- [Object-storage bucket boundaries](docs/operations.md#object-storage-bucket-boundaries)
-- [Object-storage purpose and retention diagram](docs/diagrams/object-storage-buckets.md)
-- [Security/threat model](docs/security/threat-model.md)
-- [Diagrams](docs/diagrams/)
-  - [Geodata import validation and promotion](docs/diagrams/geodata-import-validation.md)
-  - [Local and production operations, including 15-day ADIF and 30-day geodata import retention](docs/operations.md)
-  - [Geodata resource lifecycle](docs/diagrams/geodata-resource-lifecycle.md)
-  - [Activity and award jobs](docs/diagrams/activity-award-jobs.md)
-  - [Phase 4 client and operations](docs/diagrams/api-phase4-operational-migration.md)
-  - [Administration web UX](docs/admin-web-ux.md)
+The organization has a working multi-service vertical slice: radio-aware
+identity, programme configuration, relational PostgreSQL/PostGIS geodata,
+candidate review and provenance-aware imports, activity/QSO and award
+primitives, universal participant/admin web clients, JetStream workers, and
+SeaweedFS-backed object storage. The local stack uses Compose/Colima; the
+provisional-production stack is deployed to K3s through Fleet/Helm. Prometheus,
+Grafana, Alertmanager, and OpenTelemetry are deployed; Identity and Programme
+metrics currently have a documented live `/metrics` scrape gap.
 
-## Current implementation baseline
+Implemented functionality is not the same as production qualification. The
+Phase 0 geodata baseline/evidence gate is complete at the measured catalogue
+size; broader geodata scale qualification remains open. The permanent synthetic
+Sevilla set imported 10,000 features in four batches of 2,500. Three batches
+promoted 5% each (split between Candidate and Approved); the first had already
+been queued for full approval and remains as a documented lifecycle exception.
+The final catalogue has 2,875 synthetic entities. The PostGIS plans, bounded
+map-load review, retained write-profile summaries, live SeaweedFS correlation,
+pre-fixture plans, and evidence limits are recorded in the [Phase 0 evidence
+record](docs/geodata-phase0-production-evidence-2026-10-08.md) and
+[representative query review](docs/geodata-phase0-representative-query-review-2026-10-08.md).
 
-The repositories contain a meaningful local vertical slice: amateur-radio
-identity with callsigns and SWL participation; programme-owned configuration;
-PostgreSQL/PostGIS geodata with candidate/approved/rejected lifecycle;
-provenance-aware, two-stage imports with pre-processing, duplicate verification,
-administrator validation, a visible pre-processing queue, and queued promotion;
-a relational activity/QSO schema; programme-linked
-award execution; a universal public web slice; a separate admin web; and a
-durable Colima/Compose deployment using SeaweedFS as the S3-compatible object
-store. Activities and awards share the activity API on port 8004.
+Other outstanding platform work is tracked explicitly in the
+[charter gap analysis](docs/charter-gap-analysis.md),
+[programme configuration gap analysis](docs/programme-configuration-gap-analysis.md),
+[REST API migration plan](docs/api-rest-consolidation-plan.md), and the
+organization’s [profile roadmap](https://github.com/myota-platform/.github/tree/main/profile).
 
-That baseline is not a claim that the platform is ready for an unrestricted
-public launch. The remaining Explorer, participant, governance, integration,
-observability, scale, security, and beta-community work is tracked in the
-[charter gap analysis](docs/charter-gap-analysis.md) and the organization
-[profile roadmap](https://github.com/myota-platform/.github/tree/main/profile).
-Geodata resumable upload handoff and isolated JetStream workers are implemented
-with integration gates still open; see the [horizontal-scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md)
-before increasing API or worker replicas.
+## Documentation map
+
+- **Purpose and status** — [Detailed hierarchical documentation index](docs/README.md),
+  [project charter](docs/project-charter.md), [charter gap analysis](docs/charter-gap-analysis.md).
+- **Architecture and decisions** — [architecture](docs/architecture.md),
+  [repository map](docs/repository-map.md), [architecture decision records](docs/adr/README.md).
+- **Domain and API** — [REST consolidation plan](docs/api-rest-consolidation-plan.md),
+  [programme configuration gaps](docs/programme-configuration-gap-analysis.md),
+  [activity and awards](docs/awards-and-programme-execution.md),
+  [entity categories](docs/entity-categories.md), [identity and security](docs/identity-security.md).
+- **Operations and assurance** — [operations](docs/operations.md),
+  [observability](docs/observability.md), [threat model](docs/security/README.md),
+  [Python quality checks](docs/development/README.md).
+- **Geodata scale work** — [scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md),
+  [load/query runbook](docs/geodata-load-test-and-query-evidence.md),
+  [Phase 0 evidence](docs/geodata-phase0-production-evidence-2026-10-08.md),
+  [representative query review](docs/geodata-phase0-representative-query-review-2026-10-08.md).
+- **Visual references** — [diagram index](docs/diagrams/README.md).
+
+Status convention: completed checkboxes in detailed documents mean the listed
+work is implemented or verified as stated. Open checkboxes identify work still
+in progress or evidence gates not yet met; implementation completion does not
+imply scale qualification or production readiness.
 
 ## Source project
 
 The original `ea7klk/mpota` repository remains untouched. Its source and
-charter are migration input only; see
-[`docs/migration-from-mpota.md`](docs/migration-from-mpota.md) and
-[`docs/source-inspection.md`](docs/source-inspection.md).
+charter are migration input only; see [migration from MPOTA](docs/migration-from-mpota.md)
+and [source inspection](docs/source-inspection.md).

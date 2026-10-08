@@ -1,6 +1,15 @@
-# Phase 0 prompt — review remaining query and bottleneck evidence
+# Phase 0 prompt — completed evidence review (archived reference)
 
-Copy the prompt below into a coding task with the MyOTA repositories available.
+> **Status: completed 8 October 2026.** The representative query/load evidence
+> was captured at 2,875 entities and is documented in the [review artifact](../geodata-phase0-representative-query-review-2026-10-08.md)
+> and [roadmap](../geodata-horizontal-scaling-roadmap.md#phase-0--establish-a-measurable-baseline).
+> Keep this prompt as an audit reference; do not rerun production workloads or
+> repeat permanent fixture provisioning unless a new, specific evidence gap is
+> approved. This completion does not qualify larger entity/user/QSO scale.
+
+The original task prompt is retained below for audit. The Phase 0 gate it
+describes is complete; use the current roadmap/evidence, not this archived
+instruction text, for current project status.
 
 ---
 
@@ -20,8 +29,9 @@ qualification**. The five bounded production write profiles and read-only
 baseline were run on 8 October 2026; their sanitized results are in
 `myota-docs/docs/geodata-phase0-production-evidence-2026-10-08.md`. Treat those
 runs as delivered; do not repeat them without a specific evidence gap.
-Remaining gates are representative-cardinality PostGIS plans, correct/stable
-gateway telemetry labels, and measurable SeaweedFS operation timing.
+The former remaining gates—representative-cardinality PostGIS plans,
+stable gateway telemetry labels, and measurable SeaweedFS operation timing—are
+now reviewed in the linked representative query artifact.
 
 First inspect the current harness, its safety checks, recent documentation,
 repository instructions, the live provisional-production deployment, and its
@@ -61,7 +71,8 @@ instructions.
 At the end, report the production profile summaries, query-plan evidence
 locations, performance findings, changed files, validation performed, and any
 gate that remains open with the reason. Historical non-production results are
-not substitutes. Phase 0 remains incomplete until the representative
-production query/load review has been documented.
+not substitutes. This prompt was used to complete the Phase 0 review; its
+results are documented in the linked artifact. Larger capacity goals remain
+open under later roadmap phases.
 
 ---

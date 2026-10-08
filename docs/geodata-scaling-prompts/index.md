@@ -1,13 +1,13 @@
 # ChatGPT prompts: geodata horizontal scaling
 
-Use each page as a separate ChatGPT coding task. The pages follow the open
-items in the [geodata horizontal-scaling roadmap](../geodata-horizontal-scaling-roadmap.md).
-Phase 1 is already closed; Phase 0, 2, 3, 4, and 5 still have open qualification
-or implementation gates.
+Use each page as a separate ChatGPT coding task only while its owning roadmap
+gate is open. The pages follow the [geodata horizontal-scaling roadmap](../geodata-horizontal-scaling-roadmap.md).
+Phase 0 and Phase 1 are closed at their documented evidence/implementation
+scope. Phases 2, 3, 4, and 5 retain open qualification or implementation gates.
 
 ## Pages
 
-1. [Phase 0 — baseline workload and evidence](phase-0-baseline.md)
+1. [Phase 0 — baseline workload and evidence (completed; retained reference)](phase-0-baseline.md)
 2. [Phase 2 — upload recovery across restarts](phase-2-upload-recovery.md)
 3. [Phase 3 — bounded workers and failure recovery](phase-3-worker-isolation.md)
 4. [Phase 4 — infrastructure and scaling constraints](phase-4-infrastructure.md)

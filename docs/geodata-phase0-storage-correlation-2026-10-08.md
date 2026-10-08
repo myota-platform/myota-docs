@@ -2,8 +2,9 @@
 
 This is a sanitized record of the bounded large-upload run performed after the
 SeaweedFS scrape correction reached the live provisional-production K3s
-deployment. It supplements, but does not replace, the representative-cardinality
-PostGIS plan review required to close Phase 0.
+deployment. It complements the separate [representative-cardinality PostGIS
+plan review](geodata-phase0-representative-query-review-2026-10-08.md), which
+closes the current Phase 0 evidence gate at the measured catalogue size.
 
 ## Workload and result
 
@@ -55,19 +56,27 @@ UUIDs or load-test run IDs appear in the route labels.
 
 This upload profile did not exercise the map bounding-box query. Existing
 `EXPLAIN (ANALYZE, BUFFERS)` artifacts still cover only a 25-row catalogue and
-are not scale evidence. A permanent 10,000-point synthetic Sevilla fixture
-provisioner is ready in
+are not scale evidence. A permanent 10,000-record synthetic Sevilla fixture
+provisioner is in progress in
 [`myota-geodata-service/loadtests/provision_scale_fixtures.py`](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/provision_scale_fixtures.py).
 It is source-tagged, unassigned to any programme, permanent, and intentionally
-has no cleanup operation. Its size must be confirmed before execution. After
-approval, capture map, catalogue-count, and catalogue-page plans with actual
-and estimated rows, GiST/index conditions, buffers, and execution timing; then
-correlate with a bounded map read and current worker/broker metrics.
+has no cleanup operation. The user confirmed 10,000 records total, split into
+four imports of 2,500 each, and then requested that 5% per import be promoted
+(2.5% Candidate, 2.5% Approved). The first import was already queued for full
+approval before the change and is retained as a lifecycle-safe exception; the
+remaining three imports use the revised split. After provisioning, capture
+map, catalogue-count, and catalogue-page plans at the resulting cardinality
+with actual and estimated rows, GiST/index conditions, buffers, and execution
+timing; then correlate with a bounded map read and current worker/broker
+metrics. Detailed progress and exact counts are in the
+[Phase 0 evidence record](geodata-phase0-production-evidence-2026-10-08.md#provisioning-exception-and-current-progress).
 
-**Phase 0 remains open.** This artifact closes only the live SeaweedFS
-endpoint and bounded upload-correlation subtask. It does not close the
-representative PostGIS query-plan gate.
+This artifact records only the live SeaweedFS endpoint and bounded upload
+correlation; it does not independently establish capacity. The separate
+[representative query review](geodata-phase0-representative-query-review-2026-10-08.md)
+now completes the Phase 0 evidence gate at 2,875 catalogue entities, with the
+limitations documented there.
 
-Related records: [Phase 0 evidence and remaining gate](geodata-phase0-production-evidence-2026-10-08.md),
+Related records: [Phase 0 evidence and gate status](geodata-phase0-production-evidence-2026-10-08.md),
 [load-test/query evidence runbook](geodata-load-test-and-query-evidence.md),
 [scaling roadmap](geodata-horizontal-scaling-roadmap.md).

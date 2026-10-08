@@ -1,7 +1,7 @@
 # Gap analysis against the project charter
 
 Status: **baseline review**  
-Reviewed: **2026-09-27**  
+Reviewed: **2026-10-08**
 Inputs: the shared MyOTA project/visibility conversation, the current
 repositories, and the implementation documentation in this organization.
 
@@ -12,16 +12,18 @@ capability is production-hardened or publicly launched.
 
 ## Summary
 
-The architecture and administration vertical slice are substantially ahead of
-the public participant experience. The largest gap is therefore not another
-internal service: it is a visible, usable Explorer and participant workflow
-backed by real, licensed, reviewable data and a small beta community.
+The architecture and administration vertical slice remain ahead of the public
+participant experience. The participant web now has programme switching,
+themed content, an attributed interactive map, entity browsing foundations,
+sign-in, and award-level requests. It is still not the complete Explorer and
+activation product, and synthetic scale fixtures are not real, licensed park
+coverage.
 
 | Charter capability | Current state | Gap / next action | Priority |
 | --- | --- | --- | --- |
 | Programme-independent platform | Service split, contracts, programme service, sample MPOTA and a second synthetic programme exist | Complete immutable programme publication/versioning and onboarding | P0 |
-| Local-park accessibility mission | Sevilla sample geometry and candidate/approved workflow exist | Publish an Explorer with nearby search and a measured Sevilla beta | P0 |
-| Public participant experience | myota-web has the universal themed slice and award progress primitives | Add production auth, entity pages, search, proposals, activation/QSO workflows, and public history | P0 |
+| Local-park accessibility mission | Geodata review and candidate/approved/rejected workflow exist; permanent synthetic Sevilla scale fixtures are present but are not real parks | Acquire and review real licensed coverage, publish an Explorer with nearby search, and run a measured Sevilla beta | P0 |
+| Public participant experience | myota-web has programme switching, theme/content, an attributed interactive map, entity browsing foundations, participant sign-in, and award-level requests | Complete Explorer landing/nearby search and entity details, production account/profile flows, activation/QSO workflows, public history, and privacy-aware leaderboards | P0 |
 | Geographic data trust | PostGIS, adapters, provenance, candidate lifecycle, review UI, QGIS guidance, and imports exist | Operate refresh/conflation workers at scale, publish licensing/attribution, and add stewardship workflows | P0 |
 | Community verification | Scoped review and audit paths exist | Add evidence, reviewer communication, Park Steward-style local maintenance, SLA and escalation policy | P1 |
 | Amateur-radio identity | Accounts, SWL/participant model, callsigns, roles, scopes, OIDC mappings exist | Finish production auth hardening, user self-service, account linking, recovery, privacy, and notifications | P0 |
@@ -42,13 +44,17 @@ place and use it.” The public web still needs:
 
 - a map-first Explorer landing page;
 - nearby search and entity detail pages;
-- clear Candidate / Proposed / Approved presentation;
-- a “propose this place” path; and
+- clear Candidate / Approved presentation (there is no separate `PROPOSED`
+  entity status; community proposals feed the Candidate lifecycle); and
+- an end-to-end participant proposal path with authenticated identity and
+  review feedback; and
 - a first licensed regional dataset large enough to make the experience
   useful.
 
-The current Sevilla records are valuable test data, but they are not evidence
-of a live community or of regional coverage.
+The permanent Sevilla scale fixtures are synthetic test data, not parks; they
+are not evidence of a live community or regional coverage. The participant
+client's current capability list and explicit next milestones are maintained
+in the [myota-web README](https://github.com/myota-platform/myota-web/blob/main/README.md).
 
 ### 2. The governance model is represented technically but not yet socially
 
@@ -68,12 +74,12 @@ effectively than additional internal scaffolding.
 
 ### 4. The implementation needs a production-readiness boundary
 
-The local Compose stack is durable and the service split is explicit, but the
-documentation must continue to distinguish “implemented vertical slice” from
-“ready for an Internet-facing beta.” Before that beta, complete load/soak
-testing for millions of QSOs, production secret/key handling, observability,
-backup/restore drills, rate limiting, supply-chain controls, and security
-review.
+The local Compose stack is durable, the service split is explicit, and
+OpenTelemetry, dashboards, alerts, and production K3s deployment are in place.
+Documentation must continue to distinguish “implemented vertical slice” from
+“ready for an Internet-facing beta.” Before that beta, complete realistic
+scale/soak evidence (including activity/QSO workloads), backup/restore drills,
+rate-limit and security validation, and a review of operational controls.
 
 ### 5. The public story must remain complementary
 
