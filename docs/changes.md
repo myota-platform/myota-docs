@@ -15,6 +15,12 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Admin web:** Fixed bulk permanent deletion's silent no-modal failure. The
+  warning dialog now appears before asynchronous per-entity impact lookups;
+  lookups are bounded in batches, failures stay visible with a retry option,
+  and stable idempotency keys prevent retries from creating duplicate
+  confirmation jobs. The final user confirmation remains the only step that
+  enqueues deletion events ([implementation](https://github.com/myota-platform/myota-admin-web/commit/c98a507)).
 - **Geodata service:** Fixed single and bulk permanent deletion jobs being
   acknowledged without execution when a worker's process-local row cache did
   not yet contain a job created by the API. Workers now reload the job from

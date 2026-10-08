@@ -309,6 +309,12 @@ alongside outbox and consumer checkpoints; do not purge the stream or manually
 delete entity rows to recover a job. The Admin UI polls both individual and
 bulk deletion jobs for up to one minute, bounds each HTTP request, and permits
 closing the dialog without cancelling a confirmed server-side deletion.
+For bulk requests the confirmation modal is rendered before per-entity impact
+lookups begin; those lookups are batched and failures are shown per entity with
+a retry action. Creating the preliminary jobs only gathers impact and creates
+`AWAITING_CONFIRMATION` records. The outbox/JetStream deletion event is
+published only after the administrator confirms in the modal, so no event is
+expected while impact details are still being prepared.
 
 After the 8 October 2026 rollout, the worker recovered the 45 queued jobs
 observed during diagnosis; the database then had no queued or processing
