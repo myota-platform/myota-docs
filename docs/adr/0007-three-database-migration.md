@@ -21,7 +21,9 @@ activity instances use plain PostgreSQL; only geodata requires PostGIS. The
 chart-managed database option is persistent but not highly available and needs
 off-host backups.
 
-The migration runner applies each service-owned migration set to its target.
+The migration runner discovers numbered `NNN_*.sql` files independently in
+each service-owned database directory and applies them to their target in
+lexical order; it does not maintain a separate explicit filename list.
 During the first local split it copies activity rows from the old activity
 tables in the existing `myota_core` database into an empty `myota_activity`
 database. It also copies application geodata tables from the legacy
@@ -50,3 +52,5 @@ dropped; the active `myota_geo` PostGIS database remains authoritative.
 - Migration copies are synchronized between the activity service, platform
   bootstrap and deployment repository; geodata synchronization remains governed
   by ADR-0006.
+- Newly synchronized numbered migration files are picked up automatically by
+  both platform and deployment runners.

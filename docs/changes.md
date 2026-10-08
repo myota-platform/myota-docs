@@ -38,6 +38,19 @@ describe current ownership and are authoritative for the present-day system.
   backfill, a boundary-spanning multi-grid geometry, the API fields, and the
   deployed Admin bundle. Exact counts and sample outputs are in the
   [Maidenhead verification record](geodata-maidenhead-locators.md#live-k3s-verification--8-october-2026).
+- **Platform and deployment:** Removed the remaining duplicated migration
+  filename lists from both runners. The shared migration runner now discovers
+  numbered SQL files in each core, activity, and geodata directory in lexical
+  order, and the Compose/deployment copy is synchronized. The database index
+  records migration 019 as the current geodata head. This prevents a valid new
+  migration from being omitted simply because a separate list was not updated.
+  The operator guide and migration ADRs now document the discovery convention,
+  synchronization requirement, and that the Helm migration runs as a Job.
+  See the [platform runner](https://github.com/myota-platform/myota-platform/commit/90cf589),
+  [deployment copy](https://github.com/myota-platform/myota-deploy/commit/1a4708c),
+  [operator guide](production-core.md#migrations-and-recovery),
+  [geodata synchronization ADR](adr/0006-geodata-migration-synchronization.md),
+  and [three-database ADR](adr/0007-three-database-migration.md).
 
 - **Admin web:** Changed Entity Catalogue page sizes to 25/50/100 and removed
   the overall cutoff from deletion status polling. Bulk jobs are polled in

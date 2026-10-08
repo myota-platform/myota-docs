@@ -16,6 +16,13 @@ vertical-slice bootstrap. `myota-deploy/db/migrations/geo/` is a synchronized
 copy consumed by the release migration runner. Both mirrors must match the
 service source byte-for-byte and must not be edited independently.
 
+The platform bootstrap and release runners discover numbered `NNN_*.sql`
+files in the `geo/` directory in lexical order. The same discovery convention
+is used for the core and activity migration directories. Adding a correctly
+numbered migration to the owning source and synchronizing the full migration
+set is sufficient; maintainers must not add a parallel filename list to a
+runner.
+
 When a geodata schema change is required:
 
 1. Change and review the ordered SQL in `myota-geodata-service/migrations/`.
@@ -35,7 +42,8 @@ The service remains the owner of its data model and schema evolution, while
 the platform bootstrap and deployment repository can run a complete database
 installation without importing service repositories at runtime. A single
 service-owned source avoids divergent SQL; explicit mirrors preserve the
-operational convenience of centralized migration ordering.
+operational convenience of centralized migration execution. Numbered-file
+discovery removes a duplicate registry while retaining deterministic order.
 
 ## Consequences
 

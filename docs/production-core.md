@@ -16,7 +16,11 @@ in `myota-geodata-service/migrations/`, with synchronized copies in
 `008_entity_category_assignments.sql` creates the many-category assignment
 relation and backfills the legacy primary category. The mirrors are
 updated from the service source and must remain byte-for-byte identical. This
-keeps ownership and deployment ordering explicit.
+keeps ownership explicit. Both migration runners discover numbered SQL files
+separately in the `core/`, `activity/`, and `geo/` directories and apply each
+domain's files in lexical order. A new migration is included automatically
+when its synchronized file is present; there is no second filename allowlist
+to maintain.
 
 ## Durability and events
 
@@ -55,12 +59,18 @@ generator job is introduced.
 
 ## Migrations and recovery
 
-Run `db/migrations/run.sh` once per deployment release. Helm executes it as a
-pre-install/pre-upgrade hook; Compose runs the same script as a one-shot
-`migrations` service. Apply additive migrations first, deploy code second, and
-remove old columns only after all readers have moved. Rollbacks are release
-specific: roll back application images first, restore a database only when a
-backward-compatible application rollback is impossible.
+Run `db/migrations/run.sh` once per deployment release. Helm runs it as a
+dedicated migration Job before the application rollout; Compose runs the same
+script as a one-shot `migrations` service. Each database domain is discovered
+independently, and only files matching the numbered `NNN_*.sql` convention are
+applied in lexical order. Add a new migration to its owning service and
+synchronize it into the platform bootstrap and deployment copies; do not add
+its filename to a separate runner list. Migration files must be safe to
+encounter again because both runners can execute against the same database.
+Apply additive migrations first, deploy code second, and remove old columns
+only after all readers have moved. Rollbacks are release specific: roll back
+application images first, restore a database only when a backward-compatible
+application rollback is impossible.
 
 `db/backup.sh` creates timestamped custom-format dumps for both databases;
 `db/restore.sh` restores an explicitly selected pair. Restore into an isolated
