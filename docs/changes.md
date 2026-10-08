@@ -15,6 +15,35 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Geodata service, Admin web, contracts and deployment:** Moved reverse
+  geocoding out of import preprocessing and request handling into the durable
+  geodata worker lifecycle. Enrichment is requested after entity
+  materialization when location fields are missing, after geometry changes, or
+  when manually managed values are released. The worker verifies the current
+  request ID and geometry hash before saving, keeps manual values and their
+  codes authoritative, and avoids repeating provider calls after an
+  acknowledgement-loss replay. Entity Management now offers an explicit
+  “Update missing location data” action; the API request is recorded in the
+  transactional outbox and consumed by `geodata-location-enrichment-v1`.
+  See the [lifecycle and retry guide](geodata-location-enrichment.md),
+  [REST endpoint contract and consolidation record](api-rest-consolidation-plan.md),
+  and [JetStream event contract](https://github.com/myota-platform/myota-contracts/blob/main/contracts/events.md).
+  Commits: [geodata service](https://github.com/myota-platform/myota-geodata-service/commit/81511a9),
+  [Admin web](https://github.com/myota-platform/myota-admin-web/commit/20844c6),
+  [contracts](https://github.com/myota-platform/myota-contracts/commit/ae99431),
+  [platform contract mirror](https://github.com/myota-platform/myota-platform/commit/be5cd3b),
+  [Compose/Helm worker configuration](https://github.com/myota-platform/myota-deploy/commit/75146ce), and
+  [Helm render regression check](https://github.com/myota-platform/myota-deploy/commit/3187394).
+  The deployed GHCR digests are recorded in the [Fleet rollout commit](https://github.com/myota-platform/myota-deploy/commit/e71915c).
+  The images passed [geodata CI/build](https://github.com/myota-platform/myota-geodata-service/actions/runs/37814212866),
+  [Admin web build](https://github.com/myota-platform/myota-admin-web/actions/runs/37814213107),
+  [contract freeze](https://github.com/myota-platform/myota-contracts/actions/runs/37814215480),
+  and [Helm rendering](https://github.com/myota-platform/myota-deploy/actions/runs/37814665370).
+  Fleet deployed Helm revision 88; all 54 tracked resources were Ready, the
+  location-enrichment consumer subscribed, and the public gateway health check
+  passed. At rollout time the cluster did not contain the configured optional
+  `myota-geodata-enrichment` Secret, so provider lookups remain unavailable
+  there until an operator provisions it.
 - **Geodata service and Admin web:** Added automatically derived Maidenhead
   grid-square and locator arrays to entity resources. Four-character
   (`maidenheadGridSquares4`) and six-character (`maidenheadLocators6`) values

@@ -58,6 +58,20 @@ rollout or a claim that every scaling phase is complete. Phase 1 is closed;
 Phases 2 and 3 have delivered capabilities but still need the failure and
 memory qualification below. Phases 4 and 5 remain rollout gates.
 
+### Entity location metadata lifecycle — 8 October 2026
+
+Reverse geocoding now runs after entity materialization, after geometry/type
+changes, or when an administrator releases manual values. Import preprocessing
+does not wait on the provider. Requests are written through the transactional
+outbox and handled by the durable `geodata-location-enrichment-v1` consumer;
+the worker rechecks the request ID and geometry hash after lookup so a result
+cannot overwrite metadata for newer coordinates. Explicit manual values and
+their codes keep precedence. Entity Management exposes a retry button while
+required location values are missing. The API, event and lifecycle details are
+in the [location-enrichment guide](geodata-location-enrichment.md),
+[REST consolidation plan](api-rest-consolidation-plan.md), and
+[event contract](https://github.com/myota-platform/myota-contracts/blob/main/contracts/events.md).
+
 ### Import cleanup stability — 8 October 2026
 
 A production load-test run remained `PROCESSING`, so the guarded cleanup API
@@ -82,7 +96,7 @@ Phase 3 requirement; this fix does not mark that broader item complete.
 |---|---|
 | Database-authoritative geodata rows, conditional edits, idempotency, atomic entity/candidate/audit/outbox checkpoints and obsolete-writer fence | [Phase 1 inventory, migration 016, rollout and 84-test record](geodata-phase1-relational-authority.md); [published geodata implementation](https://github.com/myota-platform/myota-geodata-service/commit/ab991891840590a2be9c4c458e1771a45e2c64d8); [successful database/two-API CI](https://github.com/myota-platform/myota-geodata-service/actions/runs/37642572170) |
 | Owner-bound resumable uploads, pause/resume/discard, bounded checksummed parts, fresh completed-file submissions, revision-conflict reloads and active import refresh | [Admin workflow](admin-web-ux.md); [published Vue changes](https://github.com/myota-platform/myota-admin-web/commit/e17603fdcc6e3b85d7c062fbdc8ef7b9e2e1baae); [successful admin tests/build](https://github.com/myota-platform/myota-admin-web/actions/runs/37640776687) |
-| Separate durable preprocessing, promotion and entity-deletion consumers with database leases and replay-safe effects | [Import lifecycle diagram](diagrams/geodata-import-validation.md), [recovery runbook](operations.md#import-recovery), [deletion authorization and lease boundary](geodata-phase1-relational-authority.md#mutation-and-api-behavior) |
+| Separate durable preprocessing, promotion, entity-deletion and location-enrichment consumers with replay-safe effects | [Import lifecycle diagram](diagrams/geodata-import-validation.md), [recovery runbook](operations.md#import-recovery), [deletion authorization and lease boundary](geodata-phase1-relational-authority.md#mutation-and-api-behavior), [location-enrichment lifecycle](geodata-location-enrichment.md) |
 | Read-only broker inspection and durable sampled history, separate from business workers | [JetStream status API/UI and operational semantics](jetstream-admin-status.md); [successful operations service CI](https://github.com/myota-platform/myota-operations-service/actions/runs/37642579946) |
 | Canonical contracts, conditional-write clients and runtime route reconciliation | [Contract repository validation](https://github.com/myota-platform/myota-contracts#validate-contracts-and-clients); [successful contract freeze/client CI](https://github.com/myota-platform/myota-contracts/actions/runs/37642816616) |
 | Compose/Helm worker separation, migration mirrors, operations service, scrape targets and availability/history alerts | [Deployment ownership](repository-map.md), [published deployment integration](https://github.com/myota-platform/myota-deploy/commit/6ceac513834554ddcf77768c8ccd0bbfa2f98813), [successful deployment tests/image build](https://github.com/myota-platform/myota-deploy/actions/runs/37642540219), [GitHub Helm validation](https://github.com/myota-platform/myota-deploy/actions/runs/37642215588) |
@@ -107,7 +121,7 @@ flowchart LR
   API --> Obj[(Object storage: durable import source)]
   API --> Outbox[(Transactional outbox)]
   Outbox --> NATS[NATS JetStream]
-  NATS --> Workers[Geodata preprocessing, promotion and deletion workers]
+  NATS --> Workers[Geodata preprocessing, promotion, deletion and location-enrichment workers]
   Workers --> DB
   Workers --> Obj
   Workers -->|Deletion impact and cascade API| Activity[Activity service]

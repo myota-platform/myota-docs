@@ -48,7 +48,7 @@ flowchart LR
   Programme -. publishes/consumes .-> Events
   Geodata -. publishes/consumes .-> Events
   Activity -. publishes/consumes .-> Events
-  Events -. geodata jobs .-> GeoWorkers[Geodata-owned workers]
+  Events -. geodata jobs and location enrichment .-> GeoWorkers[Geodata-owned workers]
   GeoWorkers --> GeoDB
   GeoWorkers --> Objects
   GeoWorkers -->|Deletion cascade API| Activity
@@ -80,9 +80,11 @@ IDs, slugs and events rather than database foreign keys.
   directly.
 - `myota-operations-service` owns read-only stream/consumer inspection and
   sampled history in `myota_core`; it never consumes business deliveries.
-- Geodata-owned workers execute preprocessing, promotion and confirmed
-  deletion with separate durable pull consumers and recoverable database
-  leases. Activity workers remain in the activity domain. See the
+- Geodata-owned workers execute preprocessing, promotion, confirmed deletion,
+  and location enrichment with durable pull consumers. Import/deletion jobs use
+  recoverable database leases; enrichment uses request-ID and geometry-hash
+  guards and preserves manual location fields. Activity workers remain in the
+  activity domain. See the
   [latest delivery evidence and remaining scaling gates](../geodata-horizontal-scaling-roadmap.md#latest-delivery-and-evidence--7-october-2026).
 - `myota-deploy` owns runtime wiring, migration orchestration, workers,
   secrets, object storage, NATS, telemetry collection, and

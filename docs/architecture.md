@@ -130,6 +130,11 @@ flowchart TD
   V --> Q[NATS promotion queue]
   Q --> C[CANDIDATE]
   Q --> A[APPROVED]
+  C -->|missing metadata or changed geometry| L[NATS location-enrichment request]
+  A -->|missing metadata or changed geometry| L
+  L --> LW[geodata-location-enrichment-v1 worker]
+  LW -->|save only if geometry hash still matches| GeoDB[(myota_geo)]
+  LW --> BDC[BigDataCloud reverse geocoder]
   Community[Community proposal] --> C
   C -->|approver scope + review| A
   C -->|approver decision| X[REJECTED]
@@ -231,10 +236,15 @@ pending deliveries, bounded redelivery, a PostgreSQL execution lease, and a
 heartbeat while parsing. Promotion uses a separate durable consumer and queue
 lease. Duplicate delivery is safe: import runs are claimed atomically and
 promotion candidates retain a stable planned entity ID and processed marker
-until finalization. The migration also creates recovery events for pre-existing
-queued/processing runs and promotion queues. The default lease is 15 minutes;
-operators can tune it with `MYOTA_IMPORT_LEASE_SECONDS` and the heartbeat
-interval with `MYOTA_IMPORT_HEARTBEAT_SECONDS`. The current decoder still
+until finalization. Location enrichment uses a fourth durable consumer and does
+not block preprocessing or the entity-write request. It checks a request ID and
+geometry hash both before and after the provider call; a stale response is
+discarded, and manually managed fields/codes are preserved. See the
+[location-enrichment lifecycle](geodata-location-enrichment.md). The migration
+also creates recovery events for pre-existing queued/processing runs and
+promotion queues. The default lease is 15 minutes; operators can tune it with
+`MYOTA_IMPORT_LEASE_SECONDS` and the heartbeat interval with
+`MYOTA_IMPORT_HEARTBEAT_SECONDS`. The current decoder still
 materializes a source document and catalogue compatibility state in worker
 memory; truly streaming feature batches and multi-replica data-state
 reconciliation remain explicit open work in the horizontal-scaling roadmap.

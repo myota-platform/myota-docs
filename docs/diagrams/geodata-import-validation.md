@@ -30,6 +30,13 @@ flowchart LR
   PromoteNATS --> PromoteWorker[Promotion worker + atomic lease]
   PromoteWorker --> Candidate[CANDIDATE entity]
   PromoteWorker --> Approved[APPROVED entity]
+  Candidate -->|when missing or geometry changed| LocationOutbox[Location-enrichment outbox request]
+  Approved -->|when missing or geometry changed| LocationOutbox
+  LocationAdmin[Entity Management retry] --> LocationOutbox
+  LocationOutbox --> LocationNATS[NATS location-enrichment subject]
+  LocationNATS --> LocationWorker[geodata-location-enrichment-v1 consumer]
+  LocationWorker -->|persist only for matching request and geometry hash| LocationDB[(myota_geo PostGIS)]
+  LocationWorker --> BDC[BigDataCloud reverse geocoder]
   Candidate --> Review[Geodata Review]
   Admin --> Preview[Candidate name map preview]
   Admin --> Finalize[Mark import as PROCESSED]
@@ -83,6 +90,14 @@ promotion uses `geodata-import-processing-v2`. Confirmation, candidate/job
 association and dispatch outbox commit together. Entity, candidate result and
 audit/outbox changes commit atomically at promotion checkpoints. Queued
 candidates cannot be rejected or submitted to another promotion job.
+Location enrichment shares the geodata worker image/Deployment but has its own
+durable consumer, `geodata-location-enrichment-v1`, on
+`myota.geodata.entity.location-enrichment.v1`. It runs after candidate/approved
+materialization when metadata is missing, after geometry changes, or after an
+administrator releases manual fields. Preprocessing never calls the provider.
+The worker looks up the persisted geometry centroid and discards a result if a
+newer request or geometry revision exists; explicit manual values and their
+codes are not overwritten.
 Streaming parser batches and bounded candidate/spatial traversals remain
 [scaling roadmap work](../geodata-horizontal-scaling-roadmap.md); durable
 repositories no longer hydrate or rewrite a service-wide snapshot.
@@ -92,7 +107,7 @@ Permanent entity deletion is a separate geodata-owned execution path on
 part of import validation. It performs the activity impact/cascade workflow
 before removing geodata rows and audit history. The
 [operations observer](../jetstream-admin-status.md) only samples metadata for
-these three consumers; it does not receive/ACK business deliveries or change
+these four consumers; it does not receive/ACK business deliveries or change
 consumer state. Persistent sampled history is not a per-message audit log.
 
 The target status is chosen only after confirmation. The imports collection

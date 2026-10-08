@@ -87,7 +87,10 @@ Deletion is dispatched through the third geodata durable pull consumer,
 `geodata-entity-deletion-v1`, on `myota.geodata.entity.delete.v1`. The job
 stores verified authorization context, leases execution and uses idempotent
 activity API calls; it is not an API-local executor. Preprocessing uses
-`geodata-preprocessing-v1`; promotion uses `geodata-import-processing-v2`.
+`geodata-preprocessing-v1`; promotion uses `geodata-import-processing-v2`;
+location enrichment uses `geodata-location-enrichment-v1` after entity
+materialization or geometry updates. Provider calls are asynchronous, guarded by
+request ID/geometry hash, and do not overwrite manual values.
 The operations service inspects these consumers but never executes their work.
 See the [Phase 1 authority/rollout record](geodata-phase1-relational-authority.md)
 and [latest scaling delivery evidence](geodata-horizontal-scaling-roadmap.md#latest-delivery-and-evidence--7-october-2026).
