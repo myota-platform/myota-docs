@@ -116,6 +116,13 @@ These server measurements separate SeaweedFS processing from end-to-end client
 upload timing. The metric listeners are internal-only and must not be exposed
 through an Ingress. Helm hashes the Collector scrape configuration into its
 pod template so Fleet ConfigMap updates restart the Collector automatically.
+The Grafana Deployment likewise hashes all provisioned Grafana files. This is
+required because its dashboard and provisioning ConfigMap files are mounted
+with `subPath`, which does not refresh an existing container when the
+ConfigMap changes. A missing or stale provisioned dashboard should be
+investigated by comparing the ConfigMap entry with the mounted file and
+checking Grafana's dashboard-provisioning logs; the pod-template checksum
+ensures future dashboard changes roll Grafana automatically.
 
 ## Alerting
 

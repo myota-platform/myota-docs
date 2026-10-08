@@ -278,6 +278,16 @@ SeaweedFS build does not listen on that port.
 Do not publish either listener through an Ingress. A missing `up` series means
 the scrape is unavailable, not that object storage had zero operations.
 
+Grafana dashboard files are mounted from the observability ConfigMap using
+`subPath`. Kubernetes does not refresh those mounted files when the ConfigMap
+changes. The Helm chart therefore hashes all Grafana provisioning and dashboard
+files into the Grafana pod template, causing Fleet/Helm updates to roll Grafana
+and reload the files. If the SeaweedFS dashboard disappears or provisioning
+logs report JSON `EOF`, compare the ConfigMap's `myota-object-storage.json`
+entry with `/etc/grafana/dashboards/myota-object-storage.json` inside the pod;
+a non-empty ConfigMap with a zero-byte mounted file indicates a stale pod that
+needs the updated chart rollout.
+
 The repeatable external load tests use Grafana k6. The current
 user-designated provisional-production target is the K3s deployment on
 `spainip.es`, reached through `https://api.myota.top`. All performance/load

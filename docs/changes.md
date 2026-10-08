@@ -15,6 +15,14 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Deploy/observability:** Fixed Grafana's missing SeaweedFS dashboard. The
+  live ConfigMap contained the dashboard, but Grafana's `subPath`-mounted file
+  remained zero bytes after a ConfigMap update and provisioning repeatedly
+  failed with `EOF`. The Helm pod-template checksum now covers all Grafana
+  dashboards and provisioning files, so Fleet/Helm changes restart Grafana.
+  Added regression coverage and operational troubleshooting guidance
+  ([deployment fix](https://github.com/myota-platform/myota-deploy/commit/106324d)).
+
 - **Geodata service:** Added guarded, read-only PostGIS query-plan evidence for
   representative map and catalogue queries, a bounded read-only live baseline,
   and permanent source-tagged Sevilla scale fixtures. The fixture process was
