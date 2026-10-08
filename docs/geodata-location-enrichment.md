@@ -61,11 +61,25 @@ that centroid. The code fix restores it. Existing failed events have already
 been acknowledged, so retry them from Entity Management after the fix is
 deployed; they will not be replayed automatically.
 
-The K3s cluster also did not contain the optional `myota-geodata-enrichment`
-Secret during this diagnosis. Once that Secret is provisioned with its
-`api-key` key, the worker can reach BigDataCloud; without it, the next attempt
-will fail as `NOT_CONFIGURED` even though the queue path is healthy. Never put
-the provider key in this document, logs, or a commit.
+The geodata pod currently sources `BIGDATACLOUD_API_KEY` from the optional
+`myota-geodata-enrichment` Secret's `api-key` field. That named Secret was not
+present in the namespace during diagnosis. The operator clarified that the
+credential is stored in an existing Kubernetes Secret under `password`, with
+`geo-database-url` also present. The current Helm wiring does not map that
+source into the geodata pod, so the issue is a Secret-reference mismatch—not
+proof that the credential is absent from Kubernetes. The deployment guide
+currently defines `myota-postgres/password` as the PostgreSQL superuser
+password. Confirm that this exact value is intentionally also the BigDataCloud
+key before mapping it into `BIGDATACLOUD_API_KEY`; never send a database
+password to the provider by assumption. Never put secret values in this
+document, logs, or a commit.
+
+The centroid projection fix was deployed to K3s as image digest
+`sha256:4547e6f39091b7027c42758ad3e164e582f287f133faf3bf0a5758b18cc56775`.
+Both the geodata API and processing worker rolled successfully, and the public
+gateway health check returned `ok`. The already-failed enrichment requests
+were acknowledged before the fix, so retry them from Entity Management after
+the provider Secret reference is confirmed and wired.
 
 ## Entity fields and provenance
 

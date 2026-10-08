@@ -23,10 +23,18 @@ describe current ownership and are authoritative for the present-day system.
   rows. Live diagnosis confirmed five request events with no outbox backlog,
   four distinct affected entities, and a subscribed JetStream consumer. The
   failed events were acknowledged, so those entities require a manual retry
-  after deployment. The live cluster also lacks the optional
-  `myota-geodata-enrichment` Secret, which must be provisioned before the
-  provider lookup itself can succeed. See the [location enrichment guide and
-  recovery notes](geodata-location-enrichment.md#durable-coordinates-and-troubleshooting)
+  after deployment. K3s rolled the API and worker to image digest
+  `sha256:4547e6f39091b7027c42758ad3e164e582f287f133faf3bf0a5758b18cc56775`,
+  and the public gateway health check passed. The deployed pod references the
+  optional `myota-geodata-enrichment/api-key` Secret field, whose Secret is
+  absent. The operator clarified that the credential is stored in an existing
+  Kubernetes Secret under `password`, with `geo-database-url` also present; the
+  chart does not currently map that source. This is a wiring mismatch, not
+  proof the credential is absent. As `myota-postgres/password` is documented
+  as the PostgreSQL superuser password, confirm that exact value is intended
+  as the BigDataCloud key before mapping it to the provider environment. See
+  the [location enrichment guide and recovery
+  notes](geodata-location-enrichment.md#durable-coordinates-and-troubleshooting)
   and the [service fix](https://github.com/myota-platform/myota-geodata-service/commit/0b3655e).
 
 - **Geodata service, Admin web, contracts and deployment:** Moved reverse
