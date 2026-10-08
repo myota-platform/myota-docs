@@ -54,6 +54,7 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   [observability](docs/observability.md), [threat model](docs/security/README.md),
   [Python quality checks](docs/development/README.md).
 - **Geodata scale work** — [scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md),
+  [Maidenhead coverage fields](docs/geodata-maidenhead-locators.md),
   [load/query runbook](docs/geodata-load-test-and-query-evidence.md),
   [Phase 0 evidence](docs/geodata-phase0-production-evidence-2026-10-08.md),
   [representative query review](docs/geodata-phase0-representative-query-review-2026-10-08.md).

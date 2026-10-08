@@ -15,11 +15,17 @@ workflow.
 | Entity metadata | `PATCH /v1/geodata/entities/{entityId}` | Partially update the name and location metadata while preserving manual-field precedence. |
 | Entity categories | `PUT /v1/geodata/entities/{entityId}/categories` | Atomically replace the shared category set; the first category remains the compatibility primary. |
 | Entity geometry | `PUT /v1/geodata/entities/{entityId}/geometry` | Replace validated GeoJSON geometry and append geometry history. |
+
 | Entity review | `POST /v1/geodata/entities/{entityId}/reviews` | Record the audited lifecycle decision. Approved entities retain the approved-to-retired invariant. |
 | Entity collection | `GET /v1/geodata/entities?bbox=minLon,minLat,maxLon,maxLat` | Apply extent, status, category, programme, and location filters to one paged collection. Tile delivery remains a separate concern. |
 | Deletion job | `POST /v1/geodata/entity-deletion-jobs` | Calculate QSO/activation/award impact and create an explicit confirmation boundary. |
 | Deletion status | `GET /v1/geodata/entity-deletion-jobs/{jobId}` | Read impact and asynchronous execution status. |
 | Deletion confirmation | `POST /v1/geodata/entity-deletion-jobs/{jobId}/confirm` | Require the literal `DELETE` confirmation, cascade activity data, then delete the geodata entity and audit history. |
+
+Entity resource representations also include the read-only, derived
+`maidenheadGridSquares4` and `maidenheadLocators6` arrays. Their geometry
+coverage and persistence semantics are documented in the [Maidenhead locator
+reference](geodata-maidenhead-locators.md).
 
 ## Import representations and lifecycle
 

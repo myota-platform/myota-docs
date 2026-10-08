@@ -15,6 +15,19 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Geodata service and Admin web:** Added automatically derived Maidenhead
+  grid-square and locator arrays to entity resources. Four-character
+  (`maidenheadGridSquares4`) and six-character (`maidenheadLocators6`) values
+  are calculated from geometry, persisted and backfilled in PostGIS, refreshed
+  on geometry changes, and displayed read-only in Entity Catalogue. Points use
+  one canonical cell; lines and polygons include each intersected cell. The
+  [field reference](geodata-maidenhead-locators.md) records semantics and
+  verification cases. See the [service implementation](https://github.com/myota-platform/myota-geodata-service/commit/3d9a4a4),
+  [Admin UI](https://github.com/myota-platform/myota-admin-web/commit/7165c8c),
+  [API contract](https://github.com/myota-platform/myota-contracts/commit/a6d7223),
+  [platform migration mirror](https://github.com/myota-platform/myota-platform/commit/a2c3556),
+  and [Helm migration set](https://github.com/myota-platform/myota-deploy/commit/6805e6c).
+
 - **Admin web:** Changed Entity Catalogue page sizes to 25/50/100 and removed
   the overall cutoff from deletion status polling. Bulk jobs are polled in
   bounded batches through transient errors; the modal closes automatically

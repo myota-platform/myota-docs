@@ -58,6 +58,7 @@ Status in plans and evidence:
 - [Resumable-upload verification](geodata-load-test-upload-verification.md)
 - [Phase 1 relational authority and concurrency](geodata-phase1-relational-authority.md)
 - [Location enrichment](geodata-location-enrichment.md)
+- [Maidenhead locator fields and geometry coverage](geodata-maidenhead-locators.md)
 - [Line and way geometry support](geodata-ways.md)
 - [QGIS editing workflow](qgis-workflow.md)
 - [Scaling implementation prompt index](geodata-scaling-prompts/index.md)
