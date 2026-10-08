@@ -288,6 +288,28 @@ entry with `/etc/grafana/dashboards/myota-object-storage.json` inside the pod;
 a non-empty ConfigMap with a zero-byte mounted file indicates a stale pod that
 needs the updated chart rollout.
 
+### Permanent entity deletion recovery
+
+Confirmed deletion jobs are durable rows in the geodata database, with their
+event inserted into the transactional outbox in the same transaction. The
+outbox publishes the geodata entity-delete subject to the shared MYOTA_EVENTS
+JetStream stream. geodata-entity-deletion-v1 is the durable consumer name,
+not a separate stream; zero broker-pending messages does not prove that every
+database job reached a terminal state.
+
+Deletion execution reloads each job from PostgreSQL before claiming it;
+workers must not rely on a process-local snapshot for jobs created by the API
+after worker startup. A missing job is an error and is never acknowledged as a
+successful no-op. The geodata worker also periodically reconciles confirmed
+QUEUED jobs and PROCESSING jobs whose lease expired, using the same database
+claim as normal JetStream delivery. This repairs acknowledged/checkpointed
+events that left a job unfinished and recovers work after worker restarts.
+Inspect job statuses in geodata_control_record (kind=entityDeletionJobs)
+alongside outbox and consumer checkpoints; do not purge the stream or manually
+delete entity rows to recover a job. The Admin UI polls both individual and
+bulk deletion jobs for up to one minute, bounds each HTTP request, and permits
+closing the dialog without cancelling a confirmed server-side deletion.
+
 The repeatable external load tests use Grafana k6. The current
 user-designated provisional-production target is the K3s deployment on
 `spainip.es`, reached through `https://api.myota.top`. All performance/load

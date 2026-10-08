@@ -15,6 +15,20 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Geodata service:** Fixed single and bulk permanent deletion jobs being
+  acknowledged without execution when a worker's process-local row cache did
+  not yet contain a job created by the API. Workers now reload the job from
+  PostgreSQL before claiming it, treat missing jobs as failures, and reconcile
+  queued or lease-expired jobs even if a broker event was already acknowledged.
+  The worker reconciliation interval is configurable in Compose and Helm.
+  See the [worker recovery](https://github.com/myota-platform/myota-geodata-service/commit/e4cac73),
+  [platform mirror](https://github.com/myota-platform/myota-platform/commit/58ee6c9),
+  and [Compose/Helm configuration](https://github.com/myota-platform/myota-deploy/commit/ff9fe3b).
+- **Admin web:** Made individual deletion poll the job resource like bulk
+  deletion, gave deletion requests finite timeouts, and allowed the modal to
+  close while a confirmed job continues in the background. See the [deletion
+  workflow guidance](operations.md#permanent-entity-deletion-recovery) and
+  [admin implementation](https://github.com/myota-platform/myota-admin-web/commit/e71c9e5).
 - **Deploy/observability:** Fixed Grafana's missing SeaweedFS dashboard. The
   live ConfigMap contained the dashboard, but Grafana's `subPath`-mounted file
   remained zero bytes after a ConfigMap update and provisioning repeatedly

@@ -287,6 +287,10 @@ the programme service, so unassigned entities remain visible.
 - Approver authorization is scope-based: programme + jurisdiction + entity type. Review mutations require an approver scope and are audit events. Shared category changes and display-name corrections are allowed for platform-wide entities as well as programme-assigned entities and preserve the previous value in audit history. Global and GIS administrators may convert point/way/polygon geometry with an audit record. GIS administrators may permanently delete rejected entities; a global administrator may delete any status. The global deletion workflow first calculates impact in the activity service, deletes linked valid QSOs, rebuilds aggregates and queues award recalculation, then removes the entity, conflation links and its audit record.
 - The admin review queue is catalogue-driven rather than viewport-driven. Programme (including unassigned entities), entity type, continent, country, region/subdivision, province, city/municipality, and multi-select lifecycle status filters are applied by geodata before deterministic pagination. The map renders the current page and remains independently pannable/zoomable; selecting a result centres it without changing the queue.
 - Every mutation accepts `Idempotency-Key`; service outboxes make event publication retry-safe.
+- Confirmed entity deletion is owned by geodata and cascades through activity
+  before entity/audit removal. JetStream delivery is backed by a periodic
+  database reconciliation pass for queued or lease-expired deletion jobs, so
+  broker acknowledgement/checkpoint state cannot silently strand a deletion.
 - Rate limits apply at gateway, with stricter limits for import and proposal endpoints.
 - JSON logs carry request, correlation, actor and programme IDs. Health/readiness endpoints are available per service.
 
