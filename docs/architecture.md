@@ -249,6 +249,15 @@ materializes a source document and catalogue compatibility state in worker
 memory; truly streaming feature batches and multi-replica data-state
 reconciliation remain explicit open work in the horizontal-scaling roadmap.
 
+The shared `MYOTA_EVENTS` JetStream stream uses Interest retention rather than
+acting as an event archive. The outbox relay provisions the Activity durable
+and all four geodata work durables before publishing; messages remain until
+every matching consumer acknowledges them, then are removed. Explicit geodata
+subjects are allow-listed to those queues. A 30-day `max_age` remains a safety
+bound for stalled, unconsumed work; service-owned PostgreSQL remains the
+durable recovery source. See [JetStream retention and rollout
+operations](operations.md#jetstream-event-retention).
+
 ### Shared category selection and persistence
 
 ```mermaid

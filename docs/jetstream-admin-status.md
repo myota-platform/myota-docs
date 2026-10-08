@@ -34,6 +34,12 @@ Unknown age is unavailable, never fabricated as zero. Failed inspections persist
 UNAVAILABLE/PARTIAL samples. If database recording stops, the last sample is marked
 stale after three polling intervals.
 
+`MYOTA_EVENTS` uses Interest retention, so its retained message count falls as
+all consumers matching each subject acknowledge work. Unconsumed or
+unacknowledged messages remain subject to delivery/retry and the configured
+30-day maximum age. The stream is not a historical event archive; see the
+[retention and recovery runbook](operations.md#jetstream-event-retention).
+
 ## Persistence and deployment
 
 The operations repository/image is public at

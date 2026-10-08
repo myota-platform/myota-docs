@@ -159,6 +159,34 @@ Staged cleanup deletes by the indexed `import_run_id` and discards only this
 run's pending projections; it never enumerates other imports or decodes their
 geometries. This keeps cancellation responsive when other datasets are large.
 
+### JetStream event retention
+
+`MYOTA_EVENTS` is a file-backed JetStream stream with **Interest** retention,
+not an event-history log. It retains a message while at least one durable
+consumer whose subject filter matches has not acknowledged it. Once every
+matching durable acknowledges, JetStream removes the message. This supports
+fan-out to the Activity notification consumer and the subject-specific
+geodata workers without keeping already-completed messages in broker storage.
+See the official NATS [retention-policy
+semantics](https://docs.nats.io/learn/jetstream/retention-policies).
+
+Each outbox relay creates or validates the five supported durable consumers
+before it starts publishing. This ordering is essential: Interest retention
+removes a message immediately if no consumer filter covers its subject. The
+explicit geodata work subjects are allow-listed against those durable filters;
+add a consumer before introducing a new work subject. Generic domain events
+route under `myota.events.>` and are covered by Activity notifications. All
+consumers acknowledge only after their database side effects/checkpoints have
+committed; NAKed or unacknowledged work remains eligible for redelivery.
+
+The existing 30-day stream `max_age` remains a safety limit for a stuck or
+unconsumed backlog. It is not the normal cleanup mechanism and is not a
+guarantee of indefinite preservation. Acknowledged events are not available
+for later replay after all interested consumers have acknowledged them; use
+service-owned PostgreSQL state and controlled domain recovery procedures
+instead. The broker-status UI reports live message counts and consumer lag so
+stalled acknowledgements remain visible.
+
 ### Activity notification consumer rollouts
 
 The Activity notifications deployment uses the JetStream pull durable
@@ -170,13 +198,16 @@ updates. On SIGTERM, the worker stops fetching, completes its current
 notification and drains NATS; Helm allows 60 seconds for termination.
 
 The earlier `activity-notifications` push durable cannot be converted in place
-because its delivery mode is immutable. The new durable replays retained
-events using the unchanged database consumer identity `activity-notifications`
-and the notification's `event:{eventId}` idempotency key. Already processed
-events are acknowledged without creating another notice. After all old pods
-have exited and the new consumer is healthy, remove only the obsolete
-`activity-notifications` broker consumer; keep its database checkpoints and
-processed-event records. Do not purge the event stream.
+because its delivery mode is immutable. The pull durable uses the unchanged
+database consumer identity `activity-notifications` and the notification's
+`event:{eventId}` idempotency key. Already processed events are acknowledged
+without creating another notice. Provision new durable consumers before
+publishing events they need; under Interest retention, a newly added consumer
+does not receive messages already acknowledged by all existing interested
+consumers. After all old pods have exited and the pull consumer is healthy,
+remove only the obsolete `activity-notifications` broker consumer; keep its
+database checkpoints and processed-event records. Do not manually purge the
+event stream as a recovery action.
 
 `myota-activity-service/tests/test_notification_consumer.py` proves two
 overlapping bindings, acknowledgement and restart against isolated JetStream
@@ -305,7 +336,7 @@ QUEUED jobs and PROCESSING jobs whose lease expired, using the same database
 claim as normal JetStream delivery. This repairs acknowledged/checkpointed
 events that left a job unfinished and recovers work after worker restarts.
 Inspect job statuses in geodata_control_record (kind=entityDeletionJobs)
-alongside outbox and consumer checkpoints; do not purge the stream or manually
+alongside outbox and consumer checkpoints; do not manually purge the stream or
 delete entity rows to recover a job. The Admin UI polls both individual and
 bulk deletion jobs until they complete or fail, bounds each HTTP request, and
 permits closing the dialog without cancelling a confirmed server-side deletion.
