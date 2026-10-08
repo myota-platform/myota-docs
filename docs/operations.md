@@ -310,6 +310,12 @@ delete entity rows to recover a job. The Admin UI polls both individual and
 bulk deletion jobs for up to one minute, bounds each HTTP request, and permits
 closing the dialog without cancelling a confirmed server-side deletion.
 
+After the 8 October 2026 rollout, the worker recovered the 45 queued jobs
+observed during diagnosis; the database then had no queued or processing
+deletion jobs. Two older `FAILED` legacy jobs remained with an instruction to
+recreate and reconfirm them. Do not silently retry those legacy records; a
+global administrator must create and explicitly confirm a new deletion job.
+
 The repeatable external load tests use Grafana k6. The current
 user-designated provisional-production target is the K3s deployment on
 `spainip.es`, reached through `https://api.myota.top`. All performance/load

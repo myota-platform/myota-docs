@@ -21,9 +21,14 @@ describe current ownership and are authoritative for the present-day system.
   PostgreSQL before claiming it, treat missing jobs as failures, and reconcile
   queued or lease-expired jobs even if a broker event was already acknowledged.
   The worker reconciliation interval is configurable in Compose and Helm.
+  K3s verification recovered the 45 queued jobs observed during diagnosis;
+  the database had no queued or processing deletion jobs afterward. Two older
+  failed legacy jobs remain intentionally excluded and require an administrator
+  to create and confirm new jobs.
   See the [worker recovery](https://github.com/myota-platform/myota-geodata-service/commit/e4cac73),
   [platform mirror](https://github.com/myota-platform/myota-platform/commit/58ee6c9),
-  and [Compose/Helm configuration](https://github.com/myota-platform/myota-deploy/commit/ff9fe3b).
+  [Compose/Helm configuration](https://github.com/myota-platform/myota-deploy/commit/ff9fe3b),
+  and [image digest rollout](https://github.com/myota-platform/myota-deploy/commit/b318fbb).
 - **Admin web:** Made individual deletion poll the job resource like bulk
   deletion, gave deletion requests finite timeouts, and allowed the modal to
   close while a confirmed job continues in the background. See the [deletion
