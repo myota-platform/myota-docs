@@ -13,43 +13,55 @@ and use the current roadmap as the source of truth:
 - `myota-docs/docs/geodata-load-test-upload-verification.md`
 
 The read-only baseline, workload harness, telemetry, dashboards, and guarded
-query-plan evidence tool already exist. **The write-profile execution gate is
-complete:** every write profile has been run in a non-production deployment and
-its result summary retained. The remaining roadmap gate is to review
-representative query-plan/load evidence for PostGIS, object storage, and worker
-bottlenecks.
+query-plan evidence tool already exist. The user has designated the current
+K3s deployment on `spainip.es`, reached through `https://api.myota.top`, as
+**provisional production and the sole target for load/performance
+qualification**. The five bounded production write profiles and read-only
+baseline were run on 8 October 2026; their sanitized results are in
+`myota-docs/docs/geodata-phase0-production-evidence-2026-10-08.md`. Treat those
+runs as delivered; do not repeat them without a specific evidence gap.
+Remaining gates are representative-cardinality PostGIS plans, correct/stable
+gateway telemetry labels, and measurable SeaweedFS operation timing.
 
 First inspect the current harness, its safety checks, recent documentation,
-repository instructions, and available non-production deployment configuration.
-Reconcile the profile names and limits from the current implementation rather
-than relying on this prompt if they differ. Do not target production, weaken
-the harness guards, or use production runs as qualification evidence. Do not
-print or commit credentials. If no safe non-production environment or required
-credentials are available, finish the code/docs preparation and report the
-exact operator input needed; do not simulate a passed run.
+repository instructions, the live provisional-production deployment, and its
+load-test cleanup configuration. Reconcile profile names and limits from the
+current implementation rather than relying on this prompt if they differ.
+Run production load only against the exact approved host, one profile at a
+time, with current hard caps, a dedicated test account, and successful
+exact-tag cleanup. Never print or commit credentials. Do not run destructive
+failure injection, restart/termination tests, queue redrive, or untagged
+cleanup against production. If account access, cleanup, or stop conditions are
+not safe, finish code/docs preparation and report the exact operator input
+needed; do not simulate a passed run.
 
 Complete the remaining gate by:
 
-1. Reviewing the retained summaries for every currently defined write profile.
-   Treat the completed non-production runs and retained summaries as delivered;
-   do not rerun them unless the evidence review finds a specific gap.
-2. Capturing bounded `EXPLAIN (ANALYZE, BUFFERS)` evidence on representative
-   non-production data for the important map/catalogue queries. Review index
-   use, actual versus estimated rows, buffers, and query timing. Correlate the
-   workload results with PostGIS, object-storage, and worker bottlenecks.
-3. Updating the roadmap and evidence/runbook pages with links or durable,
+1. Review the retained production workload summaries and existing plans first.
+   Do not rerun profiles unless the evidence review identifies a specific gap.
+2. Capture additional bounded `EXPLAIN (ANALYZE, BUFFERS)` evidence only when
+   representative, safely tagged cardinality is available, using the exact-host
+   opt-in and short statement timeout. Review index use, actual versus
+   estimated rows, buffers, and timings.
+3. Correct and redeploy gateway environment/route telemetry labels, and add or
+   expose SeaweedFS operation metrics. Correlate fresh production samples with
+   the recorded workload windows; do not infer storage time from client upload
+   duration.
+4. Update the roadmap and evidence/runbook pages with links or durable,
    sanitized artifact locations, conclusions, and any remaining bottleneck.
    Check off only the gates directly supported by retained evidence.
 
-Keep the test bounded by the existing profile caps. Make only necessary
-harness, telemetry, dashboard, or documentation fixes that are demonstrated by
-the evidence; preserve safety caps and production opt-ins. Before any code
-change, inspect the relevant owning repository and its local instructions.
+Keep tests bounded by the existing profile caps. Make only necessary harness,
+telemetry, dashboard, or documentation fixes demonstrated by evidence;
+preserve the explicit production opt-ins, exact host allowlists, and cleanup
+safeguards. Never scale or restart production services as part of a load run.
+Before any code change, inspect the relevant owning repository and its local
+instructions.
 
-At the end, report the reviewed profile summaries, query-plan evidence
+At the end, report the production profile summaries, query-plan evidence
 locations, performance findings, changed files, validation performed, and any
-gate that remains open with the reason. The write-profile execution checklist
-item is already complete; do not reopen it. Phase 0 remains incomplete until
-the representative query/load review has been documented.
+gate that remains open with the reason. Historical non-production results are
+not substitutes. Phase 0 remains incomplete until the representative
+production query/load review has been documented.
 
 ---

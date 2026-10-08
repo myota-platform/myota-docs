@@ -20,41 +20,49 @@ are checked. Verify the linked evidence, image versions, and environment. If a
 prerequisite is missing, record it and complete independent runbook, test, or
 instrumentation work while leaving the dependent rollout gate open.
 
-Build and execute a staged qualification plan using isolated non-production
-environments first:
+Build and execute a staged qualification plan using the current provisional
+production deployment on `spainip.es` (`https://api.myota.top`) as the required
+load/performance target. Run one bounded profile at a time, preserve explicit
+production opt-ins, exact host allowlists, the dedicated test account, and
+successful exact-tag cleanup. These results qualify only this provisional
+deployment. Keep destructive failure injection and restart/termination tests
+in CI or isolated non-production; they are not production load tests.
 
 1. Add/pass CI failure-injection tests for forced worker recovery and API/object
    storage restart. Cover large-file upload, interrupted client transfer,
    receiver API termination, worker termination, duplicate event delivery, and
-   SeaweedFS restart. Use the deployed storage image/version.
-2. Run comparable bounded load tests at one, two, and increasing API replica
-   counts. Retain sanitized evidence for throughput, p50/p95/p99 latency,
-   errors, Postgres pool waits/connections, PostGIS plans/timings, object-store
-   behavior, worker memory, and JetStream lag. Demonstrate whether scaling
-   improves throughput without moving saturation downstream.
-3. Deploy a two-replica non-production canary. Observe errors, latency, lost or
-   duplicate work, database connection use, uploads, worker recovery, and queue
-   lag through a representative operating window. Record thresholds and
-   rollback triggers before starting.
+   SeaweedFS restart. Use the deployed storage image/version. Never perform
+   those destructive scenarios on production.
+2. Run comparable bounded load tests against the provisional-production API at
+   its current replica count. Retain sanitized evidence for throughput,
+   p50/p95/p99 latency, errors, Postgres pool waits/connections, PostGIS
+   plans/timings, object-store behavior, worker memory, and JetStream lag.
+   Changing API replica counts is a separate production rollout requiring
+   approval; do not alter replica count as part of the load test.
+3. Run a bounded provisional-production canary at the currently deployed
+   topology. Observe errors, latency, database connection use, uploads,
+   worker metrics, and queue lag through a representative window. Record
+   thresholds, cleanup verification, and rollback triggers before starting.
 4. Complete and drill the end-to-end rollback, in-flight import recovery,
    queue redrive, upload-session cleanup, and Phase 1 write-fence procedures.
    Verify the compatible code/schema rollback boundary and that no stale writer
    is reintroduced.
 5. Update deployment limits, autoscaling bounds, dashboards/alerts, and
-   operator documentation from measured results. Keep production replica
-   changes as an explicit operator action with a gradual plan, health checks,
-   stop conditions, and a tested rollback.
+   operator documentation from measured results. Keep production replica or
+   autoscaling changes as a separate operator-approved action with a gradual
+   plan, health checks, stop conditions, and a tested rollback.
 6. Update the roadmap only with retained evidence and identify each environment
    and deployed version. Separate code/CI completion from runtime canary and
    production rollout evidence.
 
-Never run load, failure injection, cleanup, queue redrive, or rollout actions
-against production unless the human operator explicitly authorizes that exact
-action and target. This prompt itself does not authorize production changes.
-Never expose credentials or delete untagged data. If live environment access or
-approval is unavailable, finish reproducible automation, CI coverage, and
-runbooks; leave the runtime gate open and provide the exact operator steps
-needed.
+Production load/performance tests are authorized only for the designated
+provisional target and within the bounded profile, account, and cleanup
+controls above. This does not authorize destructive failure injection,
+service/database/object-store restarts, queue redrive, untagged deletion,
+replica changes, or unrelated rollout actions. Never expose credentials. If
+account access, cleanup, or required metrics are unavailable, finish
+reproducible automation and documentation; leave the runtime gate open and
+provide the exact operator input needed.
 
 At the end, report CI/failure coverage, replica-count results, canary evidence,
 rollback drill result, changed files, dashboard/runbook updates, and any

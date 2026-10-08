@@ -2,6 +2,12 @@
 
 Verified locally on 2026-10-07. This is protocol/correctness evidence, not a
 production capacity result. No production write load was started for this fix.
+That statement is historical: effective 2026-10-08, the current K3s deployment
+on `spainip.es` is the user-designated provisional-production target for load
+and performance qualification. Production profile results are recorded in the
+[Phase 0 evidence report](geodata-phase0-production-evidence-2026-10-08.md).
+The change does not move restart, termination, or other destructive
+failure-injection tests into production.
 
 ## Failure and correction
 
@@ -50,24 +56,24 @@ node loadtests/tests/k6-smoke.mjs
 After push, the [GitHub regression and image workflow](https://github.com/myota-platform/myota-geodata-service/actions/runs/37654639231)
 passed: all 90 Python tests ran successfully, including the two independent API
 processes, alongside the 14 harness regressions. The updated geodata image was
-published successfully. This still is not a production load-test result.
+published successfully. This specific protocol-verification exercise is not a
+production load-test result.
 
 The [image-sync workflow](https://github.com/myota-platform/myota-deploy/actions/runs/37658600024)
 recorded deployment revision `56726bf519ea8a2475e606eaeecfd64b0299049a`.
 K3S acknowledged that revision; the geodata deployment completed its rollout,
 the running API contains `load_test_upload_fixtures.py`, and the public gateway
-health check returned healthy. Only readiness checks were made, not a
-production write workload or fixture deletion.
+health check returned healthy. Only readiness checks were made at that time,
+not a production write workload or fixture deletion. Later bounded production
+profile runs, including exact-tag cleanup, are recorded in the
+[Phase 0 evidence report](geodata-phase0-production-evidence-2026-10-08.md).
 
 The [image workflow](https://github.com/myota-platform/myota-geodata-service/blob/main/.github/workflows/build-and-publish.yml)
 gates publication on both harness and Python/database regressions. Pull requests
-run those checks without publishing an image. The roadmap records the five
-representative write profiles as completed against non-production with
-summaries retained; those runs are capacity evidence, unlike this mocked
-transport smoke. The summaries and their matching telemetry are not linked from
-this verification record, so their metrics still need review alongside the
-guarded PostGIS plans. See the
-[Phase 0 evidence review status](geodata-load-test-and-query-evidence.md#phase-0-evidence-review-status).
+run those checks without publishing an image. Earlier non-production
+write-profile summaries remain historical only. The current
+production-targeted profile summaries and query-plan review are linked from the
+[Phase 0 evidence review](geodata-load-test-and-query-evidence.md#phase-0-evidence-review-status).
 Real SeaweedFS transfer/restart qualification remains a separate roadmap gate.
 
 ## Update and recovery

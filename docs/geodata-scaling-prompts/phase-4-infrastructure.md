@@ -42,19 +42,22 @@ pool/query settings. Use measured Phase 0/3 evidence where available. Then:
    behavior as appropriate, graceful termination budgets, disruption budgets,
    and topology spread/anti-affinity for stateless API pods.
 6. Configure API autoscaling from validated resource/latency signals and worker
-   scaling from queue depth/oldest-message age. Define conservative min/max
-   replicas from non-production evidence and preserve database/object-store
-   capacity limits. Do not increase production replicas in this task.
+   scaling from queue depth/oldest-message age. Capacity/load qualification
+   targets the current provisional-production deployment under the current
+   profile caps. Do not change replica counts or autoscaling settings during a
+   load run; any such production change requires a separate approved rollout.
+   Preserve database/object-store capacity limits.
 7. Confirm rate limits, body/request limits, timeouts, queue backpressure, and
    failure responses behave correctly as API and worker replica counts change.
 
 Keep Compose and Helm behavior aligned. Add or update deployment validation and
-documentation. Run configuration rendering and repository checks, but do not
-deploy or change production settings. If evidence for sizing is missing, encode
+documentation. Run configuration rendering and repository checks. Load tests
+must target the current provisional-production API, but configuration changes
+are not implied by test authorization. If evidence for sizing is missing, encode
 safe bounded values only when they are supported by explicit existing capacity
 budgets; otherwise leave the scaling maximum conservative and document the
 measurement needed to raise it. Do not guess resource numbers and present them
-as measured.
+as measured. Do not inject faults or terminate/restart production pods.
 
 Update the roadmap with evidence links and checkboxes supported by tests,
 rendered configuration, and measured load data. At the end, report the volume

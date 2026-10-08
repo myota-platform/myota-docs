@@ -1,0 +1,136 @@
+# Geodata Phase 0 provisional-production evidence — 8 October 2026
+
+This sanitized record covers bounded tests against the user-designated live
+K3s deployment on `spainip.es` (`https://api.myota.top`). Tests ran manually
+from the server using the dedicated test account. Passwords, tokens, database
+URLs, source payloads, and entity identifiers are intentionally omitted. Every
+write profile used the harness's production opt-in and exact-host allowlist;
+all tagged fixtures were successfully removed before the next profile.
+
+## Read-only API baseline
+
+The corrected read-only k6 baseline ran for 60 seconds at 2 VUs on 8 October
+2026. Since the production catalogue is empty, it measured health and paged
+catalogue reads and explicitly skipped map and entity-detail requests.
+
+| Result | Value |
+| --- | ---: |
+| HTTP requests | 161 |
+| Iterations | 80 |
+| HTTP failures | 0 / 161 (0%) |
+| Checks | 162 / 162 passed |
+| Overall HTTP p95 | 7.01 ms |
+| Created application data | None |
+
+This qualifies only health/catalogue behavior at empty-catalogue cardinality;
+it is not evidence for map/detail latency or realistic catalogue load. After
+the user authorized temporary representative records, a second read-only run
+sampled five tagged approved geometries in the Sevilla test extent:
+
+| Result | Value |
+| --- | ---: |
+| Read profile | 2 VUs / 30 seconds |
+| HTTP requests | 121 |
+| Iterations | 30 |
+| HTTP failures | 0 / 121 (0%) |
+| Checks | 122 / 122 passed, including map and entity detail |
+| Overall HTTP p95 | 9.53 ms |
+| Temporary source | Promotion run `lt-1791462249228-237856476` |
+| Cleanup | 5 entities, 1 import and 1 object removed |
+
+Those records were synthetic temporary test geometries, not real park data;
+none remain in the catalogue. Five records exercise the routes but do not
+represent production catalogue cardinality.
+
+## Write-profile results
+
+All runs completed with zero failed HTTP requests, passing checks, and
+successful exact-tag cleanup. Control-plane p95 is reported separately from
+bulk upload timing where the harness provides that dimension.
+
+| Profile / run ID | Bounded settings and work | Result | Cleanup |
+| --- | --- | --- | --- |
+| `large-upload` — `lt-1791461590688-801694184` | 1 VU; one 3,516,069-byte resumable GeoJSON upload | 7 requests; 0 failed; all 3 checks passed; bulk-transfer p95 114.74 ms; control p95 65.62 ms | 1 import, 1 upload session, 1 object removed |
+| `simultaneous-edits` — `lt-1791461617004-887825197` | 5 VUs for 30 s; one shared test-owned entity | 162 requests; 0 failed; 151/151 checks passed; control p95 38.49 ms; 150 edit iterations | 1 import, 1 entity, 1 object removed |
+| `preprocessing` — `lt-1791461662016-281368121` | 1 VU for 30 s; 5 imports × 100 features | 8 requests; 0 failed; 5/5 import checks passed; control p95 55.90 ms | 5 imports and 5 objects removed |
+| `promotion` — `lt-1791461719666-62572792` | 1 VU for 60 s; 1 import × 25 features, validated and promoted | 9 requests; 0 failed; 4/4 checks passed; control p95 88.25 ms | 1 import, 25 entities, 1 object removed |
+| `queue-backlog` — `lt-1791461968069-363347912` | 1 import/s for 30 s; 30 imports × 50 features | 33 requests; 0 failed; 30/30 checks passed; control p95 55.59 ms; one scheduled iteration dropped by the arrival-rate executor | 30 imports and 30 objects removed |
+
+A shorter 10-second queue-backlog run also passed (10 imports accepted, zero
+request failures, all 10 checks passed, control p95 61.80 ms) and cleaned all
+10 imports and objects. The 30-second run is the retained backlog result.
+
+These are low-to-moderate bounded production observations at the current
+single-geodata-API deployment, not a saturation test or a guarantee for a
+future replica count. The upload timing is client-observed end-to-end transfer
+time; it does not isolate SeaweedFS processing time.
+
+## PostGIS query-plan capture
+
+The guarded query-plan tool ran inside the geodata pod with a 5-second
+statement timeout and read-only session while the `promotion` run's 25 tagged
+entities were present. Capture time was `2026-10-08T12:16:11.894233Z`;
+PostgreSQL was `16.4 (Debian 16.4-1.pgdg110+2)`. The table's `pg_class`
+estimate was zero even though 25 temporary rows were present; `EXPLAIN`
+estimated 14 rows for each scan and found 25. Both geometry and geography GiST
+indexes existed. The planner chose sequential scans at this tiny cardinality,
+which is expected and does not establish index behavior at scale.
+
+| Query | Plan | Estimated / actual rows | Execution | Shared buffers / spill |
+| --- | --- | ---: | ---: | --- |
+| Map bounds + intersection | Sequential scan, in-memory quicksort, limit | 14 / 25 | 0.872 ms | 5 shared hits at root; 0 reads; no temp I/O |
+| Catalogue count in bbox | Sequential scan + aggregate | 14 / 25 scanned | 0.025 ms | 2 shared hits; 0 reads; no temp I/O |
+| Catalogue page projection/order | Sequential scan, in-memory quicksort, limit | 14 / 25 | 1.341 ms | 79 shared hits at root; 0 reads; no temp I/O; 37 KiB sort |
+
+No GiST index condition was used. At 25 rows this is not a negative index
+finding. A representative-cardinality plan remains required before drawing
+index or capacity conclusions. The query script also received an explicit
+`text` cast for nullable optional filters after the first read-only capture
+found PostgreSQL could not infer the type of an untyped `NULL`; the corrected
+tool produced all three plans above.
+
+## Worker, broker, and object-storage correlation
+
+During the 30-second queue run, Prometheus was queried for its most recent
+samples and then for the ten-minute maximum. The import queue reached a sampled
+depth of 1 and the oldest queued age reached 0.58 seconds; processing-run gauge
+was 0. JetStream metrics poller health was 1. Across the configured
+`MYOTA_EVENTS` consumers, the sampled ten-minute maximum pending count,
+ack-pending count, redeliveries, and oldest-message age were all zero. The
+latest sample was 6.7 seconds old when freshness was checked. These results
+show no observed sustained broker backlog at one import per second; they do
+not establish maximum worker throughput.
+
+The current Prometheus scrape configuration has only the OpenTelemetry
+Collector as an external target; the Collector scrapes MyOTA services. The
+SeaweedFS Kubernetes service exposes ports 8333 and 8888, but `/metrics` on
+those ports did not return a metrics document, and port 9327 was not reachable
+through the service. No SeaweedFS operation-duration/throughput series were
+available. Therefore object-storage service time and saturation cannot be
+separated from network/gateway time and remain unmeasured.
+
+The production gateway's HTTP telemetry was labelled
+`deployment_environment="development"`, while geodata and activity series
+were labelled production. The chart sets the production environment for domain
+services but the gateway Deployment does not currently pass `MYOTA_ENV`.
+Additionally, sampled gateway `http.route` labels included entity UUIDs and
+load-test run identifiers rather than stable route templates. Do not use
+gateway environment-filtered route totals as production qualification evidence
+until these telemetry-label issues are corrected and redeployed.
+
+## Conclusion and remaining gate
+
+The five bounded write-profile executions and empty-catalogue read baseline
+are now delivered and retained. The query plans prove the tool operates safely
+and the current schema has GiST indexes, but 25 rows are not representative
+cardinality. Worker/broker samples show no sustained backlog at the tested
+rate. There is no service-side SeaweedFS latency metric, and gateway telemetry
+has an incorrect environment value and high-cardinality route labels.
+
+**Phase 0 remains open.** Before checking it off, capture map/catalogue plans
+at representative, safely tagged cardinality; correct and redeploy the
+gateway telemetry environment/route labels; and add or expose meaningful
+SeaweedFS operation metrics so storage can be correlated with uploads. Do not
+retain load fixtures to create cardinality; use exact-tag cleanup and an
+approved, bounded data setup/cleanup procedure. No test changed service
+replicas or injected faults.

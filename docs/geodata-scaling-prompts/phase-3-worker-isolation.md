@@ -19,6 +19,12 @@ The remaining work is to make large-source parsing/candidate persistence
 bounded, and to prove recovery during termination (including forced
 termination) and concurrent multi-worker delivery.
 
+Performance/load profiles use the designated provisional-production API under
+the shared bounded harness. The termination, forced-termination, duplicate
+delivery and multi-worker failure-injection scenarios below are correctness
+tests and must run in CI or an isolated non-production environment, never
+against the live production workers or broker.
+
 Inspect current parsers, enrichment/conflation queries, candidate persistence,
 checkpoints, lease handling, and tests. Implement end-to-end bounded processing:
 

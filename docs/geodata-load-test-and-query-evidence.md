@@ -1,11 +1,20 @@
 # Geodata load tests and query evidence
 
-This runbook defines bounded write workloads and database evidence for the
+This runbook defines bounded workloads and database evidence for the
 [geodata horizontal-scaling roadmap](geodata-horizontal-scaling-roadmap.md).
-Write profiles can target production only through explicit hostname and
-environment acknowledgement, and production fixture cleanup must be enabled
-separately. Production execution is operator-controlled and is never started
-by CI.
+The current policy designates the live K3s environment on `spainip.es`, reached
+through `https://api.myota.top`, as **provisional production and the required
+target for all load/performance qualification**. Production-targeted test
+results are provisional capacity evidence for this specific deployment, not a
+general production-readiness guarantee. Run one profile at a time, use a
+dedicated test account, retain exact-tag cleanup, stop on unexpected errors or
+resource pressure, and preserve every harness acknowledgement and hard cap.
+
+This policy applies to load and performance tests only. Unit/integration tests
+and destructive failure-injection, restart, or chaos exercises remain isolated
+from the live deployment; they must run in CI or a separate test environment.
+Production runs are manually initiated, never run by CI, and require the
+explicit hostname/environment acknowledgement described below.
 
 ## Workload profiles
 
@@ -35,8 +44,9 @@ caps are 5,000 features for `large-upload` (2,500 by default), one for
 make one upload iteration per VU and send parts no larger than 16 MiB.
 
 These are the implementation's hard bounds, not recommended operating
-settings. Use only the profile settings approved for the non-production
-qualification environment and preserve all guards.
+settings. For provisional-production qualification, begin at the lowest
+meaningful profile size and increase only after checking service health and
+the corresponding Grafana signals. Preserve all guards.
 
 Non-production runs require all three protections:
 
@@ -48,9 +58,10 @@ Non-production runs require all three protections:
 3. `MYOTA_LOAD_TEST_ALLOW_NONPROD=YES` must be supplied explicitly.
 
 Production mode has separate opt-ins and exact-host allowlisting, but it uses
-the same code-level caps shown above. Production is not an acceptable target
-for this roadmap's qualification evidence. Use a dedicated global-admin
-account created for the target environment; never
+the same code-level caps shown above. Under the current policy, only
+`api.myota.top` is the qualification target; do not redirect production runs
+to another cluster and call them equivalent. Use a dedicated global-admin
+test account; never
 put credentials in the repository or command history. Production tests should
 use a dedicated test administrator, not an everyday operator account.
 
@@ -201,10 +212,15 @@ also exports:
 
 For an actual PostgreSQL execution plan, use
 [`geodata-query-plan-evidence.py`](https://github.com/myota-platform/myota-geodata-service/blob/main/scripts/geodata-query-plan-evidence.py)
-against a development, test, or staging database. It requires
-`MYOTA_ENV=development|test|staging` and
-`MYOTA_ALLOW_EXPLAIN_ANALYZE=YES`, rejects production-like database hostnames,
-sets the session read-only, and bounds the requested extent and row limit. Its
+against the current provisional-production PostGIS database for qualification.
+It requires `MYOTA_ENV=production`,
+`MYOTA_ALLOW_EXPLAIN_ANALYZE=YES`,
+`MYOTA_ALLOW_PRODUCTION_EXPLAIN=YES`, and an exact database-host match in
+`MYOTA_PRODUCTION_GEO_DATABASE_HOSTS`. Non-production mode remains available
+for development checks, but does not qualify the production capacity gates.
+The script sets the session read-only, applies a 5-second default statement
+timeout (hard maximum 30 seconds), and bounds the requested extent and row
+limit. Its
 JSON output contains the timestamp, environment/database host, server version,
 estimated entity cardinality, GiST index definitions, and
 `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)`
@@ -226,8 +242,24 @@ python3 myota-geodata-service/scripts/geodata-query-plan-evidence.py \
   --output /tmp/myota-postgis-query-plan.json
 ```
 
+For production, run the tool from the geodata API pod or another controlled
+host with network access to the production PostGIS service. Do not put the
+database URL in a command argument or print it. The exact host allowlist must
+contain only `myota-geo-postgis` for the current K3s deployment. Example
+environment acknowledgements (the database URL comes from the pod's existing
+secret-backed environment and is not echoed):
+
+```bash
+MYOTA_ENV=production \
+MYOTA_ALLOW_EXPLAIN_ANALYZE=YES \
+MYOTA_ALLOW_PRODUCTION_EXPLAIN=YES \
+MYOTA_PRODUCTION_GEO_DATABASE_HOSTS=myota-geo-postgis \
+python3 scripts/geodata-query-plan-evidence.py \
+  --bbox=-5.99,37.37,-5.90,37.43 --limit=250
+```
+
 The report is evidence, not a tuning conclusion: run it with representative
-non-production cardinality and selectivity, inspect whether the spatial and
+provisional-production cardinality and selectivity, inspect whether the spatial and
 catalogue indexes are used, compare buffers and actual rows to estimates, and
 retain the report with the associated workload summary. Record each plan's
 planning/execution time, node type and index condition, estimated versus
@@ -240,53 +272,44 @@ planner's row estimate rather than running an unbounded exact `count(*)`.
 
 ## Phase 0 evidence review status
 
-The roadmap records all five write profiles as completed in a non-production
-deployment with result summaries retained. This checkout does not contain or
-link those per-profile result artifacts, so their numeric outcomes and
-corresponding telemetry windows could not be independently reviewed here; the
-execution checkbox remains complete and is not being rerun or reopened. The
-query-plan tool has been extended to capture the map and catalogue plans, but
-no plan report was produced because no non-production geodatabase connection
-or deployment credentials/configuration are available in this workspace.
+The sanitized **[8 October production evidence record](geodata-phase0-production-evidence-2026-10-08.md)** contains the
+run IDs, profile limits and results, cleanup receipts, baseline summaries,
+query-plan review, and measured telemetry limits. All five bounded write
+profiles passed against the designated `myota` K3s deployment on `spainip.es`
+(`api.myota.top`) and cleaned their tagged data. Earlier non-production
+summaries remain historical and do not qualify these current gates.
 
-| Write profile | Execution gate | Summary review in this pass |
-| --- | --- | --- |
-| `large-upload` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
-| `simultaneous-edits` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
-| `preprocessing` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
-| `promotion` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
-| `queue-backlog` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
+The empty-catalogue read run passed health and paged-list checks; a separate
+read-only run used five temporary approved test geometries to exercise map and
+detail reads, then the source promotion run removed them. Neither run created
+permanent seed entities. Both are small-cardinality checks, not a realistic
+catalogue-capacity benchmark.
 
-The only discoverable live MyOTA Kubernetes namespace is `myota`; it is the
-live deployment, not a distinct non-production target, and was not queried or
-load-tested. Local Colima is not running. Do not use that live deployment as a
-substitute for non-production evidence.
+The guarded production plan tool produced map, catalogue-count, and
+catalogue-page plans with short execution times, but only 25 tagged rows were
+present. The planner selected sequential scans, as expected for this tiny
+table; this does not determine whether indexes serve a large catalogue. Plan
+review at representative cardinality remains open.
 
-No service-side object-storage operation-duration metric was found in the
-geodata storage adapter. The load test's bulk-transfer timing is end-to-end
-client timing (network, gateway, object storage, and transfer), not isolated
-SeaweedFS latency. Therefore it cannot, by itself, attribute an object-storage
-bottleneck. Worker queue and JetStream metrics exist, but need the matching
-retained run time windows to correlate them with each profile. No bottleneck
-conclusion is drawn from absent data.
+During the 30-import/30-second backlog profile, the ten-minute Prometheus
+window recorded a maximum import queue depth of 1 and maximum queued age of
+0.58 seconds. JetStream pending, ack-pending, redeliveries, and oldest-message
+age stayed at zero in the sampled series. This shows no observed sustained
+broker lag at one import per second, not maximum worker capacity.
 
-To close the evidence review without rerunning completed profiles, provide:
+Object-storage service latency is still unmeasured: the exposed SeaweedFS
+service ports did not provide a `/metrics` document and the current Prometheus
+configuration does not scrape SeaweedFS. The upload p95 is end-to-end client
+timing and cannot isolate SeaweedFS. In addition, the production gateway
+series were labelled `development` and route labels included request IDs;
+domain-service series were labelled production. Correct and redeploy those
+gateway labels before using them as production route evidence.
 
-1. Sanitized, durable links or files for the retained `large-upload`,
-   `simultaneous-edits`, `preprocessing`, `promotion`, and `queue-backlog`
-   summaries, with run IDs, dates, non-production environment alias, actual
-   VUs/duration/profile caps, threshold outcomes, request failure counts, and
-   cleanup confirmation. Include the corresponding Grafana/Prometheus time
-   windows for PostGIS, object storage, worker queues, and JetStream.
-2. A non-production `GEO_DATABASE_URL` supplied through the operator's local
-   secret manager/environment (never committed or printed), plus
-   `MYOTA_ENV=staging` (or `development`/`test`) and
-   `MYOTA_ALLOW_EXPLAIN_ANALYZE=YES`, so the guarded tool can save its JSON
-   report; alternatively, the operator can run it in that environment and
-   provide the sanitized output.
-
-Until those artifacts and the representative plan report are reviewed, Phase
-0 remains incomplete. The write-profile execution gate remains complete.
+**Phase 0 remains open.** The remaining evidence gates are representative-scale
+PostGIS plans, reliable gateway environment/stable-route metrics, and
+SeaweedFS operation metrics (or equivalent bounded instrumentation). Do not
+check off scale-level conclusions from five or 25 temporary rows, zero sampled
+broker lag, or end-to-end upload timing alone.
 
 ## JetStream consumer lag
 

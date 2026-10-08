@@ -13,6 +13,12 @@ pages and inspect the live implementation before changing anything:
 - `myota-docs/docs/geodata-load-test-upload-verification.md`
 - `myota-docs/docs/repository-map.md`
 
+The current project premise sends upload/load-performance profiles to the
+provisional-production API. This Phase 2 prompt is specifically about
+destructive interruption and recovery: those checks must remain in CI or an
+isolated non-production environment and must never restart the live production
+API or SeaweedFS service.
+
 The resumable upload-session API, bounded 16 MiB part handling, durable object
 handoff, browser pause/resume/discard, checksum verification, and removal of
 the shared upload-spool PVC are implemented. The remaining gate is to prove

@@ -269,23 +269,21 @@ outbox rows waiting to publish and database import queue state. The
 [`geodata load and query-evidence runbook`](geodata-load-test-and-query-evidence.md)
 documents profile safety, cleanup, metrics, and read-only query-plan capture.
 
-The repeatable external baseline uses Grafana k6, available on macOS through
-Homebrew. See the [geodata service load-test instructions](https://github.com/myota-platform/myota-geodata-service#read-only-load-baseline-grafana-k6).
-It defaults to `https://api.myota.top`, requires `MYOTA_ALLOW_PRODUCTION=YES`,
-and is read-only: it samples up to ten public entities in memory, caps the run
-at four virtual users/five minutes, and creates no application records or
-objects. Therefore no production fixture cleanup is needed after success; the
-ordinary operational telemetry is retained. This baseline does not test large
-uploads, writes, or synthetic high-cardinality data. Do not treat it as a
-stress test.
+The repeatable external load tests use Grafana k6. The current
+user-designated provisional-production target is the K3s deployment on
+`spainip.es`, reached through `https://api.myota.top`. All performance/load
+qualification profiles must target that deployment and run sequentially with
+the documented hard caps, explicit production acknowledgement, dedicated test
+account, and successful exact-tag cleanup. The read-only baseline creates no
+application records; write profiles do, and their cleanup verifies there are
+no linked activities or award progress. See the [geodata load-test
+instructions](geodata-load-test-and-query-evidence.md) and
+[roadmap](geodata-horizontal-scaling-roadmap.md#test-environment-premise--8-october-2026).
 
-Separate upload, simultaneous-edit, preprocessing, promotion, and sustained
-queue-backlog profiles are mutating and non-production-only. They refuse
-production-like hostnames and require a staging/test/development acknowledgement;
-successful k6 teardown deletes tagged fixtures only after checking for linked
-activity and award progress. Do not point these profiles at `api.myota.top`.
-Their status and execution evidence are tracked in the
-[geodata scaling roadmap](geodata-horizontal-scaling-roadmap.md#phase-0--establish-a-measurable-baseline).
+Unit/integration checks and destructive fault-injection, restart, termination,
+queue-redrive, and untagged cleanup scenarios are not load profiles and must
+remain in CI or an isolated non-production environment. The production load
+policy does not authorize replica/configuration changes or service restarts.
 
 Use `make verify-phase4` after rebuilding the durable stack. It runs the
 authorization, idempotency, audit, activity, award, and geodata regression
@@ -308,7 +306,7 @@ replicas independently from geodata API replicas. Each replica limits JetStream
 ack-pending work to one message per consumer. The parser and some broad candidate
 and spatial traversals still materialize large objects in worker memory, but
 there is no authoritative whole-catalogue snapshot. Do not increase worker concurrency before completing the
-remaining streaming/batched processing and non-production load evidence. A
+remaining streaming/batched processing and provisional-production load evidence. A
 large run should be allowed to finish before validation/finalization; do not
 remove database or object-store volumes to recover from a transient outage.
 

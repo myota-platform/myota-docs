@@ -9,6 +9,24 @@ This checklist records the work needed before increasing the
 Geodata API beyond one replica in production. The baseline does not make the
 current service horizontally safe.
 
+### Test-environment premise — 8 October 2026
+
+The user-designated **provisional production** target is the current K3s
+deployment on `spainip.es`, reached through `https://api.myota.top`. All
+load/performance qualification for this roadmap—including read, upload,
+preprocessing, promotion, queue, and API-capacity profiles—must target this
+deployment. Earlier non-production load results remain historical records but
+do not qualify this policy's capacity gates. Run profiles sequentially with a
+dedicated test account, existing hard caps and exact-tag cleanup; retain the
+production opt-ins and stop conditions. Production runs are manual, never CI.
+
+This does not authorize destructive fault injection, service/pod termination,
+database or object-store restart, queue redrive, cleanup of untagged data, or
+production replica/configuration changes. Those correctness and recovery
+exercises remain CI or isolated-test-environment work. Production load results
+describe only the current provisional deployment and are not a guarantee for a
+future production footprint.
+
 The goal is to scale the HTTP API independently from large dataset processing
 while preserving entity, review, import, provenance, and audit correctness.
 PostgreSQL/PostGIS remains the system of record; object storage remains the
@@ -109,23 +127,31 @@ executor queue, or pod filesystem is authoritative for accepted work.
 
 ChatGPT implementation prompt: [review remaining query and bottleneck evidence](geodata-scaling-prompts/phase-0-baseline.md).
 
-- [x] Define a bounded production-safe workload for health, paged catalogue,
-  bounding-box catalogue, and entity-detail reads. This is a closed-loop
-  read-only profile (2 VUs/60s by default; hard cap 4 VUs/5m), not a write,
-  import, or stress test. See the [geodata service k6 instructions](https://github.com/myota-platform/myota-geodata-service#read-only-load-baseline-grafana-k6).
-- [x] Define isolated representative workload profiles for large uploads,
+- [x] Define and run a bounded production-safe workload for health, paged
+  catalogue, bounding-box catalogue, and entity-detail reads. It defaults to
+  2 VUs/60s and is capped at 50 VUs/5m. The 2-VU/60s empty-catalogue run
+  passed health/page reads; a separate 2-VU/30s run with five temporary tagged
+  geometries passed map/detail reads. Both are documented in the
+  [production evidence record](geodata-phase0-production-evidence-2026-10-08.md).
+  Qualification uses the current provisional-production
+  deployment; see the [geodata service k6 instructions](https://github.com/myota-platform/myota-geodata-service#read-only-load-baseline-grafana-k6).
+- [x] Define bounded representative workload profiles for large uploads,
   simultaneous edits, preprocessing, promotion, and sustained queue backlog.
   They require explicit environment acknowledgement and exact host allowlisting;
-  production additionally requires its own opt-in, retains hard safety caps,
-  and requires separately enabled production cleanup. All profiles clean tagged
-  fixtures on successful completion. See the [workload and query-evidence runbook](geodata-load-test-and-query-evidence.md)
+  the current qualification target additionally requires its production opt-in,
+  retains hard safety caps, and uses separately enabled production cleanup. All
+  five profiles passed against provisional production and cleaned tagged
+  fixtures. See the [production evidence record](geodata-phase0-production-evidence-2026-10-08.md),
+  [workload and query-evidence runbook](geodata-load-test-and-query-evidence.md),
   and the [k6 profile implementation](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/geodata-workloads.js).
-- [x] Execute each write profile in a non-production deployment and retain its
-  result summary. Qualification for this roadmap must use non-production;
-  the separately gated production tool mode is not evidence that this gate passed.
-  The execution gate is complete and is not being reopened. The profile-by-
-  profile review and artifact availability are tracked in the
-  [Phase 0 evidence review](geodata-load-test-and-query-evidence.md#phase-0-evidence-review-status).
+- [x] Record the earlier non-production write-profile runs and retained
+  summaries as historical results. They do not qualify the current
+  provisional-production capacity gates.
+- [x] Run the five bounded write profiles against the current provisional
+  production target, one at a time, using the dedicated test account and
+  successful exact-tag cleanup. Retain run IDs, settings and summaries in the
+  [production evidence record](geodata-phase0-production-evidence-2026-10-08.md).
+  Do not weaken caps or run profiles in CI.
 - [x] Reconcile large-upload profiles with the resumable upload contract and
   remove tagged terminal session/part records during cleanup. Add automated
   upload/abort/checksum/cleanup regressions and a real-k6 localhost transport
@@ -139,8 +165,9 @@ ChatGPT implementation prompt: [review remaining query and bottleneck evidence](
   pool-wait time, active connections, max connections, and lock waits.
 - [x] Add query-level slow-query counters and dedicated PostGIS timings for
   bounding-box reads and entity upserts. Provide a guarded, read-only
-  `EXPLAIN (ANALYZE, BUFFERS)` evidence tool for development, test, or staging;
-  the API latency histogram is kept separate from query execution time. See
+  `EXPLAIN (ANALYZE, BUFFERS)` evidence tool with a separate exact-host
+  production acknowledgement and statement-time bound; the API latency
+  histogram is kept separate from query execution time. See
   the [query-evidence runbook](geodata-load-test-and-query-evidence.md) and
   [evidence tool](https://github.com/myota-platform/myota-geodata-service/blob/main/scripts/geodata-query-plan-evidence.py).
 - [x] Export durable geodata import queue depth/age, processing heartbeat age,
@@ -155,21 +182,23 @@ ChatGPT implementation prompt: [review remaining query and bottleneck evidence](
 - [x] Provision a separate **MyOTA JetStream backlog and PostGIS query
   performance** dashboard in Compose and Helm, with broker-lag and dedicated
   PostGIS query percentiles/slow-query panels.
-- [x] Add a repeatable macOS Grafana k6 script. It samples at most ten public
-  production entities in memory and makes no application writes or uploads;
-  there are no persisted fixture records or objects to clean up after success.
-  The script also refuses production runs without an explicit acknowledgement.
+- [x] Add a repeatable Grafana k6 script. It samples at most ten public
+  entities in memory and makes no application writes or uploads; if the
+  catalogue is empty, it clearly skips map/detail requests and still measures
+  health/catalogue reads. The script refuses production runs without explicit
+  acknowledgement.
+- [ ] Review query plans at representative catalogue cardinality and correlate
+  storage and worker measurements. The bounded production plan capture used
+  only 25 temporary rows; see the [evidence limitations and next steps](geodata-phase0-production-evidence-2026-10-08.md#conclusion-and-remaining-gate).
 
-**Exit criteria: partially met.** The production-safe read baseline and
-explicitly gated write profiles are implemented, and the dashboards now separate
-API latency, query time/plan evidence, durable import state, and JetStream
-consumer lag. All write profiles have been run in a non-production deployment
-and their result summaries retained. Phase 0 remains open until representative
-query-plan/load evidence has been reviewed for PostGIS, object storage, and
-worker bottlenecks. The evidence review page records that this checkout lacks
-the retained per-profile artifact links and a safe non-production database
-connection; it also documents the object-storage attribution gap. The workload
-execution checkbox above remains complete.
+**Exit criteria: open.** The read-only baseline and all five write profiles
+have passed against provisional production with cleanup. The query tool works
+and its plans have been reviewed, but the plan fixture is too small to qualify
+index use at scale. SeaweedFS operation latency is not exposed in the current
+scrape configuration, and gateway environment/route labels need correction
+before its endpoint series can serve as reliable production evidence. See the
+[production evidence record](geodata-phase0-production-evidence-2026-10-08.md)
+and [evidence review](geodata-load-test-and-query-evidence.md#phase-0-evidence-review-status).
 
 ### Phase 1 — remove cross-replica mutable process state
 
@@ -332,14 +361,18 @@ ChatGPT implementation prompt: [complete staged rollout and operational proof](g
   and [Phase 1 test inventory](geodata-phase1-relational-authority.md#recorded-validation).
 - [ ] Add and pass forced worker-recovery and API/object-storage restart
   failure-injection tests in CI.
-- [ ] Load-test the API at one, two, and increasing replica counts; verify
-  throughput and latency improve without shifting saturation to Postgres or
-  object storage.
+- [ ] Load-test the current provisional-production API at its deployed replica
+  count; verify throughput and latency without shifting saturation to Postgres
+  or object storage. Testing other replica counts requires a separately
+  approved production rollout/change window; do not change replicas as part of
+  a load run.
 - [ ] Exercise large-file upload, interrupted client upload, receiver-pod
   termination, worker termination, duplicate event delivery, and SeaweedFS
   restart scenarios.
-- [ ] Deploy a two-replica canary in a non-production environment and compare
-  error rate, latency, lost/duplicate work, DB pool waits, and JetStream lag.
+- [ ] Run a bounded provisional-production canary at the currently deployed
+  replica count and compare error rate, latency, DB pool waits, object-store
+  metrics and JetStream lag. Any production replica change is a separate
+  operator-approved rollout, not an implicit load-test step.
 - [x] Document the Phase 1 write fence, coordinated API/worker rollout and
   rollback restrictions in the [migration/rollout record](geodata-phase1-relational-authority.md#migration-and-rollout).
 - [ ] Complete and drill the end-to-end operational rollback, in-flight import
