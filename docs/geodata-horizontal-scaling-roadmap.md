@@ -118,7 +118,7 @@ executor queue, or pod filesystem is authoritative for accepted work.
   and requires separately enabled production cleanup. All profiles clean tagged
   fixtures on successful completion. See the [workload and query-evidence runbook](geodata-load-test-and-query-evidence.md)
   and the [k6 profile implementation](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/geodata-workloads.js).
-- [ ] Execute each write profile in a non-production deployment and retain its
+- [x] Execute each write profile in a non-production deployment and retain its
   result summary. Qualification for this roadmap must use non-production;
   the separately gated production tool mode is not evidence that this gate passed.
 - [x] Reconcile large-upload profiles with the resumable upload contract and
@@ -158,9 +158,10 @@ executor queue, or pod filesystem is authoritative for accepted work.
 **Exit criteria: partially met.** The production-safe read baseline and
 explicitly gated write profiles are implemented, and the dashboards now separate
 API latency, query time/plan evidence, durable import state, and JetStream
-consumer lag. Phase 0 remains open until all write profiles have been run in a
-non-production deployment and representative query-plan/load evidence has been
-reviewed for PostGIS, object storage, and worker bottlenecks.
+consumer lag. All write profiles have been run in a non-production deployment
+and their result summaries retained. Phase 0 remains open until representative
+query-plan/load evidence has been reviewed for PostGIS, object storage, and
+worker bottlenecks.
 
 ### Phase 1 — remove cross-replica mutable process state
 
