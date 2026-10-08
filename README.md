@@ -41,6 +41,7 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
 
 ## Documentation map
 
+- **Implementation history** — [Reconstructed cross-repository timeline](docs/changes.md).
 - **Purpose and status** — [Detailed hierarchical documentation index](docs/README.md),
   [project charter](docs/project-charter.md), [charter gap analysis](docs/charter-gap-analysis.md).
 - **Architecture and decisions** — [architecture](docs/architecture.md),

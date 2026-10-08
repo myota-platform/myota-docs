@@ -13,6 +13,7 @@ Status in plans and evidence:
 
 ## 1. Mission, governance, and current gaps
 
+- [Reconstructed cross-repository implementation timeline](changes.md)
 - [Project purpose, motivation, and charter](project-charter.md)
 - [Charter gap analysis and delivery sequence](charter-gap-analysis.md)
 - [Programme configuration gap analysis](programme-configuration-gap-analysis.md)
