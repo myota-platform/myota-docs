@@ -21,6 +21,23 @@ It uses Grafana k6, available on macOS through `brew install k6`.
 | `promotion` | Preprocess, validate, and enqueue selected candidates | Exercises the approval queue and creates tagged approved entities |
 | `queue-backlog` | Steady accepted submissions without waiting on workers | Builds a bounded import-worker queue for backlog observation |
 
+### Current harness caps
+
+The limits below are read from the current harness and apply regardless of
+target environment. The harness currently permits at most 50 VUs and a
+duration of 1 second through 10 minutes. Defaults are 3 VUs for
+`large-upload`, 8 for the other write profiles, and 2 minutes. Profile-specific
+caps are 5,000 features for `large-upload` (2,500 by default), one for
+`simultaneous-edits`, 50 for `queue-backlog`, 25 for `promotion`, and 100 for
+`preprocessing`. Imports per VU are capped at 30 for `queue-backlog`, 2 for
+`promotion`, and 5 for the other profiles. Per-feature padding is capped at
+4 KiB, and `queue-backlog` is limited to one submission per second. Uploads
+make one upload iteration per VU and send parts no larger than 16 MiB.
+
+These are the implementation's hard bounds, not recommended operating
+settings. Use only the profile settings approved for the non-production
+qualification environment and preserve all guards.
+
 Non-production runs require all three protections:
 
 1. `MYOTA_ENV` must be `development`, `test`, or `staging`.
@@ -30,23 +47,10 @@ Non-production runs require all three protections:
    the `spainip.es` domain are rejected independently of that allowlist.
 3. `MYOTA_LOAD_TEST_ALLOW_NONPROD=YES` must be supplied explicitly.
 
-Production runs instead require `MYOTA_ENV=production`,
-`MYOTA_LOAD_TEST_ALLOW_PRODUCTION=YES`, and an exact hostname entry in
-`MYOTA_LOAD_TEST_PRODUCTION_HOSTS`. Known production hosts still have to be
-explicitly listed. Existing per-profile hard caps remain in force in
-production: 10 minutes, 20 VUs (8 uploads), feature and import caps, 4 KiB
-maximum padding per feature, and at most one queue-backlog submission per
-second. These are intentional safety bounds, not configurable away for a
-production target.
-
-The harness caps duration at 10 minutes, ordinary profiles at 20 VUs, uploads
-at 8 VUs, features per import at 100 (50 for queue backlog; 25 for promotion;
-5,000 for uploads), and submissions at five per VU (30 for queue backlog; two
-for promotion). Upload features include 1 KiB synthetic
-padding by default, adjustable up to 4 KiB per feature, so the file exercises
-transfer/storage as well as geometry parsing. The steady backlog profile is
-capped at one submission per second.
-Use a dedicated global-admin account created for the target environment; never
+Production mode has separate opt-ins and exact-host allowlisting, but it uses
+the same code-level caps shown above. Production is not an acceptable target
+for this roadmap's qualification evidence. Use a dedicated global-admin
+account created for the target environment; never
 put credentials in the repository or command history. Production tests should
 use a dedicated test administrator, not an everyday operator account.
 
@@ -202,9 +206,14 @@ against a development, test, or staging database. It requires
 `MYOTA_ALLOW_EXPLAIN_ANALYZE=YES`, rejects production-like database hostnames,
 sets the session read-only, and bounds the requested extent and row limit. Its
 JSON output contains the timestamp, environment/database host, server version,
-row count, GiST index definitions, and `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)`
-plan. Review the output before sharing because plan details reveal schema and
-index metadata.
+estimated entity cardinality, GiST index definitions, and
+`EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)`
+plans for the map-bounds query, the paged entity-catalogue count, and the
+catalogue page projection/order. Review the output before sharing because plan
+details reveal schema and index metadata. The catalogue page uses the same
+bounding-box filter, `ORDER BY lower(name), id`, page limit, and projected
+entity fields as the relational catalogue implementation; it is not a generic
+stand-in query.
 
 Example:
 
@@ -218,9 +227,66 @@ python3 myota-geodata-service/scripts/geodata-query-plan-evidence.py \
 ```
 
 The report is evidence, not a tuning conclusion: run it with representative
-non-production cardinality and selectivity, inspect whether the spatial index
-is used, compare buffers and actual rows to estimates, and retain the report
-with the associated workload summary.
+non-production cardinality and selectivity, inspect whether the spatial and
+catalogue indexes are used, compare buffers and actual rows to estimates, and
+retain the report with the associated workload summary. Record each plan's
+planning/execution time, node type and index condition, estimated versus
+actual rows, loops, shared hit/read blocks, and any sort/hash spill. Do not
+infer service capacity from one plan or a tiny fixture.
+Each statement is read-only and subject to a 5-second default statement
+timeout, adjustable only up to 30 seconds with `--statement-timeout-ms`; the
+output records the selected timeout. Whole-table cardinality is taken from the
+planner's row estimate rather than running an unbounded exact `count(*)`.
+
+## Phase 0 evidence review status
+
+The roadmap records all five write profiles as completed in a non-production
+deployment with result summaries retained. This checkout does not contain or
+link those per-profile result artifacts, so their numeric outcomes and
+corresponding telemetry windows could not be independently reviewed here; the
+execution checkbox remains complete and is not being rerun or reopened. The
+query-plan tool has been extended to capture the map and catalogue plans, but
+no plan report was produced because no non-production geodatabase connection
+or deployment credentials/configuration are available in this workspace.
+
+| Write profile | Execution gate | Summary review in this pass |
+| --- | --- | --- |
+| `large-upload` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
+| `simultaneous-edits` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
+| `preprocessing` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
+| `promotion` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
+| `queue-backlog` | Completed in non-production; retained per roadmap | Blocked: artifact/link and run telemetry window not available here |
+
+The only discoverable live MyOTA Kubernetes namespace is `myota`; it is the
+live deployment, not a distinct non-production target, and was not queried or
+load-tested. Local Colima is not running. Do not use that live deployment as a
+substitute for non-production evidence.
+
+No service-side object-storage operation-duration metric was found in the
+geodata storage adapter. The load test's bulk-transfer timing is end-to-end
+client timing (network, gateway, object storage, and transfer), not isolated
+SeaweedFS latency. Therefore it cannot, by itself, attribute an object-storage
+bottleneck. Worker queue and JetStream metrics exist, but need the matching
+retained run time windows to correlate them with each profile. No bottleneck
+conclusion is drawn from absent data.
+
+To close the evidence review without rerunning completed profiles, provide:
+
+1. Sanitized, durable links or files for the retained `large-upload`,
+   `simultaneous-edits`, `preprocessing`, `promotion`, and `queue-backlog`
+   summaries, with run IDs, dates, non-production environment alias, actual
+   VUs/duration/profile caps, threshold outcomes, request failure counts, and
+   cleanup confirmation. Include the corresponding Grafana/Prometheus time
+   windows for PostGIS, object storage, worker queues, and JetStream.
+2. A non-production `GEO_DATABASE_URL` supplied through the operator's local
+   secret manager/environment (never committed or printed), plus
+   `MYOTA_ENV=staging` (or `development`/`test`) and
+   `MYOTA_ALLOW_EXPLAIN_ANALYZE=YES`, so the guarded tool can save its JSON
+   report; alternatively, the operator can run it in that environment and
+   provide the sanitized output.
+
+Until those artifacts and the representative plan report are reviewed, Phase
+0 remains incomplete. The write-profile execution gate remains complete.
 
 ## JetStream consumer lag
 

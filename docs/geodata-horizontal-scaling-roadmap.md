@@ -121,6 +121,9 @@ executor queue, or pod filesystem is authoritative for accepted work.
 - [x] Execute each write profile in a non-production deployment and retain its
   result summary. Qualification for this roadmap must use non-production;
   the separately gated production tool mode is not evidence that this gate passed.
+  The execution gate is complete and is not being reopened. The profile-by-
+  profile review and artifact availability are tracked in the
+  [Phase 0 evidence review](geodata-load-test-and-query-evidence.md#phase-0-evidence-review-status).
 - [x] Reconcile large-upload profiles with the resumable upload contract and
   remove tagged terminal session/part records during cleanup. Add automated
   upload/abort/checksum/cleanup regressions and a real-k6 localhost transport
@@ -161,7 +164,10 @@ API latency, query time/plan evidence, durable import state, and JetStream
 consumer lag. All write profiles have been run in a non-production deployment
 and their result summaries retained. Phase 0 remains open until representative
 query-plan/load evidence has been reviewed for PostGIS, object storage, and
-worker bottlenecks.
+worker bottlenecks. The evidence review page records that this checkout lacks
+the retained per-profile artifact links and a safe non-production database
+connection; it also documents the object-storage attribution gap. The workload
+execution checkbox above remains complete.
 
 ### Phase 1 — remove cross-replica mutable process state
 

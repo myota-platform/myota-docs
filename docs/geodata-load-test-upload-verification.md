@@ -61,9 +61,14 @@ production write workload or fixture deletion.
 
 The [image workflow](https://github.com/myota-platform/myota-geodata-service/blob/main/.github/workflows/build-and-publish.yml)
 gates publication on both harness and Python/database regressions. Pull requests
-run those checks without publishing an image. Real SeaweedFS transfer/restart
-qualification and all representative non-production workload runs remain
-separate roadmap gates; a mocked protocol server cannot establish capacity.
+run those checks without publishing an image. The roadmap records the five
+representative write profiles as completed against non-production with
+summaries retained; those runs are capacity evidence, unlike this mocked
+transport smoke. The summaries and their matching telemetry are not linked from
+this verification record, so their metrics still need review alongside the
+guarded PostGIS plans. See the
+[Phase 0 evidence review status](geodata-load-test-and-query-evidence.md#phase-0-evidence-review-status).
+Real SeaweedFS transfer/restart qualification remains a separate roadmap gate.
 
 ## Update and recovery
 
