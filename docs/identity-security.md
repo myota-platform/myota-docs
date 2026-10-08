@@ -49,8 +49,12 @@ provider adapter and deployment secret store, never in public programme config.
 ## Privacy and abuse controls
 
 Accounts can export their account, roles, evidence and security events, or
-deactivate with anonymization. Login attempts are rate-limited by email/IP,
-failed credentials temporarily lock an account, and login/recovery/role/session
-events are auditable through the durable outbox. Retention jobs should purge
-expired recovery tokens, revoked sessions and security events according to the
-deployment's policy.
+deactivate with anonymization. The general login-attempt throttle is keyed by
+email and source address; accounts assigned the built-in `GLOBAL_OPERATOR`
+role bypass that throttle to avoid locking out platform administrators during
+repeated legitimate sign-ins. The separate temporary account lock after five
+invalid passwords still applies to global operators. Other accounts remain
+subject to both controls. Login/recovery/role/session events are auditable
+through the durable outbox. Retention jobs should purge expired recovery
+tokens, revoked sessions and security events according to the deployment's
+policy.
