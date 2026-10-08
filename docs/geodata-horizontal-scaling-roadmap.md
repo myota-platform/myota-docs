@@ -107,6 +107,8 @@ executor queue, or pod filesystem is authoritative for accepted work.
 
 ### Phase 0 — establish a measurable baseline
 
+ChatGPT implementation prompt: [review remaining query and bottleneck evidence](geodata-scaling-prompts/phase-0-baseline.md).
+
 - [x] Define a bounded production-safe workload for health, paged catalogue,
   bounding-box catalogue, and entity-detail reads. This is a closed-loop
   read-only profile (2 VUs/60s by default; hard cap 4 VUs/5m), not a write,
@@ -206,6 +208,8 @@ serialized or return an explicit conflict.
 
 ### Phase 2 — make upload handoff durable without a shared pod volume
 
+ChatGPT implementation prompt: [test upload recovery across restarts](geodata-scaling-prompts/phase-2-upload-recovery.md).
+
 - [x] Design an upload-session record with explicit states, owner, filename,
   expected size, checksum, object key, expiry, and completion status.
 - [x] Test SeaweedFS multipart create/upload/complete/read-checksum/delete and
@@ -236,6 +240,8 @@ against the pinned local SeaweedFS image. API-session resume after API/SeaweedFS
 restart must still pass against the deployed image before this phase can close.
 
 ### Phase 3 — isolate preprocessing and promotion from API pods
+
+ChatGPT implementation prompt: [implement bounded workers and failure recovery](geodata-scaling-prompts/phase-3-worker-isolation.md).
 
 - [x] Make the API write a durable import/job row and transactional outbox
   event, then return; remove API-local submission of durable preprocessing or
@@ -286,6 +292,8 @@ production replica increases. Apply the [write-fenced migration/rollout
 procedure](geodata-phase1-relational-authority.md#migration-and-rollout) first;
 then complete the infrastructure and operational gates below.
 
+ChatGPT implementation prompt: [review infrastructure and scaling constraints](geodata-scaling-prompts/phase-4-infrastructure.md).
+
 - [x] Remove the geodata API's shared `ReadWriteOnce` upload-spool dependency;
   see [Phase 2](#phase-2--make-upload-handoff-durable-without-a-shared-pod-volume).
 - [ ] Review all other volumes mounted by API pods before increasing replicas.
@@ -316,6 +324,8 @@ queue, database-connection, or availability constraints.
 Current CI now covers relational migrations, concurrent independent repositories,
 promotion replay, migration replay, and two actual API processes. Large-source
 memory, forced termination, storage restart and load/canary proof remain open.
+
+ChatGPT implementation prompt: [complete staged rollout and operational proof](geodata-scaling-prompts/phase-5-rollout.md).
 
 - [x] Run contract, integration, migration/replay and independent-instance
   concurrency checks in CI; see the [delivery evidence](#latest-delivery-and-evidence--7-october-2026)
