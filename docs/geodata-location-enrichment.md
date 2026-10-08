@@ -61,25 +61,28 @@ that centroid. The code fix restores it. Existing failed events have already
 been acknowledged, so retry them from Entity Management after the fix is
 deployed; they will not be replayed automatically.
 
-The geodata pod currently sources `BIGDATACLOUD_API_KEY` from the optional
-`myota-geodata-enrichment` Secret's `api-key` field. That named Secret was not
-present in the namespace during diagnosis. The operator clarified that the
-credential is stored in an existing Kubernetes Secret under `password`, with
-`geo-database-url` also present. The current Helm wiring does not map that
-source into the geodata pod, so the issue is a Secret-reference mismatch—not
-proof that the credential is absent from Kubernetes. The deployment guide
-currently defines `myota-postgres/password` as the PostgreSQL superuser
-password. Confirm that this exact value is intentionally also the BigDataCloud
-key before mapping it into `BIGDATACLOUD_API_KEY`; never send a database
-password to the provider by assumption. Never put secret values in this
-document, logs, or a commit.
+The configured provider reference is the dedicated Kubernetes Secret
+`myota-geodata-enrichment`, key `api-key`. After the operator provisioned that
+Secret, the API and worker pods still had an empty `BIGDATACLOUD_API_KEY`:
+Secret-backed environment variables are read when a pod starts, not refreshed
+inside an already-running process. Both deployments were restarted. Verification
+confirmed the key is now present in each runtime without displaying its value,
+and a sanitized live lookup from the geodata pod returned `ENRICHED` for a
+Sevilla-area coordinate. The worker log also confirmed its durable
+`geodata-location-enrichment-v1` consumer subscribed to the expected subject.
+The existing failed events were acknowledged before this recovery and will not
+replay automatically. Use **Update missing location data** in Entity
+Management to submit a fresh request for each entity still missing metadata.
+That fresh authenticated entity request is the remaining end-to-end check of
+the entity → outbox → JetStream → persisted enrichment path.
 
 The centroid projection fix was deployed to K3s as image digest
 `sha256:4547e6f39091b7027c42758ad3e164e582f287f133faf3bf0a5758b18cc56775`.
-Both the geodata API and processing worker rolled successfully, and the public
-gateway health check returned `ok`. The already-failed enrichment requests
-were acknowledged before the fix, so retry them from Entity Management after
-the provider Secret reference is confirmed and wired.
+Both the geodata API and processing worker rolled successfully. The Helm chart
+now includes `geodataPipeline.locationEnrichment.rolloutRevision` on both pod
+templates; increment it in the Spainip values whenever the external Secret is
+created or rotated, so Fleet applies the new environment value through Helm.
+The Secret itself remains external and is never stored in chart values or Git.
 
 ## Entity fields and provenance
 
@@ -118,7 +121,10 @@ BIGDATACLOUD_TIMEOUT_SECONDS=10
 
 Production Kubernetes deployments provide the key through the configured
 location-enrichment Secret (default `myota-geodata-enrichment`, key `api-key`)
-to both the geodata API and its worker. The client-side free
+to both the geodata API and its worker. A pod restart is required after
+provisioning or rotating that Secret; on K3s, increment
+`geodataPipeline.locationEnrichment.rolloutRevision` in the Spainip Helm values
+and let Fleet roll both workloads. The client-side free
 endpoint is not used: its fair-use terms prohibit server-side and batch
 lookups of stored or imported coordinates. The service caches rounded
 centroids in-process and treats provider failures as non-fatal to entity or

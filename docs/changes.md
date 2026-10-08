@@ -15,6 +15,23 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Geodata provider credential activation:** Provisioned the dedicated
+  `myota-geodata-enrichment` Secret (`api-key`) and restarted the API and
+  processing worker so both load the Secret-backed environment variable. The
+  secret reference was already present in Helm; the running pods had started
+  before the Secret was provisioned and therefore retained an empty value.
+  Verification confirmed the credential is available in both runtimes without
+  printing it, the location-enrichment JetStream consumer is subscribed, and a
+  sanitized BigDataCloud lookup returned `ENRICHED` for a Sevilla-area
+  coordinate. Earlier failed jobs were already acknowledged; users must submit
+  a fresh **Update missing location data** request for entities still missing
+  metadata. The Helm chart now provides a
+  `geodataPipeline.locationEnrichment.rolloutRevision` value on both geodata
+  pod templates; increment it after future Secret creation/rotation so Fleet
+  performs the restart. See the [enrichment recovery
+  guide](geodata-location-enrichment.md#durable-coordinates-and-troubleshooting)
+  and [deployment instructions](https://github.com/myota-platform/myota-deploy/blob/main/deploy/helm/myota/DEPLOYMENT.md).
+
 - **Geodata service:** Fixed location enrichment jobs that were published and
   consumed but failed as `SKIPPED_NO_CENTROID`. The database row projection had
   omitted the separate PostGIS centroid column, even though affected entities
@@ -27,12 +44,8 @@ describe current ownership and are authoritative for the present-day system.
   `sha256:4547e6f39091b7027c42758ad3e164e582f287f133faf3bf0a5758b18cc56775`,
   and the public gateway health check passed. The deployed pod references the
   optional `myota-geodata-enrichment/api-key` Secret field, whose Secret is
-  absent. The operator clarified that the credential is stored in an existing
-  Kubernetes Secret under `password`, with `geo-database-url` also present; the
-  chart does not currently map that source. This is a wiring mismatch, not
-  proof the credential is absent. As `myota-postgres/password` is documented
-  as the PostgreSQL superuser password, confirm that exact value is intended
-  as the BigDataCloud key before mapping it to the provider environment. See
+  absent under its configured dedicated Secret name; the later credential
+  provisioning and pod restart are recorded in the follow-up entry above. See
   the [location enrichment guide and recovery
   notes](geodata-location-enrichment.md#durable-coordinates-and-troubleshooting)
   and the [service fix](https://github.com/myota-platform/myota-geodata-service/commit/0b3655e).
@@ -63,9 +76,8 @@ describe current ownership and are authoritative for the present-day system.
   and [Helm rendering](https://github.com/myota-platform/myota-deploy/actions/runs/37814665370).
   Fleet deployed Helm revision 88; all 54 tracked resources were Ready, the
   location-enrichment consumer subscribed, and the public gateway health check
-  passed. At rollout time the cluster did not contain the configured optional
-  `myota-geodata-enrichment` Secret, so provider lookups remain unavailable
-  there until an operator provisions it.
+  passed. Provider lookup activation and the required pod restart are recorded
+  in the follow-up entry above.
 - **Geodata service and Admin web:** Added automatically derived Maidenhead
   grid-square and locator arrays to entity resources. Four-character
   (`maidenheadGridSquares4`) and six-character (`maidenheadLocators6`) values
