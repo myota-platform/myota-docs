@@ -110,6 +110,14 @@ finishes. This prevents an early threshold abort from leaving accepted imports
 in flight before teardown. Final threshold failures still make the k6 run fail;
 non-production profiles retain early-abort behavior.
 
+Latency is tagged by request class and operation. The production 2-second p95
+applies to API/control requests, not bulk part transfer or fixture cleanup.
+Large-upload parts have a separate 60-second p95 ceiling (parts are capped at
+16 MiB); their duration is also reported as its own k6 sub-metric. This keeps
+network and object-storage transfer time visible without treating it as an API
+control-plane response-time regression. Cleanup remains separately tagged and
+does not distort the workload latency threshold.
+
 ## Fixture cleanup
 
 Each import's source metadata and each created entity's provenance carry the
