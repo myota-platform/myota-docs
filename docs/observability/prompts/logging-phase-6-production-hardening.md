@@ -20,8 +20,13 @@ Requirements:
 2. Confirm production DEBUG logging is disabled by default.
 3. Verify redaction for tokens, Authorization, passwords, DSNs, API/S3 keys,
    signing keys, ADIF contents and geodata/request payloads.
-4. Confirm bounded Loki retention and persistent storage. Start from 14 days and
-   document how to adjust it based on measured ingestion.
+4. Confirm Loki's 14-day retention is enforced by its compactor and that
+   durable TSDB chunks/index use the dedicated SeaweedFS S3 bucket `myota-loki`.
+   Verify only a small local writable working volume is used for active
+   TSDB/WAL/index/cache and compactor work; there must be no 10-20 GiB Loki data
+   PV. Do not introduce a separate MyOTA/SeaweedFS cleanup worker or bucket
+   lifecycle deletion policy for Loki retention. Document how retention changes
+   should be made through Loki configuration based on measured ingestion.
 5. Add only log-specific exceptional-event alerts. Do not duplicate Prometheus
    ownership of availability, latency, error-rate or queue-depth conditions.
 6. Candidate exceptional events include migration failure, permanent retention
@@ -38,8 +43,10 @@ Requirements:
 9. Execute an end-to-end acceptance scenario:
    HTTP request -> server span/log -> asynchronous message -> worker span/log,
    demonstrating stable correlation_id and usable trace/log links.
-10. Record storage/ingestion observations and any capacity threshold that should
-    trigger a future move from single-binary Loki or local PVC storage.
+10. Record ingestion and SeaweedFS bucket growth, local working-volume use,
+    and capacity thresholds that should trigger a future move from single-binary
+    Loki or a change in object-storage capacity. Treat SeaweedFS as the durable
+    log store; local volume capacity is for Loki working data only.
 11. Update the implementation-plan status and parent observability documentation
     to reflect what is actually implemented, not planned.
 12. Run relevant test suites, Helm lint/render and deployment checks and report
