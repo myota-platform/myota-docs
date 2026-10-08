@@ -32,7 +32,12 @@ describe current ownership and are authoritative for the present-day system.
   the runner now discovers every numbered geodata migration in order, and the
   image build watches schema changes. See the [runner fix](https://github.com/myota-platform/myota-platform/commit/8102cd5),
   [service migration guidance](https://github.com/myota-platform/myota-geodata-service/commit/2714dc2),
-  and [deployment migration guidance](https://github.com/myota-platform/myota-deploy/commit/89b2cfd).
+  [deployment migration guidance](https://github.com/myota-platform/myota-deploy/commit/89b2cfd),
+  and [final K3s digest rollout](https://github.com/myota-platform/myota-deploy/commit/051da8f).
+  The final Helm migration job completed; live verification confirmed the
+  backfill, a boundary-spanning multi-grid geometry, the API fields, and the
+  deployed Admin bundle. Exact counts and sample outputs are in the
+  [Maidenhead verification record](geodata-maidenhead-locators.md#live-k3s-verification--8-october-2026).
 
 - **Admin web:** Changed Entity Catalogue page sizes to 25/50/100 and removed
   the overall cutoff from deletion status polling. Bulk jobs are polled in

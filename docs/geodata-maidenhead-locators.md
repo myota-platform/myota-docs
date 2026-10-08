@@ -56,3 +56,19 @@ geometry edit and that existing rows are backfilled.
 The calculated values are geometric coverage only. They do not assert that an
 entity is accessible, eligible under a programme's rules, or a valid radio
 activation location.
+
+## Live K3s verification — 8 October 2026
+
+Helm migration job `myota-migrations-86` completed with migration 019 included.
+The current geodata database backfilled 10 entities: 9 have one four-character
+grid square and 1 intersects multiple four-character squares; at six-character
+precision, 6 have one locator and 4 intersect multiple locators. A live API
+read returned both arrays, and the deployed Admin UI bundle contains the new
+catalogue fields.
+
+The database calculation for a point at `(-5.99, 37.4)` returned
+`IM77` / `IM77aj`. A read-only PostGIS calculation for an envelope spanning
+the origin returned four four-character squares (`II99`, `IJ90`, `JI09`,
+`JJ00`) and the corresponding four six-character cells (`II99xx`, `IJ90xa`,
+`JI09ax`, `JJ00aa`). The service tests separately verify a single-cell
+polygon and a line crossing six-character locators.
