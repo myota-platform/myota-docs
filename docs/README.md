@@ -31,6 +31,7 @@ Status in plans and evidence:
 - [Storage topology](adr/0001-storage-topology.md)
 - [Architecture decision index](adr/README.md)
 - [Architecture diagrams](diagrams/README.md)
+- [NATS JetStream event and work-queue migration plan](nats-event-migration-plan.md)
 
 ## 3. Domain, API, and client contracts
 

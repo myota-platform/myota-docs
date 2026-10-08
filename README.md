@@ -53,6 +53,9 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
 - **Operations and assurance** — [operations](docs/operations.md),
   [observability](docs/observability.md), [threat model](docs/security/README.md),
   [Python quality checks](docs/development/README.md).
+- **Event delivery migration** — [NATS JetStream event and work-queue migration
+  plan](docs/nats-event-migration-plan.md), including phased implementation and
+  copy-ready ChatGPT prompts.
 - **Geodata scale work** — [scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md),
   [Maidenhead coverage fields](docs/geodata-maidenhead-locators.md),
   [load/query runbook](docs/geodata-load-test-and-query-evidence.md),
