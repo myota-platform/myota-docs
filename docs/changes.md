@@ -15,6 +15,20 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Geodata service:** Fixed location enrichment jobs that were published and
+  consumed but failed as `SKIPPED_NO_CENTROID`. The database row projection had
+  omitted the separate PostGIS centroid column, even though affected entities
+  retained both geometry and centroid in PostGIS. Durable reads now reconstruct
+  `{lon, lat}` from that column, falling back to `ST_Centroid(geom)` for legacy
+  rows. Live diagnosis confirmed five request events with no outbox backlog,
+  four distinct affected entities, and a subscribed JetStream consumer. The
+  failed events were acknowledged, so those entities require a manual retry
+  after deployment. The live cluster also lacks the optional
+  `myota-geodata-enrichment` Secret, which must be provisioned before the
+  provider lookup itself can succeed. See the [location enrichment guide and
+  recovery notes](geodata-location-enrichment.md#durable-coordinates-and-troubleshooting)
+  and the [service fix](https://github.com/myota-platform/myota-geodata-service/commit/0b3655e).
+
 - **Geodata service, Admin web, contracts and deployment:** Moved reverse
   geocoding out of import preprocessing and request handling into the durable
   geodata worker lifecycle. Enrichment is requested after entity

@@ -41,6 +41,32 @@ is committed to the transactional outbox. The durable pull consumer is
 `myota.geodata.entity.location-enrichment.v1`. See the [event contract](https://github.com/myota-platform/myota-contracts/blob/main/contracts/events.md)
 for message and acknowledgement semantics.
 
+## Durable coordinates and troubleshooting
+
+The worker reloads each entity from the relational row repository before
+calling the provider. That projection must include a `{lon, lat}` centroid,
+reconstructed from the dedicated PostGIS `centroid` column and falling back to
+`ST_Centroid(geom)` for older rows. Without it, an event can be published and
+consumed normally while the lookup ends as `SKIPPED_NO_CENTROID`; this is not a
+JetStream delivery failure. The regression fix is in
+[`myota-geodata-service` commit `0b3655e`](
+https://github.com/myota-platform/myota-geodata-service/commit/0b3655e).
+
+During the 8 October 2026 live diagnosis, the outbox contained five
+location-enrichment request events and none were pending publication. The
+durable consumer was subscribed, and four distinct referenced entities had
+both geometry and a stored database centroid. The requests were consumed but
+failed with `SKIPPED_NO_CENTROID` because the application projection omitted
+that centroid. The code fix restores it. Existing failed events have already
+been acknowledged, so retry them from Entity Management after the fix is
+deployed; they will not be replayed automatically.
+
+The K3s cluster also did not contain the optional `myota-geodata-enrichment`
+Secret during this diagnosis. Once that Secret is provisioned with its
+`api-key` key, the worker can reach BigDataCloud; without it, the next attempt
+will fail as `NOT_CONFIGURED` even though the queue path is healthy. Never put
+the provider key in this document, logs, or a commit.
+
 ## Entity fields and provenance
 
 The entity exposes:
