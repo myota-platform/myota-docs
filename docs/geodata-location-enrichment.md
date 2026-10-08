@@ -26,6 +26,11 @@ The entity lifecycle is the source of truth for timing:
    for the current geometry; complete entities cannot be refreshed through
    this button.
 
+While a selected entity is `QUEUED`, Entity Management refreshes its resource
+every two seconds so asynchronously persisted values appear without a manual
+page reload. Polling stops when the request reaches `COMPLETED` or `FAILED`, the
+administrator selects another entity, or the page is closed.
+
 Each request includes the entity ID, a request ID, and a hash of the geometry
 used. The worker checks the request/hash before and after the remote call. A
 late result from an old geometry is discarded. Redelivery after a successful

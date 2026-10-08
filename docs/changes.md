@@ -15,6 +15,16 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Admin web:** Fixed stale location metadata after successful asynchronous
+  enrichment. Live PostGIS records showed five recent requests had already
+  completed with provider status `ENRICHED` and country/city fields persisted;
+  the Admin UI refreshed only once immediately after queueing and did not fetch
+  the later worker result. Entity Management now polls the selected queued
+  entity every two seconds, merges the latest resource into the detail and
+  visible list, and stops on completion/failure or selection change. See the
+  [enrichment lifecycle](geodata-location-enrichment.md) and
+  [Admin web implementation](https://github.com/myota-platform/myota-admin-web).
+
 - **Geodata provider credential activation:** Provisioned the dedicated
   `myota-geodata-enrichment` Secret (`api-key`) and restarted the API and
   processing worker so both load the Secret-backed environment variable. The
