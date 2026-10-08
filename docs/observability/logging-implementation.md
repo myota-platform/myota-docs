@@ -164,9 +164,15 @@ Initial production target:
 | Loki | 14 days |
 | DEBUG logs | disabled in production by default |
 
-Start Loki with a 10-20 GiB persistent volume and measure actual ingestion before
-raising retention. Longer WARN/ERROR retention may be considered later, but the
-first implementation should keep one simple policy.
+Loki retention is 14 days and is enforced by Loki's compactor. Loki's durable
+TSDB index and chunks live in the dedicated SeaweedFS S3 bucket `myota-loki`,
+using the existing SeaweedFS endpoint and S3 credential provisioning patterns.
+Keep only a small local writable volume for active TSDB/WAL/index/cache and
+compactor working data; it is not the authoritative log store. Do not provision
+a 10-20 GiB Loki data PV. Do not add a separate MyOTA or SeaweedFS cleanup worker:
+Loki's compactor owns expiration and deletion of retained log objects. Longer
+WARN/ERROR retention may be considered later, but the first implementation
+should keep one simple policy.
 
 ## Implementation phases
 
@@ -191,18 +197,27 @@ Implementation prompt:
 
 ### Phase 2 - Loki, collector pipeline, Compose and Helm
 
-Add Loki in single-binary mode, persist it, and connect the existing OTel logs
-pipeline to Loki through OTLP. Keep Compose and Helm behavior aligned.
+Add Loki in single-binary mode, store its durable TSDB index and chunks in the
+dedicated SeaweedFS S3 bucket `myota-loki`, and connect the existing OTel logs
+pipeline to Loki through OTLP. Keep Compose and Helm behavior aligned. Reuse the
+SeaweedFS endpoint, bucket provisioning, and S3 credential/Secret patterns
+already used by MyOTA.
 
 Deliverables:
 
-- Loki configuration;
-- Compose observability service and volume;
-- Helm StatefulSet/service/PVC or equivalent chart resources;
+- Loki TSDB and SeaweedFS S3 configuration for bucket `myota-loki`;
+- Compose observability service and a small local writable working volume;
+- Helm Loki workload/service and a small local writable working volume, without
+  a 10-20 GiB Loki data PV;
+- local working storage limited to active TSDB/WAL/index/cache and compactor
+  working data; object storage is the durable store;
 - OTel Collector Loki exporter path;
 - Grafana Loki datasource provisioning;
-- configurable retention/storage;
-- smoke tests proving logs survive collector/application restart as intended.
+- configurable 14-day Loki retention, enforced by the Loki compactor;
+- no separate MyOTA or SeaweedFS cleanup worker or object-store lifecycle policy
+  for Loki retention;
+- smoke checks for OTLP ingestion, object-store configuration, restart behavior,
+  and Compose/Helm parity.
 
 Implementation prompt:
 [Phase 2 ChatGPT prompt](prompts/logging-phase-2-loki-platform.md)
