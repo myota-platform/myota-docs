@@ -82,6 +82,12 @@ Selecting a result always centers the Leaflet map. In Entity Catalogue it also
 scrolls to the management editor below the map. Geometry editing is opt-in;
 the map remains read-only until **Edit geometry** is selected. Destructive
 actions retain the impact warning and are only rendered for authorized roles.
+Checkbox selection for bulk actions is independent from the focused entity:
+opening an entity for inspection does not replace the selected batch. Bulk
+deletion confirms the selected jobs together, then reads their durable job
+resources until they complete or fail. The UI reports completed deletion only
+after the server confirms completion; queued or failed jobs stay visible for
+status checks or retry.
 
 ## Interaction rules
 

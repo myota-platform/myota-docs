@@ -32,6 +32,10 @@ describe current ownership and are authoritative for the present-day system.
 - **Identity:** Allowed `GLOBAL_OPERATOR` accounts past the login-attempt
   throttle, addressing the operational-account lockout encountered during
   guarded test setup ([change](https://github.com/myota-platform/myota-identity-service/commit/42e544e)).
+- **Admin web:** Fixed Entity Management bulk deletion so focusing an entity
+  no longer clears the checkbox batch, confirmation timeouts are reconciled by
+  reading the job resource, and the UI tracks each confirmed job to completion
+  or failure before reporting success ([change](https://github.com/myota-platform/myota-admin-web/commit/c50ed7a)).
 - **Platform integration:** Normalized gateway telemetry labels, added
   PostgreSQL migration tooling to integration images, synchronized geodata
   lookup migrations, and corrected delivery of confirmed entity-deletion jobs

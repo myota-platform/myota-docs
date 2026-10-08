@@ -90,7 +90,11 @@ creation response exposes the impact returned by the activity service. A
 separate confirmation request is required. Confirmation queues the activity
 cascade, which removes affected QSOs and recalculates derived award progress;
 only after that succeeds does geodata remove the entity and its audit records.
-Failures remain visible on the job and do not silently report success.
+Failures remain visible on the job and do not silently report success. Clients
+should read `GET /v1/geodata/entity-deletion-jobs/{jobId}` after confirmation
+and distinguish `QUEUED`/`PROCESSING` from terminal `COMPLETED`/`FAILED` states.
+Bulk clients should preserve the selected jobs through partial failure and must
+not treat an accepted `202` response as proof that deletion has completed.
 
 ## Verification
 
