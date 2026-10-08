@@ -20,7 +20,7 @@ describe current ownership and are authoritative for the present-day system.
   bounded batches through transient errors; the modal closes automatically
   when every job reaches a terminal state. A regression test keeps jobs
   polling beyond the previous one-minute limit ([implementation](https://github.com/myota-platform/myota-admin-web/commit/d04ed22)).
-  The K3s image rollout link will be added after publication.
+  The K3s image was deployed through the [Fleet digest update](https://github.com/myota-platform/myota-deploy/commit/cec0dd3).
 - **Admin web:** Fixed bulk permanent deletion's silent no-modal failure. The
   warning dialog now appears before asynchronous per-entity impact lookups;
   lookups are bounded in batches, failures stay visible with a retry option,
