@@ -38,6 +38,7 @@ flowchart LR
   Programmes[Programme service\nPostgreSQL-backed programme state]
   Geo[Geodata service\nPostGIS catalogue and import runs]
   Activity[Activity service\nPostgreSQL QSOs and aggregates]
+  Seaweed[SeaweedFS S3\nrequest metrics]
   Collector[OpenTelemetry Collector\nOTLP + Prometheus receiver]
   Prometheus[Prometheus\nmetrics storage and queries]
   Grafana[Grafana\nreal-data dashboards + rules]
@@ -47,6 +48,7 @@ flowchart LR
   Programmes -->|/metrics + OTLP| Collector
   Geo -->|/metrics + OTLP| Collector
   Activity -->|/metrics + OTLP| Collector
+  Seaweed -->|private S3/master metrics ports| Collector
   Collector --> Prometheus
   Collector --> Tempo
   Grafana --> Prometheus
@@ -80,6 +82,16 @@ the PostGIS bounding-box query and entity upsert under
 above the configured slow-query threshold. A guarded non-production tool
 captures actual `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` plans; see the
 [geodata load and query-evidence runbook](geodata-load-test-and-query-evidence.md).
+
+SeaweedFS exposes its own Prometheus metrics on private master and S3 listeners
+(Helm defaults: 9324 and 9327). The Collector scrapes S3 operation counts by
+operation/bucket/status, server-side request-duration histograms, active
+uploads and bytes. The **MyOTA Object Storage** dashboard displays throughput,
+p50/p95/p99 service time, non-2xx rates and in-flight upload state; alerts cover
+missing scrape targets, sustained S3 errors and high server-side p95 latency.
+These server measurements separate SeaweedFS processing from end-to-end client
+upload timing. The metric listeners are internal-only and must not be exposed
+through an Ingress.
 
 ## Alerting
 

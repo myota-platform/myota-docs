@@ -18,6 +18,8 @@ flowchart LR
   ActivityDB[(myota_activity\nPostgreSQL)]
   GeoDB[(myota_geo\nPostgreSQL + PostGIS)]
   Objects[(SeaweedFS / S3 object storage)]
+  SeaweedMetrics[SeaweedFS metrics listener]
+  Collector[OpenTelemetry Collector]
 
   Participant --> Gateway
   Admin --> Gateway
@@ -39,6 +41,8 @@ flowchart LR
   Activity --> ActivityDB
   Geodata --> Objects
   Activity --> Objects
+  SeaweedMetrics -. private S3/master metrics ports .-> Collector
+  Collector --> Prometheus
 
   Identity -. publishes/consumes .-> Events
   Programme -. publishes/consumes .-> Events
@@ -81,7 +85,8 @@ IDs, slugs and events rather than database foreign keys.
   leases. Activity workers remain in the activity domain. See the
   [latest delivery evidence and remaining scaling gates](../geodata-horizontal-scaling-roadmap.md#latest-delivery-and-evidence--7-october-2026).
 - `myota-deploy` owns runtime wiring, migration orchestration, workers,
-  secrets, object storage, NATS, and Kubernetes/Compose configuration.
+  secrets, object storage, NATS, telemetry collection, and
+  Kubernetes/Compose configuration.
 
 ## Request and event flow
 

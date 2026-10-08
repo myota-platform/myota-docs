@@ -124,13 +124,38 @@ The five bounded write-profile executions and empty-catalogue read baseline
 are now delivered and retained. The query plans prove the tool operates safely
 and the current schema has GiST indexes, but 25 rows are not representative
 cardinality. Worker/broker samples show no sustained backlog at the tested
-rate. There is no service-side SeaweedFS latency metric, and gateway telemetry
-has an incorrect environment value and high-cardinality route labels.
+rate. At capture time there was no service-side SeaweedFS latency metric, and
+gateway telemetry had an incorrect environment value and high-cardinality
+route labels.
+
+### Scale-gate implementation status — 8 October 2026
+
+The API-based fixture provisioner now defines a permanent 10,000-point
+synthetic Sevilla set in a dedicated category that is not assigned to a
+programme. The records are clearly labelled synthetic and are not real parks.
+The provisioner requires both explicit production and permanence
+acknowledgements, uses two imports within the service's 5,000-feature cap,
+finalizes staged import records, verifies the promoted catalogue count, and
+has no cleanup mode. It has not been executed; the permanent production write
+remains pending confirmation of this proposed 10,000-record size. See the
+[fixture provisioner](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/provision_scale_fixtures.py).
+
+Source-provided administrative location fields are now retained as
+`SOURCE_DATA` and skip redundant reverse-geocoder requests when a country code
+is present. The map query-plan script now matches the live bbox SQL, including
+the intersection and optional programme/status filters. Gateway telemetry
+uses stable route templates and the deployment environment. SeaweedFS metrics,
+scrapes, dashboard and alerts are implemented. GitHub quality and chart-render
+checks passed. The first Fleet rollout attempted to start a second SeaweedFS
+process on the single-writer PVC; its filer LevelDB lock rejected the new pod
+while the old pod remained healthy. A `Recreate` strategy is now published in
+Helm, but Fleet has not yet applied it; there is currently no live SeaweedFS
+metrics evidence from the new configuration. No workload was run during this
+rollout issue.
 
 **Phase 0 remains open.** Before checking it off, capture map/catalogue plans
-at representative, safely tagged cardinality; correct and redeploy the
-gateway telemetry environment/route labels; and add or expose meaningful
-SeaweedFS operation metrics so storage can be correlated with uploads. Do not
-retain load fixtures to create cardinality; use exact-tag cleanup and an
-approved, bounded data setup/cleanup procedure. No test changed service
-replicas or injected faults.
+at representative, permanently retained fixture cardinality; verify gateway
+environment and stable-route series; and correlate SeaweedFS server metrics
+with a bounded API upload and worker/broker measurements. Do not check off the
+gate until the requested fixture data exists and sanitized evidence is
+committed. No test changed service replicas or injected faults.

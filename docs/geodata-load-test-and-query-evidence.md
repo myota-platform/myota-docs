@@ -283,7 +283,13 @@ The empty-catalogue read run passed health and paged-list checks; a separate
 read-only run used five temporary approved test geometries to exercise map and
 detail reads, then the source promotion run removed them. Neither run created
 permanent seed entities. Both are small-cardinality checks, not a realistic
-catalogue-capacity benchmark.
+catalogue-capacity benchmark. A new provisioner defines a permanent, synthetic
+10,000-point Sevilla dataset in the isolated `SCALE_TEST_FIXTURE` category,
+unassigned from all programmes and with no automatic cleanup. The script is
+guarded by exact-host, explicit-production, and explicit-permanence
+acknowledgements; source location metadata prevents redundant reverse-geocoder
+calls. It must be run once before the representative-cardinality plan review;
+its execution and results are not yet recorded.
 
 The guarded production plan tool produced map, catalogue-count, and
 catalogue-page plans with short execution times, but only 25 tagged rows were
@@ -297,19 +303,21 @@ window recorded a maximum import queue depth of 1 and maximum queued age of
 age stayed at zero in the sampled series. This shows no observed sustained
 broker lag at one import per second, not maximum worker capacity.
 
-Object-storage service latency is still unmeasured: the exposed SeaweedFS
-service ports did not provide a `/metrics` document and the current Prometheus
-configuration does not scrape SeaweedFS. The upload p95 is end-to-end client
-timing and cannot isolate SeaweedFS. In addition, the production gateway
-series were labelled `development` and route labels included request IDs;
-domain-service series were labelled production. Correct and redeploy those
-gateway labels before using them as production route evidence.
+The Helm/Compose implementation now enables SeaweedFS master and S3 metrics on
+private ports 9324/9327, scrapes the S3 operation counters/histograms, and
+provisions a dedicated object-storage dashboard and alerts. The image and chart
+are published and GitHub Helm rendering passed; Fleet has not yet reported
+the final revision applied, so no live SeaweedFS measurement is claimed. The
+gateway now emits stable route templates and takes `MYOTA_ENV` from the chart;
+the deployed labels still need to be checked after Fleet reconciliation.
 
-**Phase 0 remains open.** The remaining evidence gates are representative-scale
-PostGIS plans, reliable gateway environment/stable-route metrics, and
-SeaweedFS operation metrics (or equivalent bounded instrumentation). Do not
-check off scale-level conclusions from five or 25 temporary rows, zero sampled
-broker lag, or end-to-end upload timing alone.
+**Phase 0 remains open.** The remaining evidence gates are to provision and
+retain the representative fixture set, capture/review production map and
+catalogue plans with the exact-query tool, verify gateway route/environment
+labels, and measure SeaweedFS operation latency alongside worker/broker signals
+during a bounded workload. Do not check off scale-level conclusions from five
+or 25 temporary rows, zero sampled broker lag, or end-to-end upload timing
+alone.
 
 ## JetStream consumer lag
 

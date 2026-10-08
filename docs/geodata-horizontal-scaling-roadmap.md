@@ -189,15 +189,20 @@ ChatGPT implementation prompt: [review remaining query and bottleneck evidence](
   acknowledgement.
 - [ ] Review query plans at representative catalogue cardinality and correlate
   storage and worker measurements. The bounded production plan capture used
-  only 25 temporary rows; see the [evidence limitations and next steps](geodata-phase0-production-evidence-2026-10-08.md#conclusion-and-remaining-gate).
+  only 25 temporary rows. A guarded API-based provisioner now defines a
+  permanent, unassigned 10,000-point synthetic Sevilla fixture set and refuses
+  automatic cleanup; it has not yet been run. The final evidence must include
+  the live rollout, representative-cardinality plans, and storage/worker
+  correlation. See the [evidence limitations and next steps](geodata-phase0-production-evidence-2026-10-08.md#conclusion-and-remaining-gate)
+  and the [scale-fixture provisioner](https://github.com/myota-platform/myota-geodata-service/blob/main/loadtests/provision_scale_fixtures.py).
 
 **Exit criteria: open.** The read-only baseline and all five write profiles
-have passed against provisional production with cleanup. The query tool works
-and its plans have been reviewed, but the plan fixture is too small to qualify
-index use at scale. SeaweedFS operation latency is not exposed in the current
-scrape configuration, and gateway environment/route labels need correction
-before its endpoint series can serve as reliable production evidence. See the
-[production evidence record](geodata-phase0-production-evidence-2026-10-08.md)
+have passed against provisional production with cleanup. The exact-query tool,
+stable gateway route/environment labels, and SeaweedFS metrics/dashboard are
+implemented and published; Fleet rollout and live metric coverage still need
+verification against the permanent
+representative-cardinality fixture set. The prior 25-row plan is not scale
+evidence. See the [production evidence record](geodata-phase0-production-evidence-2026-10-08.md)
 and [evidence review](geodata-load-test-and-query-evidence.md#phase-0-evidence-review-status).
 
 ### Phase 1 — remove cross-replica mutable process state
