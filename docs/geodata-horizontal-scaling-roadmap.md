@@ -22,8 +22,9 @@ Current implementation and remaining hazards:
   revisions and database idempotency. See the [Phase 1 evidence and rollout
   record](geodata-phase1-relational-authority.md).
 - Durable imports now use resumable object-storage multipart sessions and a
-  separately deployed JetStream worker. Large-source parsing and worker-side broad candidate/spatial traversals
-  are not yet streaming/bounded end to end.
+  separately deployed JetStream worker. Source-reference and proximity
+  lookups are indexed, but large-source parsing and candidate staging are not
+  yet streaming/bounded end to end.
 
 See [overall architecture](architecture.md),
 [operations](operations.md),
@@ -31,12 +32,32 @@ See [overall architecture](architecture.md),
 and the upload-session/worker deployment in `myota-deploy` for current
 behavior.
 
-## Latest delivery and evidence — 7 October 2026
+## Latest delivery and evidence — 8 October 2026
 
 This reconciliation records published implementation, not a new production
 rollout or a claim that every scaling phase is complete. Phase 1 is closed;
 Phases 2 and 3 have delivered capabilities but still need the failure and
 memory qualification below. Phases 4 and 5 remain rollout gates.
+
+### Import cleanup stability — 8 October 2026
+
+A production load-test run remained `PROCESSING`, so the guarded cleanup API
+correctly refused to delete its fixtures. The underlying delay was not simply
+the cleanup timeout: feature preprocessing repeatedly enumerated every staged
+candidate and every entity, and the worker heartbeat could race with its final
+run-status write. Candidate replay is now scoped to the import using the
+existing `(import_run_id, ordinal)` index; source-reference reconciliation has
+an indexed lookup; possible-duplicate checks use the PostGIS geography index.
+The worker now joins its heartbeat and refreshes the database-authoritative
+import row before marking a run complete or failed. Migration 018 installs the
+source-reference index and is synchronized into the platform and deployment
+migration runners. The five-minute cleanup wait remains a safety bound, not a
+substitute for a worker completing reliably.
+
+The service checks passed locally: 101 Python tests (15 skipped) and Ruff.
+The parser still holds normalized features and stages candidate writes until
+the run checkpoint, so bounded streaming/batch persistence remains an open
+Phase 3 requirement; this fix does not mark that broader item complete.
 
 | Delivered capability | Documentation and implementation evidence |
 |---|---|
@@ -225,8 +246,9 @@ restart must still pass against the deployed image before this phase can close.
 - [ ] Persist progress in bounded batches. Avoid holding an entire large
   dataset or all entity geometries in worker memory when a streaming parser or
   indexed spatial query can be used. Part transfer is bounded; feature parsing
-  and some worker candidate/conflation traversals remain whole-run/in-memory; no
-  catalogue snapshot is authoritative or rewritten. Phase 1 now commits entity,
+  and candidate writes remain whole-run/in-memory. Candidate replay is scoped
+  to its import and source-reference/nearby-entity checks use database indexes;
+  no catalogue snapshot is authoritative or rewritten. Phase 1 commits entity,
   candidate-result and audit/outbox rows atomically at checkpoints.
 - [x] Make promotion consume only confirmed candidate IDs and record the
   resulting status/entity IDs and audit information with idempotent stable IDs.
