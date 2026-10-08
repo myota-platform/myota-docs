@@ -13,11 +13,21 @@ flowchart TB
   PR[Prometheus]
   GR[Grafana]
   T[Tempo]
+  SW[SeaweedFS private health and metrics]
+  UI[Admin UI and trusted Nginx proxy]
+  DB[(myota_core sampled history)]
   I --> C
   P --> C
   G --> C
   A --> C
   O --> C
+  SW --> C
+  O -->|read-only probes| SW
+  O -->|samples| DB
+  UI -->|status and history APIs| O
+  UI -->|Grafana auth subrequest| O
+  O -->|live session and roles| I
+  UI -->|per-user Editor or Viewer| GR
   C --> PR
   C --> T
   GR --> PR

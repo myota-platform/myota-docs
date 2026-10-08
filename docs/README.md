@@ -81,6 +81,7 @@ tracked in the linked evidence record.
 - [OpenTelemetry architecture and service metrics](observability.md)
 - [Logging implementation roadmap](observability/README.md)
 - [JetStream admin status page and durable history](jetstream-admin-status.md)
+- [SeaweedFS admin storage status, sampled history and Grafana Editor access](seaweedfs-admin-status.md)
 - [Object-store bucket and retention boundaries](diagrams/object-storage-buckets.md)
 - [Storage migration/synchronization decision](adr/0007-seaweedfs-object-storage.md)
 - [Python code quality and local hooks](development/README.md)

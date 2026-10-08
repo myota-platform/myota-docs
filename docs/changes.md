@@ -15,6 +15,18 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Storage visibility and Grafana editing:** Added a SeaweedFS Admin UI page
+  at `/object-storage`, backed by operations-owned health/exporter snapshots
+  and seven-day paged history in `myota_core`. Bucket gauges, filesystem
+  capacity and cumulative S3 counters carry explicit unknown and stale states.
+  Added a live-identity-validated Grafana session resource and trusted proxy
+  headers: GLOBAL_OPERATOR/GLOBAL_ADMIN receive individual Editor identities;
+  authorized readers receive Viewer. Provisioned dashboards permit UI saves,
+  default to the last 30 minutes and refresh every 30 seconds. Contracts,
+  clients, migration mirrors, Compose and Helm are synchronized. See the
+  [storage page/access runbook](seaweedfs-admin-status.md). Local tests, types,
+  build and contract reconciliation passed; rollout verification follows delivery.
+
 - **JetStream event retention:** Changed the shared `MYOTA_EVENTS` stream from
   `Limits` to `Interest` retention after ensuring the five required durable
   consumers exist with their current subject filters and explicit acknowledgments.

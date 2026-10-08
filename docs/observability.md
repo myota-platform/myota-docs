@@ -173,24 +173,32 @@ down because exporters are asynchronous and best-effort.
 
 ```bash
 docker-compose --profile observability up -d --build
-curl http://localhost:9090/-/ready
-curl http://localhost:3000/api/health
-curl http://localhost:8889/metrics
+curl http://localhost:8090/healthz
 ```
 
-Grafana is at `http://localhost:3000`; Prometheus is at
-`http://localhost:9090`; Alertmanager is at `http://localhost:9093`; Tempo's
-local API is at `http://localhost:3200`. The provisioned `MyOTA operations`,
+Sign in at `http://localhost:8090`, then open **Platform health → Observability**
+at `/observability/`. Grafana uses individual MyOTA accounts; current
+GLOBAL_OPERATOR/GLOBAL_ADMIN roles receive Editor and other authorized readers
+receive Viewer. Prometheus, Alertmanager and Tempo ports are private. The
+provisioned dashboards default to the last 30 minutes and refresh every
+30 seconds; UI saves are enabled for Editors. Copy a source-managed dashboard
+if its UI edits must survive later provisioning updates. The `MyOTA operations`,
 `MyOTA API performance`, `MyOTA Geodata capacity baseline`, and `MyOTA JetStream
 backlog and PostGIS query performance` dashboards are tagged `real-data`.
 
 Kubernetes enables the same collector, Prometheus, Alertmanager, Grafana and
-Tempo resources with `observability.enabled=true`. Production should add
-persistent volumes for Prometheus, Alertmanager and Tempo, resource limits,
+Tempo resources with `observability.enabled=true`, including persistent volumes.
+Production still needs verified restore procedures, appropriate resource limits,
 retention settings, real notification receivers, and network policies
 appropriate to the cluster.
 
 ## Operational interpretation
+
+The [SeaweedFS storage page](seaweedfs-admin-status.md) at `/object-storage`
+follows the NATS page pattern: read-only operations APIs, real provider gauges,
+explicit unavailable/partial/stale status, and persistent paged history. Native
+bucket counts/sizes and filesystem capacity come from the private exporter;
+no object scans or storage credentials are required by the Admin UI.
 
 For authenticated stream/consumer inspection, choose **Platform health →
 NATS / JetStream** (`/jetstream`) in the admin UI. The

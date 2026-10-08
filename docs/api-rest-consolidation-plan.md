@@ -1,7 +1,7 @@
 # REST API consolidation plan
 
 Status: Phases 0–4 implemented; Phase 5 remains planned
-Reviewed: 2026-10-07
+Reviewed: 2026-10-08
 Owner: myota-contracts with the affected service repositories
 
 This review compares the current OpenAPI documents and route registries in the
@@ -18,6 +18,9 @@ and records the implemented phases and subsequent compatible contract updates.
 | Entity deletion jobs | Same create/confirm/job resources; confirmation now dispatches a recoverable JetStream job, not an API-local executor. |
 | `GET /v1/operations/jetstream` | Authenticated latest broker status sample with health/staleness, streams and consumer details. |
 | `GET /v1/operations/jetstream/snapshots` | Paged persistent status-history resource, not a message-consumption action. |
+| `GET /v1/operations/object-storage` | Authenticated latest SeaweedFS health/exporter sample with unknown and stale measurements explicit. |
+| `GET /v1/operations/object-storage/snapshots` | Paged operations-owned storage history in myota_core. |
+| `GET /v1/operations/observability-session` | Live Identity API validation and per-account trusted Grafana auth-proxy identity; GLOBAL_OPERATOR/GLOBAL_ADMIN map to Editor. |
 | `POST /v1/geodata/entities/{entityId}/location-enrichment-requests` | Creates an idempotent, audited asynchronous reverse-geocoding request for missing entity location metadata; returns 202 after outbox commit. |
 
 See [Phase 1 authority and concurrency evidence](geodata-phase1-relational-authority.md),
