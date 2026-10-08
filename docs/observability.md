@@ -16,6 +16,19 @@ live API/database execution, or direct JetStream consumer state. A zero is a
 real zero; a missing value indicates that the source service or collector is
 unavailable.
 
+
+## Structured logging implementation roadmap
+
+Durable application and worker logging is the next observability extension. The
+implementation is specified in the
+[structured logging implementation plan](observability/logging-implementation.md).
+
+The plan adds Loki behind the existing OpenTelemetry Collector, standardizes
+structured service and worker logging, propagates trace and business correlation
+context through HTTP and NATS/JetStream, and connects Grafana metrics, traces and
+logs. It is split into independently executable phases, each with a linked
+ChatGPT/Work/Codex implementation prompt.
+
 ## Collection architecture
 
 ```mermaid
