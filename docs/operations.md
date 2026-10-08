@@ -142,6 +142,12 @@ instead of resuming it. A stale JetStream delivery after cancellation is
 acknowledged without starting work. Preprocessed runs cannot be cancelled;
 administrators should use import finalization after review instead.
 
+The import-processing worker also performs a lease-aware recovery sweep every
+30 seconds (configurable with `GEODATA_CANCELLATION_RECONCILE_SECONDS`). It
+finalizes only `CANCELLING` runs whose lease has expired or was never assigned,
+so a lost worker or event cannot leave an upload in the active queue forever;
+runs with a live lease remain owned by their current worker.
+
 Cancellation timestamps, actor and completion status are written by the row
 repository in the same transaction as the cancellation event. There is no
 parallel SQL timestamp update. Finalization reloads the locked run before
