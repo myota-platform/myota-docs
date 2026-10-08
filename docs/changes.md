@@ -28,6 +28,11 @@ describe current ownership and are authoritative for the present-day system.
   [platform migration mirror](https://github.com/myota-platform/myota-platform/commit/a2c3556),
   [migration image workflow](https://github.com/myota-platform/myota-platform/commit/d35a5f3),
   and [Helm migration set](https://github.com/myota-platform/myota-deploy/commit/6805e6c).
+  The first live migration run exposed a hard-coded runner list ending at 018;
+  the runner now discovers every numbered geodata migration in order, and the
+  image build watches schema changes. See the [runner fix](https://github.com/myota-platform/myota-platform/commit/8102cd5),
+  [service migration guidance](https://github.com/myota-platform/myota-geodata-service/commit/2714dc2),
+  and [deployment migration guidance](https://github.com/myota-platform/myota-deploy/commit/89b2cfd).
 
 - **Admin web:** Changed Entity Catalogue page sizes to 25/50/100 and removed
   the overall cutoff from deletion status polling. Bulk jobs are polled in

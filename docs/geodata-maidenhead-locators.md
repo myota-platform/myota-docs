@@ -38,7 +38,9 @@ be synchronized byte-for-byte to
 `myota-platform/db/migrations/geo/` and
 `myota-deploy/db/migrations/geo/`, which are consumed by integration and
 deployment. Apply the geodata migration before rolling out service instances
-that project the new columns.
+that project the new columns. The Helm migration runner discovers numbered
+`geo/NNN_*.sql` files in lexical order, so each new migration is included in
+the migration image automatically.
 
 ## Verification cases
 
