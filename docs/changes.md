@@ -23,7 +23,10 @@ describe current ownership and are authoritative for the present-day system.
   entity every two seconds, merges the latest resource into the detail and
   visible list, and stops on completion/failure or selection change. See the
   [enrichment lifecycle](geodata-location-enrichment.md) and
-  [Admin web implementation](https://github.com/myota-platform/myota-admin-web).
+  [Admin web implementation](https://github.com/myota-platform/myota-admin-web/commit/73019a7).
+  The published image was synchronized in [deployment commit
+  `29e7a26`](https://github.com/myota-platform/myota-deploy/commit/29e7a26);
+  Fleet deployed Helm revision 93 and the Admin web pod became Ready.
 
 - **Geodata provider credential activation:** Provisioned the dedicated
   `myota-geodata-enrichment` Secret (`api-key`) and restarted the API and

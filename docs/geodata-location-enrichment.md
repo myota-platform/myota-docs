@@ -75,11 +75,21 @@ confirmed the key is now present in each runtime without displaying its value,
 and a sanitized live lookup from the geodata pod returned `ENRICHED` for a
 Sevilla-area coordinate. The worker log also confirmed its durable
 `geodata-location-enrichment-v1` consumer subscribed to the expected subject.
-The existing failed events were acknowledged before this recovery and will not
-replay automatically. Use **Update missing location data** in Entity
-Management to submit a fresh request for each entity still missing metadata.
-That fresh authenticated entity request is the remaining end-to-end check of
-the entity → outbox → JetStream → persisted enrichment path.
+The existing failed events were acknowledged before this recovery and did not
+replay automatically. After the provider Secret and worker were active, five
+fresh requests were submitted. Live database verification confirmed all five
+outbox events were published and processed by the durable consumer; the
+corresponding entities reached `COMPLETED` / `ENRICHED`, with country and city
+persisted and no enrichment error. This verifies the full entity → outbox →
+JetStream → provider → persisted-entity path. Use **Update missing location
+data** in Entity Management for any other entities that still lack metadata.
+
+The Admin UI originally refreshed the entity only immediately after queueing,
+so it could continue to display old fields after the worker had saved the
+result. It now polls the selected entity every two seconds while enrichment is
+queued and stops after completion or failure. The fix is in
+[myota-admin-web commit `73019a7`](https://github.com/myota-platform/myota-admin-web/commit/73019a7)
+and is deployed to K3s.
 
 The centroid projection fix was deployed to K3s as image digest
 `sha256:4547e6f39091b7027c42758ad3e164e582f287f133faf3bf0a5758b18cc56775`.
