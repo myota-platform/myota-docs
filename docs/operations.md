@@ -307,8 +307,11 @@ events that left a job unfinished and recovers work after worker restarts.
 Inspect job statuses in geodata_control_record (kind=entityDeletionJobs)
 alongside outbox and consumer checkpoints; do not purge the stream or manually
 delete entity rows to recover a job. The Admin UI polls both individual and
-bulk deletion jobs for up to one minute, bounds each HTTP request, and permits
-closing the dialog without cancelling a confirmed server-side deletion.
+bulk deletion jobs until they complete or fail, bounds each HTTP request, and
+permits closing the dialog without cancelling a confirmed server-side deletion.
+Bulk polling retries transient status-read errors without an overall timeout,
+then closes the modal and reports terminal failures. The Entity Catalogue
+page-size selector offers 25, 50, and 100 records.
 For bulk requests the confirmation modal is rendered before per-entity impact
 lookups begin; those lookups are batched and failures are shown per entity with
 a retry action. Creating the preliminary jobs only gathers impact and creates

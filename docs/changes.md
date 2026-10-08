@@ -15,6 +15,12 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **Admin web:** Changed Entity Catalogue page sizes to 25/50/100 and removed
+  the overall cutoff from deletion status polling. Bulk jobs are polled in
+  bounded batches through transient errors; the modal closes automatically
+  when every job reaches a terminal state. A regression test keeps jobs
+  polling beyond the previous one-minute limit ([implementation](https://github.com/myota-platform/myota-admin-web/commit/d04ed22)).
+  The K3s image rollout link will be added after publication.
 - **Admin web:** Fixed bulk permanent deletion's silent no-modal failure. The
   warning dialog now appears before asynchronous per-entity impact lookups;
   lookups are bounded in batches, failures stay visible with a retry option,
