@@ -21,6 +21,8 @@ describe current ownership and are authoritative for the present-day system.
   and stable idempotency keys prevent retries from creating duplicate
   confirmation jobs. The final user confirmation remains the only step that
   enqueues deletion events ([implementation](https://github.com/myota-platform/myota-admin-web/commit/c98a507)).
+  The updated admin image was published and rolled out to K3s through the
+  [Fleet digest update](https://github.com/myota-platform/myota-deploy/commit/d1c1346).
 - **Geodata service:** Fixed single and bulk permanent deletion jobs being
   acknowledged without execution when a worker's process-local row cache did
   not yet contain a job created by the API. Workers now reload the job from
