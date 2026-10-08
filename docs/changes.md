@@ -27,7 +27,17 @@ describe current ownership and are authoritative for the present-day system.
   pending message until its ACK, and retains a newly published unconsumed
   message. See [JetStream retention operations](operations.md#jetstream-event-retention)
   and the [event contract](https://github.com/myota-platform/myota-contracts/blob/main/contracts/events.md).
-  Live post-rollout verification will be recorded after the Helm update.
+  After rollout, the live stream reported `interest`, zero stored messages,
+  and zero pending/ack-pending across all five durables, confirming the 20,885
+  pre-rollout messages had already been acknowledged and reclaimed. The
+  outbox image digest is
+  `sha256:493363b21a34384c17fa2b25de5b14d980e88486693c1cb5c8fa5193e2460253`;
+  Fleet recorded it in [deployment commit
+  `7904ac5`](https://github.com/myota-platform/myota-deploy/commit/7904ac5).
+  Helm revision 94 is `deployed`, Fleet is 1/1 ready, and the core, geo, and
+  activity outbox deployments are Ready. Platform unit/integration tests,
+  deployment tests, CI lint, and image builds passed after CI was updated to
+  install the declared service requirements.
 
 - **Admin web:** Fixed stale location metadata after successful asynchronous
   enrichment. Live PostGIS records showed five recent requests had already
