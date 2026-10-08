@@ -28,6 +28,13 @@ flowchart LR
   OTel --> Prom
   OTel --> Tempo
   OTel --> Loki
+  Postgres[PostgreSQL + PostGIS]
+  Operations[Operations service\nonly for unsupported DB-specific telemetry]
+  Postgres -->|PostgreSQL receiver metrics| OTel
+  Postgres -->|database logs via OTLP/filelog| OTel
+  Services -->|instrumented database client spans| OTel
+  Postgres -.->|fallback for unsupported signals| Operations
+  Operations -->|OTLP / existing scrape path| OTel
   Grafana --> Prom
   Grafana --> Tempo
   Grafana --> Loki
@@ -52,6 +59,9 @@ the first implementation.
 7. Metrics remain the primary source for rate, latency, availability, and queue alerts;
    logs are used for investigation and exceptional-event alerts.
 8. Compose and Helm must remain functionally aligned.
+9. Prefer direct OpenTelemetry collection/instrumentation for PostgreSQL and
+   PostGIS telemetry; use the operations service only for database signals that
+   cannot be collected safely and reliably through direct integrations.
 
 ## Correlation model
 
@@ -148,6 +158,8 @@ Explicitly exclude:
 - GeoJSON/KML/GPX/WFS/ArcGIS bodies or complete geometries.
 - Full user profiles or unrestricted personally identifying fields.
 - Raw exception objects when they may embed credentials or payload fragments.
+- Raw SQL literals, bind parameters, credentials, or unbounded query text in
+  database spans, logs, metric labels, or diagnostic endpoints.
 
 Prefer identifiers and bounded metadata such as import ID, feature count, source
 type, object size, job type, delivery attempt, duration, result status, and
@@ -320,6 +332,43 @@ Deliverables:
 Implementation prompt:
 [Phase 6 ChatGPT prompt](prompts/logging-phase-6-production-hardening.md)
 
+### Phase 7 - PostgreSQL and PostGIS database observability
+
+Add database health and workload telemetry to the existing OpenTelemetry
+pipelines. Prefer the Collector's PostgreSQL receiver and application-side
+OpenTelemetry database instrumentation where they provide the needed signals.
+For PostgreSQL or PostGIS signals without a suitable direct integration, use
+`myota-platform/myota-operations-service` as the safe adapter and expose them
+through its existing observability path.
+
+Deliverables:
+
+- PostgreSQL server/database metrics collected through the OpenTelemetry
+  Collector's PostgreSQL receiver where supported by the pinned Collector
+  distribution;
+- database client spans from instrumented service queries, using OpenTelemetry
+  database semantic conventions and existing trace propagation;
+- PostgreSQL server logs collected through the Collector's supported file/OTLP
+  path, or emitted through the operations service when direct collection is not
+  feasible;
+- bounded PostGIS-specific health and workload metrics, including extension
+  availability/version and spatial index/query signals that can be measured
+  safely;
+- an explicit operations-service fallback for any PostgreSQL/PostGIS metrics,
+  traces, or logs that cannot be collected directly and reliably;
+- least-privilege monitoring credentials, existing secret handling, and no
+  public database or telemetry endpoint;
+- Grafana database/PostGIS views and useful trace/log links;
+- Compose and Helm parity, retention, redaction, cardinality and operational
+  runbook updates.
+
+Do not expose raw SQL values, bind parameters, user data, or complete geometry
+payloads. Avoid high-cardinality query text and expensive database-wide scans.
+Do not duplicate database measurements already owned by application metrics.
+
+Implementation prompt:
+[Phase 7 ChatGPT prompt](prompts/logging-phase-7-database-observability.md)
+
 ## Phase dependencies
 
 ```mermaid
@@ -329,12 +378,17 @@ flowchart LR
   P2[Phase 2\nLoki platform] --> P5[Phase 5\nGrafana correlation]
   P3 --> P5
   P4 --> P5
+  P3 --> P7[Phase 7\nPostgreSQL + PostGIS]
+  P2 --> P7
+  P1 --> P7
   P5 --> P6[Phase 6\nProduction hardening]
+  P7 --> P6
 ```
 
 Phases 1 and 2 may proceed in parallel. Phase 3 and Phase 4 depend on the common
-semantics from Phase 1. Phase 5 requires Loki plus instrumented data. Phase 6 is
-the final production gate.
+semantics from Phase 1. Phase 5 requires Loki plus instrumented data. Phase 7
+requires the Collector path from Phase 2 and database client instrumentation
+from Phase 3. Phase 6 is the final production gate after Phases 5 and 7.
 
 ## Definition of done
 
@@ -350,3 +404,7 @@ Logging is considered implemented when:
 8. Loki storage/retention is bounded and documented.
 9. Existing Prometheus alert ownership is not duplicated by unnecessary log alerts.
 10. Operational documentation includes troubleshooting queries and failure-mode guidance.
+11. PostgreSQL health/workload metrics, database client traces, and safe database
+    logs are visible through the existing OpenTelemetry/Grafana stack.
+12. PostGIS-specific signals are covered directly where supported; otherwise the
+    operations service exposes them through the existing telemetry path.
