@@ -15,6 +15,20 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 8 October 2026 — scale evidence and deployment observability
 
+- **JetStream event retention:** Changed the shared `MYOTA_EVENTS` stream from
+  `Limits` to `Interest` retention after ensuring the five required durable
+  consumers exist with their current subject filters and explicit acknowledgments.
+  This removes an event only after every matching durable consumer acknowledges
+  it, while leaving unconsumed work pending; the existing 30-day maximum age
+  remains a safety bound. The pre-rollout cluster inspection found 20,885
+  retained messages and zero pending or acknowledgment-pending messages across
+  those five consumers. An isolated NATS 2.10 integration test verified that
+  switching retention removes an already-acknowledged message, preserves a
+  pending message until its ACK, and retains a newly published unconsumed
+  message. See [JetStream retention operations](operations.md#jetstream-event-retention)
+  and the [event contract](https://github.com/myota-platform/myota-contracts/blob/main/contracts/events.md).
+  Live post-rollout verification will be recorded after the Helm update.
+
 - **Admin web:** Fixed stale location metadata after successful asynchronous
   enrichment. Live PostGIS records showed five recent requests had already
   completed with provider status `ENRICHED` and country/city fields persisted;
