@@ -25,8 +25,9 @@ implementation is specified in the
 
 The plan adds Loki behind the existing OpenTelemetry Collector, standardizes
 structured service and worker logging, propagates trace and business correlation
-context through HTTP and NATS/JetStream, and connects Grafana metrics, traces and
-logs. It is split into independently executable phases, each with a linked
+context through HTTP and NATS/JetStream, adds PostgreSQL/PostGIS database
+metrics, traces and logs, and connects Grafana metrics, traces and logs. It is
+split into independently executable phases, each with a linked
 ChatGPT/Work/Codex implementation prompt.
 
 ## Collection architecture
