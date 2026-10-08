@@ -272,7 +272,9 @@ documents profile safety, cleanup, metrics, and read-only query-plan capture.
 The **MyOTA Object Storage** dashboard uses SeaweedFS's own S3 request
 counters, server-side request-duration histogram, non-2xx status codes, and
 in-flight upload count/bytes. Helm enables the private SeaweedFS metrics
-listeners on ports 9324 (master) and 9327 (S3); only the Collector scrapes them.
+listener on port 9324; it exposes both master and S3 metrics, and only the
+Collector scrapes it. Do not configure a separate 9327 target: the deployed
+SeaweedFS build does not listen on that port.
 Do not publish either listener through an Ingress. A missing `up` series means
 the scrape is unavailable, not that object storage had zero operations.
 

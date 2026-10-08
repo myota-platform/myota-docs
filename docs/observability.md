@@ -83,15 +83,19 @@ above the configured slow-query threshold. A guarded non-production tool
 captures actual `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` plans; see the
 [geodata load and query-evidence runbook](geodata-load-test-and-query-evidence.md).
 
-SeaweedFS exposes its own Prometheus metrics on private master and S3 listeners
-(Helm defaults: 9324 and 9327). The Collector scrapes S3 operation counts by
-operation/bucket/status, server-side request-duration histograms, active
-uploads and bytes. The **MyOTA Object Storage** dashboard displays throughput,
-p50/p95/p99 service time, non-2xx rates and in-flight upload state; alerts cover
-missing scrape targets, sustained S3 errors and high server-side p95 latency.
+SeaweedFS exposes master and S3 request metrics together on its private
+Prometheus listener (Helm default: 9324). A live check confirmed S3 counters
+and request-duration histograms on this endpoint; the previously configured
+9327 listener is not exposed by the deployed build. The Collector scrapes S3
+operation counts by operation/bucket/status, server-side request-duration
+histograms, active uploads and bytes. The **MyOTA Object Storage** dashboard
+displays throughput, p50/p95/p99 service time, non-2xx rates and in-flight
+upload state; alerts cover missing scrape targets, sustained S3 errors and
+high server-side p95 latency.
 These server measurements separate SeaweedFS processing from end-to-end client
 upload timing. The metric listeners are internal-only and must not be exposed
-through an Ingress.
+through an Ingress. Helm hashes the Collector scrape configuration into its
+pod template so Fleet ConfigMap updates restart the Collector automatically.
 
 ## Alerting
 

@@ -101,13 +101,15 @@ latest sample was 6.7 seconds old when freshness was checked. These results
 show no observed sustained broker backlog at one import per second; they do
 not establish maximum worker throughput.
 
-The current Prometheus scrape configuration has only the OpenTelemetry
-Collector as an external target; the Collector scrapes MyOTA services. The
-SeaweedFS Kubernetes service exposes ports 8333 and 8888, but `/metrics` on
-those ports did not return a metrics document, and port 9327 was not reachable
-through the service. No SeaweedFS operation-duration/throughput series were
-available. Therefore object-storage service time and saturation cannot be
-separated from network/gateway time and remain unmeasured.
+The production SeaweedFS process exposes S3 counters and request histograms on
+its private port 9324 metrics endpoint. A direct live check confirmed those
+metric families; port 9327 is not listening in the deployed build. The
+Collector had incorrectly targeted that unsupported second port. Deploy
+commit [`3dc263a`](https://github.com/myota-platform/myota-deploy/commit/3dc263aae48c8cdfdaac6ae440dfda541a2eb1f7)
+corrects the scrape, alert selectors, and dashboard labels. Its workflow and
+Fleet reconciliation are pending, so the corrected Prometheus series and
+upload-to-worker correlation have not yet been verified. Until then, storage
+service-time and saturation evidence remains incomplete.
 
 The production gateway's HTTP telemetry was labelled
 `deployment_environment="development"`, while geodata and activity series
@@ -124,9 +126,11 @@ The five bounded write-profile executions and empty-catalogue read baseline
 are now delivered and retained. The query plans prove the tool operates safely
 and the current schema has GiST indexes, but 25 rows are not representative
 cardinality. Worker/broker samples show no sustained backlog at the tested
-rate. At capture time there was no service-side SeaweedFS latency metric, and
-gateway telemetry had an incorrect environment value and high-cardinality
-route labels.
+rate. SeaweedFS S3 metrics were configured against a non-listening 9327
+endpoint; live metrics were confirmed on 9324 and the scrape correction is
+published but not yet reconciled. Gateway telemetry had an incorrect
+environment value and high-cardinality route labels; corrected telemetry is
+published and still requires live verification.
 
 ### Scale-gate implementation status — 8 October 2026
 
@@ -148,14 +152,18 @@ uses stable route templates and the deployment environment. SeaweedFS metrics,
 scrapes, dashboard and alerts are implemented. GitHub quality and chart-render
 checks passed. The first Fleet rollout attempted to start a second SeaweedFS
 process on the single-writer PVC; its filer LevelDB lock rejected the new pod
-while the old pod remained healthy. A `Recreate` strategy is now published in
-Helm, but Fleet has not yet applied it; there is currently no live SeaweedFS
-metrics evidence from the new configuration. No workload was run during this
-rollout issue.
+while the old pod remained healthy. Helm now uses `Recreate`; the replacement
+pod reached Ready and its live port 9324 endpoint returned SeaweedFS S3
+counters and histograms. A follow-up commit corrects the Collector target and
+dashboard selectors. Helm now hashes the rendered Collector config into the
+pod template, so the ConfigMap update triggers its rollout automatically. The
+new scrape is awaiting Fleet reconciliation and live verification. No workload
+was run during the rollout issue.
 
-**Phase 0 remains open.** Before checking it off, capture map/catalogue plans
-at representative, permanently retained fixture cardinality; verify gateway
-environment and stable-route series; and correlate SeaweedFS server metrics
-with a bounded API upload and worker/broker measurements. Do not check off the
-gate until the requested fixture data exists and sanitized evidence is
-committed. No test changed service replicas or injected faults.
+**Phase 0 remains open.** Before checking it off, provision the approved,
+permanently retained representative fixture cardinality; capture map/catalogue
+plans; verify gateway environment and stable-route series; and correlate the
+corrected SeaweedFS server metrics with a bounded API upload and worker/broker
+measurements. Do not check off the gate until the fixture size is confirmed,
+the fixtures exist, and sanitized evidence is committed. No test changed
+service replicas or injected faults.

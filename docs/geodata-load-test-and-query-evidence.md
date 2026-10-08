@@ -303,13 +303,17 @@ window recorded a maximum import queue depth of 1 and maximum queued age of
 age stayed at zero in the sampled series. This shows no observed sustained
 broker lag at one import per second, not maximum worker capacity.
 
-The Helm/Compose implementation now enables SeaweedFS master and S3 metrics on
-private ports 9324/9327, scrapes the S3 operation counters/histograms, and
-provisions a dedicated object-storage dashboard and alerts. The image and chart
-are published and GitHub Helm rendering passed; Fleet has not yet reported
-the final revision applied, so no live SeaweedFS measurement is claimed. The
-gateway now emits stable route templates and takes `MYOTA_ENV` from the chart;
-the deployed labels still need to be checked after Fleet reconciliation.
+The deployed SeaweedFS build exposes both master and S3 metrics on private
+port 9324. A live check confirmed S3 counters and histograms there; port 9327
+does not listen. Deploy commit
+[`3dc263a`](https://github.com/myota-platform/myota-deploy/commit/3dc263aae48c8cdfdaac6ae440dfda541a2eb1f7)
+corrects the Collector target, alert selectors, and dashboard labels to use
+the verified endpoint. Its workflow and Fleet reconciliation are pending, so
+no post-correction Prometheus scrape or upload correlation is claimed yet.
+The chart now hashes the Collector scrape configuration into its pod template,
+so Fleet ConfigMap changes trigger an automatic Collector rollout.
+The gateway now emits stable route templates and takes `MYOTA_ENV` from the
+chart; the deployed labels still need to be checked after Fleet reconciliation.
 
 **Phase 0 remains open.** The remaining evidence gates are to provision and
 retain the representative fixture set, capture/review production map and
