@@ -80,5 +80,6 @@ Verification must check authorized latest/history responses, missing-data and
 failure semantics, actual Grafana Editor access, creation/deletion of a test
 dashboard, Viewer denial, all dashboard time/refresh defaults, migration
 success, and Helm/Fleet readiness. Deployment evidence is recorded in
-[changes.md](changes.md). Existing Identity/Programme scrape coverage and the
+[changes.md](changes.md) and the [9 October delivery evidence](evidence/observability-2026-10-09.md).
+Existing Identity/Programme scrape coverage and the
 broader structured-logging roadmap remain separate open work.

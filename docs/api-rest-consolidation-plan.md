@@ -1,7 +1,7 @@
 # REST API consolidation plan
 
 Status: Phases 0–4 implemented; Phase 5 remains planned
-Reviewed: 2026-10-08
+Reviewed: 2026-10-09
 Owner: myota-contracts with the affected service repositories
 
 This review compares the current OpenAPI documents and route registries in the

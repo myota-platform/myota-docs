@@ -13,7 +13,7 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](repository-map.md) and [architecture](architecture.md)
 describe current ownership and are authoritative for the present-day system.
 
-## 8 October 2026 — scale evidence and deployment observability
+## 9 October 2026 — storage visibility and Grafana editing
 
 - **Storage visibility and Grafana editing:** Added a SeaweedFS Admin UI page
   at `/object-storage`, backed by operations-owned health/exporter snapshots
@@ -24,8 +24,18 @@ describe current ownership and are authoritative for the present-day system.
   authorized readers receive Viewer. Provisioned dashboards permit UI saves,
   default to the last 30 minutes and refresh every 30 seconds. Contracts,
   clients, migration mirrors, Compose and Helm are synchronized. See the
-  [storage page/access runbook](seaweedfs-admin-status.md). Local tests, types,
-  build and contract reconciliation passed; rollout verification follows delivery.
+  [storage page/access runbook](seaweedfs-admin-status.md) and
+  [sanitized delivery evidence](evidence/observability-2026-10-09.md).
+  Helm chart 0.2.11 revision 97 is deployed; Fleet is 1/1 ready at image-digest
+  commit `fb5b655`, and all 21 deployments reached their desired Ready replicas.
+  Live checks verified fresh storage samples/history, real storage-health
+  metrics, individual Editor identities with spoofed role headers ignored,
+  all five dashboard defaults, anonymous denial, and creation/removal of a
+  temporary dashboard with a timeseries panel. Local tests, CI, types, build,
+  contract reconciliation and GitHub Helm rendering passed. A signed-in
+  browser was unavailable for a visual page review; this remains unperformed.
+
+## 8 October 2026 — scale evidence and deployment observability
 
 - **JetStream event retention:** Changed the shared `MYOTA_EVENTS` stream from
   `Limits` to `Interest` retention after ensuring the five required durable
