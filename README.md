@@ -68,6 +68,8 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
 - Browse all subjects in the [documentation index](docs/README.md):
   architecture, domain/API, geodata, operations, observability, governance,
   history, platform policy, security, and development.
+- NATS work: [migration plan](docs/operations/messaging/nats-event-migration-plan.md)
+  and [Phase 0 evidence inventory](docs/operations/messaging/nats-event-migration-inventory.md).
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
