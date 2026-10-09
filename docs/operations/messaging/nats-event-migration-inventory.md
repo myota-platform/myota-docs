@@ -443,11 +443,12 @@ filters from intended subscribers.
 
 The workspace owner selected the topology below for the target design. This is
 a documentation decision, not an implementation or production approval. ADR-0008
-records the choice and its operational constraints. Phase 0 remains open for
-the evidence gates below; Phase 1 must turn the selected contract into reviewed,
-tested implementation before producers or consumers move.
+records the choice and its operational constraints. The Phase 0
+inventory/decision criteria are complete; the evidence gates below are assigned
+follow-up work. Phase 1 must turn the selected contract into reviewed, tested
+implementation before producers or consumers move.
 
-Other evidence gaps and proposed closure owners/phases:
+Other evidence gaps assigned to closure owners/phases:
 
 1. No authoritative schema registry or schema compatibility rules exist yet.
    The selected design is `envelopeVersion: 1` plus checked-in per-event JSON
@@ -501,15 +502,15 @@ Other evidence gaps and proposed closure owners/phases:
   owners, a closure phase, and the runtime cutover each one gates. See the
   [Phase 0 evidence ownership and gates](nats-event-migration-plan.md#phase-0-evidence-ownership-and-gates)
   register in the plan.
-- [ ] Owning teams confirm the assignments and record individual assignees or
-  explicit risk acceptances in their work items. Phase 1 contract/topology work
-  may proceed while gaps are closed; a dependent producer or consumer path must
-  not change before its gate.
+- [x] The workspace owner confirmed the assignments; individual assignees are
+  recorded in the linked repository issues. Phase 1 contract/topology work may
+  proceed while gaps are closed; a dependent producer or consumer path must not
+  change before its gate.
 
-The checked items record repository inspection and a selected target design;
-they do not mean runtime work is implemented. Phase 0 remains open until owners
-confirm the evidence register. Evidence may close during Phase 1, but each
-producer/consumer cutover remains blocked until its listed gate is met or the
-specified owners record an explicit, time-bounded risk acceptance and recovery
-plan. Phase 1 must implement and qualify the selected design before any migration
-is marked complete.
+The checked items record repository inspection, a selected target design, and
+assigned evidence work; they do not mean runtime work is implemented. Phase 0's
+inventory/decision exit criteria are complete. Evidence closure continues in the
+linked issues, and each producer/consumer cutover remains blocked until its listed
+gate is met or the specified owners record an explicit, time-bounded risk
+acceptance and recovery plan. Phase 1 must implement and qualify the selected
+design before any migration is marked complete.

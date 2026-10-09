@@ -195,10 +195,10 @@ rollback and database recovery checks pass.
       consumer rollout; Phase 1 contract work resolves their dispositions.
 - [x] Create the evidence register below with proposed authoritative repository
       owners, closure phases, and the producer/consumer cutover each gap gates.
-- [ ] Confirm the proposed assignments with the owning teams and record individual
-      assignees in their work items. Phase 1 contract/topology work may proceed
-      while evidence is being closed; a producer or consumer path must not change
-      until its listed gate is met.
+- [x] Confirm the assignments with the workspace owner and record the individual
+      assignee in each owning repository's work item. Phase 1 contract/topology
+      work may proceed while evidence is being closed; a producer or consumer path
+      must not change until its listed gate is met.
 
 **Exit criteria**
 
@@ -209,8 +209,9 @@ rollback and database recovery checks pass.
 - [x] Mirrored files and authoritative repositories are explicitly identified.
 - [x] Every remaining evidence gap is mapped to a proposed authoritative repository,
       closure phase, and explicit cutover gate.
-- [ ] Owning teams confirm the proposed assignments; individual assignees and any
-      acceptance decisions are recorded in the owning work items.
+- [x] The workspace owner confirms the assignments; individual assignees are
+      recorded in the owning work items. Record any future risk acceptance there
+      with its expiry/review point and recovery plan.
 
 #### Phase 0 evidence ownership and gates
 
@@ -218,26 +219,30 @@ The evidence gaps are not a blanket blocker to starting Phase 1 contract and
 topology work: defining the contract, registry, limits, and safe provisioning is
 part of Phase 1. They are gates on the runtime change that depends on them. Phase 1
 may implement and validate changes in isolation, but must not activate live stream
-configuration or change producer/consumer behavior before the relevant gate. The
-repository/service below is
-the proposed accountable owner based on the [repository map](../../architecture/repository-map.md);
-mirrors are not owners. Confirm the assignment in the owning work item before
-marking this Phase 0 criterion complete.
+configuration or change producer/consumer behavior before the relevant gate.
 
-| Inventory gap | Accountable repository owner | Close before |
+The workspace owner confirmed the assignments in this task. This workspace has no
+separate service teams: Volker Kerkhoff (`@kerk1v`) is the named individual and
+GitHub assignee for the evidence work items; Codex is the pairing agent and is not
+a separate GitHub account. Accountable source repositories below follow the
+[repository map](../../architecture/repository-map.md); mirrors are not owners.
+Each work item records the evidence, gate, and assignee.
+
+| Inventory gap | Accountable repository owner | Close before | Individual assignee and work item |
 |---|---|---|
-| 1. Envelope schema and compatibility rules | `myota-contracts` (with event-producing service owners) | Phase 2 publishes the new envelope or subject contract |
-| 2. Intended subscriber groups and event dispositions | `myota-contracts`, with each relevant service owner (`myota-identity-service`, `myota-programme-service`, `myota-activity-service`, `myota-geodata-service`) | Phase 3 enables or changes a consumer group |
-| 3. Activity notification/checkpoint atomicity and synthetic job state | `myota-activity-service` | Phase 3 changes the notification consumer; Phase 4 removes/corrects the synthetic job |
-| 4. Geodata transaction coupling and source recovery for fallback/upload paths | `myota-geodata-service` | Phase 2 changes affected fact publication or Phase 5 changes affected work routing |
-| 5. Activity worker idempotency and missing `Idempotency-Key` behavior | `myota-activity-service` | Phase 4 switches the affected job producer/worker |
-| 6. Relay/consumer dead-letter redrive and database retention | `myota-deploy` for relay/runbook behavior; each service repository for its database records | Before enabling a cutover that relies on redrive or cleanup of those records |
-| 7. Geodata migration-015 recovery identity and concurrent-startup behavior | `myota-geodata-service`, with `myota-deploy` for migration rollout | Phase 5 switches Geodata work to `MYOTA_GEODATA_WORK` |
-| 8. Measured limits, backup/restore, permissions, and deployed NATS config | `myota-deploy`; `myota-operations-service` supplies inspection/observability evidence | Before stream provisioning is qualified; production evidence before Phase 6 rollout |
-| 9. Producer-to-consumer coverage and registry checks | `myota-contracts` coordinates; owning service and `myota-deploy` test owners supply evidence | Before Phase 2/3 coverage is declared complete and before Phase 6 retirement |
+| 1. Envelope schema and compatibility rules | `myota-contracts` (with event-producing service owners) | Phase 2 publishes the new envelope or subject contract | Volker Kerkhoff (`@kerk1v`); [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1) |
+| 2. Intended subscriber groups and event dispositions | `myota-contracts`, with each relevant service owner (`myota-identity-service`, `myota-programme-service`, `myota-activity-service`, `myota-geodata-service`) | Phase 3 enables or changes a consumer group | Volker Kerkhoff (`@kerk1v`); [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1), [Identity #1](https://github.com/myota-platform/myota-identity-service/issues/1), [Programme #1](https://github.com/myota-platform/myota-programme-service/issues/1), [Activity #1](https://github.com/myota-platform/myota-activity-service/issues/1) |
+| 3. Activity notification/checkpoint atomicity and synthetic job state | `myota-activity-service` | Phase 3 changes the notification consumer; Phase 4 removes/corrects the synthetic job | Volker Kerkhoff (`@kerk1v`); [Activity #1](https://github.com/myota-platform/myota-activity-service/issues/1) |
+| 4. Geodata transaction coupling and source recovery for fallback/upload paths | `myota-geodata-service` | Phase 2 changes affected fact publication or Phase 5 changes affected work routing | Volker Kerkhoff (`@kerk1v`); [Geodata #2](https://github.com/myota-platform/myota-geodata-service/issues/2) |
+| 5. Activity worker idempotency and missing `Idempotency-Key` behavior | `myota-activity-service` | Phase 4 switches the affected job producer/worker | Volker Kerkhoff (`@kerk1v`); [Activity #1](https://github.com/myota-platform/myota-activity-service/issues/1) |
+| 6. Relay/consumer dead-letter redrive and database retention | `myota-deploy` coordinates relay/runbook and physical-database retention evidence with the service owners | Before enabling a cutover that relies on redrive or cleanup of those records | Volker Kerkhoff (`@kerk1v`); [deploy #3](https://github.com/myota-platform/myota-deploy/issues/3) |
+| 7. Geodata migration-015 recovery identity and concurrent-startup behavior | `myota-geodata-service`, with `myota-deploy` for migration rollout | Phase 5 switches Geodata work to `MYOTA_GEODATA_WORK` | Volker Kerkhoff (`@kerk1v`); [Geodata #2](https://github.com/myota-platform/myota-geodata-service/issues/2) |
+| 8. Measured limits, backup/restore, permissions, and deployed NATS config | `myota-deploy`; `myota-operations-service` supplies inspection/observability evidence | Before stream provisioning is qualified; production evidence before Phase 6 rollout | Volker Kerkhoff (`@kerk1v`); [deploy #3](https://github.com/myota-platform/myota-deploy/issues/3), [Operations #1](https://github.com/myota-platform/myota-operations-service/issues/1) |
+| 9. Producer-to-consumer coverage and registry checks | `myota-contracts` coordinates; owning service and `myota-deploy` test owners supply evidence | Before Phase 2/3 coverage is declared complete and before Phase 6 retirement | Volker Kerkhoff (`@kerk1v`); [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1) |
 
-For each gap, the owning work item must include the evidence link, residual risk,
-mitigation, individual assignee, and target phase. If evidence cannot be completed
+For each gap, the linked work item includes the individual assignee and target
+gate. Record evidence links, residual risk, and mitigation as the work progresses.
+If evidence cannot be completed
 before its gate, the affected service owner and `myota-deploy` must record explicit
 risk acceptance, expiry/review point, and recovery plan. A blanket “accepted” entry
 without those fields does not satisfy the gate. Documentation link cleanup is a
