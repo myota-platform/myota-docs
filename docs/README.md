@@ -31,6 +31,8 @@ indexes organize open work by delivery status.
 
 - [To do](to-do/README.md) — accepted backlog and proposed work that has not
   started or still needs a decision.
+- [Prioritized backlog](to-do/prioritized-backlog.md) — documentation-based
+  urgency order with links to the owning roadmaps.
 - [Work in progress](work-in-progress/README.md) — active delivery threads,
   verification evidence, and open gates.
 

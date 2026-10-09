@@ -4,6 +4,10 @@ This index lists accepted backlog and proposed work that has not started, or
 that still needs a decision. Check the linked roadmap for item-level status and
 evidence; this page is a navigation index, not a second source of truth.
 
+For a recommended execution order and the reasons behind it, see the
+[prioritized backlog](prioritized-backlog.md). Priority is based on the current
+documentation evidence and does not set delivery dates.
+
 - [Future award-condition model](../domain/awards/future-condition-model-roadmap.md)
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
