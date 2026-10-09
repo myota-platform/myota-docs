@@ -447,7 +447,7 @@ records the choice and its operational constraints. Phase 0 remains open for
 the evidence gates below; Phase 1 must turn the selected contract into reviewed,
 tested implementation before producers or consumers move.
 
-Other evidence gaps before Phase 1:
+Other evidence gaps and proposed closure owners/phases:
 
 1. No authoritative schema registry or schema compatibility rules exist yet.
    The selected design is `envelopeVersion: 1` plus checked-in per-event JSON
@@ -497,12 +497,16 @@ Other evidence gaps before Phase 1:
   limitations are recorded.
 - [x] The workspace owner selected the stream split, retention policy, naming,
   Activity job migration scope, and compatibility direction; see ADR-0008.
-- [ ] Remaining transaction/idempotency/replay evidence gaps are resolved or
-  accepted with named owners before Phase 1 implementation. This is the open
-  Phase 0 evidence gate; no runtime migration is complete.
+- [ ] Remaining evidence gaps are mapped to confirmed authoritative repository
+  owners, a closure phase, and the runtime cutover each one gates. See the
+  [Phase 0 evidence ownership and gates](nats-event-migration-plan.md#phase-0-evidence-ownership-and-gates)
+  register in the plan. Phase 1 contract/topology work may proceed while gaps are
+  closed; a dependent producer or consumer path must not change before its gate.
 
 The checked items record repository inspection and a selected target design;
-they do not mean runtime work is implemented. Phase 0 remains open until the
-remaining evidence gaps are resolved or accepted with named owners. Phase 1
-must implement and qualify the selected design before any migration is marked
-complete.
+they do not mean runtime work is implemented. Phase 0 remains open until owners
+confirm the evidence register. Evidence may close during Phase 1, but each
+producer/consumer cutover remains blocked until its listed gate is met or the
+specified owners record an explicit, time-bounded risk acceptance and recovery
+plan. Phase 1 must implement and qualify the selected design before any migration
+is marked complete.

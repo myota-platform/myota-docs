@@ -190,11 +190,13 @@ rollback and database recovery checks pass.
       replay/retention needs, deployment complexity, and migration safety. Do not
       split streams merely for naming symmetry.
 - [x] Add an ADR or amend the event contract with the selected topology, subject
-      naming, ownership, compatibility and deprecation policy. Flag uncovered
-      consumers and unclassified event types as blockers to Phase 1.
-- [ ] Resolve the remaining transaction, idempotency, and recovery/replay evidence
-      gaps in the inventory, or record an explicit acceptance and named owner for
-      each before Phase 1 implementation begins.
+      naming, ownership, compatibility and deprecation policy. Carry uncovered
+      consumers and unclassified event types as gates on the affected producer or
+      consumer rollout; Phase 1 contract work resolves their dispositions.
+- [ ] Create the evidence register below, confirm its repository-level owners,
+      and record any individual assignee in the owning repository's work item.
+      Phase 1 contract/topology work may proceed while evidence is being closed;
+      a producer or consumer path must not change until its listed gate is met.
 
 **Exit criteria**
 
@@ -203,8 +205,41 @@ rollback and database recovery checks pass.
 - [x] Stream/retention topology and activity-job migration scope are selected in
       documentation before implementation changes begin.
 - [x] Mirrored files and authoritative repositories are explicitly identified.
-- [ ] Remaining evidence gaps are resolved or accepted with named owners before
-      Phase 1 implementation begins.
+- [ ] Every remaining evidence gap has an accountable authoritative repository,
+      closure phase, and explicit cutover gate; owning teams have confirmed the
+      assignment. Individual assignees and acceptance decisions are recorded in
+      the owning work items.
+
+#### Phase 0 evidence ownership and gates
+
+The evidence gaps are not a blanket blocker to starting Phase 1 contract and
+topology work: defining the contract, registry, limits, and safe provisioning is
+part of Phase 1. They are gates on the runtime change that depends on them. Phase 1
+may implement and validate changes in isolation, but must not activate live stream
+configuration or change producer/consumer behavior before the relevant gate. The
+repository/service below is
+the proposed accountable owner based on the [repository map](../../architecture/repository-map.md);
+mirrors are not owners. Confirm the assignment in the owning work item before
+marking this Phase 0 criterion complete.
+
+| Inventory gap | Accountable repository owner | Close before |
+|---|---|---|
+| 1. Envelope schema and compatibility rules | `myota-contracts` (with event-producing service owners) | Phase 2 publishes the new envelope or subject contract |
+| 2. Intended subscriber groups and event dispositions | `myota-contracts`, with each relevant service owner (`myota-identity-service`, `myota-programme-service`, `myota-activity-service`, `myota-geodata-service`) | Phase 3 enables or changes a consumer group |
+| 3. Activity notification/checkpoint atomicity and synthetic job state | `myota-activity-service` | Phase 3 changes the notification consumer; Phase 4 removes/corrects the synthetic job |
+| 4. Geodata transaction coupling and source recovery for fallback/upload paths | `myota-geodata-service` | Phase 2 changes affected fact publication or Phase 5 changes affected work routing |
+| 5. Activity worker idempotency and missing `Idempotency-Key` behavior | `myota-activity-service` | Phase 4 switches the affected job producer/worker |
+| 6. Relay/consumer dead-letter redrive and database retention | `myota-deploy` for relay/runbook behavior; each service repository for its database records | Before enabling a cutover that relies on redrive or cleanup of those records |
+| 7. Geodata migration-015 recovery identity and concurrent-startup behavior | `myota-geodata-service`, with `myota-deploy` for migration rollout | Phase 5 switches Geodata work to `MYOTA_GEODATA_WORK` |
+| 8. Measured limits, backup/restore, permissions, and deployed NATS config | `myota-deploy`; `myota-operations-service` supplies inspection/observability evidence | Before stream provisioning is qualified; production evidence before Phase 6 rollout |
+| 9. Producer-to-consumer coverage and registry checks | `myota-contracts` coordinates; owning service and `myota-deploy` test owners supply evidence | Before Phase 2/3 coverage is declared complete and before Phase 6 retirement |
+
+For each gap, the owning work item must include the evidence link, residual risk,
+mitigation, individual assignee, and target phase. If evidence cannot be completed
+before its gate, the affected service owner and `myota-deploy` must record explicit
+risk acceptance, expiry/review point, and recovery plan. A blanket “accepted” entry
+without those fields does not satisfy the gate. Documentation link cleanup is a
+separate maintenance item and is not a runtime migration gate.
 
 **ChatGPT prompt — Phase 0**
 
@@ -297,6 +332,12 @@ Implement the selected Phase 1 NATS contract and topology decisions recorded in
 myota-docs/docs/operations/messaging/nats-event-migration-plan.md and ADR-0008. First read
 the Phase 0 inventory and repository ownership map. Do not expand scope beyond the
 approved topology.
+
+Review the Phase 0 evidence ownership and gates table. Contract, schema, registry,
+and isolated provisioning work may proceed, but do not apply live stream changes
+or change producer/consumer behavior until the relevant gap is closed or the
+specified owners record the required time-bounded risk acceptance and recovery
+plan.
 
 Update the authoritative myota-contracts event documentation/schema and any required
 owning-service helpers. Define the versioned envelope, stable message ID, subject
