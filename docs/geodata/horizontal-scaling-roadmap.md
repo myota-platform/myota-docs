@@ -3,10 +3,11 @@
 ## Status and scope
 
 **Phase 0 evidence gate complete at 2,875 measured entities. Phases 1 and 2
-are implemented and verified. Phase 3 has streaming decoders and database
-checkpoint/recovery evidence for import preprocessing, but remains open:
-worst-case parser memory and worker lifecycle/JetStream failure-injection gates
-are not qualified. Phases 4 and 5 remain open.**
+are implemented and verified. Phase 3 has streaming decoders, byte-bounded
+candidate checkpoints, database recovery evidence, and isolated JetStream
+delivery tests, but remains open: worst-case format memory and forced worker
+termination at every business stage are not yet qualified. Phases 4 and 5
+remain open.**
 This checklist records the work needed before increasing the
 Geodata API beyond one replica in production. The baseline does not make the
 current service horizontally safe.
@@ -45,7 +46,8 @@ Current implementation and remaining hazards:
   separately deployed JetStream worker. Source-reference and proximity
   lookups are indexed. Uploaded GeoJSON, KML, GPX, Shapefile/ParkServe, and OSM
   PBF have streaming decoders and commit stable-ordinal candidate checkpoints
-  in configurable batches (default 100). Decoder guards and the 5,000-feature
+  in batches bounded by 100 features or 32 MiB serialized source data. Decoder
+  guards and the 5,000-feature
   import ceiling bound accepted work, but XML element/PBF area worst-case memory,
   complete-snapshot peak RSS, and crash behavior at every worker stage have not
   been qualified. See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
@@ -396,25 +398,34 @@ ChatGPT implementation prompt: [implement bounded workers and failure recovery](
   state and persistent sampled history through the authenticated
   [operations service and admin page](../operations/messaging/jetstream-admin-status.md). The observer
   does not consume, acknowledge, redrive or purge domain work.
+- [x] Verify durable delivery against isolated JetStream: ACK-pending is
+  released after handler success; a lost ACK after the processed-event commit
+  redelivers without repeating the handler side effect; and competing pull
+  consumers process a bounded event set once. This does not replace forced
+  process-death tests at each business handler stage. See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - [x] Add worker shutdown/drain behavior: stop fetching on SIGTERM/SIGINT,
   finish the active delivery, and drain the NATS connection.
 - [ ] Test worker termination during parsing, enrichment, candidate
   persistence, and promotion, including forced termination after the grace
   period; then verify lease reclaim and replay in isolated CI. Local
-  PostGIS-backed evidence now covers forced termination after a committed
+  PostGIS-backed evidence covers forced termination after a committed
   100-record candidate checkpoint, replay to 250 unique ordinals, two competing
-  preprocessing claims, and promotion replay. It does not yet cover all worker
-  stages or JetStream delivery/ACK behavior in isolated CI.
+  preprocessing claims, and promotion replay. Isolated JetStream CI covers
+  ACK/redelivery behavior, while business-stage process death at parse,
+  enrichment, and promotion remains unqualified.
 
 **Exit criteria: partially met.** API requests no longer execute durable
 preprocessing or promotion locally; worker retries use database leases and
-stable identities. Uploaded formats now use streaming decoders with explicit
-feature/import caps; GeoJSON and representative KML/GPX fixtures have measured
-bounded RSS. Isolated local PostGIS tests prove checkpoint replay after forced
-worker death, unique ordinals, and one winner among competing claims. Phase 3
-does not close until worst-case allocation and all-format/snapshot RSS are
-qualified and isolated CI proves graceful/forced termination and replay at each
-worker stage, including enrichment and JetStream delivery/acknowledgement.
+stable identities. Uploaded formats use streaming decoders with explicit
+feature/import caps and preprocessing windows bounded by both 100 records and
+32 MiB serialized input; GeoJSON and representative KML/GPX fixtures have
+measured bounded RSS. Isolated local PostGIS tests prove checkpoint replay after
+forced worker death, unique ordinals, and one winner among competing claims.
+Isolated JetStream CI verifies ACK-pending release, commit-before-ACK redelivery,
+idempotent effects and competing consumers. Phase 3 does not close until
+worst-case allocation and all-format/snapshot RSS are qualified and isolated CI
+proves graceful/forced termination and replay at each worker stage, including
+parsing, enrichment and promotion.
 See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 
 ### Phase 4 — remove unsafe infrastructure constraints

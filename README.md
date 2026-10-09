@@ -25,10 +25,13 @@ Implemented functionality is not the same as production qualification. The
 Phase 0 geodata baseline/evidence gate is complete at the measured catalogue
 size. Phase 2 resumable-upload recovery also passed in isolated CI against the
 SeaweedFS image ID deployed to K3s; broader geodata scale qualification remains
-open because Phase 3 is only partially bounded (ordinary uploaded GeoJSON now
-uses streamed parsing and checkpointed candidate batches; other formats,
-snapshots, measured peak memory, and worker termination/reclaim evidence remain
-open), as do later rollout gates. See the [Phase 3 evidence review](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
+open because Phase 3 is only partially qualified: supported formats stream into
+100-feature/32-MiB candidate batches; representative GeoJSON/KML/GPX RSS and
+local PostGIS recovery are recorded; isolated JetStream ACK/redelivery tests
+pass CI; and the final image is deployed to K3s with a healthy gateway check.
+Worst-case format/snapshot memory and forced worker termination at
+parse/enrichment/promotion remain open, as do later rollout gates. See the
+[Phase 3 evidence review](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
 The permanent synthetic
 Sevilla set imported 10,000 features in four batches of 2,500. Three batches
 promoted 5% each (split between Candidate and Approved); the first had already

@@ -9,21 +9,40 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   and OSM PBF decoders alongside incremental GeoJSON. Added feature-size,
   vertex, archive-expansion/member, and Shapefile-record guards. Snapshot
   preprocessing now preflights the 5,000-feature limit and reopens the
-  immutable object instead of keeping a second decoded feature list. Fixed
-  stale binary-import tests to exercise the available streaming parser.
+  immutable object instead of keeping a second decoded feature list. Worker
+  batches now stop at 100 features or 32 MiB serialized source data, whichever
+  comes first, while isolating an individually-large but permitted feature.
+  Added a disposable JetStream CI integration for ACK-pending release,
+  commit-before-ACK redelivery and competing pull consumers. Recovery fixtures
+  now read authoritative database rows and do not leak test configuration.
 - **Evidence:** Local RSS subprocesses processed 300,000 GeoJSON features at
   23.9 MB peak, and 50,000 each of KML/GPX records at 20.5/20.6 MB. Sixteen
   database-backed recovery/concurrency tests passed against a disposable local
   PostGIS database; its container and attached volume were removed after a
-  check found earlier interrupted-run fixtures. No live cluster writes or
-  test entities were created. Ruff passed; the full local suite had 132
-  collected, 114 passed, 18 isolated-service skips.
+  check found earlier interrupted-run fixtures. The latest full local suite
+  collected 137 tests: 116 passed, with 21 isolated-service skips; Ruff passed.
+  The isolated PostGIS/JetStream GitHub run passed all 137 tests with no skips;
+  worker ACK-pending, commit-before-ACK replay, redelivery and competing
+  consumers passed. GeoJSON/KML/GPX peaks were about 61.5 MB in CI, below the
+  96 MiB ceiling. The final teardown-cleanup refinement also passed. No live
+  application-data writes or test entities were created.
 - **Still open:** worst-case XML/PBF memory, all-format/snapshot/remote-adapter
-  RSS, failure injection at parsing/enrichment/promotion boundaries, and
-  JetStream ACK/redelivery behavior. Phase 3 remains incomplete and the new
-  code still needs image publication plus read-only K3s rollout verification.
+  RSS, and forced worker termination at parse/enrichment/promotion boundaries.
+  Phase 3 remains incomplete because of those parser and worker-stage gaps.
+  The final commit image was published as
+  `sha256:97cf732f9f14f8e5ff76b665b9a893f78033b7e954db80ad8ca2fe3d5ff74780`.
+  Deployment commit
+  [`5afb183`](https://github.com/myota-platform/myota-deploy/commit/5afb18379a153ef04ad7cfe310e5efe81d4b102d)
+  pins this image for Fleet. Both geodata API and import worker now run this
+  digest; https://api.myota.top/healthz returned healthy. Helm rendering and
+  repository quality workflows passed. No live import or fixture data was
+  written.
 - **Links:** [Phase 3 evidence](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md),
   [horizontal-scaling roadmap](docs/geodata/horizontal-scaling-roadmap.md),
+  [geodata service commit 2de096f](https://github.com/myota-platform/myota-geodata-service/commit/2de096f90d3a68092e69c0456246c6a1e0e67d59),
+  [passing final CI rerun](https://github.com/myota-platform/myota-geodata-service/actions/runs/37920214726),
+  [deployment commit 5afb183](https://github.com/myota-platform/myota-deploy/commit/5afb18379a153ef04ad7cfe310e5efe81d4b102d),
+  [Helm render workflow](https://github.com/myota-platform/myota-deploy/actions/runs/37920788467),
   [geodata service README](https://github.com/myota-platform/myota-geodata-service#readme).
 
 ## 9 October 2026 — geodata Phase 3 bounded preprocessing (partial)
