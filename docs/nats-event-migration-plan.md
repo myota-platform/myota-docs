@@ -3,6 +3,10 @@
 **Status:** proposed implementation plan; no migration phases in this document are
 claimed complete.
 
+**Progress tracking:** leave items unchecked until evidence is available; mark
+`[x]` only when the work is verified. A phase is complete only after all its
+exit-criteria items are checked and the evidence is recorded.
+
 **Scope:** all transactional outbox events and asynchronous consumers across
 MyOTA services, including the remaining database-polled activity jobs where
 they are the consumer side of accepted asynchronous work.
@@ -116,32 +120,32 @@ distinction:
 
 **Work**
 
-- Produce the exhaustive producer/event/subject/consumer matrix across all five
-  services, outbox relay, existing DB job queue, recovery migrations, and
-  deployment mirrors.
-- Identify every accepted asynchronous request path, including Activity's
-  PostgreSQL `claim_job` worker loop. Label each as domain event, work command,
-  scheduled/reconciliation task, or synchronous request.
-- For each event, document the owning service, event schema/version,
-  transaction boundary, current and target subject, independent durable groups,
-  idempotency key, retry/dead-letter policy, retention/replay requirement, and
-  API/business impact if delayed or lost.
-- Resolve whether the shared `MYOTA_EVENTS` stream remains the target or
-  whether domain events and work queues need separate streams. Compare Interest
-  versus WorkQueue retention for each class, cross-service blast radius,
-  independent replay/retention needs, deployment complexity, and migration
-  safety. Do not split streams merely for naming symmetry.
-- Add an ADR or amend the event contract with the approved topology, subject
-  naming, ownership, compatibility and deprecation policy. Flag uncovered
-  consumers and unclassified event types as blockers to Phase 1.
+- [ ] Produce the exhaustive producer/event/subject/consumer matrix across all five
+      services, outbox relay, existing DB job queue, recovery migrations, and
+      deployment mirrors.
+- [ ] Identify every accepted asynchronous request path, including Activity's
+      PostgreSQL `claim_job` worker loop. Label each as domain event, work command,
+      scheduled/reconciliation task, or synchronous request.
+- [ ] For each event, document the owning service, event schema/version, transaction
+      boundary, current and target subject, independent durable groups, idempotency
+      key, retry/dead-letter policy, retention/replay requirement, and API/business
+      impact if delayed or lost.
+- [ ] Resolve whether the shared `MYOTA_EVENTS` stream remains the target or whether
+      domain events and work queues need separate streams. Compare Interest versus
+      WorkQueue retention for each class, cross-service blast radius, independent
+      replay/retention needs, deployment complexity, and migration safety. Do not
+      split streams merely for naming symmetry.
+- [ ] Add an ADR or amend the event contract with the approved topology, subject
+      naming, ownership, compatibility and deprecation policy. Flag uncovered
+      consumers and unclassified event types as blockers to Phase 1.
 
 **Exit criteria**
 
-- Every outbox event write and database-backed asynchronous job is accounted
-  for; each has a disposition and owner.
-- Stream/retention topology and activity-job migration scope are approved in
-  documentation before implementation changes begin.
-- Mirrored files and authoritative repositories are explicitly identified.
+- [ ] Every outbox event write and database-backed asynchronous job is accounted
+      for; each has a disposition and owner.
+- [ ] Stream/retention topology and activity-job migration scope are approved in
+      documentation before implementation changes begin.
+- [ ] Mirrored files and authoritative repositories are explicitly identified.
 
 **ChatGPT prompt — Phase 0**
 
@@ -184,32 +188,32 @@ mark implementation complete. Report missing evidence and Phase 0 exit criteria.
 
 **Work**
 
-- Define/enforce event envelope schema, required fields, JSON encoding,
-  timestamp/UUID semantics, correlation and causation propagation, payload
-  size limits, compatibility rules, and unknown-version behavior.
-- Define canonical subject mapping. Replace implicit global dot-to-underscore
-  assumptions with a reviewed, versioned registry or a documented deterministic
-  convention. Explicit work subjects must be allowlisted and map to provisioned
-  durable consumers. Reject unknown routing before marking an event published;
-  make the failure operator-visible and actionable.
-- Implement safe stream/consumer provisioning as a controlled deployment step
-  or idempotent reconciler with drift detection. Avoid multiple relay replicas
-  racing to mutate stream configuration. Validate complete consumer config,
-  not only filter and ack policy. Apply least-privilege NATS credentials per
-  relay and worker role.
-- Set retention/resource limits and backups/replay procedure based on Phase 0
-  decisions. Validate outage, disk pressure, consumer deletion, stream restore,
-  and consumer recreation behavior in local and production-like environments.
-- Add a consumer registry and contract fixtures so event publishers cannot add
-  a subject without updating schema, intended subscriber, durable provisioning,
-  docs, and compatibility checks.
+- [ ] Define/enforce event envelope schema, required fields, JSON encoding,
+      timestamp/UUID semantics, correlation and causation propagation, payload size
+      limits, compatibility rules, and unknown-version behavior.
+- [ ] Define canonical subject mapping. Replace implicit global dot-to-underscore
+      assumptions with a reviewed, versioned registry or a documented deterministic
+      convention. Explicit work subjects must be allowlisted and map to provisioned
+      durable consumers. Reject unknown routing before marking an event published;
+      make the failure operator-visible and actionable.
+- [ ] Implement safe stream/consumer provisioning as a controlled deployment step or
+      idempotent reconciler with drift detection. Avoid multiple relay replicas
+      racing to mutate stream configuration. Validate complete consumer config, not
+      only filter and ack policy. Apply least-privilege NATS credentials per relay
+      and worker role.
+- [ ] Set retention/resource limits and backups/replay procedure based on Phase 0
+      decisions. Validate outage, disk pressure, consumer deletion, stream restore,
+      and consumer recreation behavior in local and production-like environments.
+- [ ] Add a consumer registry and contract fixtures so event publishers cannot add a
+      subject without updating schema, intended subscriber, durable provisioning,
+      docs, and compatibility checks.
 
 **Exit criteria**
 
-- Contract and subject registry covers the Phase 0 inventory.
-- Provisioning is deterministic, least-privilege, observable, and safe before
-  first publish; incompatible drift fails deployment/readiness clearly.
-- Retention and restore/replay policies have an operator runbook and evidence.
+- [ ] Contract and subject registry covers the Phase 0 inventory.
+- [ ] Provisioning is deterministic, least-privilege, observable, and safe before
+      first publish; incompatible drift fails deployment/readiness clearly.
+- [ ] Retention and restore/replay policies have an operator runbook and evidence.
 
 **ChatGPT prompt — Phase 1**
 
@@ -252,31 +256,31 @@ later phases complete.
 
 **Work**
 
-- Bring the shared relay to the contract: stable event IDs, bounded payloads,
-  connection/reconnect behavior, bounded concurrency, retries/backoff,
-  idempotent publish, publish-ack handling, failure metrics, and dead-letter
-  inspection/replay. Ensure a crash after publish acknowledgement but before
-  outbox marking safely republishes the same message ID.
-- Verify the core, activity, and geo relays see only their owned database and
-  that retention cleanup cannot remove unpublished, dead-lettered, or
-  operationally needed rows. Add indexes/partitioning only from measured need.
-- Enumerate all writes in Identity, Programme, Activity, Geodata, Operations;
-  route every supported event through the transactionally coupled outbox.
-  Remove any process-local event dispatch for accepted cross-service work.
-- Provision one durable per independently required domain-event consumer group.
-  Filter to supported event subjects where feasible; document explicit no-op
-  dispositions rather than relying on broad catch-all consumers.
-- Confirm Operations remains metadata-only and does not accidentally become a
-  broker consumer with acknowledgements.
+- [ ] Bring the shared relay to the contract: stable event IDs, bounded payloads,
+      connection/reconnect behavior, bounded concurrency, retries/backoff,
+      idempotent publish, publish-ack handling, failure metrics, and dead-letter
+      inspection/replay. Ensure a crash after publish acknowledgement but before
+      outbox marking safely republishes the same message ID.
+- [ ] Verify the core, activity, and geo relays see only their owned database and
+      that retention cleanup cannot remove unpublished, dead-lettered, or
+      operationally needed rows. Add indexes/partitioning only from measured need.
+- [ ] Enumerate all writes in Identity, Programme, Activity, Geodata, Operations;
+      route every supported event through the transactionally coupled outbox. Remove
+      any process-local event dispatch for accepted cross-service work.
+- [ ] Provision one durable per independently required domain-event consumer group.
+      Filter to supported event subjects where feasible; document explicit no-op
+      dispositions rather than relying on broad catch-all consumers.
+- [ ] Confirm Operations remains metadata-only and does not accidentally become a
+      broker consumer with acknowledgements.
 
 **Exit criteria**
 
-- Inventory reconciliation finds no event write bypassing the outbox or
-  unregistered event subject.
-- Relay restart/retry proves no lost accepted event and deduplicates a
-  publish/mark crash window.
-- Outbox backlog, oldest age, retries, and dead letters are observable and
-  actionable for all three relays.
+- [ ] Inventory reconciliation finds no event write bypassing the outbox or
+      unregistered event subject.
+- [ ] Relay restart/retry proves no lost accepted event and deduplicates a
+      publish/mark crash window.
+- [ ] Outbox backlog, oldest age, retries, and dead letters are observable and
+      actionable for all three relays.
 
 **ChatGPT prompt — Phase 2**
 
@@ -318,30 +322,29 @@ them to this phase.
 
 **Work**
 
-- Standardize Activity notification and all other event consumers around a
-  shared service-owned JetStream adapter or an explicitly documented per
-  service pattern. Preserve domain ownership: Activity can create notices
-  from approved Identity/Geodata/Programme events, but must not own those
-  domains' state.
-- Separate independent consumers into separate durables. Set explicit filter,
-  ack wait, max deliveries, max ack pending, backoff, delivery policy, and
-  concurrency based on measured handler duration and recovery needs.
-- Commit domain side effect and consumer deduplication/checkpoint in one local
-  database transaction when possible; acknowledge only after commit. Validate
-  behavior when the database commit succeeds but ack is lost.
-- Define poison-message handling that records full diagnostic envelope safely,
-  avoids exposing secrets/PII in logs, notifies operations, and supports
-  reviewed replay after remediation. Avoid immediately terminating errors
-  without a supported recovery path.
-- Keep durable consumer names stable across releases; create successor durables
-  deliberately and remove obsolete durables only after old workers drain and
-  backlog disposition is understood.
+- [ ] Standardize Activity notification and all other event consumers around a
+      shared service-owned JetStream adapter or an explicitly documented per service
+      pattern. Preserve domain ownership: Activity can create notices from approved
+      Identity/Geodata/Programme events, but must not own those domains' state.
+- [ ] Separate independent consumers into separate durables. Set explicit filter,
+      ack wait, max deliveries, max ack pending, backoff, delivery policy, and
+      concurrency based on measured handler duration and recovery needs.
+- [ ] Commit domain side effect and consumer deduplication/checkpoint in one local
+      database transaction when possible; acknowledge only after commit. Validate
+      behavior when the database commit succeeds but ack is lost.
+- [ ] Define poison-message handling that records full diagnostic envelope safely,
+      avoids exposing secrets/PII in logs, notifies operations, and supports
+      reviewed replay after remediation. Avoid immediately terminating errors
+      without a supported recovery path.
+- [ ] Keep durable consumer names stable across releases; create successor durables
+      deliberately and remove obsolete durables only after old workers drain and
+      backlog disposition is understood.
 
 **Exit criteria**
 
-- Every intended domain-event consumer group is live, documented, independently
-  deployable, idempotent, observable, and tested against redelivery/restart.
-- No unsupported broad consumer determines retention accidentally.
+- [ ] Every intended domain-event consumer group is live, documented, independently
+      deployable, idempotent, observable, and tested against redelivery/restart.
+- [ ] No unsupported broad consumer determines retention accidentally.
 
 **ChatGPT prompt — Phase 3**
 
@@ -379,35 +382,35 @@ verified rows complete.
 
 **Work**
 
-- For each `activity_worker.py` job kind (`ADIF_IMPORT`, `QSO_INGESTION`,
-  `AWARD_RECALCULATE`, `AWARD_EVALUATION`, `PDF_RENDER`,
-  `STATISTICS_REBUILD`, `NOTIFICATION_SEND`), trace the producer, job row,
-  side effects, retry semantics, payload size, idempotency key and completion
-  state. Include `activity.adif.queued.v1` and related outbox writes.
-- Move accepted jobs to transactional outbox + dedicated command subjects and
-  durable pull queues, keeping the job/resource row as domain status and
-  recovery evidence. Large payloads should remain in owned storage and the
-  work event should carry identifiers, not copied content.
-- Use per-kind or compatible worker-group durables and bounded concurrency;
-  do not put unrelated long PDF/ADIF jobs behind a single serial queue unless
-  ordering is explicitly required. Preserve leases for long-running work and
-  heartbeat/visibility where appropriate.
-- Use a dual-read/dual-publish migration only if Phase 0 approves it. Define
-  event IDs and idempotency to prevent the same job running through both paths.
-  Stop new DB-queue claims before draining old work; provide rollback without
-  re-enqueueing completed jobs.
-- Keep necessary periodic maintenance/reconciliation tasks in schedulers when
-  they are timer-triggered rather than event-driven; record why they are not
-  JetStream messages.
+- [ ] For each `activity_worker.py` job kind (`ADIF_IMPORT`, `QSO_INGESTION`,
+      `AWARD_RECALCULATE`, `AWARD_EVALUATION`, `PDF_RENDER`, `STATISTICS_REBUILD`,
+      `NOTIFICATION_SEND`), trace the producer, job row, side effects, retry
+      semantics, payload size, idempotency key and completion state. Include
+      `activity.adif.queued.v1` and related outbox writes.
+- [ ] Move accepted jobs to transactional outbox + dedicated command subjects and
+      durable pull queues, keeping the job/resource row as domain status and
+      recovery evidence. Large payloads should remain in owned storage and the work
+      event should carry identifiers, not copied content.
+- [ ] Use per-kind or compatible worker-group durables and bounded concurrency; do
+      not put unrelated long PDF/ADIF jobs behind a single serial queue unless
+      ordering is explicitly required. Preserve leases for long-running work and
+      heartbeat/visibility where appropriate.
+- [ ] Use a dual-read/dual-publish migration only if Phase 0 approves it. Define
+      event IDs and idempotency to prevent the same job running through both paths.
+      Stop new DB-queue claims before draining old work; provide rollback without
+      re-enqueueing completed jobs.
+- [ ] Keep necessary periodic maintenance/reconciliation tasks in schedulers when
+      they are timer-triggered rather than event-driven; record why they are not
+      JetStream messages.
 
 **Exit criteria**
 
-- Every accepted Activity job is JetStream-backed or has a documented, approved
-  exception; no job is acknowledged/completed before durable side effects.
-- Cutover and rollback preserve exactly-once business effects under at-least-
-  once delivery, despite both systems briefly seeing the same job.
-- Activity job latency, queue age, failure, retry, and dead-letter states are
-  visible in service and operations dashboards.
+- [ ] Every accepted Activity job is JetStream-backed or has a documented, approved
+      exception; no job is acknowledged/completed before durable side effects.
+- [ ] Cutover and rollback preserve exactly-once business effects under at-least-
+      once delivery, despite both systems briefly seeing the same job.
+- [ ] Activity job latency, queue age, failure, retry, and dead-letter states are
+      visible in service and operations dashboards.
 
 **ChatGPT prompt — Phase 4**
 
@@ -447,30 +450,31 @@ any blocked handler. Do not move Geodata work into Activity ownership.
 
 **Work**
 
-- Validate the four existing Geodata durables against the registered work
-  contracts, shared provisioning, deployment replicas and Operations view.
-- Confirm consumer side effects and processed-event/checkpoint state are atomic
-  where possible; inspect `_consume` behavior for transient errors, max delivery,
-  ack/nak/term and DLQ compatibility. Ensure long import jobs use heartbeat,
-  leases, bounded inflight, and result recovery.
-- Keep stale cancellation and pending deletion reconcilers as repair loops that
-  can restore work if a message is missing/expired; ensure they do not create
-  duplicate side effects. Verify location enrichment's request ID/geometry hash
-  protects against stale provider responses.
-- Verify current activity cascade-deletion cross-service sequencing, compensation
-  and partial-failure recovery remain correct after Activity work migration.
-- Prove all accepted Geodata work is recoverable from either outbox/JetStream or
-  durable domain job state within documented age bounds. Run outage and restore
-  scenarios with Operations status/read-only observability.
+- [ ] Validate the four existing Geodata durables against the registered work
+      contracts, shared provisioning, deployment replicas and Operations view.
+- [ ] Confirm consumer side effects and processed-event/checkpoint state are atomic
+      where possible; inspect `_consume` behavior for transient errors, max
+      delivery, ack/nak/term and DLQ compatibility. Ensure long import jobs use
+      heartbeat, leases, bounded inflight, and result recovery.
+- [ ] Keep stale cancellation and pending deletion reconcilers as repair loops that
+      can restore work if a message is missing/expired; ensure they do not create
+      duplicate side effects. Verify location enrichment's request ID/geometry hash
+      protects against stale provider responses.
+- [ ] Verify current activity cascade-deletion cross-service sequencing,
+      compensation and partial-failure recovery remain correct after Activity work
+      migration.
+- [ ] Prove all accepted Geodata work is recoverable from either outbox/JetStream or
+      durable domain job state within documented age bounds. Run outage and restore
+      scenarios with Operations status/read-only observability.
 
 **Exit criteria**
 
-- Each Geodata queue has documented scaling, retry, DLQ, recovery and retention
-  behavior; all four durables are validated in each environment.
-- Broker loss, worker restart, delayed ack and duplicate delivery do not lose or
-  repeat domain effects.
-- Recovery loops are bounded, observable, and do not become a second primary
-  dispatch path.
+- [ ] Each Geodata queue has documented scaling, retry, DLQ, recovery and retention
+      behavior; all four durables are validated in each environment.
+- [ ] Broker loss, worker restart, delayed ack and duplicate delivery do not lose or
+      repeat domain effects.
+- [ ] Recovery loops are bounded, observable, and do not become a second primary
+      dispatch path.
 
 **ChatGPT prompt — Phase 5**
 
@@ -506,33 +510,33 @@ without production-like results.
 
 **Work**
 
-- Establish baseline metrics: accepted-to-published latency, outbox oldest
-  age/depth, publish retries, broker storage, consumer pending/ack-pending,
-  redelivery, oldest event age, handler duration/failure, DLQ volume, and business
-  completion latency.
-- Run shadow validation by comparing event/job IDs and resulting state without
-  executing duplicate side effects. Prefer replay/verification tooling or
-  non-mutating observers. Never dual-consume a mutating command without shared
-  idempotency protection.
-- Canary one producer/consumer group or environment, then expand by service.
-  Gate promotion on no unexplained event-count divergence, bounded lag, no
-  unexpected DLQ growth, and successful restart/recovery drills.
-- Cut over producers atomically to the registered route; disable old dispatch
-  only after JetStream path proves healthy. Drain existing DB queue rows and
-  outbox backlog before removing old worker claims. Keep rollback switches
-  time-bounded and observable.
-- Remove retired code/config/durables only after confirming all versions are
-  drained, documenting archived evidence, and checking no stale consumer can
-  compete with the new durable.
+- [ ] Establish baseline metrics: accepted-to-published latency, outbox oldest
+      age/depth, publish retries, broker storage, consumer pending/ack-pending,
+      redelivery, oldest event age, handler duration/failure, DLQ volume, and
+      business completion latency.
+- [ ] Run shadow validation by comparing event/job IDs and resulting state without
+      executing duplicate side effects. Prefer replay/verification tooling or
+      non-mutating observers. Never dual-consume a mutating command without shared
+      idempotency protection.
+- [ ] Canary one producer/consumer group or environment, then expand by service.
+      Gate promotion on no unexplained event-count divergence, bounded lag, no
+      unexpected DLQ growth, and successful restart/recovery drills.
+- [ ] Cut over producers atomically to the registered route; disable old dispatch
+      only after JetStream path proves healthy. Drain existing DB queue rows and
+      outbox backlog before removing old worker claims. Keep rollback switches
+      time-bounded and observable.
+- [ ] Remove retired code/config/durables only after confirming all versions are
+      drained, documenting archived evidence, and checking no stale consumer can
+      compete with the new durable.
 
 **Exit criteria**
 
-- All producers and required consumers use JetStream according to the registry;
-  remaining exceptions have named owner, rationale, and review date.
-- Rollback and recovery have been rehearsed; no event or job was lost during
-  cutover and no business effect duplicated.
-- Production operations accept dashboards, alerts, runbooks, backup/restore,
-  and backlog/DLQ ownership.
+- [ ] All producers and required consumers use JetStream according to the registry;
+      remaining exceptions have named owner, rationale, and review date.
+- [ ] Rollback and recovery have been rehearsed; no event or job was lost during
+      cutover and no business effect duplicated.
+- [ ] Production operations accept dashboards, alerts, runbooks, backup/restore, and
+      backlog/DLQ ownership.
 
 **ChatGPT prompt — Phase 6**
 

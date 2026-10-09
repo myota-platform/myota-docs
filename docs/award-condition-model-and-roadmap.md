@@ -3,6 +3,10 @@
 **Status:** proposed future capability; this document does not claim the
 conditions or phases below are implemented.
 
+**Progress tracking:** leave items unchecked until evidence is available; mark
+`[x]` only when the work is verified. A phase is complete only after all its
+exit-gate items are checked and the evidence is recorded.
+
 ## Purpose and design constraints
 
 MyOTA awards should support familiar patterns such as outdoor-entity
@@ -251,21 +255,24 @@ a candidate future template, not an assumed platform-wide rule.
 
 **Deliverables**
 
-- Map each existing condition kind, evaluator fact, award level, and progress
-  query to the durable Activity schema and existing Admin UI.
-- Inventory how `workedEntityId` is populated, which QSO import/adjudication
-  paths can set it, and the share of historical valid QSOs with no link.
-- Verify what `jurisdictionCode` means in each producer and which Geo fields
-  have stable codes versus names only. Confirm grid arrays' calculation and
-  credit semantics for points, lines, and polygons.
-- Define candidate reference-data owners and licensing/update rules for
-  worked-entity resolution and country/subdivision/county code sets.
-- Agree `conditionSchemaVersion`, condition/query semantics, unknown-evidence
-  states, award effective-time behavior, correction policy, and migration
-  compatibility. Record these as an ADR/API contract before implementing.
+- [ ] Map each existing condition kind, evaluator fact, award level, and progress
+      query to the durable Activity schema and existing Admin UI.
+- [ ] Inventory how `workedEntityId` is populated, which QSO import/adjudication
+      paths can set it, and the share of historical valid QSOs with no link.
+- [ ] Verify what `jurisdictionCode` means in each producer and which Geo fields
+      have stable codes versus names only. Confirm grid arrays' calculation and
+      credit semantics for points, lines, and polygons.
+- [ ] Define candidate reference-data owners and licensing/update rules for
+      worked-entity resolution and country/subdivision/county code sets.
+- [ ] Agree `conditionSchemaVersion`, condition/query semantics, unknown-evidence
+      states, award effective-time behavior, correction policy, and migration
+      compatibility. Record these as an ADR/API contract before implementing.
 
-**Exit gate:** examples above have unambiguous expected evidence and results;
-no implementation assumes uncovered historical data is complete.
+**Exit gate**
+
+- [ ] Examples above have unambiguous expected evidence and results; no
+      implementation assumes uncovered historical data is complete.
+
 
 **ChatGPT prompt — Phase 0**
 
@@ -300,22 +307,25 @@ Return the evidence matrix and the specific decisions needed before Phase 1.
 
 **Deliverables**
 
-- Define versioned reference sets for award entities and nested geography.
-  Select the data owner, code systems, effective dates, provenance, update and
-  licensing process; preserve prior versions needed by published awards.
-- Define the worked-station resolution lifecycle and QSO evidence fields.
-  Review/import tooling should show source and confidence and support human
-  resolution for ambiguous matches. Do not silently rewrite existing QSOs.
-- Define typed condition JSON schema, field/operator registry, AST bounds,
-  `conditionSchemaVersion`, deterministic semantics and compatibility rules.
-- Define Geodata APIs/projections for programme-approved entity categories,
-  stable codes, grid coverage, and geographic reference version. Ensure API
-  responses are paged/batched and include an explicit data version.
-- Keep old condition definitions readable. New version publishing must capture
-  exact evaluator and reference versions used for qualification.
+- [ ] Define versioned reference sets for award entities and nested geography.
+      Select the data owner, code systems, effective dates, provenance, update and
+      licensing process; preserve prior versions needed by published awards.
+- [ ] Define the worked-station resolution lifecycle and QSO evidence fields.
+      Review/import tooling should show source and confidence and support human
+      resolution for ambiguous matches. Do not silently rewrite existing QSOs.
+- [ ] Define typed condition JSON schema, field/operator registry, AST bounds,
+      `conditionSchemaVersion`, deterministic semantics and compatibility rules.
+- [ ] Define Geodata APIs/projections for programme-approved entity categories,
+      stable codes, grid coverage, and geographic reference version. Ensure API
+      responses are paged/batched and include an explicit data version.
+- [ ] Keep old condition definitions readable. New version publishing must capture
+      exact evaluator and reference versions used for qualification.
 
-**Exit gate:** contracts and provenance are reviewed; example awards validate
-and explain their result from immutable fixtures.
+**Exit gate**
+
+- [ ] Contracts and provenance are reviewed; example awards validate and explain
+      their result from immutable fixtures.
+
 
 **ChatGPT prompt — Phase 1**
 
@@ -350,25 +360,28 @@ UI work in this phase.
 
 **Deliverables**
 
-- Add a typed evaluator/query compiler for approved `COUNT`, distinct-count,
-  date-range, set membership, per-item, and bounded bucket conditions.
-- Make evaluator reads operate on `VALID`/`CORRECTED` evidence according to
-  explicit policy; exclude `VOID` QSOs. Keep activation validity, minimum QSO,
-  entity approval, award dates, and participant role semantics explicit.
-- Extend Activity-owned materialized aggregates or add bounded progress tables
-  for entity/geography/grid/band/mode/year buckets. Include indexes and rebuild
-  cursor/job state; avoid full scans on interactive participant reads.
-- Add explainable evaluation results with status, requirement-by-requirement
-  progress, counted IDs/codes or bounded evidence summaries, unresolved/missing
-  counts, rule/reference versions, and computation cursor.
-- Trigger idempotent recalculation for QSO ingestion/correction, activation
-  close/invalidity, linked entity change/deletion, resolver review, and award
-  publication. Define how previously issued awards are treated separately.
-- Keep explicit-facts evaluation restricted to trusted internal/admin paths;
-  participant evaluation must derive from persisted facts.
+- [ ] Add a typed evaluator/query compiler for approved `COUNT`, distinct-count,
+      date-range, set membership, per-item, and bounded bucket conditions.
+- [ ] Make evaluator reads operate on `VALID`/`CORRECTED` evidence according to
+      explicit policy; exclude `VOID` QSOs. Keep activation validity, minimum QSO,
+      entity approval, award dates, and participant role semantics explicit.
+- [ ] Extend Activity-owned materialized aggregates or add bounded progress tables
+      for entity/geography/grid/band/mode/year buckets. Include indexes and rebuild
+      cursor/job state; avoid full scans on interactive participant reads.
+- [ ] Add explainable evaluation results with status, requirement-by-requirement
+      progress, counted IDs/codes or bounded evidence summaries, unresolved/missing
+      counts, rule/reference versions, and computation cursor.
+- [ ] Trigger idempotent recalculation for QSO ingestion/correction, activation
+      close/invalidity, linked entity change/deletion, resolver review, and award
+      publication. Define how previously issued awards are treated separately.
+- [ ] Keep explicit-facts evaluation restricted to trusted internal/admin paths;
+      participant evaluation must derive from persisted facts.
 
-**Exit gate:** reference fixtures, correction/deletion/replay scenarios, and
-performance evidence prove stable progress without scanning all QSOs per read.
+**Exit gate**
+
+- [ ] Reference fixtures, correction/deletion/replay scenarios, and performance
+      evidence prove stable progress without scanning all QSOs per read.
+
 
 **ChatGPT prompt — Phase 2**
 
@@ -408,26 +421,29 @@ the Admin builder in this phase.
 
 **Deliverables**
 
-- Replace raw JSON editing as the normal path with a guided condition builder;
-  retain a guarded read-only/advanced JSON view only if it validates against
-  the exact public schema.
-- Builder sections: award participant category; evidence source; eligible
-  entity categories/programme assignments; condition metric; filters; distinct
-  dimension; thresholds/levels; validity dates; geography/grid policy; missing
-  evidence policy; endorsements.
-- Provide searchable code selectors for programme entities, reference sets,
-  grid precision, country/subdivision/county and band/mode. Show source/version
-  and coverage before publication; no free-text code matching.
-- Add a server-side preview against a selected participant or synthetic
-  fixture. Display qualified/not qualified/pending/review-required, per-level
-  status, the evidence counted, exclusions, and unresolved data. Clearly label
-  preview as non-issuance and prevent changes to published definitions.
-- Add complexity warnings (large geometry credit, broad date span, many buckets,
-  unsupported evidence coverage) and accessible keyboard/screen-reader
-  controls. Preserve draft metadata, saved condition version and UTC instants.
+- [ ] Replace raw JSON editing as the normal path with a guided condition builder;
+      retain a guarded read-only/advanced JSON view only if it validates against the
+      exact public schema.
+- [ ] Builder sections: award participant category; evidence source; eligible entity
+      categories/programme assignments; condition metric; filters; distinct
+      dimension; thresholds/levels; validity dates; geography/grid policy; missing
+      evidence policy; endorsements.
+- [ ] Provide searchable code selectors for programme entities, reference sets, grid
+      precision, country/subdivision/county and band/mode. Show source/version and
+      coverage before publication; no free-text code matching.
+- [ ] Add a server-side preview against a selected participant or synthetic fixture.
+      Display qualified/not qualified/pending/review-required, per-level status, the
+      evidence counted, exclusions, and unresolved data. Clearly label preview as
+      non-issuance and prevent changes to published definitions.
+- [ ] Add complexity warnings (large geometry credit, broad date span, many buckets,
+      unsupported evidence coverage) and accessible keyboard/screen-reader controls.
+      Preserve draft metadata, saved condition version and UTC instants.
 
-**Exit gate:** Admin can author and preview all four core pattern types without
-hand-editing JSON; server validation remains authoritative.
+**Exit gate**
+
+- [ ] Admin can author and preview all four core pattern types without hand-editing
+      JSON; server validation remains authoritative.
+
 
 **ChatGPT prompt — Phase 3**
 
@@ -466,22 +482,25 @@ integration evidence and any deferred controls.
 
 **Deliverables**
 
-- Extend public programme award pages with transparent requirement progress,
-  levels, endorsement buckets, evidence freshness, and pending resolver/review
-  work. Respect callsign/account privacy settings and authorization.
-- Add participant-request confirmation that snapshots the qualifying award,
-  condition/reference versions and progress. Keep manager review and issuance
-  separate where the programme requires it.
-- Make corrections or reference revisions visible in progress history. Never
-  silently alter an issued certificate; surface programme policy for revocation
-  or replacement as an explicit auditable workflow if one is adopted.
-- Backfill only reliable historical facts; produce coverage reports before
-  enabling geographic or DXCC-like awards. Provide appeal/manual-review paths
-  with evidence and actor audit.
+- [ ] Extend public programme award pages with transparent requirement progress,
+      levels, endorsement buckets, evidence freshness, and pending resolver/review
+      work. Respect callsign/account privacy settings and authorization.
+- [ ] Add participant-request confirmation that snapshots the qualifying award,
+      condition/reference versions and progress. Keep manager review and issuance
+      separate where the programme requires it.
+- [ ] Make corrections or reference revisions visible in progress history. Never
+      silently alter an issued certificate; surface programme policy for revocation
+      or replacement as an explicit auditable workflow if one is adopted.
+- [ ] Backfill only reliable historical facts; produce coverage reports before
+      enabling geographic or DXCC-like awards. Provide appeal/manual-review paths
+      with evidence and actor audit.
 
-**Exit gate:** participant-facing explanations match server evaluation; privacy,
-correction, manual-review, and immutable-issuance behavior are accepted by
-programme governance.
+**Exit gate**
+
+- [ ] Participant-facing explanations match server evaluation; privacy, correction,
+      manual-review, and immutable-issuance behavior are accepted by programme
+      governance.
+
 
 **ChatGPT prompt — Phase 4**
 
@@ -517,21 +536,24 @@ publication.
 
 **Deliverables**
 
-- Pilot each pattern with synthetic fixtures and a volunteer programme before
-  opening general award authoring. Measure QSO ingest, recalculation duration,
-  backlog, API latency, aggregate growth, and Geo reference coverage.
-- Reconcile progress against direct bounded database queries and manually
-  reviewed samples; test duplicate imports, correction, void, deletion,
-  changed entity assignment, late reference resolution, and replay.
-- Document reference-set refresh, retention, availability, stale projections,
-  incident response, programme migration, and rollback.
-- Add new condition types (streaks, seasons, distance, satellite, portable/QRP,
-  verified stewardship) only when source evidence, validation, UI, privacy,
-  and recalculation semantics are separately agreed.
+- [ ] Pilot each pattern with synthetic fixtures and a volunteer programme before
+      opening general award authoring. Measure QSO ingest, recalculation duration,
+      backlog, API latency, aggregate growth, and Geo reference coverage.
+- [ ] Reconcile progress against direct bounded database queries and manually
+      reviewed samples; test duplicate imports, correction, void, deletion, changed
+      entity assignment, late reference resolution, and replay.
+- [ ] Document reference-set refresh, retention, availability, stale projections,
+      incident response, programme migration, and rollback.
+- [ ] Add new condition types (streaks, seasons, distance, satellite, portable/QRP,
+      verified stewardship) only when source evidence, validation, UI, privacy, and
+      recalculation semantics are separately agreed.
 
-**Exit gate:** each enabled condition type has programme-approved rules,
-provenance and coverage, performance/recovery evidence, a supportable operator
-runbook, and no unresolved silent-credit behavior.
+**Exit gate**
+
+- [ ] Each enabled condition type has programme-approved rules, provenance and
+      coverage, performance/recovery evidence, a supportable operator runbook, and
+      no unresolved silent-credit behavior.
+
 
 **ChatGPT prompt — Phase 5**
 
