@@ -497,11 +497,14 @@ Other evidence gaps and proposed closure owners/phases:
   limitations are recorded.
 - [x] The workspace owner selected the stream split, retention policy, naming,
   Activity job migration scope, and compatibility direction; see ADR-0008.
-- [ ] Remaining evidence gaps are mapped to confirmed authoritative repository
+- [x] Remaining evidence gaps are mapped to proposed authoritative repository
   owners, a closure phase, and the runtime cutover each one gates. See the
   [Phase 0 evidence ownership and gates](nats-event-migration-plan.md#phase-0-evidence-ownership-and-gates)
-  register in the plan. Phase 1 contract/topology work may proceed while gaps are
-  closed; a dependent producer or consumer path must not change before its gate.
+  register in the plan.
+- [ ] Owning teams confirm the assignments and record individual assignees or
+  explicit risk acceptances in their work items. Phase 1 contract/topology work
+  may proceed while gaps are closed; a dependent producer or consumer path must
+  not change before its gate.
 
 The checked items record repository inspection and a selected target design;
 they do not mean runtime work is implemented. Phase 0 remains open until owners

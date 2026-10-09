@@ -193,10 +193,12 @@ rollback and database recovery checks pass.
       naming, ownership, compatibility and deprecation policy. Carry uncovered
       consumers and unclassified event types as gates on the affected producer or
       consumer rollout; Phase 1 contract work resolves their dispositions.
-- [ ] Create the evidence register below, confirm its repository-level owners,
-      and record any individual assignee in the owning repository's work item.
-      Phase 1 contract/topology work may proceed while evidence is being closed;
-      a producer or consumer path must not change until its listed gate is met.
+- [x] Create the evidence register below with proposed authoritative repository
+      owners, closure phases, and the producer/consumer cutover each gap gates.
+- [ ] Confirm the proposed assignments with the owning teams and record individual
+      assignees in their work items. Phase 1 contract/topology work may proceed
+      while evidence is being closed; a producer or consumer path must not change
+      until its listed gate is met.
 
 **Exit criteria**
 
@@ -205,10 +207,10 @@ rollback and database recovery checks pass.
 - [x] Stream/retention topology and activity-job migration scope are selected in
       documentation before implementation changes begin.
 - [x] Mirrored files and authoritative repositories are explicitly identified.
-- [ ] Every remaining evidence gap has an accountable authoritative repository,
-      closure phase, and explicit cutover gate; owning teams have confirmed the
-      assignment. Individual assignees and acceptance decisions are recorded in
-      the owning work items.
+- [x] Every remaining evidence gap is mapped to a proposed authoritative repository,
+      closure phase, and explicit cutover gate.
+- [ ] Owning teams confirm the proposed assignments; individual assignees and any
+      acceptance decisions are recorded in the owning work items.
 
 #### Phase 0 evidence ownership and gates
 
