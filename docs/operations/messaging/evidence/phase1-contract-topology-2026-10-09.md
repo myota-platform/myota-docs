@@ -6,6 +6,13 @@ was changed. This record does not satisfy the Phase 1 exit criteria.
 
 ## Work completed in this pass
 
+The implementation artifacts are published for review: [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
+[deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
+[platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
+and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
+These pull requests remain open and unmerged; the local checks below do not
+represent CI or production approval.
+
 - `myota-contracts/contracts/event-registry.json` now lists 68 domain facts,
   maps the six legacy Geodata work event types to four proposed commands, and
   defines six proposed Activity commands. The event registry contains 68

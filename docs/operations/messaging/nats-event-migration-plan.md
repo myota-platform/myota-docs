@@ -305,6 +305,12 @@ and [current/target topology diagrams](../../architecture/diagrams/nats-event-mi
 
 **Verified preparation (does not satisfy the phase exit criteria):**
 
+The implementation artifacts are awaiting review in [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
+[deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
+[platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
+and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
+They are not merged and do not authorize live provisioning or runtime changes.
+
 - [x] Add a contracts-owned registry for all 68 inventory facts, six legacy
       Geodata work/recovery event types mapped to four commands, and six
       proposed Activity work commands, with per-fact outer-envelope schemas.

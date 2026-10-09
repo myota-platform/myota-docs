@@ -14,6 +14,11 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   deployed shared `MYOTA_EVENTS` stream still uses Interest retention; no
   producer/consumer path or live stream has changed. See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
+  Phase 1 preparation is under review in [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
+  [deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
+  [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
+  and [organization profile #1](https://github.com/myota-platform/.github/pull/1);
+  none is merged yet.
   Volker Kerkhoff (`@kerk1v`) is assigned, with Codex pairing support. Evidence
   work is tracked in [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1),
   [Identity #1](https://github.com/myota-platform/myota-identity-service/issues/1),

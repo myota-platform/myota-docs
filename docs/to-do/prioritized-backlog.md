@@ -74,7 +74,12 @@ Interest-retained stream with an 8 GiB PVC, and no live migration or runtime
 change has occurred. Read-only sampling found 19,103 outbox rows spanning only
 2–9 October and an unusually large Geodata payload; that is not a full-window
 capacity forecast. Credentials, numeric limits, broker restore/replay evidence,
-and relay-side provisioning behavior remain open. See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+and relay-side provisioning behavior remain open. The artifacts are awaiting
+review in [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
+[deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
+[platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
+and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
+See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
 
 **Why second:** accepted asynchronous work must survive relay/worker restarts
 without losing or duplicating domain effects. The selected topology is now

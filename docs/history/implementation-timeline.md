@@ -41,6 +41,10 @@ describe current ownership and are authoritative for the present-day system.
   See the [evidence record](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
   [plan](../operations/messaging/nats-event-migration-plan.md), and
   [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
+  Preparation is published in open, unmerged [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
+  [deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
+  [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
+  and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
 
 **Prompt used** (the copyable Phase 1 prompt in the plan):
 
