@@ -2,11 +2,10 @@
 
 ## Status and scope
 
-**Phase 0 evidence gate complete at 2,875 measured entities. Phases 1 and 2
-are implemented and verified. Phase 3 has streaming decoders and database
-checkpoint/recovery evidence for import preprocessing, but remains open:
-worst-case parser memory and worker lifecycle/JetStream failure-injection gates
-are not qualified. Phases 4 and 5 remain open.**
+**Phase 0 evidence gate complete at 2,875 measured entities. Phases 1, 2, and
+3 are implemented and verified against their recorded evidence gates. Phases 4
+and 5 remain open; Phase 3 qualification does not authorize increasing the
+production replica count.**
 This checklist records the work needed before increasing the
 Geodata API beyond one replica in production. The baseline does not make the
 current service horizontally safe.
@@ -45,10 +44,12 @@ Current implementation and remaining hazards:
   separately deployed JetStream worker. Source-reference and proximity
   lookups are indexed. Uploaded GeoJSON, KML, GPX, Shapefile/ParkServe, and OSM
   PBF have streaming decoders and commit stable-ordinal candidate checkpoints
-  in configurable batches (default 100). Decoder guards and the 5,000-feature
-  import ceiling bound accepted work, but XML element/PBF area worst-case memory,
-  complete-snapshot peak RSS, and crash behavior at every worker stage have not
-  been qualified. See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
+  in batches bounded by 100 features or 32 MiB serialized source data. XML
+  subtree and OSM area guards run before materialization/conversion. RSS is
+  measured across the supported formats, a maximum-vertex feature, and a
+  complete-snapshot worker run; process-death/replay is tested at parsing,
+  checkpoint, enrichment, and promotion stages. See the
+  [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - Phase 2's API and SeaweedFS restart-recovery gate passed in an isolated CI
   environment using the exact SeaweedFS image digest observed in the live K3s
   pod. No production API or object-store process was restarted; see the
@@ -60,12 +61,11 @@ See [overall architecture](../architecture/overview.md),
 and the upload-session/worker deployment in `myota-deploy` for current
 behavior.
 
-## Latest delivery and evidence — 8 October 2026
+## Earlier delivery context — 8 October 2026
 
-This reconciliation records published implementation, not a new production
-rollout or a claim that every scaling phase is complete. Phase 1 is closed;
-Phases 2 and 3 have delivered capabilities but still need the failure and
-memory qualification below. Phases 4 and 5 remain rollout gates.
+This dated section preserves the state before the 9 October Phase 2/3
+qualification documented above and below. It is historical context, not the
+current completion status. Phase 4 and 5 remain rollout gates.
 
 ### Entity location metadata lifecycle — 8 October 2026
 
@@ -96,10 +96,10 @@ source-reference index and is synchronized into the platform and deployment
 migration runners. The five-minute cleanup wait remains a safety bound, not a
 substitute for a worker completing reliably.
 
-The service checks passed locally: 101 Python tests (15 skipped) and Ruff.
-The parser still holds normalized features and stages candidate writes until
-the run checkpoint, so bounded streaming/batch persistence remains an open
-Phase 3 requirement; this fix does not mark that broader item complete.
+The service checks passed locally at that point: 101 Python tests (15 skipped)
+and Ruff. The parser and worker gaps noted in this 8 October snapshot were
+closed by the bounded streaming, RSS, and recovery qualification recorded in
+the 9 October Phase 3 evidence report.
 
 | Delivered capability | Documentation and implementation evidence |
 |---|---|
@@ -370,7 +370,7 @@ ChatGPT implementation prompt: [implement bounded workers and failure recovery](
   attempt count, bounded retry/backoff, and a visible terminal error state.
 - [x] Make each feature/candidate write idempotent; use stable import and
   source-record identity so a retry cannot create duplicate candidates.
-- [ ] Close the bounded-memory qualification for every supported source format
+- [x] Close the bounded-memory qualification for every supported source format
   and snapshot mode. GeoJSON FeatureCollections/arrays use `ijson`; KML streams
   placemarks; GPX streams waypoints and track segments; zipped Shapefile and
   ParkServe stream records after archive/record preflight; OSM PBF uses a
@@ -378,12 +378,13 @@ ChatGPT implementation prompt: [implement bounded workers and failure recovery](
   250,000 vertices, cap Shapefile expansion at 1 GiB/100 members, and cap each
   import at 5,000 features. `completeSnapshot` preflights and reopens its
   immutable source instead of retaining a decoded feature list, then processes
-  within the import cap. However, ElementTree may materialize one oversized XML
-  text/element before its feature guard runs, large OSM areas are converted
-  before the geometry guard, and all-format/snapshot peak-RSS evidence is not
-  yet retained. Candidate replay remains ordinal/range-scoped and spatial
-  deduplication uses indexed queries. Close those residual memory and evidence
-  gaps before checking this item. See the [implementation and measured limits](evidence/phase3-bounded-preprocessing-2026-10-09.md).
+  within the import cap. XML subtree preflight and OSM area vertex checks run
+  before ElementTree feature construction and GeoJSON conversion. Retained RSS
+  evidence covers 300k GeoJSON/WFS/ArcGIS response features; 50k KML, GPX,
+  Shapefile/ParkServe, and OSM PBF records; a 250k-vertex feature; and
+  complete-snapshot preprocessing. Candidate replay remains ordinal/range-scoped
+  and spatial deduplication uses indexed queries. See the
+  [implementation and measured limits](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - [x] Make promotion consume only confirmed candidate IDs and record the
   resulting status/entity IDs and audit information with idempotent stable IDs.
   Entity/result/audit atomicity and duplicate promotion replay now have local
@@ -396,25 +397,36 @@ ChatGPT implementation prompt: [implement bounded workers and failure recovery](
   state and persistent sampled history through the authenticated
   [operations service and admin page](../operations/messaging/jetstream-admin-status.md). The observer
   does not consume, acknowledge, redrive or purge domain work.
+- [x] Verify durable delivery against isolated JetStream: ACK-pending is
+  released after handler success; a lost ACK after the processed-event commit
+  redelivers without repeating the handler side effect; and competing pull
+  consumers process a bounded event set once. The forced-process-death tests
+  below separately verify lease reclaim and replay at each business stage. See
+  the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - [x] Add worker shutdown/drain behavior: stop fetching on SIGTERM/SIGINT,
   finish the active delivery, and drain the NATS connection.
-- [ ] Test worker termination during parsing, enrichment, candidate
-  persistence, and promotion, including forced termination after the grace
-  period; then verify lease reclaim and replay in isolated CI. Local
-  PostGIS-backed evidence now covers forced termination after a committed
-  100-record candidate checkpoint, replay to 250 unique ordinals, two competing
-  preprocessing claims, and promotion replay. It does not yet cover all worker
-  stages or JetStream delivery/ACK behavior in isolated CI.
+- [x] Test worker termination during parsing, enrichment, candidate
+  persistence, and promotion, including forced process death, then verify lease
+  reclaim and replay in an isolated environment. The K3s-host disposable
+  PostGIS tests force-killed workers before the first parse checkpoint, after a
+  committed candidate checkpoint, during enrichment before commit, and after
+  promotion materialization before durable commit. Replay completed without
+  duplicate ordinals/entities. A JetStream test also requested graceful stop
+  during an active delivery, verified it completed and acknowledged, and
+  observed zero pending messages. See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 
-**Exit criteria: partially met.** API requests no longer execute durable
+**Exit criteria: met for the documented Phase 3 bounds.** API requests no longer execute durable
 preprocessing or promotion locally; worker retries use database leases and
-stable identities. Uploaded formats now use streaming decoders with explicit
-feature/import caps; GeoJSON and representative KML/GPX fixtures have measured
-bounded RSS. Isolated local PostGIS tests prove checkpoint replay after forced
-worker death, unique ordinals, and one winner among competing claims. Phase 3
-does not close until worst-case allocation and all-format/snapshot RSS are
-qualified and isolated CI proves graceful/forced termination and replay at each
-worker stage, including enrichment and JetStream delivery/acknowledgement.
+stable identities. Uploaded formats use streaming decoders with explicit
+feature/import caps and preprocessing windows bounded by both 100 records and
+32 MiB serialized input; representative all-format, remote-response, maximum
+vertex, and complete-snapshot RSS stays below the enforced 96 MiB test ceiling.
+Isolated PostGIS tests prove forced-death lease recovery/replay at each worker
+stage, unique ordinals/entities, and one winner among competing claims.
+Isolated JetStream tests verify ACK-pending release, commit-before-ACK
+redelivery, idempotent effects, competing consumers, and graceful drain.
+Performance scaling and larger real-world source envelopes remain governed by
+Phases 4 and 5, not by this bounded correctness qualification.
 See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 
 ### Phase 4 — remove unsafe infrastructure constraints
