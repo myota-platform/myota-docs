@@ -13,6 +13,9 @@ evidence; this page is a navigation index, not a second source of truth.
   Phase 5 remains planned until usage is measured and clients migrate.
 - [Programme configuration gaps](../domain/programmes/configuration-gap-analysis.md)
   — implementation-pending configuration catalogue.
+- [Admin UI internationalization](../domain/administration/i18n-roadmap.md) —
+  proposed locale foundation, phased translation of admin workflows, and
+  release-quality gates.
 - [Charter delivery gaps](../governance/charter-gap-analysis.md) — longer-term
   product, coverage, stewardship, and participant-experience gaps.
 - [Geodata scaling roadmap](../geodata/horizontal-scaling-roadmap.md) — Phase 4

@@ -113,4 +113,5 @@ status checks or retry.
 
 These are presentation rules only. Authorization, lifecycle transitions,
 deduplication, persistence, and queue semantics remain owned by the relevant
-service APIs.
+service APIs. See the [admin UI internationalization roadmap](i18n-roadmap.md)
+for the proposed locale policy and phased translation plan.

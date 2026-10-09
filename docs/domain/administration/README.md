@@ -1,6 +1,9 @@
 # Administration workflows
 
 - [Administration UX](overview.md) — admin-web navigation and workflow summary.
+- [Admin UI internationalization roadmap](i18n-roadmap.md) — locale policy,
+  phased translation work, formatting/accessibility gates, and implementation
+  prompts.
 - [Entity catalogue editor](entity-catalogue-editor.md) — catalogue, map,
   review, and editing behavior.
 - [Entity catalogue delivery evidence](evidence/entity-catalogue-2026-10-09.md)
