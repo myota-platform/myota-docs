@@ -20,10 +20,15 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   surfaced a PostgreSQL lock-wait hotspot under deliberate same-row contention;
   independent-row writes still need qualification.
 - **Cleanup and deployment:** Three exact-tag write runs report `cleaned=true`;
-  the read-only run created no application records. No source, Helm chart, or
-  runtime configuration changes were necessary. The live Helm release remains
-  deployed at revision 126 (chart 0.2.13); K3s HPA and rolling-pod actions were
-  the deployment tests. See [Phase 5 evidence](docs/geodata/evidence/phase5-staged-rollout-2026-10-09.md)
+  the read-only run created no application records. No source, chart, or runtime
+  configuration change was required. The bounded K3s rolling replacement and
+  HPA actions were the workload tests. A subsequent no-change Helm
+  reapply/rollback attempt left Fleet `ErrApplied`; Helm revision 151 remains
+  deployed, all MyOTA Deployments and database StatefulSets are Ready, and the
+  public API health check returns HTTP 200. The pending transaction records were
+  cleared and Fleet's Helm operator restarted, but GitOps readiness still needs
+  reconciliation in Rancher. This is not reported as a successful Fleet
+  rollout. See [deployment follow-up and Phase 5 evidence](docs/geodata/evidence/phase5-staged-rollout-2026-10-09.md)
   and the [roadmap](docs/geodata/horizontal-scaling-roadmap.md).
 
 ## 9 October 2026 — Phase 4 single-node scope confirmed

@@ -130,3 +130,19 @@ measurement before treating the capacity objective as satisfied.
 No code, chart, or runtime configuration change was required by this evidence;
 the deployed HPA and rollout limits were left intact. The API roll and automatic
 HPA action were themselves the live operational tests.
+
+### Deployment-control-plane follow-up
+
+After the evidence run, a no-change Helm reapply/rollback attempt left the
+Fleet-managed release reporting `ErrApplied` (Helm's concurrent-operation
+message plus ownership conflicts on several application Deployments). The two
+abandoned pending Helm history records were removed while preserving the last
+completed release, and the singleton Fleet Helm operator was restarted once;
+Fleet still reports the bundle as `ErrApplied`. This was not a MyOTA chart or
+application change. At the last check, Helm revision 151 was `deployed`, every
+MyOTA Deployment and all three database StatefulSets were Ready, and the public
+API health endpoint returned HTTP 200. PostGIS, the other databases, NATS and
+SeaweedFS were not restarted or modified. Do not treat this as a successful
+Fleet rollout: reconcile the Fleet bundle through Rancher before the next
+deployment, and confirm its Ready condition. No further direct Helm operation
+was attempted.
