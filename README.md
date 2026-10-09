@@ -7,7 +7,7 @@ content, and governance; MyOTA does not copy rules from POTA, MPOTA, or another
 initiative.
 
 This repository is the organization’s documentation hub. It does not own
-service runtime code. See the [repository map](docs/repository-map.md) for
+service runtime code. See the [repository map](docs/architecture/repository-map.md) for
 service ownership, deployment boundaries, and migration synchronization.
 
 ## Project status — 9 October 2026
@@ -29,45 +29,27 @@ promoted 5% each (split between Candidate and Approved); the first had already
 been queued for full approval and remains as a documented lifecycle exception.
 The measured scale-run catalogue had 2,875 synthetic entities; this is historical
 evidence, not the current live inventory. The current catalogue contains ten
-entities as verified during the [9 October editor delivery](docs/evidence/entity-catalogue-2026-10-09.md).
+entities as verified during the [9 October editor delivery](docs/domain/administration/evidence/entity-catalogue-2026-10-09.md).
 The PostGIS plans, bounded
 map-load review, retained write-profile summaries, live SeaweedFS correlation,
 pre-fixture plans, and evidence limits are recorded in the [Phase 0 evidence
-record](docs/geodata-phase0-production-evidence-2026-10-08.md) and
-[representative query review](docs/geodata-phase0-representative-query-review-2026-10-08.md).
+record](docs/geodata/evidence/phase0-production-evidence-2026-10-08.md) and
+[representative query review](docs/geodata/evidence/phase0-representative-query-review-2026-10-08.md).
 
 Other outstanding platform work is tracked explicitly in the
-[charter gap analysis](docs/charter-gap-analysis.md),
-[programme configuration gap analysis](docs/programme-configuration-gap-analysis.md),
-[REST API migration plan](docs/api-rest-consolidation-plan.md), and the
+[charter gap analysis](docs/governance/charter-gap-analysis.md),
+[programme configuration gap analysis](docs/domain/programmes/configuration-gap-analysis.md),
+[REST API migration plan](docs/domain/api/rest-consolidation-plan.md), and the
 organization’s [profile roadmap](https://github.com/myota-platform/.github/tree/main/profile).
 
 ## Documentation map
 
-- **Implementation history** — [Reconstructed cross-repository timeline](docs/changes.md).
-- **Purpose and status** — [Detailed hierarchical documentation index](docs/README.md),
-  [project charter](docs/project-charter.md), [charter gap analysis](docs/charter-gap-analysis.md).
-- **Architecture and decisions** — [architecture](docs/architecture.md),
-  [repository map](docs/repository-map.md), [architecture decision records](docs/adr/README.md).
-- **Domain and API** — [REST consolidation plan](docs/api-rest-consolidation-plan.md),
-  [administration UX and catalogue editor](docs/entity-catalogue-editor.md),
-  [programme configuration gaps](docs/programme-configuration-gap-analysis.md),
-  [activity and awards](docs/awards-and-programme-execution.md),
-  [programme and award designer](docs/programme-and-award-design.md),
-  [UTC time policy](docs/utc-time-policy.md),
-  [entity categories](docs/entity-categories.md), [identity and security](docs/identity-security.md).
-- **Operations and assurance** — [operations](docs/operations.md),
-  [observability](docs/observability.md), [threat model](docs/security/README.md),
-  [Python quality checks](docs/development/README.md).
-- **Event delivery migration** — [NATS JetStream event and work-queue migration
-  plan](docs/nats-event-migration-plan.md), including phased implementation and
-  copy-ready ChatGPT prompts.
-- **Geodata scale work** — [scaling roadmap](docs/geodata-horizontal-scaling-roadmap.md),
-  [Maidenhead coverage fields](docs/geodata-maidenhead-locators.md),
-  [load/query runbook](docs/geodata-load-test-and-query-evidence.md),
-  [Phase 0 evidence](docs/geodata-phase0-production-evidence-2026-10-08.md),
-  [representative query review](docs/geodata-phase0-representative-query-review-2026-10-08.md).
-- **Visual references** — [diagram index](docs/diagrams/README.md).
+- Browse all subjects in the [documentation index](docs/README.md):
+  architecture, domain/API, geodata, operations, observability, governance,
+  history, platform policy, security, and development.
+- Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
+  and verification in [Work in progress](docs/work-in-progress/README.md).
+- **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
 
 Status convention: completed checkboxes in detailed documents mean the listed
 work is implemented or verified as stated. Open checkboxes identify work still
@@ -77,5 +59,5 @@ imply scale qualification or production readiness.
 ## Source project
 
 The original `ea7klk/mpota` repository remains untouched. Its source and
-charter are migration input only; see [migration from MPOTA](docs/migration-from-mpota.md)
-and [source inspection](docs/source-inspection.md).
+charter are migration input only; see [migration from MPOTA](docs/governance/migration-from-mpota.md)
+and [source inspection](docs/history/source-inspection.md).

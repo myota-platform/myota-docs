@@ -2,7 +2,7 @@
 
 Status: planned extension to the implemented MyOTA observability stack.
 
-Parent: [MyOTA observability](../observability.md)
+Parent: [MyOTA observability](overview.md)
 
 ## Objective
 
