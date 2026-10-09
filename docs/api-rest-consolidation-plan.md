@@ -11,6 +11,10 @@ and records the implemented phases and subsequent compatible contract updates.
 
 ## Latest compatible contract additions
 
+The [UTC time policy](utc-time-policy.md) applies globally: effective-date
+inputs/publication APIs normalize to UTC, including legacy unqualified date-times.
+This does not add a route or change the stored instant of historical records.
+
 | Resource | Current contract / implementation |
 |---|---|
 | `PUT /v1/awards/assets/{assetId}/content` | Preferred authenticated binary PNG/JPEG replacement, verified dimensions, 20 MiB/16 million pixel bounds; old POST/base64 remains compatible. |

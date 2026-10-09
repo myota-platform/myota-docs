@@ -15,10 +15,23 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 9 October 2026 — catalogue editing and observability
 
+- **UTC throughout MyOTA:** Established the UTC policy across operational
+  timestamps, publication dates, UI displays and Grafana. Replaced local-time
+  effective-date handling in awards, policies and content with explicit UTC
+  inputs that preserve unchanged instants. Added server-side normalization for
+  programme and award publication/draft dates, explicit UTC NATS/storage status
+  displays, UTC dashboard/default settings and retention CronJob schedules.
+  Three live databases already use UTC; historical data and host-wide settings
+  are not rewritten. Non-UTC browser/runtime regressions cover the policy.
+  See the [UTC runbook](utc-time-policy.md) and
+  [delivery evidence](evidence/programme-awards-2026-10-09.md).
+
 - **Programme and award editing:** Fixed reactive-copy failures and selection
   races that left programme identifier/name fields empty, aligned form fields
   and preserved programme-owned metadata on save. Restored six default award
   fields, fetched full award details for editing and preserved legacy layouts.
+  Effective-date edits use UTC display time and preserve the exact UTC instant
+  of unchanged timestamps instead of shifting it on save.
   Added named PNG/JPEG background and signature uploads through authenticated
   binary content resources, database-backed asset selectors and live artwork
   in the placement canvas. Mock-data preview PDFs open in another window without

@@ -20,8 +20,11 @@ Choose a programme and an existing draft, or create a new award. List summaries
 are not used as editable records: the UI fetches `GET /v1/awards/{awardId}`.
 Published definitions remain read-only. Draft edits use `PATCH /v1/awards/{awardId}`.
 Existing template coordinates/styles, print metadata and legacy background keys
-are retained when editing. Empty/missing older templates receive the six defaults:
+are retained when editing. Effective dates are displayed and entered in UTC; an
+unchanged date retains its original instant (including seconds) rather than
+shifting on a draft save. Empty/missing older templates receive the six defaults:
 award name, callsign, participant name, date obtained, manager name and signature.
+See the platform-wide [UTC time policy](utc-time-policy.md).
 The defaults also appear immediately when opening the page for the first time.
 
 Fields can be dragged or positioned using normalized coordinates. Restore default

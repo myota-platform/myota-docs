@@ -48,8 +48,10 @@ configuration experience.
   reason, and a historical snapshot used by activity and award evaluation.
 - [ ] Add ownership, delegated-administrator, approver, moderator, and
   escalation contacts with an auditable change history.
-- [ ] Add a programme timezone and default country/region where relevant to
-  local dates and operator-facing displays.
+- [x] Establish UTC as the platform-wide operational timezone, including date
+  inputs and observability; see [UTC policy](utc-time-policy.md). Programme
+  timezone overrides are not part of operational configuration.
+- [ ] Add default country/region where relevant to discovery and entity filters.
 
 ### 2. Locales and programme content — P0
 
@@ -95,8 +97,8 @@ configuration experience.
   retired status.
 - [ ] Configure geometry constraints, required activation location, allowed
   distance/buffer from the entity, coordinate accuracy, and location evidence.
-- [ ] Configure activation duration, maximum hours, validity windows, UTC/local
-  time behavior, start/close state transitions, and invalidation/review rules.
+- [ ] Configure activation duration, maximum hours, validity windows using UTC
+  boundaries, start/close state transitions, and invalidation/review rules.
 - [ ] Configure operator versus SWL participation, verified-callsign
   requirements, multiple-callsign selection, and whether unverified/guest
   participation is allowed.
@@ -162,7 +164,7 @@ configuration is the policy that determines how shared geodata may be used:
   award qualification, and account-security events.
 - [ ] Configure public activation-history, leaderboard, downloadable-results,
   and callsign-privacy defaults.
-- [ ] Configure statistics periods, timezone, reproducible recalculation
+- [ ] Configure statistics periods with UTC boundaries, reproducible recalculation
   policy, publication delay, and export retention.
 - [ ] Allow a programme to reference approved geodata sources and attribution
   text without making the import pipeline programme-bound.

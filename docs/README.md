@@ -43,6 +43,7 @@ Status in plans and evidence:
 - [Phase 4: client and operational migration](api-phase4-client-operational-migration.md)
 - [Entity category catalogue](entity-categories.md)
 - [Programme policy ownership](adr/0004-programme-policy-ownership.md)
+- [UTC time policy across clients, APIs and observability](utc-time-policy.md)
 - [Programme configuration gaps](programme-configuration-gap-analysis.md)
 - [Activity, awards, and programme execution](awards-and-programme-execution.md)
 - [Programme editor, artwork uploads and certificate previews](programme-and-award-design.md)

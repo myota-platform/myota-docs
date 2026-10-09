@@ -54,6 +54,7 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   [programme configuration gaps](docs/programme-configuration-gap-analysis.md),
   [activity and awards](docs/awards-and-programme-execution.md),
   [programme and award designer](docs/programme-and-award-design.md),
+  [UTC time policy](docs/utc-time-policy.md),
   [entity categories](docs/entity-categories.md), [identity and security](docs/identity-security.md).
 - **Operations and assurance** — [operations](docs/operations.md),
   [observability](docs/observability.md), [threat model](docs/security/README.md),
