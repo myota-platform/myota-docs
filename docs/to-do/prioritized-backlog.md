@@ -32,23 +32,23 @@ feature and 100-feature/32-MiB checkpoint bounds. XML and OSM area guards,
 all-format/remote-response/snapshot RSS, maximum-vertex geometry, and forced
 worker death/replay at parse, checkpoint, enrichment, and promotion passed in
 an isolated disposable K3s test namespace; JetStream graceful drain and
-redelivery tests also passed. This is correctness/bounded-memory qualification,
-not authorization to scale production replicas. Phase 4 infrastructure review
-and Phase 5 staged rollout gates remain. See the [Phase 3 evidence review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
-The roadmap explicitly says these gates do not authorize increasing
-production replicas. The measured Phase 0 baseline is useful but does not
-establish broader capacity.
+redelivery tests also passed. The later Phase 4 boundary test separately
+qualified only the charted API range of two to three replicas. That bounded
+test does not authorize other replica/configuration changes or establish
+broader capacity; Phase 5 staged rollout gates remain. See the [Phase 3 review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md)
+and [Phase 4 report](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
+The measured Phase 0 baseline is useful but does not establish broader capacity.
 
 **Why first:** horizontal expansion can multiply a failure mode or create
 duplicate/lost processing if upload handoff, worker checkpoints, and recovery
 are not proven. This is the clearest explicitly stated rollout gate in the
 current backlog.
 
-**Next:** keep the bounded evidence linked to the deployed geodata digest, then
-continue with the Phase 4 infrastructure review and Phase 5 staged-rollout
-gates before any replica expansion. Re-run Phase 2's digest-pinned recovery job
-when the deployed SeaweedFS image changes. Coordinate with the NATS and
-observability work below.
+**Next:** keep the Phase 2/3/4 bounded evidence linked to the deployed
+components, complete Phase 5's capacity, node/storage-failure, canary and
+rollback gates before any expansion beyond the charted two-to-three API range,
+and rerun Phase 2's digest-pinned recovery job when the deployed SeaweedFS image
+changes. Coordinate with the NATS and observability work below.
 
 See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md),
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),

@@ -9,7 +9,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates
   are closed with a 33-test isolated evidence run and documented in the
   [Phase 3 report](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
-  Phase 4 infrastructure review and Phase 5 staged rollout gates remain. See
+  Phase 4 bounded API replica-safety is now verified; Phase 5 broader capacity,
+  node/storage failure and rollback gates remain. See the [Phase 4 report](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md),
   the [Phase 2 evidence](../geodata/evidence/phase2-upload-recovery-2026-10-09.md)
   and [Phase 3 implementation/exit review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - [Geodata Phase 0 evidence set](../geodata/evidence/phase0-production-evidence-2026-10-08.md)

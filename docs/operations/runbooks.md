@@ -100,8 +100,11 @@ are separate stages. Selected import detail refreshes while workers progress.
 Geodata persistence no longer writes whole service snapshots. Follow the
 [Phase 1 write-fenced migration/rollout procedure](../geodata/phase1-relational-authority.md#migration-and-rollout)
 when updating API and worker images; obsolete writers are rejected instead of
-overwriting current rows. Keep replica counts unchanged until the remaining
-infrastructure/load/failure gates pass.
+overwriting current rows. The Phase 4 evidence permits only the charted
+geodata API range of two to three replicas on the current cluster; it does not
+authorize broader changes. Keep replica counts unchanged outside an explicitly
+approved rollout until Phase 5 capacity/failure gates pass. See the
+[Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
 
 For broker troubleshooting use the authenticated admin `/jetstream` page or
 the [status/history API and runbook](messaging/jetstream-admin-status.md). Samples are
@@ -371,6 +374,8 @@ Unit/integration checks and destructive fault-injection, restart, termination,
 queue-redrive, and untagged cleanup scenarios are not load profiles and must
 remain in CI or an isolated non-production environment. The production load
 policy does not authorize replica/configuration changes or service restarts.
+The one-time Phase 4 API boundary test was separately authorized and is
+complete; see the [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
 
 Use `make verify-phase4` after rebuilding the durable stack. It runs the
 authorization, idempotency, audit, activity, award, and geodata regression

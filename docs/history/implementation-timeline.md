@@ -13,6 +13,40 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 9 October 2026 — geodata Phase 4 bounded infrastructure scaling
+
+- **Deployment controls:** Added geodata API CPU autoscaling with a two-replica
+  minimum and three-replica ceiling; worker replicas remain capped at two.
+  Database pool settings are bounded by a Helm guard against the live
+  PostgreSQL connection budget. API probes, resource limits, disruption budget,
+  termination grace, rolling strategy and best-effort topology spread protect
+  the bounded rollout. API and worker pods are stateless with respect to
+  persistent uploads; PostGIS and JetStream remain stateful singletons.
+- **Live verification:** On the one-node Spainip K3s cluster, the API reached
+  three ready pods from two, then returned to two. Gateway health remained
+  HTTP 200; database use was seven of 100 connections, and all five checked
+  JetStream consumers reported no pending/ack-pending events or redelivery
+  backlog. No application records, objects, or messages were created. This
+  proves the charted replica boundary, not node HA or sustained-load capacity.
+- **Release and evidence:** Deployment commit
+  [`a80257d`](https://github.com/myota-platform/myota-deploy/commit/a80257d36ac1d0046fd25b46bc6e0b1172902ef2)
+  was pushed, the GitHub Helm safety-render, quality, and image workflows
+  passed, and Fleet reconciled the release. The API returned to two ready
+  replicas. See the [Phase 4 evidence report](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md)
+  and [roadmap](../geodata/horizontal-scaling-roadmap.md). Broader capacity,
+  stateful failover, node failure, canary, and rollback remain Phase 5 gates.
+
+**Prompt used**
+
+> Continue implementing Phase 4 — remove unsafe infrastructure constraints
+> from the [geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md).
+> Complete the exit criteria: replicas can be added and removed without
+> violating storage, queue, database-connection, or availability constraints.
+> Tests on `spainip.es` were permitted with the known credentials, limitations,
+> and cleanup requirements. Update the [implementation timeline](implementation-timeline.md)
+> with the prompt used in a separate, word-wrapped box below the implementation
+> note.
+
 ## 9 October 2026 — geodata Phase 3 bounded processing and recovery
 
 - **Streaming and memory bounds:** Completed streaming parsers for GeoJSON,
@@ -53,10 +87,12 @@ describe current ownership and are authoritative for the present-day system.
   worker rolled out successfully on the new image. The gateway health check
   returned healthy. A follow-up deployment guide update is in
   [`a42dbc7`](https://github.com/myota-platform/myota-deploy/commit/a42dbc7f2d1611a9d509e33e64976ca402265f33).
-- **Current gate:** Phase 3 is closed for these bounded correctness and recovery
-  criteria. Phase 4 infrastructure review and Phase 5 staged scaling/rollout
-  qualification remain open; do not infer higher-replica or broad throughput
-  safety from this evidence. See the [Phase 3 evidence report](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md)
+- **Status at this checkpoint:** Phase 3 is closed for these bounded
+  correctness and recovery criteria. Phase 4 infrastructure review and Phase 5
+  staged scaling/rollout qualification remained open at this point in the
+  timeline; do not infer higher-replica or broad throughput safety from Phase 3
+  evidence. Phase 4 is subsequently closed only for its documented API bounds.
+  See the [Phase 3 evidence report](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md)
   and [geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md).
 
 ## 9 October 2026 — programme/award editing, UTC, catalogue and observability

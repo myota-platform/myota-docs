@@ -97,7 +97,8 @@ check are recorded below.
   the same streaming JSON decoder, not a live third-party endpoint. External
   source availability/latency is outside this parser qualification.
 - The parser/recovery tests do not qualify a larger replica count or replace
-  Phase 4/5 staged rollout and capacity tests.
+  Phase 4/5 infrastructure and capacity evidence; see the later Phase 4 report
+  for the separately bounded API replica-safety test.
 
 ## Validation performed
 
@@ -141,14 +142,16 @@ check are recorded below.
   this image by deployment commit 5afb183 and the current read-only checks
   above.
 
-## Remaining exit actions
+## Status at this evidence checkpoint
 
 1. [x] Publish the merged service image, update the chart's pinned digest, and
    verify the API and import-processing worker rollouts plus public health.
-2. Keep Phase 4 infrastructure review and Phase 5 staged rollout qualification
-   open; Phase 3's bounded correctness results do not qualify larger replica
-   counts or production capacity.
+2. At the time this report was first written, Phase 4 infrastructure review
+   and Phase 5 rollout qualification remained open. Phase 4 was subsequently
+   closed for the documented API replica bounds only; Phase 5's capacity,
+   node/storage-failure, canary and rollback qualification remains open.
 
 See the [Phase 3 roadmap section](../horizontal-scaling-roadmap.md#phase-3--isolate-preprocessing-and-promotion-from-api-pods),
 [active work index](../../work-in-progress/README.md), and
-[prioritized backlog](../../to-do/prioritized-backlog.md).
+[prioritized backlog](../../to-do/prioritized-backlog.md) and the later
+[Phase 4 evidence](phase4-infrastructure-scaling-2026-10-09.md).

@@ -22,12 +22,11 @@ documentation evidence and does not set delivery dates.
   release-quality gates.
 - [Charter delivery gaps](../governance/charter-gap-analysis.md) — longer-term
   product, coverage, stewardship, and participant-experience gaps.
-- [Geodata scaling roadmap](../geodata/horizontal-scaling-roadmap.md) — Phase 2
-  upload recovery is verified for the deployed SeaweedFS image digest. Phase 3
-  has a first bounded GeoJSON path; finish streaming/fallback strategy for all
-  supported formats and snapshots, measure peak memory, and prove graceful and
-  forced worker recovery plus concurrent claims. Phase 4 infrastructure and
-  Phase 5 rollout gates remain open. See the [Phase 3 evidence](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
+- [Geodata scaling roadmap](../geodata/horizontal-scaling-roadmap.md) — Phases
+  0–4 are complete for their documented evidence bounds. Phase 5 remains open
+  for broader capacity, node/storage failure, staged canary, and rollback
+  qualification. See the [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md)
+  and [roadmap](../geodata/horizontal-scaling-roadmap.md).
 - [Observability coverage gap](../observability/overview.md#live-k3s-verification-and-known-gap)
   — Identity and Programme `/metrics` coverage needs remediation and live
   verification.

@@ -1,8 +1,11 @@
 # Geodata evidence
 
+- [Phase 4 infrastructure scaling](phase4-infrastructure-scaling-2026-10-09.md)
+  — live two-to-three-to-two API replica test, connection budget, broker
+  health, rollout and scope limits.
 - [Phase 3 bounded preprocessing](phase3-bounded-preprocessing-2026-10-09.md)
   — bounded parser/RSS, worker recovery and JetStream evidence, K3s rollout,
-  and remaining Phase 4/5 scaling gates.
+  and remaining Phase 5 scaling gates.
 - [Phase 2 upload recovery](phase2-upload-recovery-2026-10-09.md) — API and
   SeaweedFS restart-resume test against the image digest observed on K3s.
 - [Phase 0 production evidence](phase0-production-evidence-2026-10-08.md) —

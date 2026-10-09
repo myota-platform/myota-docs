@@ -2,13 +2,10 @@
 
 ## Status and scope
 
-**Phase 0 evidence gate complete at 2,875 measured entities. Phases 1, 2, and
-3 are implemented and verified against their recorded evidence gates. Phases 4
-and 5 remain open; Phase 3 qualification does not authorize increasing the
-production replica count.**
-This checklist records the work needed before increasing the
-Geodata API beyond one replica in production. The baseline does not make the
-current service horizontally safe.
+**Phases 0–4 are complete for their documented evidence bounds; Phase 5
+remains open.** Phase 4 qualified the current single-node K3s deployment for
+bounded Geodata API pod scaling (two minimum, three maximum). It does not
+qualify node/storage failure, broad throughput, or higher replica counts.
 
 ### Test-environment premise — 8 October 2026
 
@@ -23,8 +20,13 @@ production opt-ins and stop conditions. Production runs are manual, never CI.
 
 This does not authorize destructive fault injection, service/pod termination,
 database or object-store restart, queue redrive, cleanup of untagged data, or
-production replica/configuration changes. Those correctness and recovery
-exercises remain CI or isolated-test-environment work. Production load results
+general production replica/configuration changes. Those correctness and
+recovery exercises remain CI or isolated-test-environment work. A separate,
+task-specific authorization for Phase 4 allowed only the charted API replica
+boundary test (2 → 3 → 2), with read-only health monitoring and no test data,
+stateful-service scaling, restarts, or fault injection. It is recorded in the
+[Phase 4 evidence](evidence/phase4-infrastructure-scaling-2026-10-09.md) and
+does not authorize further production changes. Production load results
 describe only the current provisional deployment and are not a guarantee for a
 future production footprint.
 
@@ -65,7 +67,7 @@ behavior.
 
 This dated section preserves the state before the 9 October Phase 2/3
 qualification documented above and below. It is historical context, not the
-current completion status. Phase 4 and 5 remain rollout gates.
+current completion status. Phase 4 and 5 were then rollout gates.
 
 ### Entity location metadata lifecycle — 8 October 2026
 
@@ -426,52 +428,81 @@ Isolated PostGIS tests prove forced-death lease recovery/replay at each worker
 stage, unique ordinals/entities, and one winner among competing claims.
 Isolated JetStream tests verify ACK-pending release, commit-before-ACK
 redelivery, idempotent effects, competing consumers, and graceful drain.
-Performance scaling and larger real-world source envelopes remain governed by
-Phases 4 and 5, not by this bounded correctness qualification.
+Infrastructure safety constraints are handled in Phase 4; broad performance
+scaling and larger real-world source envelopes remain Phase 5 work, not part of
+this bounded correctness qualification.
 See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 
 ### Phase 4 — remove unsafe infrastructure constraints
 
-Phase 1 removes the shared snapshot correctness blocker, but does not authorize
-production replica increases. Apply the [write-fenced migration/rollout
-procedure](phase1-relational-authority.md#migration-and-rollout) first;
-then complete the infrastructure and operational gates below.
+The bounded Phase 4 infrastructure gate is complete for the Spainip single-node
+K3s deployment. It permits only the recorded two-to-three API-pod envelope;
+Phase 5 still owns performance, node/storage failure, rollback, and broader
+capacity qualification. The [write-fenced migration/rollout
+procedure](phase1-relational-authority.md#migration-and-rollout) remains
+mandatory for future schema changes.
 
 ChatGPT implementation prompt: [review infrastructure and scaling constraints](prompts/scaling/phase-4-infrastructure.md).
 
 - [x] Remove the geodata API's shared `ReadWriteOnce` upload-spool dependency;
   see [Phase 2](#phase-2--make-upload-handoff-durable-without-a-shared-pod-volume).
-- [ ] Review all other volumes mounted by API pods before increasing replicas.
+- [x] Inventory API and worker mounts: neither the geodata API nor processing
+  worker mounts a PVC or keeps the accepted import source on pod-local storage.
+  Source objects remain in SeaweedFS; PostGIS and JetStream retain their own
+  single-replica `ReadWriteOnce` claims and were not scaled. See the [Phase 4
+  evidence](evidence/phase4-infrastructure-scaling-2026-10-09.md).
 - [x] Implement durable pull consumers, explicit acknowledgement, database
   leases and idempotent side effects for the three geodata queues; see the
   [worker lifecycle](../architecture/diagrams/geodata-import-validation.md).
-- [ ] Qualify concurrent multi-worker delivery and failure recovery before
-  increasing consumer replicas; implementation alone does not prove this gate.
-- [ ] Keep PostGIS connection use bounded across all API and worker replicas;
-  size per-pod pools from the database connection budget and consider
-  PgBouncer if appropriate.
-- [ ] Review `EXPLAIN (ANALYZE, BUFFERS)` for high-volume entity/map queries;
-  add or adjust B-tree/GiST indexes based on observed query plans.
-- [ ] Add Kubernetes CPU/memory requests and limits, startup/readiness probes,
-  graceful termination, pod disruption budgets, and topology spreading for
-  stateless API pods.
-- [ ] Add an API HPA using tested resource/latency signals and a separate worker
-  scaling policy using queue depth/oldest-message age. Set minimum and maximum
-  replicas from load-test results, not guesses.
-- [ ] Confirm rate limiting, request/body limits, timeouts, and backpressure
-  remain effective when more API pods are available.
+- [x] Reuse Phase 3's isolated competing-consumer, duplicate-delivery,
+  acknowledgement, and worker-recovery evidence before allowing a second
+  worker; see the [Phase 3 report](evidence/phase3-bounded-preprocessing-2026-10-09.md).
+- [x] Bound PostGIS connection use: API pool 8 × 3 max replicas, worker pool 4
+  × 2 max replicas, outbox pool 10, and a 40-connection reserve total 82 of
+  the live database's 100 `max_connections`. Helm rejects replica/pool
+  overrides that exceed that budget. PgBouncer was not introduced because the
+  measured maximum stays below the database cap.
+- [x] Review representative `EXPLAIN (ANALYZE, BUFFERS)` map/catalogue plans;
+  the measured 2,875-entity plans use the spatial GiST and catalogue sort
+  indexes without disk reads/spill. Retain the low map-selectivity estimate as
+  a follow-up, not a missing-index finding; see the [Phase 0 query review](evidence/phase0-representative-query-review-2026-10-08.md).
+- [x] Add API CPU/memory requests and limits, startup/readiness/liveness
+  probes, 60-second termination grace, zero-unavailable/one-surge rolling
+  updates, a PDB, and best-effort hostname spread. Worker resources and drain
+  grace are separately bounded.
+- [x] Configure the API CPU HPA at 70% of the 250m request, minimum 2 and
+  maximum 3; configure the worker separately with a hard maximum of 2 and
+  manual scaling from queue depth/oldest-message signals. The live 2 → 3 → 2
+  boundary check exercised HPA add/remove behavior without application writes.
+  Automated worker scaling is intentionally not enabled because this cluster
+  has no validated external queue-metrics adapter.
+- [x] Verify bounded request backpressure across replicas: 64 active HTTP
+  handlers per API pod, at most 8 DB connections per API pod, 16 MiB upload
+  parts, a 1 GiB body hard limit, gateway upload timeout, and worker
+  acknowledgement bounds. There is no shared global requests-per-second
+  limiter; aggregate concurrency is bounded by the replica and pool ceilings.
 
-**Exit criteria:** replicas can be added and removed without violating storage,
-queue, database-connection, or availability constraints.
+The committed bounds are deliberately narrower than broad performance
+qualification. CPU HPA behavior under a representative sustained load and
+larger database/object-store/worker capacity remain Phase 5 work.
+
+**Exit criteria: met for pod-level scaling in the documented topology.** The
+live test raised the API from two ready pods to three and returned it to two;
+the public health endpoint remained HTTP 200, the API had no PVC, the database
+pool budget remained bounded, and JetStream pending/ack-pending/redelivery/age
+metrics were zero. The PDB retained an available API pod and the worker and
+stateful services were left at their configured counts. This is not node-level
+high availability: Spainip currently has one K3s node and local-path RWO volumes
+for PostgreSQL, JetStream and SeaweedFS. A node or shared-stateful-service
+failure remains an explicit Phase 5/architecture limitation.
+See the [Phase 4 evidence](evidence/phase4-infrastructure-scaling-2026-10-09.md).
 
 ### Phase 5 — staged rollout and operational proof
 
-Current CI now covers relational migrations, concurrent independent repositories,
-promotion replay, migration replay, and two actual API processes. GeoJSON
-FeatureCollection streaming/checkpointing has focused unit coverage, but
-universal large-source memory evidence, worker termination/reclaim, node/storage
-failure and load/canary proof remain open. The API-session and SeaweedFS
-container restart gate is complete.
+Phase 3 bounded parsing and worker termination/reclaim, and Phase 4 bounded API
+replica add/remove, are complete for their stated evidence. Node/storage failure,
+broader sustained load and canary proof, and end-to-end rollback remain open.
+The API-session and SeaweedFS container restart gate is complete.
 
 ChatGPT implementation prompt: [complete staged rollout and operational proof](prompts/scaling/phase-5-rollout.md).
 
@@ -480,16 +511,18 @@ ChatGPT implementation prompt: [complete staged rollout and operational proof](p
   and [Phase 1 test inventory](phase1-relational-authority.md#recorded-validation).
 - [x] Add and pass the resumable upload API/SeaweedFS restart-recovery test in
   CI against the deployed SeaweedFS image; see the [Phase 2 evidence](evidence/phase2-upload-recovery-2026-10-09.md).
-- [ ] Add and pass forced worker-recovery failure-injection tests in CI.
+- [x] Add and pass forced worker-recovery/lease-reclaim and duplicate-delivery
+  tests in the isolated Phase 3 suite; see the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - [ ] Load-test the current provisional-production API at its deployed replica
   count; verify throughput and latency without shifting saturation to Postgres
   or object storage. Testing other replica counts requires a separately
   approved production rollout/change window; do not change replicas as part of
   a load run.
-- [ ] Exercise large-file upload, interrupted client upload, receiver-pod
-  termination, worker termination, duplicate event delivery, and production
-  storage/node-failure scenarios. The API-session and SeaweedFS container
-  restart subset is complete in the [Phase 2 evidence](evidence/phase2-upload-recovery-2026-10-09.md).
+- [x] Exercise upload-session/API-process restart recovery and worker
+  termination/duplicate delivery in isolated CI; see the [Phase 2](evidence/phase2-upload-recovery-2026-10-09.md)
+  and [Phase 3](evidence/phase3-bounded-preprocessing-2026-10-09.md) evidence.
+- [ ] Exercise production node/storage failure and multi-node scheduling; the
+  current K3s target has one node and local-path RWO stateful volumes.
 - [ ] Run a bounded provisional-production canary at the currently deployed
   replica count and compare error rate, latency, DB pool waits, object-store
   metrics and JetStream lag. Any production replica change is a separate

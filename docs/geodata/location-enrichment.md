@@ -54,8 +54,7 @@ reconstructed from the dedicated PostGIS `centroid` column and falling back to
 `ST_Centroid(geom)` for older rows. Without it, an event can be published and
 consumed normally while the lookup ends as `SKIPPED_NO_CENTROID`; this is not a
 JetStream delivery failure. The regression fix is in
-[`myota-geodata-service` commit `0b3655e`](
-https://github.com/myota-platform/myota-geodata-service/commit/0b3655e).
+[`myota-geodata-service` commit `0b3655e`](https://github.com/myota-platform/myota-geodata-service/commit/0b3655e).
 
 During the 8 October 2026 live diagnosis, the outbox contained five
 location-enrichment request events and none were pending publication. The

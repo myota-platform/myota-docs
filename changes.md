@@ -3,6 +3,29 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 9 October 2026 — geodata Phase 4 bounded replica safety
+
+- **Deployment:** Added independent geodata API CPU autoscaling from two to
+  three replicas, safe rollout/PDB/topology controls, bounded API and worker
+  database pools, a Helm connection-budget guard, resource requests/limits and
+  worker replica caps. Local Compose now uses matching bounded pools.
+- **Live verification:** On `spainip.es`, temporarily scaled the API from two
+  ready pods to three and back to two. Gateway health stayed HTTP 200; database
+  usage was 7/100 connections and all five checked JetStream consumers had no
+  pending, ack-pending, redelivery or message-age backlog. No test/application
+  records were created. Current single-node and single-replica stateful storage
+  remain explicit availability limits.
+- **Validation/deployment:** Deployment commit
+  [`a80257d`](https://github.com/myota-platform/myota-deploy/commit/a80257d36ac1d0046fd25b46bc6e0b1172902ef2)
+  was pushed; Helm safety rendering, repository quality and image build
+  workflows passed. Fleet reconciled the chart and the API returned to two
+  ready replicas. The local Compose command could not be validated because the
+  host Docker CLI lacks the Compose subcommand.
+- **Status:** Phase 4 is complete only for this documented two-to-three API
+  pod envelope. Phase 5 retains sustained capacity, node/storage failure,
+  canary and rollback gates. See the [Phase 4 evidence](docs/geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md)
+  and [roadmap](docs/geodata/horizontal-scaling-roadmap.md).
+
 ## 9 October 2026 — geodata Phase 3 bounded-worker gates closed
 
 - **Geodata service:** Fixed zipped Shapefile streaming so PyShp reads bounded
@@ -122,7 +145,7 @@ entry above records the completed bounded parser and worker-recovery gates.
   The gateway health check passed. No production import or worker fault
   injection was performed. At this checkpoint Phase 3 remained open pending
   bounded-path and worker-recovery evidence; those gates are closed by the
-  later [Phase 3 qualification entry](history/implementation-timeline.md#9-october-2026--geodata-phase-3-bounded-processing-and-recovery).
+  later [Phase 3 qualification entry](docs/history/implementation-timeline.md#9-october-2026--geodata-phase-3-bounded-processing-and-recovery).
 
 ## 9 October 2026 — geodata Phase 2 upload recovery gate
 

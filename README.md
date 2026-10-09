@@ -24,17 +24,20 @@ metrics currently have a documented live `/metrics` scrape gap.
 Implemented functionality is not the same as production qualification. The
 Phase 0 geodata baseline/evidence gate is complete at the measured catalogue
 size. Phase 2 resumable-upload recovery also passed in isolated CI against the
-SeaweedFS image ID deployed to K3s; broader geodata scale qualification remains
-open. Phase 3 has passed its bounded parser/RSS, snapshot, and worker-recovery
-gates in an isolated disposable K3s namespace. The focused
+SeaweedFS image ID deployed to K3s. Phase 3 passed its bounded parser/RSS,
+snapshot, and worker-recovery gates in an isolated disposable K3s namespace.
+The focused
 33-test Phase 3 suite covered all supported file/response formats, maximum-size
 geometry, complete snapshots, forced termination/replay at parse, checkpoint,
 enrichment, and promotion stages, and graceful JetStream drain. Service CI is
 green and the implementation is merged; the image is deployed to the geodata
 API and processing worker. Fleet reported 54/54 resources ready and the gateway
-health check passed. Phases 4 and 5 remain open; Phase 3 evidence does not
-authorize increasing production replicas. See the
-[Phase 3 evidence review](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
+health check passed. Phase 4 now qualifies only the charted geodata API
+two-to-three pod range on the current single-node cluster; Phase 5 remains
+open for broader capacity, node/storage failure, and rollback qualification.
+The Phase 4 boundary test added and removed one API pod without application
+writes. See the [Phase 3 evidence review](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md)
+and [Phase 4 infrastructure evidence](docs/geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
 The permanent synthetic
 Sevilla set imported 10,000 features in four batches of 2,500. Three batches
 promoted 5% each (split between Candidate and Approved); the first had already
