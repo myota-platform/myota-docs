@@ -19,4 +19,8 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   [diagram](docs/architecture/diagrams/admin-workspaces.md) and
   [validation/deployment evidence](docs/domain/administration/evidence/admin-workspaces-2026-10-09.md).
 
-Deployment and final CI results are recorded in the evidence page after rollout.
+Final delivery: 30 unit tests, 23 browser checks, production build/types and
+GitHub Helm rendering passed. Live read-only verification covered 14 pages with
+zero browser/API failures or attempted writes. Helm **0.2.12 revision 114** is
+deployed, Fleet **1/1 Ready**, and all 21 MyOTA deployments are Ready. See the
+evidence page for commits, workflow links, image digest and verification limits.
