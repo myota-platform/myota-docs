@@ -146,15 +146,38 @@ distinction:
 **ChatGPT prompt — Phase 0**
 
 ```text
-Work in the MyOTA multi-repository workspace. Create an exhaustive, evidence-backed inventory for moving all outbox events and asynchronous consumers to NATS JetStream streams and durable queues. Do not change runtime code in this phase.
+Work in the MyOTA multi-repository workspace. Create an exhaustive, evidence-backed
+inventory for moving all outbox events and asynchronous consumers to NATS JetStream
+streams and durable queues. Do not change runtime code in this phase.
 
-Inspect the authoritative repositories: myota-identity-service, myota-programme-service, myota-activity-service, myota-geodata-service, myota-operations-service, myota-contracts, myota-deploy, myota-platform, and myota-docs. Treat deploy/platform copies as synchronized mirrors and identify their source owners. Inspect migrations, recovery SQL, event creation helpers/call sites, outbox relay/routing, consumer subscriptions/handlers, workers, compose/Helm deployment, docs, and tests.
+Inspect the authoritative repositories: myota-identity-service,
+myota-programme-service, myota-activity-service, myota-geodata-service,
+myota-operations-service, myota-contracts, myota-deploy, myota-platform, and
+myota-docs. Treat deploy/platform copies as synchronized mirrors and identify their
+source owners. Inspect migrations, recovery SQL, event creation helpers/call sites,
+outbox relay/routing, consumer subscriptions/handlers, workers, compose/Helm
+deployment, docs, and tests.
 
-Return a table with one row per event type and asynchronous work type: producer service/database, transaction/write location, current event type and subject, envelope/schema version, intended consumer groups, current durable/filter, processing and idempotency boundary, retry/dead-letter behavior, current source of truth, retention/replay need, deployment owner, and missing evidence. Distinguish committed domain facts, competing-consumer work commands, scheduled/reconciliation work, and synchronous operations. Include Activity database-polled jobs and identify whether each should migrate to JetStream or remain as a justified exception.
+Return a table with one row per event type and asynchronous work type: producer
+service/database, transaction/write location, current event type and subject,
+envelope/schema version, intended consumer groups, current durable/filter,
+processing and idempotency boundary, retry/dead-letter behavior, current source of
+truth, retention/replay need, deployment owner, and missing evidence. Distinguish
+committed domain facts, competing-consumer work commands, scheduled/reconciliation
+work, and synchronous operations. Include Activity database-polled jobs and identify
+whether each should migrate to JetStream or remain as a justified exception.
 
-Specifically assess the shared file-backed MYOTA_EVENTS stream, Interest retention, currently provisioned Activity notification durable and four Geodata work durables, the three database-specific outbox relays, operations read-only inspection boundary, and existing replay limitations. Recommend a target stream/retention/subject topology with tradeoffs; do not assume that every event is a command or that JetStream is an event archive.
+Specifically assess the shared file-backed MYOTA_EVENTS stream, Interest retention,
+currently provisioned Activity notification durable and four Geodata work durables,
+the three database-specific outbox relays, operations read-only inspection boundary,
+and existing replay limitations. Recommend a target stream/retention/subject
+topology with tradeoffs; do not assume that every event is a command or that
+JetStream is an event archive.
 
-Edit only myota-docs in this phase: add the inventory and decision proposal to the NATS migration plan, and update docs/README.md and repository README links if needed. Keep claims labeled proposed/current and cite exact repository paths. Do not mark implementation complete. Report missing evidence and Phase 0 exit criteria.
+Edit only myota-docs in this phase: add the inventory and decision proposal to the
+NATS migration plan, and update docs/README.md and repository README links if
+needed. Keep claims labeled proposed/current and cite exact repository paths. Do not
+mark implementation complete. Report missing evidence and Phase 0 exit criteria.
 ```
 
 ### Phase 1 — Contracts, topology, provisioning, and operational safety
@@ -191,15 +214,38 @@ Edit only myota-docs in this phase: add the inventory and decision proposal to t
 **ChatGPT prompt — Phase 1**
 
 ```text
-Implement the approved Phase 1 NATS contract and topology decisions recorded in myota-docs/docs/nats-event-migration-plan.md and the approved event ADR. First read the Phase 0 inventory and repository ownership map. Do not expand scope beyond the approved topology.
+Implement the approved Phase 1 NATS contract and topology decisions recorded in
+myota-docs/docs/nats-event-migration-plan.md and the approved event ADR. First read
+the Phase 0 inventory and repository ownership map. Do not expand scope beyond the
+approved topology.
 
-Update the authoritative myota-contracts event documentation/schema and any required owning-service helpers. Define the versioned envelope, stable message ID, subject naming/registry, event versus work-command classification, consumer-group naming, unknown-version behavior, payload bounds, correlation/causation fields, and backward compatibility rules. Update synchronized myota-platform/myota-deploy contract copies only through their documented sync process.
+Update the authoritative myota-contracts event documentation/schema and any required
+owning-service helpers. Define the versioned envelope, stable message ID, subject
+naming/registry, event versus work-command classification, consumer-group naming,
+unknown-version behavior, payload bounds, correlation/causation fields, and backward
+compatibility rules. Update synchronized myota-platform/myota-deploy contract copies
+only through their documented sync process.
 
-Make JetStream stream and durable-consumer provisioning deterministic and drift-checked. Ensure every producer subject has required durable coverage before publication under the selected retention policy. Prefer a single controlled provisioner/reconciler over concurrent relay configuration mutation if that is what the approved ADR specifies. Validate all correctness-sensitive consumer settings. Add least-privilege credentials and deployment configuration for each relay/worker role. Add registry/contract checks that fail when a producer subject lacks schema, owner, consumer disposition, provisioning and documentation.
+Make JetStream stream and durable-consumer provisioning deterministic and
+drift-checked. Ensure every producer subject has required durable coverage before
+publication under the selected retention policy. Prefer a single controlled
+provisioner/reconciler over concurrent relay configuration mutation if that is what
+the approved ADR specifies. Validate all correctness-sensitive consumer settings.
+Add least-privilege credentials and deployment configuration for each relay/worker
+role. Add registry/contract checks that fail when a producer subject lacks schema,
+owner, consumer disposition, provisioning and documentation.
 
-Document retention limits, restore/replay and recovery procedures; preserve PostgreSQL as system of record and Operations as read-only broker inspection. Update myota-docs and operator docs. Add focused tests for routing, schema compatibility, provisioning drift, and unknown subjects only where the repository's existing test conventions support them. Keep mirrors synchronized and list every changed repo/file.
+Document retention limits, restore/replay and recovery procedures; preserve
+PostgreSQL as system of record and Operations as read-only broker inspection. Update
+myota-docs and operator docs. Add focused tests for routing, schema compatibility,
+provisioning drift, and unknown subjects only where the repository's existing test
+conventions support them. Keep mirrors synchronized and list every changed
+repo/file.
 
-Before editing, state the approved topology you found. If the ADR and plan conflict or the Phase 0 decision is absent, stop runtime changes and report the conflict with file references. At completion report evidence and remaining gates; do not claim later phases complete.
+Before editing, state the approved topology you found. If the ADR and plan conflict
+or the Phase 0 decision is absent, stop runtime changes and report the conflict with
+file references. At completion report evidence and remaining gates; do not claim
+later phases complete.
 ```
 
 ### Phase 2 — Relay hardening and domain-event coverage
@@ -235,13 +281,37 @@ Before editing, state the approved topology you found. If the ADR and plan confl
 **ChatGPT prompt — Phase 2**
 
 ```text
-Implement Phase 2 of the MyOTA NATS migration in the repositories that own the code. Read the approved inventory and Phase 1 contract/topology first. Scope is the three database-bound relays and complete outbox publication for every event actually emitted by Identity, Programme, Activity, and Geodata. Include Operations only if Phase 0 confirms event-producing call sites; do not infer emitted events from its shared state helper.
+Implement Phase 2 of the MyOTA NATS migration in the repositories that own the code.
+Read the approved inventory and Phase 1 contract/topology first. Scope is the three
+database-bound relays and complete outbox publication for every event actually
+emitted by Identity, Programme, Activity, and Geodata. Include Operations only if
+Phase 0 confirms event-producing call sites; do not infer emitted events from its
+shared state helper.
 
-Harden myota-deploy/services/outbox_worker.py and its source/synchronized copies as appropriate: stable Nats-Msg-Id, publish acknowledgement before marking published, retry/backoff, bounded connection/concurrency behavior, dead-letter visibility/recovery, safe duplicate publish after crash, unknown-subject handling, metrics/logging, shutdown and credential handling. Preserve database ownership: core, activity, and geo relays must each use only their configured database. Do not let the Operations status path mutate broker state.
+Harden myota-deploy/services/outbox_worker.py and its source/synchronized copies as
+appropriate: stable Nats-Msg-Id, publish acknowledgement before marking published,
+retry/backoff, bounded connection/concurrency behavior, dead-letter
+visibility/recovery, safe duplicate publish after crash, unknown-subject handling,
+metrics/logging, shutdown and credential handling. Preserve database ownership:
+core, activity, and geo relays must each use only their configured database. Do not
+let the Operations status path mutate broker state.
 
-Walk every event write and migration/recovery insert in the Phase 0 matrix. Ensure mutations and outbox inserts are atomic and all accepted cross-service events publish through the registered envelope/subject path. Add or update explicit durable consumers only for required domain-event groups in this phase; each must have clear supported-type filters, idempotency, explicit ack-after-commit, version handling, and a poison-event path. Do not add broad no-op consumers just to retain subjects under Interest retention; update provisioning and retention decisions according to the approved ADR.
+Walk every event write and migration/recovery insert in the Phase 0 matrix. Ensure
+mutations and outbox inserts are atomic and all accepted cross-service events
+publish through the registered envelope/subject path. Add or update explicit durable
+consumers only for required domain-event groups in this phase; each must have clear
+supported-type filters, idempotency, explicit ack-after-commit, version handling,
+and a poison-event path. Do not add broad no-op consumers just to retain subjects
+under Interest retention; update provisioning and retention decisions according to
+the approved ADR.
 
-Synchronize authoritative sources into myota-deploy/myota-platform mirrors and update contracts/docs/operations for actual behavior. Use focused tests for relay failure windows, unknown routes, and event coverage according to existing test conventions. Provide an event-by-event completion matrix and evidence for relay retry, duplicate publish safety, dead-letter visibility, and all producer owners. Do not migrate Activity's database-polled jobs here unless the approved plan assigned them to this phase.
+Synchronize authoritative sources into myota-deploy/myota-platform mirrors and
+update contracts/docs/operations for actual behavior. Use focused tests for relay
+failure windows, unknown routes, and event coverage according to existing test
+conventions. Provide an event-by-event completion matrix and evidence for relay
+retry, duplicate publish safety, dead-letter visibility, and all producer owners. Do
+not migrate Activity's database-polled jobs here unless the approved plan assigned
+them to this phase.
 ```
 
 ### Phase 3 — Consumer reliability and domain-event subscribers
@@ -276,13 +346,33 @@ Synchronize authoritative sources into myota-deploy/myota-platform mirrors and u
 **ChatGPT prompt — Phase 3**
 
 ```text
-Implement Phase 3: standardize and complete MyOTA domain-event consumers on NATS JetStream using the approved registry and topology. Focus on Activity notifications and any additional subscriber groups named in the Phase 0 inventory. Do not migrate Geodata work consumers or Activity DB jobs unless a dependency requires a small preparatory change; keep work commands distinct from domain events.
+Implement Phase 3: standardize and complete MyOTA domain-event consumers on NATS
+JetStream using the approved registry and topology. Focus on Activity notifications
+and any additional subscriber groups named in the Phase 0 inventory. Do not migrate
+Geodata work consumers or Activity DB jobs unless a dependency requires a small
+preparatory change; keep work commands distinct from domain events.
 
-For each durable consumer group, document its owning service, subject filter, supported event versions, business side effects, local database, stable idempotency key, ack boundary, retry/backoff/max-delivery policy, poison-message procedure, shutdown/drain behavior, metrics, replica/scaling model, and durable migration procedure. Ensure unrelated handlers never share a durable and same-group replicas do. Where possible, commit side effect plus processed-event/checkpoint record atomically, then ack. Handle duplicate delivery and database-commit/ack-loss explicitly.
+For each durable consumer group, document its owning service, subject filter,
+supported event versions, business side effects, local database, stable idempotency
+key, ack boundary, retry/backoff/max-delivery policy, poison-message procedure,
+shutdown/drain behavior, metrics, replica/scaling model, and durable migration
+procedure. Ensure unrelated handlers never share a durable and same-group replicas
+do. Where possible, commit side effect plus processed-event/checkpoint record
+atomically, then ack. Handle duplicate delivery and database-commit/ack-loss
+explicitly.
 
-Replace catch-all/no-op behavior with reviewed filters and explicit event-type dispositions. Do not make Activity own Identity/Programme/Geodata records; it may own notification projections only. Preserve Operations as read-only status inspection. Keep stable durable names, and document how to roll to a successor durable without dropping Interest-retained events.
+Replace catch-all/no-op behavior with reviewed filters and explicit event-type
+dispositions. Do not make Activity own Identity/Programme/Geodata records; it may
+own notification projections only. Preserve Operations as read-only status
+inspection. Keep stable durable names, and document how to roll to a successor
+durable without dropping Interest-retained events.
 
-Update owning service code, container/deployment wiring, synchronized mirrors, contracts, operations runbooks, and myota-docs. Add focused delivery/restart/idempotency tests following existing conventions. Produce a consumer-by-consumer matrix with evidence for supported versions, duplicate delivery, poison event recovery, backlog metrics, and graceful shutdown. Mark only verified rows complete.
+Update owning service code, container/deployment wiring, synchronized mirrors,
+contracts, operations runbooks, and myota-docs. Add focused
+delivery/restart/idempotency tests following existing conventions. Produce a
+consumer-by-consumer matrix with evidence for supported versions, duplicate
+delivery, poison event recovery, backlog metrics, and graceful shutdown. Mark only
+verified rows complete.
 ```
 
 ### Phase 4 — Move Activity database-polled accepted work to JetStream
@@ -322,13 +412,35 @@ Update owning service code, container/deployment wiring, synchronized mirrors, c
 **ChatGPT prompt — Phase 4**
 
 ```text
-Implement Phase 4: migrate the Activity service's accepted asynchronous jobs from PostgreSQL polling to NATS JetStream work queues, following the approved Phase 0 decision and Phase 1 contracts. Inspect activity_repository.py, activity_worker.py, outbox writes, job migrations/schema, Activity API job producers, deployment manifests, and all recovery/retention paths before editing.
+Implement Phase 4: migrate the Activity service's accepted asynchronous jobs from
+PostgreSQL polling to NATS JetStream work queues, following the approved Phase 0
+decision and Phase 1 contracts. Inspect activity_repository.py, activity_worker.py,
+outbox writes, job migrations/schema, Activity API job producers, deployment
+manifests, and all recovery/retention paths before editing.
 
-Inventory and handle these current job kinds individually: ADIF_IMPORT, QSO_INGESTION, AWARD_RECALCULATE, AWARD_EVALUATION, PDF_RENDER, STATISTICS_REBUILD, and NOTIFICATION_SEND. For each choose a versioned work subject and durable consumer group, or document an approved exception. Preserve resource/job status in myota_activity. Persist work request/outbox atomically with the accepted state transition; publish identifiers and bounded metadata rather than large content. Keep blob data in the configured object store. Ensure long-running tasks use suitable ack wait/progress/lease strategy and independent concurrency so unrelated heavy work does not block other kinds.
+Inventory and handle these current job kinds individually: ADIF_IMPORT,
+QSO_INGESTION, AWARD_RECALCULATE, AWARD_EVALUATION, PDF_RENDER, STATISTICS_REBUILD,
+and NOTIFICATION_SEND. For each choose a versioned work subject and durable consumer
+group, or document an approved exception. Preserve resource/job status in
+myota_activity. Persist work request/outbox atomically with the accepted state
+transition; publish identifiers and bounded metadata rather than large content. Keep
+blob data in the configured object store. Ensure long-running tasks use suitable ack
+wait/progress/lease strategy and independent concurrency so unrelated heavy work
+does not block other kinds.
 
-Implement at-least-once-safe processing: stable job/event ID, domain idempotency, explicit ack after committed completion/failure state, bounded redelivery/backoff, visible poison/dead-letter handling, graceful drain, and startup recovery. Design a controlled cutover from DB polling, including old-job drain, duplicate prevention during overlap, metrics, and rollback. Do not delete job history or claim exact-once broker delivery. Keep scheduled retention/reconciliation tasks as schedules unless the ADR specifically classifies them as event work.
+Implement at-least-once-safe processing: stable job/event ID, domain idempotency,
+explicit ack after committed completion/failure state, bounded redelivery/backoff,
+visible poison/dead-letter handling, graceful drain, and startup recovery. Design a
+controlled cutover from DB polling, including old-job drain, duplicate prevention
+during overlap, metrics, and rollback. Do not delete job history or claim exact-once
+broker delivery. Keep scheduled retention/reconciliation tasks as schedules unless
+the ADR specifically classifies them as event work.
 
-Update Activity source, contract/subject registry, deployment and synchronized myota-deploy/myota-platform copies, tests, Activity README and central MyOTA docs. Validate each job kind with focused unit/integration evidence and report cutover/rollback instructions, remaining DB polling, job age/backlog visibility, and any blocked handler. Do not move Geodata work into Activity ownership.
+Update Activity source, contract/subject registry, deployment and synchronized
+myota-deploy/myota-platform copies, tests, Activity README and central MyOTA docs.
+Validate each job kind with focused unit/integration evidence and report
+cutover/rollback instructions, remaining DB polling, job age/backlog visibility, and
+any blocked handler. Do not move Geodata work into Activity ownership.
 ```
 
 ### Phase 5 — Reconcile Geodata queues and cross-service recovery
@@ -363,11 +475,31 @@ Update Activity source, contract/subject registry, deployment and synchronized m
 **ChatGPT prompt — Phase 5**
 
 ```text
-Implement Phase 5: reconcile and qualify the existing Geodata JetStream work queues and all cross-service recovery paths. The four current Geodata durable pull consumers are preprocessing, import promotion, entity deletion, and location enrichment. Read the event contract, Geodata architecture/runbooks, Phase 0 inventory, and approved ADR first.
+Implement Phase 5: reconcile and qualify the existing Geodata JetStream work queues
+and all cross-service recovery paths. The four current Geodata durable pull
+consumers are preprocessing, import promotion, entity deletion, and location
+enrichment. Read the event contract, Geodata architecture/runbooks, Phase 0
+inventory, and approved ADR first.
 
-Verify the producer transaction, work subject, provisioned durable/filter/config, worker replica model, explicit ack policy, ack wait/max-deliver/max-ack-pending, database idempotency/checkpoint/lease, long-work heartbeat, failure/dead-letter behavior, and recovery source for each queue. Inspect transient failures and ensure retryable lease contention is deferred rather than irreversibly terminated. Confirm acknowledgement follows durable side effects. Preserve location request ID and geometry-hash recheck, deletion authorization and Activity impact sequencing, import cancellation semantics, and database reconciliation loops as repair mechanisms rather than competing primary queues.
+Verify the producer transaction, work subject, provisioned durable/filter/config,
+worker replica model, explicit ack policy, ack wait/max-deliver/max-ack-pending,
+database idempotency/checkpoint/lease, long-work heartbeat, failure/dead-letter
+behavior, and recovery source for each queue. Inspect transient failures and ensure
+retryable lease contention is deferred rather than irreversibly terminated. Confirm
+acknowledgement follows durable side effects. Preserve location request ID and
+geometry-hash recheck, deletion authorization and Activity impact sequencing, import
+cancellation semantics, and database reconciliation loops as repair mechanisms
+rather than competing primary queues.
 
-Exercise failure scenarios: publish acknowledgement lost before outbox mark; worker crash before/after database commit; database outage; delayed import beyond ack wait; duplicate message; stream age expiry; durable recreation; broker restore; cancellation racing with processing; and Activity/geodata partial deletion failure. Fix issues within the repositories that own them, update synchronized deployment mirrors, add focused tests/evidence, and refresh operations metrics/alerts and recovery instructions. Operations remains read-only. Report each queue and failure scenario as pass/fail/open with evidence and avoid claiming production qualification without production-like results.
+Exercise failure scenarios: publish acknowledgement lost before outbox mark; worker
+crash before/after database commit; database outage; delayed import beyond ack wait;
+duplicate message; stream age expiry; durable recreation; broker restore;
+cancellation racing with processing; and Activity/geodata partial deletion failure.
+Fix issues within the repositories that own them, update synchronized deployment
+mirrors, add focused tests/evidence, and refresh operations metrics/alerts and
+recovery instructions. Operations remains read-only. Report each queue and failure
+scenario as pass/fail/open with evidence and avoid claiming production qualification
+without production-like results.
 ```
 
 ### Phase 6 — Shadow, canary, cutover, and retirement
@@ -405,11 +537,30 @@ Exercise failure scenarios: publish acknowledgement lost before outbox mark; wor
 **ChatGPT prompt — Phase 6**
 
 ```text
-Prepare and execute the approved Phase 6 shadow/canary/cutover/retirement plan for the MyOTA NATS migration. Before changing deployment or runtime switches, read every prior phase's completion evidence and the production rollout approval documented by the user/team. If any exit gate is unverified, do not cut over that service; complete independent safe preparation and report the exact blocker.
+Prepare and execute the approved Phase 6 shadow/canary/cutover/retirement plan for
+the MyOTA NATS migration. Before changing deployment or runtime switches, read every
+prior phase's completion evidence and the production rollout approval documented by
+the user/team. If any exit gate is unverified, do not cut over that service;
+complete independent safe preparation and report the exact blocker.
 
-Build a per-service rollout matrix for Identity, Programme, Activity, Geodata, Operations, and shared deployment: old path, new subject/durable, baseline counts, canary scope, success thresholds, rollback trigger, drain condition, responsible owner, and observed evidence. Shadow comparison must not execute duplicate mutating work. Never dual-consume a command unless both paths share proven idempotency and a bounded migration window. Canary progressively, measure event/job ID reconciliation, accepted-to-published delay, consumer lag/oldest age, retries, DLQ, worker errors, business completion and broker capacity. Verify Operations continues read-only access.
+Build a per-service rollout matrix for Identity, Programme, Activity, Geodata,
+Operations, and shared deployment: old path, new subject/durable, baseline counts,
+canary scope, success thresholds, rollback trigger, drain condition, responsible
+owner, and observed evidence. Shadow comparison must not execute duplicate mutating
+work. Never dual-consume a command unless both paths share proven idempotency and a
+bounded migration window. Canary progressively, measure event/job ID reconciliation,
+accepted-to-published delay, consumer lag/oldest age, retries, DLQ, worker errors,
+business completion and broker capacity. Verify Operations continues read-only
+access.
 
-Only after gates pass, perform the authorized cutover: switch producers, stop old claims after acceptance is confirmed, drain legacy queues, reconcile outbox/DLQ/backlog, then retire obsolete code and durables. Keep a tested rollback route until the agreed observation window ends. Update runbooks, service READMEs, contracts, deployment docs, central plan status, and mirrors with actual evidence and dates. Do not state complete based on deployment success alone. End with a signed-off event/consumer coverage matrix, any exceptions with owner/review date, and recovery/rollback evidence.
+Only after gates pass, perform the authorized cutover: switch producers, stop old
+claims after acceptance is confirmed, drain legacy queues, reconcile
+outbox/DLQ/backlog, then retire obsolete code and durables. Keep a tested rollback
+route until the agreed observation window ends. Update runbooks, service READMEs,
+contracts, deployment docs, central plan status, and mirrors with actual evidence
+and dates. Do not state complete based on deployment success alone. End with a
+signed-off event/consumer coverage matrix, any exceptions with owner/review date,
+and recovery/rollback evidence.
 ```
 
 ## Cross-phase verification and rollout gates

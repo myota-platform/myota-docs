@@ -46,6 +46,7 @@ Status in plans and evidence:
 - [UTC time policy across clients, APIs and observability](utc-time-policy.md)
 - [Programme configuration gaps](programme-configuration-gap-analysis.md)
 - [Activity, awards, and programme execution](awards-and-programme-execution.md)
+- [Future award-condition model and implementation roadmap](award-condition-model-and-roadmap.md)
 - [Programme editor, artwork uploads and certificate previews](programme-and-award-design.md)
 - [Identity, callsigns, and security](identity-security.md)
 - [Administration web UX](admin-web-ux.md)
