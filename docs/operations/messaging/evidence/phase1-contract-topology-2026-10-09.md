@@ -11,7 +11,8 @@ The implementation artifacts are published for review: [contracts #2](https://gi
 [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
 and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
 These pull requests remain open and unmerged; the local checks below do not
-represent CI or production approval.
+represent production approval. CI results are recorded in the verification
+table below.
 
 - `myota-contracts/contracts/event-registry.json` now lists 68 domain facts,
   maps the six legacy Geodata work event types to four proposed commands, and
@@ -37,6 +38,9 @@ represent CI or production approval.
 |---|---|
 | Contract registry/schema unit tests | 2 passed |
 | Topology validation unit tests | 3 passed |
+| Contracts CI | Contract freeze check, Ruff formatting, and Ruff lint passed after formatting correction |
+| Deploy CI | Ruff formatting and lint passed after formatting correction |
+| Platform CI | Unit-test job and Ruff formatting/lint passed; container job could not start because Docker Hub token requests timed out twice |
 | Python compile check for topology/provisioner | Passed |
 | Temporary isolated JetStream broker | Provisioned all 3 streams and 10 durables; an identical second run passed |
 | Drift rejection | Changed the test broker's expected event-stream byte cap; provisioning failed with `configuration drift (max_bytes)`, then passed again with the original value |

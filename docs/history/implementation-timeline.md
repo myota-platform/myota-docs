@@ -45,6 +45,12 @@ describe current ownership and are authoritative for the present-day system.
   [deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
   [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
   and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
+- **CI follow-up:** Corrected Ruff formatting in the contracts and deploy
+  implementations and synchronized platform mirrors. Contract checks, deployment
+  Ruff formatting/lint, and platform tests plus Ruff formatting/lint pass. The
+  platform image-build job timed out requesting a Docker Hub token on two
+  attempts; image-build status remains unverified. The Phase 1 prompt above
+  remains the single prompt for this phase.
 
 **Prompt used** (the copyable Phase 1 prompt in the plan):
 

@@ -8,7 +8,9 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   Phase 0 inventory, topology decision, and owner assignments are complete.
   Phase 1 is underway: contracts now list 68 domain facts and ten proposed work
   commands; a create-only, drift-checking provisioner requires explicit finite
-  limits. Two contract and three topology tests pass. The per-event payload
+  limits. Contract/deploy checks, platform unit tests, and Ruff format/lint CI
+  pass. The platform container build is unverified after two Docker Hub token
+  timeouts. The per-event payload
   contracts, authenticated least-privilege NATS roles, measured capacity limits,
   restore/replay test, and removal of relay-side provisioning remain open. The
   deployed shared `MYOTA_EVENTS` stream still uses Interest retention; no

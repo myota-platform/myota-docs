@@ -68,10 +68,12 @@ selects `MYOTA_EVENTS` with bounded Limits retention for domain facts, plus
 separate `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` WorkQueue streams. Phase
 1 has started: the contracts repo lists 68 facts and ten work commands and has
 outer-envelope schemas; a create-only provisioner validates finite limits and
-configuration drift. Two contract tests and three topology tests pass. The
-payload schemas are still incomplete. The deployed broker remains a single
-Interest-retained stream with an 8 GiB PVC, and no live migration or runtime
-change has occurred. Read-only sampling found 19,103 outbox rows spanning only
+configuration drift. Contract/deploy checks, platform unit tests, and Ruff
+format/lint CI pass. The platform container build is unverified after two
+Docker Hub token timeouts. The payload schemas are still incomplete. The
+deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
+and no live migration or runtime change has occurred. Read-only sampling found
+19,103 outbox rows spanning only
 2–9 October and an unusually large Geodata payload; that is not a full-window
 capacity forecast. Credentials, numeric limits, broker restore/replay evidence,
 and relay-side provisioning behavior remain open. The artifacts are awaiting

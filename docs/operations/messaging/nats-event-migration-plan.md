@@ -310,6 +310,10 @@ The implementation artifacts are awaiting review in [contracts #2](https://githu
 [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
 and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
 They are not merged and do not authorize live provisioning or runtime changes.
+Ruff formatting and lint pass in the contracts and deploy pull requests and in
+the platform mirror; its test workflow also passes. The platform image-build job
+could not start because Docker Hub token requests timed out twice. See the
+[Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md).
 
 - [x] Add a contracts-owned registry for all 68 inventory facts, six legacy
       Geodata work/recovery event types mapped to four commands, and six
