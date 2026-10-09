@@ -11,8 +11,8 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   100-feature windows and evicts committed row projections before advancing.
   Compose and Helm expose the batch-size setting. Replay/cancellation and
   source metadata behavior remain covered by unit regressions.
-- **Verification boundary:** Ruff passed; all 121 service unit tests passed
-  with 17 environment-dependent skips; the focused import/worker suite passed
+- **Verification boundary:** Ruff passed; the local suite had 104 passes and
+  17 environment-dependent skips (121 collected); the focused import/worker suite passed
   32 tests with its `ijson`-dependent test skipped locally. This host could not
   reach PyPI, so local verification used the parser compatibility fallback.
   The actual `ijson` path passed in the [PostGIS-backed GitHub quality run](https://github.com/myota-platform/myota-geodata-service/actions/runs/37913194172),
@@ -24,12 +24,19 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   [horizontal-scaling roadmap](docs/geodata/horizontal-scaling-roadmap.md),
   [geodata service commit 301bc28](https://github.com/myota-platform/myota-geodata-service/commit/301bc28),
   and [deployment commit 890197f](https://github.com/myota-platform/myota-deploy/commit/890197f).
-  Service validation passed locally: 121 tests passed, 17 environment-dependent
+  Service validation passed locally: 104 passed and 17 environment-dependent
   tests skipped; Ruff passed. The streaming-dependency test was skipped locally
   because this host could not reach PyPI. Updated root status, geodata index,
   WIP, To do, and prioritized backlog with the precise partial status.
-  [Helm chart validation](https://github.com/myota-platform/myota-deploy/actions/runs/37913227459)
-  passed. Image publication and Fleet rollout are still pending verification.
+  [image publication](https://github.com/myota-platform/myota-geodata-service/actions/runs/37913192906)
+  and [Helm chart validation](https://github.com/myota-platform/myota-deploy/actions/runs/37913227459)
+  passed. Fleet observed deployment commit `890197fa4f00b828a0be3b1b4ab4b645471ba89f`;
+  BundleDeployment reached `Ready=True`, Helm revision 118 is deployed, and
+  the API and worker are each 1/1 ready. The worker uses batch size 100 and
+  the published service image digest recorded in the linked evidence report.
+  The gateway health check passed. No production import or worker fault
+  injection was performed; Phase 3 remains open pending bounded-path and
+  worker-recovery evidence.
 
 ## 9 October 2026 — geodata Phase 2 upload recovery gate
 

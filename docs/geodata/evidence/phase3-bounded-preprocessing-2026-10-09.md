@@ -2,8 +2,9 @@
 
 **Review date:** 9 October 2026  
 **Result:** Partial implementation; Phase 3 remains open.  
-**Environment:** local service unit tests only. No production jobs were
-terminated, restarted, or modified.
+**Environment:** local service validation, GitHub Actions, and read-only
+verification of the live K3s rollout. No production imports or production
+worker fault-injection were run.
 
 ## Implemented in this delivery
 
@@ -48,8 +49,8 @@ The bounded path is not yet universal:
 ## Validation performed
 
 - Ruff lint and format checks passed locally.
-- Full geodata unit suite: 121 tests passed, 17 environment-dependent tests
-  skipped.
+- Full local geodata unit suite: 104 passed and 17 environment-dependent tests
+  skipped (121 tests collected).
 - Focused worker/import suite: 32 tests passed; one streaming-dependency test
   skipped because `ijson` could not be installed on this host.
 - GitHub Actions `Python quality` passed on service commit `301bc28`; its
@@ -58,16 +59,25 @@ The bounded path is not yet universal:
   without skips. This verifies the actual streaming parser test path, but is
   not a forced worker-termination or peak-RSS test.
 - The local test environment lacked `ijson`; an attempted dependency install
-  could not reach PyPI. The test that exercises the real streaming parser is
-  therefore present but locally skipped. It must pass in CI after the image
-  workflow installs `requirements.txt` before considering this parser path
-  verified.
+  could not reach PyPI. The test that exercises the real streaming parser was
+  locally skipped, but the PostGIS-backed GitHub Actions run installed
+  `requirements.txt` and passed it without skips.
 - Service commit: [`301bc28`](https://github.com/myota-platform/myota-geodata-service/commit/301bc28).
 - Deployment configuration commit: [`890197f`](https://github.com/myota-platform/myota-deploy/commit/890197f).
 - [Python quality and PostGIS-backed CI run](https://github.com/myota-platform/myota-geodata-service/actions/runs/37913194172) passed.
-- [Helm chart validation](https://github.com/myota-platform/myota-deploy/actions/runs/37913227459) passed. The geodata image publication and Fleet rollout are not yet verified in this record.
-- No isolated NATS worker-recovery test or Helm/Fleet rollout is claimed by
-  this evidence record.
+- [Geodata image build/publication](https://github.com/myota-platform/myota-geodata-service/actions/runs/37913192906) and [Helm chart validation](https://github.com/myota-platform/myota-deploy/actions/runs/37913227459) passed.
+- Fleet observed deployment commit `890197fa4f00b828a0be3b1b4ab4b645471ba89f`;
+  the `myota-deploy` BundleDeployment reached `Ready=True`. Helm release
+  revision 118 is `deployed` (chart `myota-0.2.12`; Helm history describes it
+  as a rollback to revision 117 after an intermediate pending upgrade).
+- Geodata API and import worker are each `1/1` ready. The worker has
+  `MYOTA_IMPORT_BATCH_SIZE=100` and runs image digest
+  `ghcr.io/myota-platform/myota-geodata-service@sha256:ac113bf433fe01c61eb44dd16210751ac4ebf604b0269e1a9395eaa9f4a45fad`.
+  The public gateway `/healthz` returned `{"status":"ok","service":"gateway"}`.
+- Deployment verification was read-only after Fleet reconciliation: no
+  production import, entity mutation, or failure injection was performed.
+- No isolated NATS worker-termination/reclaim test, peak-RSS measurement, or
+  production import was run; those remain open Phase 3 gates.
 
 ## Remaining exit actions
 
