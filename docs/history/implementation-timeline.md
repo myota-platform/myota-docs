@@ -47,6 +47,32 @@ describe current ownership and are authoritative for the present-day system.
 > with the prompt used in a separate, word-wrapped box below the implementation
 > note.
 
+### Follow-up — single-node exit-scope confirmation
+
+- **Decision and live check:** Confirmed the Phase 4 exit is satisfied on the
+  current single-node K3s topology when the documented application replica,
+  storage, queue, database-connection, and availability safeguards are met.
+  Multi-node failover is not a Phase 4 prerequisite. Fleet remains Ready on
+  `a80257d`; API 2/2, import worker 1/1, HPA 2–3, PDB minAvailable 1, and public
+  API health 200 were verified read-only. No deployment changes were necessary.
+- **Documentation:** Clarified the acceptance interpretation in the
+  [scaling roadmap](../geodata/horizontal-scaling-roadmap.md) and
+  [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
+
+**Prompt used — follow-up**
+
+> ### Phase 4 — remove unsafe infrastructure constraints of the
+> [geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md)
+>
+> Make sure to fulfil the exit criteria: replicas can be added and removed
+> without violating storage, queue, database-connection, or availability
+> constraints.
+>
+> In the current scenario, safely assume that these are met if similar
+> conditions are given on the current single-node K3s cluster.
+>
+> Make the same documentation updates as in the last task.
+
 ## 9 October 2026 — geodata Phase 3 bounded processing and recovery
 
 - **Streaming and memory bounds:** Completed streaming parsers for GeoJSON,

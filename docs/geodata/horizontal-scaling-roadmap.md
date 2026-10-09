@@ -5,7 +5,12 @@
 **Phases 0–4 are complete for their documented evidence bounds; Phase 5
 remains open.** Phase 4 qualified the current single-node K3s deployment for
 bounded Geodata API pod scaling (two minimum, three maximum). It does not
-qualify node/storage failure, broad throughput, or higher replica counts.
+qualify broad throughput or higher replica counts. Under the current project
+scope, this single-node cluster is acceptable for Phase 4: its exit criterion
+is safe addition/removal of application replicas with storage, queue,
+connection-budget, and availability safeguards. Multi-node and stateful
+failover are separate architecture/Phase 5 concerns, not blockers to closing
+this Phase 4 gate.
 
 ### Test-environment premise — 8 October 2026
 
@@ -486,8 +491,9 @@ The committed bounds are deliberately narrower than broad performance
 qualification. CPU HPA behavior under a representative sustained load and
 larger database/object-store/worker capacity remain Phase 5 work.
 
-**Exit criteria: met for pod-level scaling in the documented topology.** The
-live test raised the API from two ready pods to three and returned it to two;
+**Exit criteria: met for the user-approved single-node topology and documented
+pod-level bounds.** The live test raised the API from two ready pods to three
+and returned it to two;
 the public health endpoint remained HTTP 200, the API had no PVC, the database
 pool budget remained bounded, and JetStream pending/ack-pending/redelivery/age
 metrics were zero. The PDB retained an available API pod and the worker and

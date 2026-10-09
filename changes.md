@@ -3,6 +3,23 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 9 October 2026 — Phase 4 single-node scope confirmed
+
+- **Decision and verification:** Confirmed that the current single-node K3s
+  cluster is an acceptable Phase 4 test topology; multi-node failover is not a
+  prerequisite for its replica-safety exit criterion. Read-only checks found
+  Fleet Ready at deployment commit `a80257d`, geodata API 2/2, processing worker
+  1/1, HPA range 2–3, PDB `minAvailable: 1`, one Ready node, and gateway health
+  HTTP 200 with valid TLS.
+- **Disposition:** The previous live two-to-three-to-two test and connection,
+  storage, and queue bounds satisfy Phase 4 within this scope. No application
+  or Helm change was needed, so no redeployment was triggered. Phase 5's
+  broader performance and stateful/node resilience work remains distinct.
+- **Documentation:** Clarified the acceptance boundary in the
+  [roadmap](docs/geodata/horizontal-scaling-roadmap.md), added the live-state
+  confirmation to [Phase 4 evidence](docs/geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md),
+  and recorded this follow-up prompt in the [implementation timeline](docs/history/implementation-timeline.md).
+
 ## 9 October 2026 — geodata Phase 4 bounded replica safety
 
 - **Deployment:** Added independent geodata API CPU autoscaling from two to

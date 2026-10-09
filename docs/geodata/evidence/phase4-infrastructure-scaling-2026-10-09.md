@@ -7,8 +7,11 @@ geodata API pod was added and removed on the live Spainip K3s deployment without
 violating the configured storage, JetStream, database-connection, or API
 availability constraints. This evidence qualifies only a geodata API range of
 two to three replicas on the current single-node cluster. It does not qualify
-node failure, stateful-service failover, sustained throughput, or higher
-replica counts; those remain Phase 5 work.
+stateful-service failover, sustained throughput, or higher replica counts;
+those remain outside this Phase 4 qualification. Per the clarified project
+scope, the current single-node cluster is an acceptable environment for this
+exit criterion; multi-node/node-failure resilience is a separate Phase 5 and
+architecture concern, not a prerequisite for Phase 4 closure.
 
 ## Infrastructure review
 
@@ -95,3 +98,23 @@ Compose subcommand. Helm was rendered by GitHub Actions, not locally.
 - No cleanup was required because the test changed only the HPA minimum and
   that setting was restored to two; no application or broker test data was
   created.
+
+## Scope confirmation and current live state — 9 October 2026
+
+The user confirmed that Phase 4 may be considered satisfied on the current
+single-node K3s cluster when the same replica-safety conditions are present;
+multi-node failover is not required to close this phase. A read-only recheck
+found the deployment still at the expected configuration:
+
+- Fleet `myota-deploy` is Ready at commit
+  `a80257d36ac1d0046fd25b46bc6e0b1172902ef2`.
+- The cluster has one Ready node; the geodata API is 2/2 ready and the
+  import-processing worker is 1/1 ready.
+- The API HPA is configured for 2–3 replicas (current 2, CPU 1% of 70% target);
+  its PDB has `minAvailable: 1` and one allowed disruption.
+- `https://api.myota.top/healthz` returned HTTP 200 with successful TLS
+  verification.
+
+No chart or runtime change was needed, so this confirmation did not trigger a
+new Helm rollout. The previously deployed and tested chart remains the source
+of the safeguards above.
