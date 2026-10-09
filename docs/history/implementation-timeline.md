@@ -13,6 +13,23 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 9 October 2026 — NATS migration Phase 0 inventory and decision
+
+- **Inventory and decision:** Completed the cross-repository inventory of
+  outbox facts, asynchronous work, consumers, database-polled Activity jobs,
+  recovery paths, and deployment ownership. The workspace owner selected
+  separate bounded domain-fact and Activity/Geodata work streams in
+  [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+- **Evidence follow-up:** Assigned the remaining contract, subscriber,
+  idempotency, recovery, redrive, and deployment evidence work to Volker
+  Kerkhoff (`@kerk1v`), with Codex pairing support. The open issues are linked
+  from the [work-in-progress index](../work-in-progress/README.md).
+- **Status boundary:** Phase 0 documentation and decision criteria are complete.
+  No runtime stream, producer, or consumer changes were made; implementation,
+  evidence closure, and production qualification remain open. See the
+  [migration plan](../operations/messaging/nats-event-migration-plan.md) and
+  [inventory](../operations/messaging/nats-event-migration-inventory.md).
+
 ## 9 October 2026 — geodata Phase 5 staged rollout and operational proof
 
 - **Live rollout:** On the one-node K3s deployment, replaced two Geodata API

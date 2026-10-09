@@ -2,8 +2,9 @@
 
 ## Status
 
-Accepted for the target design by the workspace owner. Runtime implementation,
-production qualification, and the remaining Phase 0 evidence gates are open.
+Accepted for the target design by the workspace owner. Phase 0 inventory,
+decision, and evidence-owner assignments are complete. Runtime implementation,
+evidence closure, and production qualification remain open.
 
 ## Context
 

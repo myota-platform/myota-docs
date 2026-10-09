@@ -4,6 +4,21 @@ This index points to active delivery and verification threads. Completed
 components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
+- [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md) —
+  Phase 0 inventory, topology decision, and owner assignments are complete.
+  ADR-0008 selects a bounded Limits fact stream and separate Activity/Geodata
+  WorkQueue streams. Runtime implementation and production qualification remain
+  open; the current shared `MYOTA_EVENTS` stream still uses Interest retention.
+  Volker Kerkhoff (`@kerk1v`) is assigned, with Codex pairing support. Evidence
+  work is tracked in [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1),
+  [Identity #1](https://github.com/myota-platform/myota-identity-service/issues/1),
+  [Programme #1](https://github.com/myota-platform/myota-programme-service/issues/1),
+  [Activity #1](https://github.com/myota-platform/myota-activity-service/issues/1),
+  [Geodata #2](https://github.com/myota-platform/myota-geodata-service/issues/2),
+  [deploy #3](https://github.com/myota-platform/myota-deploy/issues/3), and
+  [Operations #1](https://github.com/myota-platform/myota-operations-service/issues/1).
+  A producer or consumer path remains gated on its assigned evidence; no runtime
+  change is claimed complete.
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates

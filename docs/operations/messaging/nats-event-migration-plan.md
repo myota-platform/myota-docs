@@ -1,7 +1,7 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** proposed implementation plan; no migration phases in this document are
-claimed complete.
+**Status:** Phase 0 inventory and decision record complete. Phases 1–6 cover
+runtime implementation and qualification; none is claimed complete.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -40,7 +40,7 @@ contracts and lifecycle guarantees, and qualify rollout and recovery.
 | Programme / `myota_core` | Programme create/update/archive, entity-type catalogue/assignment, content workflow, and policy-draft events. | Shared `core-outbox` relay. | No Programme-owned JetStream consumer found. Verify event subscribers and future ownership. |
 | Activity / `myota_activity` | Activation/QSO lifecycle, ADIF queue, activity cascade deletion, award definition/request/issuance/rendering, and other activity/award events. | `activity-outbox` relay. | Activity notification consumer currently subscribes broadly. The selected target uses scoped filters for Identity facts and the two Geodata review/status facts it handles. Migrate six accepted jobs (QSO ingestion, ADIF import, award recalculation/evaluation, PDF rendering, and statistics rebuild) to Activity work subjects. Exclude the state-only `NOTIFICATION_SEND` job; correct or remove it, and create a separate provider-backed command if external delivery is added later. |
 | Geodata / `myota_geo` | Import lifecycle, validation/promotion, entity review/change/deletion, location enrichment, cancellation, recovery, and operational events. | `geo-outbox` relay. Generic events use `myota.events.<event_type with dots replaced by underscores>`; work dispatch uses allowlisted `payload.natsSubject`. | `geodata_import_worker.py` has durable pull consumers: `geodata-preprocessing-v1`, `geodata-import-processing-v2`, `geodata-entity-deletion-v1`, and `geodata-location-enrichment-v1`, plus stale-cancellation and pending-deletion database reconcilers. Keep reconciliation as recovery, not a second normal work queue. |
-| Operations / `myota_core` | The shared state adapter has an outbox/event helper, but a source scan found no Operations event-producing call sites. Confirm this during Phase 0 rather than treating helper support as emitted events. | Shared `core-outbox` relay can read the core database outbox; no Operations-specific event stream was identified. | Operations reads JetStream stream/consumer status and stores samples; it is deliberately read-only and is not a business-event consumer. Preserve this boundary. |
+| Operations / `myota_core` | The shared state adapter has an outbox/event helper, but the Phase 0 source scan found no Operations event-producing call sites; do not treat helper support as emitted events. | Shared `core-outbox` relay can read the core database outbox; no Operations-specific event stream was identified. | Operations reads JetStream stream/consumer status and stores samples; it is deliberately read-only and is not a business-event consumer. Preserve this boundary. |
 
 The relay is currently shared code in `myota-deploy/services/outbox_worker.py`
 and is deployed once per physical database (`core`, `activity`, `geo`). It
