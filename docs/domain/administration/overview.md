@@ -8,20 +8,23 @@ administrator to understand service boundaries or database terminology.
 
 The shell groups work into domain workspaces and platform health:
 
-- **Overview**: dashboard and service signals.
-- **Programme setup**: programme configuration, policy, content, and the
-  shared entity-category catalogue.
-- **Geodata**: review queue, programme-independent imports, entity management,
-  and the read-only map explorer.
-- **Operations & access**: activations/QSOs, award certificates, and users and
-  roles.
+- **Start**: permission-aware Overview and direct task entry points.
+- **Entities**: catalogue, map, review, programme-independent imports and shared
+  entity categories (formerly Master data).
+- **Programmes**: configuration, Rules & policies, Content & translations and
+  Awards & certificates.
+- **People**: Users & access, with Users, Roles & permissions and Security events
+  tabs.
+- **Activity**: protected activation/QSO operational list.
 - **Platform health**: Grafana observability and authenticated
   [NATS / JetStream status and history](../../operations/messaging/jetstream-admin-status.md).
 
-The programme scope selector is in the top bar so it remains visible while an
-administrator moves between programme-owned pages. “All programmes” is an
-intentional scope; platform-wide geodata imports and unassigned entities must
-not be hidden by a programme filter.
+Programme-owned workspaces have one local selector; the top bar shows its scope
+read-only. Entity filters still offer all programmes, including unassigned;
+imports and shared category definitions remain platform-wide. Navigation,
+route guards and headings share one permission-aware definition. See the
+[workspace guide](navigation-reorganization.md) and
+[delivery evidence](evidence/admin-workspaces-2026-10-09.md).
 
 ## Import workspace
 

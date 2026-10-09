@@ -44,6 +44,8 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
 
 ## Documentation map
 
+- Latest implementation deliveries: [changes.md](changes.md), with the earlier
+  reconstructed [implementation timeline](docs/history/implementation-timeline.md).
 - Browse all subjects in the [documentation index](docs/README.md):
   architecture, domain/API, geodata, operations, observability, governance,
   history, platform policy, security, and development.

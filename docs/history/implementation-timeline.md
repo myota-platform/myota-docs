@@ -15,6 +15,14 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 9 October 2026 — programme/award editing, UTC, catalogue and observability
 
+- **Admin workspace reorganization:** Shared permission-aware navigation,
+  page headings, refresh and scope controls; searchable sidebar and direct
+  task entry points; Users/Roles/Security tabs; scoped role-grant preservation;
+  read-only published/built-in records and clear failure feedback. Existing
+  catalogue, map, import, deletion, award and UTC flows remain. See the
+  [workspace guide](../domain/administration/navigation-reorganization.md) and
+  [delivery evidence](../domain/administration/evidence/admin-workspaces-2026-10-09.md).
+
 - **UTC throughout MyOTA:** Established the UTC policy across operational
   timestamps, publication dates, UI displays and Grafana. Replaced local-time
   effective-date handling in awards, policies and content with explicit UTC

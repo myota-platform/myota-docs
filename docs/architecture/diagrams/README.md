@@ -11,6 +11,7 @@ the linked implementation/evidence document is authoritative for status.
 - [Programme configuration lifecycle](programme-configuration-lifecycle.md)
 - [Geodata category assignment](geodata-category-assignment.md)
 - [Catalogue editor navigation and persistence](entity-catalogue-editor.md)
+- [Administration workspace navigation and permission boundaries](admin-workspaces.md)
 
 ## Geodata lifecycle
 
