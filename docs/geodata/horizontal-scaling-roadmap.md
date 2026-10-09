@@ -23,17 +23,20 @@ do not qualify this policy's capacity gates. Run profiles sequentially with a
 dedicated test account, existing hard caps and exact-tag cleanup; retain the
 production opt-ins and stop conditions. Production runs are manual, never CI.
 
-This does not authorize destructive fault injection, service/pod termination,
-database or object-store restart, queue redrive, cleanup of untagged data, or
-general production replica/configuration changes. Those correctness and
-recovery exercises remain CI or isolated-test-environment work. A separate,
-task-specific authorization for Phase 4 allowed only the charted API replica
-boundary test (2 → 3 → 2), with read-only health monitoring and no test data,
-stateful-service scaling, restarts, or fault injection. It is recorded in the
-[Phase 4 evidence](evidence/phase4-infrastructure-scaling-2026-10-09.md) and
-does not authorize further production changes. Production load results
-describe only the current provisional deployment and are not a guarantee for a
-future production footprint.
+This does not authorize destructive fault injection, node drain, database,
+object-store or NATS restarts, queue redrive, cleanup of untagged data, or
+manual production replica/configuration changes. Those failure exercises
+remain CI or isolated-test-environment work. For Phase 4, a separate
+task-specific authorization allowed only the charted API replica boundary
+test (2 → 3 → 2), recorded in the [Phase 4 evidence](evidence/phase4-infrastructure-scaling-2026-10-09.md).
+For Phase 5, the 9 October task specifically authorized exact-tag bounded
+production-harness runs, a controlled rolling replacement of the stateless
+Geodata API during an accepted import, and automatic HPA scaling only within
+the existing Helm range of 2–3 replicas. It did not authorize manual HPA or
+replica changes, stateful-service restarts, node drain, or untagged data
+cleanup. Results are recorded in the [Phase 5 evidence](evidence/phase5-staged-rollout-2026-10-09.md).
+Production load results describe only this provisional deployment and are not
+a guarantee for a future production footprint.
 
 The goal is to scale the HTTP API independently from large dataset processing
 while preserving entity, review, import, provenance, and audit correctness.
@@ -506,9 +509,15 @@ See the [Phase 4 evidence](evidence/phase4-infrastructure-scaling-2026-10-09.md)
 ### Phase 5 — staged rollout and operational proof
 
 Phase 3 bounded parsing and worker termination/reclaim, and Phase 4 bounded API
-replica add/remove, are complete for their stated evidence. Node/storage failure,
-broader sustained load and canary proof, and end-to-end rollback remain open.
-The API-session and SeaweedFS container restart gate is complete.
+replica add/remove, are complete for their stated evidence. Phase 5 now has
+live evidence for API rolling replacement during an accepted 22.5 MB import,
+CPU-triggered HPA scale-up/down within the charted 2–3 replicas, and read/write
+performance at two and three replicas. The measured gain is modest, and
+same-row edit contention produced lock waits and a two-replica p95 threshold
+miss. Phase 5 is therefore still open: node/storage failure, broader sustained
+load, independent-row edit consistency, canary proof, and end-to-end rollback
+are not qualified. The API-session and SeaweedFS container restart gate remains
+covered by the separate Phase 2 evidence.
 
 ChatGPT implementation prompt: [complete staged rollout and operational proof](prompts/scaling/phase-5-rollout.md).
 
@@ -519,26 +528,36 @@ ChatGPT implementation prompt: [complete staged rollout and operational proof](p
   CI against the deployed SeaweedFS image; see the [Phase 2 evidence](evidence/phase2-upload-recovery-2026-10-09.md).
 - [x] Add and pass forced worker-recovery/lease-reclaim and duplicate-delivery
   tests in the isolated Phase 3 suite; see the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
-- [ ] Load-test the current provisional-production API at its deployed replica
-  count; verify throughput and latency without shifting saturation to Postgres
-  or object storage. Testing other replica counts requires a separately
-  approved production rollout/change window; do not change replicas as part of
-  a load run.
+- [x] Execute bounded provisional-production load comparisons at two and three
+  replicas; record catalogue/map latency, concurrent-edit throughput, and
+  PostGIS, SeaweedFS, and JetStream signals. The HPA scaled up at its configured
+  70% CPU target and returned to two after stabilization. See the [Phase 5
+  live evidence](evidence/phase5-staged-rollout-2026-10-09.md).
+- [ ] Meet the performance acceptance gate without a blocking downstream
+  bottleneck: the two-replica concurrent-edit p95 exceeded 2.00 s and the
+  deliberately shared-row edit profile exposed PostgreSQL lock waits; at three
+  replicas, p95 passed but throughput improvement was modest on ten entities.
+  Broader catalogue and independent-row results are still needed.
+- [x] Replace API pods one at a time while a resumable 22.5 MB import was
+  accepted and processing; confirm the import reached terminal state and its
+  exact-tag cleanup removed the upload session, source object, and import.
+  This was same-node rescheduling only; see the [Phase 5 live evidence](evidence/phase5-staged-rollout-2026-10-09.md).
 - [x] Exercise upload-session/API-process restart recovery and worker
   termination/duplicate delivery in isolated CI; see the [Phase 2](evidence/phase2-upload-recovery-2026-10-09.md)
   and [Phase 3](evidence/phase3-bounded-preprocessing-2026-10-09.md) evidence.
 - [ ] Exercise production node/storage failure and multi-node scheduling; the
   current K3s target has one node and local-path RWO stateful volumes.
-- [ ] Run a bounded provisional-production canary at the currently deployed
-  replica count and compare error rate, latency, DB pool waits, object-store
-  metrics and JetStream lag. Any production replica change is a separate
-  operator-approved rollout, not an implicit load-test step.
+- [ ] Run a bounded provisional-production canary for a newly released image
+  at the currently deployed replica count and compare error rate, latency, DB
+  pool waits, object-store metrics, and JetStream lag. The Phase 5 exercise
+  tested the already-deployed image; it was not a release canary.
 - [x] Document the Phase 1 write fence, coordinated API/worker rollout and
   rollback restrictions in the [migration/rollout record](phase1-relational-authority.md#migration-and-rollout).
 - [ ] Complete and drill the end-to-end operational rollback, in-flight import
   recovery, queue redrive and upload-session cleanup procedure before scaling production.
-- [ ] Increase production API replicas gradually and retain a tested rollback
-  to the prior deployment and schema-compatible code version.
+- [ ] Increase production API replicas gradually beyond this bounded HPA test
+  and retain a tested rollback to the prior deployment and schema-compatible
+  code version. The current HPA only permits the tested 2–3 replica range.
 - [x] Update current Compose/Helm topology, migration mirrors, operations
   scrape/alerts and operator docs for the delivered work; see the
   [deployment evidence](#latest-delivery-and-evidence--8-october-2026).
@@ -549,6 +568,15 @@ ChatGPT implementation prompt: [complete staged rollout and operational proof](p
 rescheduled, and autoscaled while large imports continue to recover; catalogue
 reads and edits remain consistent; no accepted upload depends on pod-local
 storage; and measured tests show the intended throughput/latency improvement.
+
+**Current assessment: partially demonstrated; Phase 5 is not closed.** The
+bounded upload/rollout and HPA checks passed on the one-node deployment, and the
+read comparison showed lower p95 but only a 0.8% throughput increase on ten
+entities. The write test deliberately contended on one row, exposed lock waits,
+and slightly exceeded the two-replica p95 target. Multi-node rescheduling,
+stateful failure, broader catalogue scale, independent-row consistency, a new
+image canary, and a drilled rollback remain open. See the [Phase 5 evidence
+report](evidence/phase5-staged-rollout-2026-10-09.md).
 
 ## Ownership and sequencing
 

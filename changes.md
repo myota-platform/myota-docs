@@ -3,6 +3,29 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 9 October 2026 — geodata Phase 5 staged rollout evidence
+
+- **K3s rollout and recovery:** Replaced the two Geodata API pods one at a time
+  while a checksum-verified, 22.5 MB resumable import was accepted and
+  asynchronously processed. Both new pods became Ready, gateway health stayed
+  HTTP 200, and exact-run teardown deleted the import, object and upload
+  session. No API persistent volume was mounted; stateful services and the
+  processing worker were not restarted.
+- **Autoscaling and measurements:** A bounded 50-VU same-entity edit profile
+  caused the configured 70%-CPU HPA to scale from two to three replicas. After
+  load ended, the HPA returned the Deployment to two. A read-only 50-VU sample
+  at three replicas recorded 95.50 requests/s and 15.98 ms p95, compared with
+  the retained two-replica 94.77 requests/s and 18.76 ms p95. This is a modest
+  result on ten entities, not a broader capacity claim. The edit profile
+  surfaced a PostgreSQL lock-wait hotspot under deliberate same-row contention;
+  independent-row writes still need qualification.
+- **Cleanup and deployment:** Three exact-tag write runs report `cleaned=true`;
+  the read-only run created no application records. No source, Helm chart, or
+  runtime configuration changes were necessary. The live Helm release remains
+  deployed at revision 126 (chart 0.2.13); K3s HPA and rolling-pod actions were
+  the deployment tests. See [Phase 5 evidence](docs/geodata/evidence/phase5-staged-rollout-2026-10-09.md)
+  and the [roadmap](docs/geodata/horizontal-scaling-roadmap.md).
+
 ## 9 October 2026 — Phase 4 single-node scope confirmed
 
 - **Decision and verification:** Confirmed that the current single-node K3s

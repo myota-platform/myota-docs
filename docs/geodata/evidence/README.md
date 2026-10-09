@@ -1,5 +1,9 @@
 # Geodata evidence
 
+- [Phase 5 staged rollout and operational proof](phase5-staged-rollout-2026-10-09.md)
+  — bounded live upload during API rollout, CPU HPA up/down, 2-vs-3 replica
+  read/write results, shared-service telemetry, exact cleanup, and remaining
+  qualification limits.
 - [Phase 4 infrastructure scaling](phase4-infrastructure-scaling-2026-10-09.md)
   — live two-to-three-to-two API replica test, connection budget, broker
   health, rollout and scope limits.

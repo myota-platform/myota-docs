@@ -23,9 +23,11 @@ documentation evidence and does not set delivery dates.
 - [Charter delivery gaps](../governance/charter-gap-analysis.md) — longer-term
   product, coverage, stewardship, and participant-experience gaps.
 - [Geodata scaling roadmap](../geodata/horizontal-scaling-roadmap.md) — Phases
-  0–4 are complete for their documented evidence bounds. Phase 5 remains open
-  for broader capacity, node/storage failure, staged canary, and rollback
-  qualification. See the [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md)
+  0–4 are complete for their documented evidence bounds. Phase 5 now has
+  bounded live rollout/HPA evidence but remains open for broader capacity,
+  independent-row consistency, node/storage failure, staged canary, and
+  rollback qualification. See the [Phase 5 evidence](../geodata/evidence/phase5-staged-rollout-2026-10-09.md),
+  [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md)
   and [roadmap](../geodata/horizontal-scaling-roadmap.md).
 - [Observability coverage gap](../observability/overview.md#live-k3s-verification-and-known-gap)
   — Identity and Programme `/metrics` coverage needs remediation and live

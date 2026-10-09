@@ -13,6 +13,8 @@ indexes organize open work by delivery status.
   programmes, identity, administration, and awards.
 - [Geodata](geodata/README.md) — entity lifecycle, scaling, upload, and query
   evidence, plus implementation prompts.
+- [Geodata Phase 5 live evidence](geodata/evidence/phase5-staged-rollout-2026-10-09.md)
+  — staged K3s rollout, HPA up/down, load comparison, cleanup, and open limits.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [Observability](observability/README.md) — telemetry architecture, logging

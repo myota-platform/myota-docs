@@ -32,11 +32,15 @@ geometry, complete snapshots, forced termination/replay at parse, checkpoint,
 enrichment, and promotion stages, and graceful JetStream drain. Service CI is
 green and the implementation is merged; the image is deployed to the geodata
 API and processing worker. Fleet reported 54/54 resources ready and the gateway
-health check passed. Phase 4 now qualifies only the charted geodata API
-two-to-three pod range on the current single-node cluster; Phase 5 remains
-open for broader capacity, node/storage failure, and rollback qualification.
-The Phase 4 boundary test added and removed one API pod without application
-writes. See the [Phase 3 evidence review](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md)
+health check passed. Phase 4 qualifies the charted geodata API two-to-three pod
+range on the current single-node cluster. Phase 5 now has bounded live proof of
+API replacement during a 22.5 MB accepted import, CPU-triggered autoscale
+up/down, and a read-only two-versus-three replica comparison. That small
+10-entity sample showed lower p95 but only a 0.8% throughput increase; a
+same-row write test exposed PostgreSQL lock contention. Phase 5 remains open
+for broader capacity, independent-row consistency, node/storage failure,
+release canary, and rollback qualification. See the [Phase 5 evidence](docs/geodata/evidence/phase5-staged-rollout-2026-10-09.md),
+[Phase 3 evidence review](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md),
 and [Phase 4 infrastructure evidence](docs/geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
 The permanent synthetic
 Sevilla set imported 10,000 features in four batches of 2,500. Three batches

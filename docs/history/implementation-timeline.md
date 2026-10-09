@@ -13,6 +13,48 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 9 October 2026 — geodata Phase 5 staged rollout and operational proof
+
+- **Live rollout:** On the one-node K3s deployment, replaced two Geodata API
+  pods sequentially during acceptance and processing of a checksum-verified
+  22.5 MB resumable import. The rolling strategy (`maxSurge: 1`,
+  `maxUnavailable: 0`) and API PDB preserved availability; both replacements
+  became Ready and public health remained HTTP 200. The API Deployment had no
+  persistent volume. Run-scoped cleanup removed the import, source object, and
+  upload session.
+- **Autoscaling:** A bounded 50-VU concurrent-edit profile crossed the existing
+  70% CPU threshold and the HPA automatically scaled from two to three pods.
+  After the workload and five-minute stabilization, it returned the Deployment
+  to two desired/Ready replicas. At three replicas, the read-only 50-VU baseline
+  reached 95.50 requests/s at 15.98 ms p95, versus the retained two-replica
+  94.77 requests/s at 18.76 ms p95 (0.8% throughput increase, 14.8% lower p95)
+  on a ten-entity catalogue. Bounded write p95 improved from 2.13 s to 1.91 s,
+  but the test intentionally collided updates on one row and sampled up to 22
+  PostgreSQL lock waiters; this is not broad editor consistency or capacity
+  evidence.
+- **Disposition:** All three synthetic write-run cleanup receipts reported
+  `cleaned=true`; the read-only run wrote no data. No chart or runtime change
+  was indicated. Phase 5 remains open for broader catalogue/load qualification,
+  independent-row write behavior, node/storage failure, release canary and
+  rollback. See the [Phase 5 evidence](../geodata/evidence/phase5-staged-rollout-2026-10-09.md)
+  and [roadmap](../geodata/horizontal-scaling-roadmap.md).
+
+**Prompt used**
+
+> Implement Phase 5 — staged rollout and operational proof of the [geodata
+> horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md).
+>
+> Use the current environment on the K3s cluster for testing. Remove test data
+> after completion.
+>
+> Ensure meeting **Overall completion criteria:** multiple Geodata API
+> replicas can be rolled, rescheduled, and autoscaled while large imports
+> continue to recover; catalogue reads and edits remain consistent; no
+> accepted upload depends on pod-local storage; and measured tests show the
+> intended throughput/latency improvement.
+>
+> Same documentation requirements as before.
+
 ## 9 October 2026 — geodata Phase 4 bounded infrastructure scaling
 
 - **Deployment controls:** Added geodata API CPU autoscaling with a two-replica
