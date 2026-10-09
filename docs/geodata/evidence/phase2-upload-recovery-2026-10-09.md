@@ -15,8 +15,11 @@ SeaweedFS data.
 | Automated recovery and service quality run | [GitHub Actions run 37908154059](https://github.com/myota-platform/myota-geodata-service/actions/runs/37908154059) |
 | Restart-recovery test | One end-to-end scenario passed in 14.944 seconds; isolated job passed in 52 seconds |
 | Related regression/quality checks | Relational-boundaries job passed (including migration, Ruff format/lint, and service regressions); image publication succeeded |
+| Published and deployed geodata service image | `ghcr.io/myota-platform/myota-geodata-service@sha256:f36946867de8da7bd29a77a39d2b3bd894591b5c9bc1f445e2fa33287755c4ba` |
+| Helm/Fleet deployment | [`myota-deploy` commit `159861e`](https://github.com/myota-platform/myota-deploy/commit/159861e1d77461882f49b7ff44859ce61ebd1845); Helm release revision 115 is `deployed`; Fleet `Ready=True` |
+| Live readiness | Geodata `1/1`; all 21 MyOTA deployments Ready; `https://api.myota.top/healthz` returned `{"status":"ok","service":"gateway"}` |
 | Test data disposition | Disposable database service and named SeaweedFS volume removed at job end |
-| Production effect | No production write, API termination, SeaweedFS restart, or production object cleanup |
+| Production effect | No production write, API termination, SeaweedFS restart, or production object cleanup; SeaweedFS pod image ID was read only |
 
 ## Scenario and assertions
 
@@ -67,6 +70,7 @@ versions.
 The Phase 2 exit gate is closed for the recorded image digest. Phase 3 remains
 open for bounded-memory parsing and worker failure-injection/recovery. Phase 5
 still requires broader receiver-pod, worker, duplicate-delivery, storage/node
-failure, canary and rollback evidence. See the
+failure, canary and rollback evidence. The verified service image was rolled
+out through Fleet/Helm after CI; see the deployment row above. See the
 [horizontal-scaling roadmap](../horizontal-scaling-roadmap.md) and the
 [Phase 2 test specification](../prompts/scaling/phase-2-upload-recovery.md).

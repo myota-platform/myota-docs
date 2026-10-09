@@ -16,7 +16,15 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   [geodata service commit 853fcbc](https://github.com/myota-platform/myota-geodata-service/commit/853fcbc5b30085c8a450ff0accbe32e414348c22);
   [GitHub Actions run 37908154059](https://github.com/myota-platform/myota-geodata-service/actions/runs/37908154059)
   passed the recovery, relational-boundaries, load-harness and image-publishing
-  jobs.
+  jobs. The follow-up service documentation/image build also passed in
+  [run 37908394130](https://github.com/myota-platform/myota-geodata-service/actions/runs/37908394130).
+- **Helm rollout:** Digest sync was committed as
+  [`myota-deploy` 159861e](https://github.com/myota-platform/myota-deploy/commit/159861e1d77461882f49b7ff44859ce61ebd1845).
+  [GitHub Helm render](https://github.com/myota-platform/myota-deploy/actions/runs/37908782124)
+  passed. Fleet reconciled the commit with `Ready=True`; Helm revision 115 is
+  deployed, the new geodata image is Ready, all 21 deployments are Ready, and
+  the public gateway health check succeeded. Detailed image and deployment IDs
+  are in the [Phase 2 evidence report](docs/geodata/evidence/phase2-upload-recovery-2026-10-09.md).
 - **Roadmap:** Phase 2 is complete for the tested digest. Phase 3 bounded
   parsing/worker-failure proof, Phase 4 infrastructure review, and Phase 5
   broader rollout proof remain open. Updated the geodata index, evidence index,
