@@ -15,6 +15,19 @@ describe current ownership and are authoritative for the present-day system.
 
 ## 9 October 2026 — catalogue editing and observability
 
+- **Programme and award editing:** Fixed reactive-copy failures and selection
+  races that left programme identifier/name fields empty, aligned form fields
+  and preserved programme-owned metadata on save. Restored six default award
+  fields, fetched full award details for editing and preserved legacy layouts.
+  Added named PNG/JPEG background and signature uploads through authenticated
+  binary content resources, database-backed asset selectors and live artwork
+  in the placement canvas. Mock-data preview PDFs open in another window without
+  saving or issuing; the shared renderer honours A4/Letter portrait/landscape.
+  Preview size/concurrency and image byte/pixel limits bound resource usage.
+  Canonical contracts, clients and deployment/integration mirrors are updated.
+  See the [designer guide](programme-and-award-design.md) and
+  [delivery evidence](evidence/programme-awards-2026-10-09.md).
+
 - **Entity catalogue UX:** Replaced selection-to-scroll editing with a focused
   native dialog and sections for name/categories, location, geometry, immutable
   source comparison and audit/deletion. Previous/next navigation retains the

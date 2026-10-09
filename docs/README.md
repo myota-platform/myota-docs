@@ -45,6 +45,7 @@ Status in plans and evidence:
 - [Programme policy ownership](adr/0004-programme-policy-ownership.md)
 - [Programme configuration gaps](programme-configuration-gap-analysis.md)
 - [Activity, awards, and programme execution](awards-and-programme-execution.md)
+- [Programme editor, artwork uploads and certificate previews](programme-and-award-design.md)
 - [Identity, callsigns, and security](identity-security.md)
 - [Administration web UX](admin-web-ux.md)
 - [Entity catalogue editor and geometry workspace](entity-catalogue-editor.md)

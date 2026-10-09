@@ -53,6 +53,7 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   [administration UX and catalogue editor](docs/entity-catalogue-editor.md),
   [programme configuration gaps](docs/programme-configuration-gap-analysis.md),
   [activity and awards](docs/awards-and-programme-execution.md),
+  [programme and award designer](docs/programme-and-award-design.md),
   [entity categories](docs/entity-categories.md), [identity and security](docs/identity-security.md).
 - **Operations and assurance** — [operations](docs/operations.md),
   [observability](docs/observability.md), [threat model](docs/security/README.md),

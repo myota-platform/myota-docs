@@ -82,11 +82,17 @@ backgrounds use `myota-award-assets`, manager signatures use
 `myota-award-signatures`, and generated issued PDF certificates use
 `myota-certificates`. The service records the bucket, endpoint, media type,
 dimensions and optional checksum. The admin web
-uploads through a short-lived presigned URL, with a small JSON/base64 fallback
-for local administration. The certificate
+uploads PNG/JPEG bytes through authenticated `PUT /v1/awards/assets/{assetId}/content`
+(20 MiB / 16 million pixel bounds). Named backgrounds and signatures populate
+the designer selectors; old presigned/JSON routes remain compatibility options.
+See the [programme and award designer guide](programme-and-award-design.md).
+The certificate
 template stores normalized `x`, `y`, `width`, and `height` positions for the
 award name, callsign, participant name, date obtained, manager name and manager
 signature. The admin web provides a draggable preview plus numeric adjustments.
+The six default elements are restored for empty legacy templates, and custom
+text can be added. A transient mock-data PDF preview opens separately without
+saving or issuing an award, using the same orientation-aware print renderer.
 
 For 300 DPI print output, the recommended profiles are:
 

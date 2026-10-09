@@ -13,6 +13,9 @@ and records the implemented phases and subsequent compatible contract updates.
 
 | Resource | Current contract / implementation |
 |---|---|
+| `PUT /v1/awards/assets/{assetId}/content` | Preferred authenticated binary PNG/JPEG replacement, verified dimensions, 20 MiB/16 million pixel bounds; old POST/base64 remains compatible. |
+| `GET /v1/awards/assets/{assetId}/content` | Permission-checked bounded asset content and metadata for the designer; service-owned bucket selection. |
+| `POST /v1/awards/previews` | Transient mock-data PDF for the unsaved layout, with bounded concurrency/design size/DPI; no durable issuance or render job is created. |
 | Entity metadata, geometry, categories and reviews | Optional `If-Match`, database `version` and detail `ETag`; stale edits or conflicting idempotency reuse return 409. No extra action endpoint was added. |
 | Import promotion | Selected PENDING/CONFIRMED rows are atomically confirmed and assigned to a durable job before dispatch; duplicate queue assignment is rejected. |
 | Entity deletion jobs | Same create/confirm/job resources; confirmation now dispatches a recoverable JetStream job, not an API-local executor. |
@@ -29,6 +32,10 @@ See [Phase 1 authority and concurrency evidence](geodata-phase1-relational-autho
 All browser access remains through APIs; no database or NATS credentials are
 exposed to either web client. Contract mirrors and the route inventory are
 reconciled in CI. These additions do not close Phase 5 legacy-route retirement.
+The [programme/award designer guide](programme-and-award-design.md) documents
+the new content and preview resources, signature/manager draft fields and custom
+text elements. Permanent certificate rendering continues to use Phase 3 jobs;
+the bounded design preview is deliberately not a durable issuance job.
 
 ## Executive summary
 
@@ -161,7 +168,7 @@ alias. This is a migration target, not a list of routes to remove immediately.
 | Statistics rebuild | POST /v1/statistics/rebuild-jobs; GET .../{jobId} | POST /v1/statistics/rebuild | Treat reproducible aggregation as a job; retain GET /v1/statistics for results. |
 | Award lifecycle | PATCH /v1/awards/{awardId} with status/effectiveFrom | POST /v1/awards/{awardId}/submit, /review, /publish, and /retire | Use one versioned award resource; retain audited review decisions. |
 | Award recalculation | POST /v1/awards/{awardId}/recalculation-jobs; GET .../{jobId} | POST /v1/awards/{awardId}/recalculate | Create a job because historical definitions affect many participants. |
-| Award asset upload | POST /v1/awards/assets/{assetId}/uploads | POST .../upload-url and POST .../content | One upload subresource can return a presigned target or accept multipart fallback. |
+| Award asset content | PUT /v1/awards/assets/{assetId}/content; GET on the same URI | POST .../content; browser use of .../upload-url | Implemented binary replacement/read resource; presigned/JSON compatibility remains. A future upload-session resource can support larger/resumable artwork. |
 | Award evaluation/progress | GET /v1/awards/progress?participantId=...; POST /v1/awards/evaluation-jobs | POST /v1/awards/progress; POST /v1/awards/evaluate | Separate a read query from bulk/recalculation work. |
 | Award issuance | POST /v1/awards/requests/{requestId}/issuances; GET /v1/awards/issuances/{issuanceId} | POST /v1/awards/requests/{requestId}/issue | Creating an issuance is resource creation; preserve permanent identity/history. |
 | Certificate rendering | POST /v1/awards/issuances/{issuanceId}/render-jobs; GET .../{jobId} | POST /v1/awards/issuances/{issuanceId}/render | Make PDF generation an asynchronous job with retry status. |
