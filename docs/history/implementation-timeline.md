@@ -48,8 +48,9 @@ describe current ownership and are authoritative for the present-day system.
   implementations and synchronized platform mirrors. Contract checks, deployment
   Ruff formatting/lint, and platform tests plus Ruff formatting/lint pass. The
   platform image-build job timed out requesting a Docker Hub token on two
-  attempts; image-build status remains unverified. The Phase 1 prompt above
-  remains the single prompt for this phase. On 10 October, the deploy-owned
+  PR-CI attempts, leaving its image status unverified at that point. The Phase 1
+  prompt above remains the single prompt for this phase; latest main-branch image
+  build and publish results are recorded below. On 10 October, the deploy-owned
   provisioner was hardened to pin and verify consumer replay, pull-wait, delivery,
   storage, and payload settings; four focused topology/provisioner tests passed.
   Direct-main commits `1076584` (deploy) and `b047a00` (platform) passed Ruff,
