@@ -16,12 +16,13 @@ belong in each owning service and deployment/contracts repository.
 
 ## Goal
 
-Make NATS JetStream the durable, observable delivery layer for every
-cross-service event and accepted asynchronous work item. Keep the transactional
-outbox as the atomic database-to-broker handoff: domain mutation and outbox row
-must commit together, and a relay publishes with a stable message ID. Consumers
-must be independently deployable, horizontally scalable where appropriate,
-idempotent, and safe under at-least-once delivery.
+Make NATS JetStream the durable, observable delivery layer for cross-service
+domain events and the accepted asynchronous work commands selected in ADR-0008.
+Keep scheduled maintenance and reconciliation on their scheduler/recovery paths.
+Keep the transactional outbox as the atomic database-to-broker handoff: domain
+mutation and outbox row must commit together, and a relay publishes with a stable
+message ID. Consumers must be independently deployable, horizontally scalable
+where appropriate, idempotent, and safe under at-least-once delivery.
 
 This is a completion and standardization effort, not a greenfield adoption. The
 repository already has transactional outboxes in Identity, Programme, Activity,
@@ -37,7 +38,7 @@ contracts and lifecycle guarantees, and qualify rollout and recovery.
 |---|---|---|---|
 | Identity / `myota_core` | Account, callsign, role, authentication/recovery, OIDC mapping, and service-token lifecycle events. Examples: `identity.account.created.v1`, `identity.callsign.verified.v1`, `identity.account.deactivated.v1`. | Published by the shared `core-outbox` relay. | No Identity-owned JetStream consumer found. Activity notifications observe `myota.events.>` and translate supported Identity events into notices. Verify every event is either intentionally consumed or documented as an integration event with no current subscriber. |
 | Programme / `myota_core` | Programme create/update/archive, entity-type catalogue/assignment, content workflow, and policy-draft events. | Shared `core-outbox` relay. | No Programme-owned JetStream consumer found. Verify event subscribers and future ownership. |
-| Activity / `myota_activity` | Activation/QSO lifecycle, ADIF queue, activity cascade deletion, award definition/request/issuance/rendering, and other activity/award events. | `activity-outbox` relay. | Activity notification consumer subscribes to broad domain-event interest. Separately, `activity_worker.py` still polls database jobs for ADIF, award recalculation/evaluation, PDF rendering, statistics rebuild, and notification delivery. Decide and migrate these accepted asynchronous jobs to explicit JetStream work subjects, or record a justified exception with an owner and retirement condition. |
+| Activity / `myota_activity` | Activation/QSO lifecycle, ADIF queue, activity cascade deletion, award definition/request/issuance/rendering, and other activity/award events. | `activity-outbox` relay. | Activity notification consumer currently subscribes broadly. The selected target uses scoped filters for Identity facts and the two Geodata review/status facts it handles. Migrate six accepted jobs (QSO ingestion, ADIF import, award recalculation/evaluation, PDF rendering, and statistics rebuild) to Activity work subjects. Exclude the state-only `NOTIFICATION_SEND` job; correct or remove it, and create a separate provider-backed command if external delivery is added later. |
 | Geodata / `myota_geo` | Import lifecycle, validation/promotion, entity review/change/deletion, location enrichment, cancellation, recovery, and operational events. | `geo-outbox` relay. Generic events use `myota.events.<event_type with dots replaced by underscores>`; work dispatch uses allowlisted `payload.natsSubject`. | `geodata_import_worker.py` has durable pull consumers: `geodata-preprocessing-v1`, `geodata-import-processing-v2`, `geodata-entity-deletion-v1`, and `geodata-location-enrichment-v1`, plus stale-cancellation and pending-deletion database reconcilers. Keep reconciliation as recovery, not a second normal work queue. |
 | Operations / `myota_core` | The shared state adapter has an outbox/event helper, but a source scan found no Operations event-producing call sites. Confirm this during Phase 0 rather than treating helper support as emitted events. | Shared `core-outbox` relay can read the core database outbox; no Operations-specific event stream was identified. | Operations reads JetStream stream/consumer status and stores samples; it is deliberately read-only and is not a business-event consumer. Preserve this boundary. |
 
@@ -45,10 +46,10 @@ The relay is currently shared code in `myota-deploy/services/outbox_worker.py`
 and is deployed once per physical database (`core`, `activity`, `geo`). It
 provisions one shared file-backed `MYOTA_EVENTS` stream with Interest retention
 and known durable filters before publishing. The durable set currently includes
-Activity notifications plus the four Geodata work filters. This means the
-effective broker retention and rollout rules are correctness-critical: a
-subject without a matching durable interest can be discarded, and acknowledged
-messages are not an event archive. PostgreSQL domain state, outbox/dead-letter
+Activity notifications plus the four Geodata work filters. The selected target
+is `MYOTA_EVENTS` with Limits retention for bounded domain-fact replay, plus
+separate `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` streams with WorkQueue
+retention for competing work. PostgreSQL domain state, outbox/dead-letter
 records, and consumer idempotency/checkpoint state remain authoritative.
 
 ### Event/work inventory evidence
@@ -80,10 +81,11 @@ distinction:
 
 1. Every accepted asynchronous operation persists its domain state and a
    versioned outbox/work record in one transaction. No event depends on an API
-   process-local list, executor, or best-effort publish.
+   process-local list, executor, or best-effort publish. Scheduled maintenance
+   and reconciliation remain owned by their scheduler/database recovery path.
 2. The relay publishes the complete envelope (event ID/type/time, producer,
    aggregate identity, correlation/causation context, payload, and
-   `envelopeVersion`)
+   `envelopeVersion: 1`)
    using the stable event/work ID as JetStream message ID. It marks the outbox
    row published only after broker acknowledgement. Retry exhaustion is
    visible and recoverable from a dead-letter record.
@@ -94,15 +96,22 @@ distinction:
 4. Queue workers use pull consumers and shared durable names for replicas.
    Domain event fan-out uses one durable per independent consumer group. Never
    share a durable between unrelated handlers or create per-replica durables.
-5. Stream/consumer provisioning is controlled and validated before publishing
-   to new subjects. In Interest retention, establish all required consumers
-   before a producer emits a new subject. Define and test how consumer filters,
-   stream subjects, retention, max age/bytes/messages, replicas, storage,
-   account limits, backup/restore, and replay are managed in each environment.
+5. Stream and consumer provisioning is controlled, drift-checked, and validated
+   before producers use new subjects. The target topology is `MYOTA_EVENTS`
+   (`myota.events.>`, Limits, file storage, 30-day max age) plus
+   `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` (disjoint `myota.work.*`
+   subject prefixes, WorkQueue, file storage). All streams use finite
+   `MaxAge`, `MaxBytes`, `MaxMsgs`, and `MaxMsgSize` with `DiscardNew`; choose
+   numeric work limits from measured load and recovery objectives. Keep one
+   replica on today's single-server deployment; use three only after a
+   three-server JetStream cluster is deployed. Qualify backup/restore and
+   replay for each environment.
 6. JetStream is delivery infrastructure, not the permanent event archive.
    Choose retention according to the required processing and recovery window;
    keep domain history and outbox/dead-letter evidence in service-owned storage.
-   Acknowledged-event replay must use an explicit supported source/replay path.
+   Retained facts can be replayed through a new isolated durable with an
+   explicit start position; work is redriven from its owning database with the
+   same work ID. Acknowledged-event replay must use an explicit supported path.
 7. Preserve service ownership and database boundaries. Identity, Programme,
    and Operations share the core database today; do not interpret the shared
    relay as a shared domain repository. No service reads another service's
@@ -117,6 +126,47 @@ distinction:
    IDs, aggregate IDs, or other unbounded values.
 10. Keep the consumer APIs/web clients out of direct NATS access. Services and
     workers alone hold the narrow credentials they require.
+
+### Selected topology — ADR-0008
+
+The following target is selected for implementation. It does not describe the
+current deployment, and its implementation and production qualification remain
+open. See [ADR-0008](../../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md)
+and the [event/work inventory](nats-event-migration-inventory.md) for rationale
+and evidence.
+
+| Stream | Subject capture | Retention and storage | Use |
+|---|---|---|---|
+| `MYOTA_EVENTS` | `myota.events.>` | Limits, file storage, 30-day max age, finite `MaxBytes`, `MaxMsgs`, and `MaxMsgSize`; `DiscardNew` | Committed domain facts, with one durable per intended independent consumer group and bounded replay from an isolated durable. |
+| `MYOTA_ACTIVITY_WORK` | `myota.work.activity.>` | WorkQueue, file storage, finite age/byte/message/payload limits; `DiscardNew` | Six selected Activity jobs: QSO ingestion, ADIF import, award recalculation, award evaluation, PDF rendering, and statistics rebuild. One disjoint filter/durable per work kind; replicas share the durable. |
+| `MYOTA_GEODATA_WORK` | `myota.work.geodata.>` | WorkQueue, file storage, finite age/byte/message/payload limits; `DiscardNew` | Geodata preprocessing, import promotion, confirmed deletion, and location enrichment. One disjoint filter/durable per work kind; replicas share the durable. |
+
+Facts use `myota.events.<eventType>` with dotted tokens preserved. Keep
+`envelopeVersion: 1` separate from the `.vN` event type version. Use checked-in
+per-event JSON Schemas and the subject/consumer registry in `myota-contracts`.
+Do not migrate the synthetic Activity `NOTIFICATION_SEND` state-only job; if
+external delivery is introduced, define a separate provider-backed command.
+Keep scheduled maintenance and database reconciliation as scheduler/recovery
+paths. Keep Operations read-only for broker inspection.
+
+Delivery is at least once. `Nats-Msg-Id` deduplication is a short-window
+optimization; database idempotency and checkpoint state define correctness.
+Persist an application dead-letter record before terminating terminal failures
+and provide authorized, audited redrive. Redrive work from the owning database
+with the same work ID. Replay facts with a separate durable and explicit start
+position; never rewind a production side-effecting consumer. PostgreSQL remains
+the source of truth, and JetStream is not a permanent event archive. Keep stream
+replicas at one on today's single-server topology; configure three only after a
+three-server JetStream cluster exists. Use one deployment-owned, drift-checked
+provisioner rather than concurrent mutation from the three relay instances.
+
+Rollout must account for the current mixed `MYOTA_EVENTS` stream. Stop relays and
+inspect retained messages/consumer state before changing its retention from
+Interest to Limits; this live change cannot restore messages already deleted.
+Create the two WorkQueue streams on the disjoint `myota.work.*` subjects, provision
+their durables, and route pending legacy Geodata work through one publish path.
+Do not dual-publish. Drain old work and remove old filters/routes only after
+rollback and database recovery checks pass.
 
 ## Phased implementation
 
@@ -142,6 +192,9 @@ distinction:
 - [x] Add an ADR or amend the event contract with the selected topology, subject
       naming, ownership, compatibility and deprecation policy. Flag uncovered
       consumers and unclassified event types as blockers to Phase 1.
+- [ ] Resolve the remaining transaction, idempotency, and recovery/replay evidence
+      gaps in the inventory, or record an explicit acceptance and named owner for
+      each before Phase 1 implementation begins.
 
 **Exit criteria**
 
@@ -150,6 +203,8 @@ distinction:
 - [x] Stream/retention topology and activity-job migration scope are selected in
       documentation before implementation changes begin.
 - [x] Mirrored files and authoritative repositories are explicitly identified.
+- [ ] Remaining evidence gaps are resolved or accepted with named owners before
+      Phase 1 implementation begins.
 
 **ChatGPT prompt — Phase 0**
 
@@ -157,6 +212,12 @@ distinction:
 Work in the MyOTA multi-repository workspace. Create an exhaustive, evidence-backed
 inventory for moving all outbox events and asynchronous consumers to NATS JetStream
 streams and durable queues. Do not change runtime code in this phase.
+
+Read ADR-0008 before reviewing the topology. The selected target is one bounded
+Limits fact stream and separate Activity/Geodata WorkQueue streams. Verify that
+repository evidence supports the recorded decision; do not reopen it based only
+on preference. Report concrete contradictions or evidence that requires changing
+the decision.
 
 Inspect the authoritative repositories: myota-identity-service,
 myota-programme-service, myota-activity-service, myota-geodata-service,
@@ -175,46 +236,56 @@ committed domain facts, competing-consumer work commands, scheduled/reconciliati
 work, and synchronous operations. Include Activity database-polled jobs and identify
 whether each should migrate to JetStream or remain as a justified exception.
 
-Specifically assess the shared file-backed MYOTA_EVENTS stream, Interest retention,
-currently provisioned Activity notification durable and four Geodata work durables,
-the three database-specific outbox relays, operations read-only inspection boundary,
-and existing replay limitations. Recommend a target stream/retention/subject
-topology with tradeoffs; do not assume that every event is a command or that
-JetStream is an event archive.
+Specifically assess the current shared file-backed MYOTA_EVENTS stream, Interest
+retention, currently provisioned Activity notification durable and four Geodata
+work durables, the three database-specific outbox relays, operations read-only
+inspection boundary, and existing replay limitations. Reconcile current behavior
+with ADR-0008's selected topology and record its tradeoffs; do not assume every
+event is a command or that JetStream is an event archive.
 
-Edit only myota-docs in this phase: add the inventory and decision proposal to the
-NATS migration plan, and update docs/README.md and repository README links if
-needed. Keep claims labeled proposed/current and cite exact repository paths. Do not
-mark implementation complete. Report missing evidence and Phase 0 exit criteria.
+Edit only myota-docs in this phase: reconcile the inventory, migration plan, and
+ADR-0008; resolve remaining evidence gates or identify their owners. Keep claims
+labeled current/selected and cite exact repository paths. Do not mark runtime
+implementation complete. Report missing evidence and Phase 0 exit criteria.
 ```
 
 ### Phase 1 — Contracts, topology, provisioning, and operational safety
 
 **Work**
 
-- [ ] Define/enforce event envelope schema, required fields, JSON encoding,
-      timestamp/UUID semantics, correlation and causation propagation, payload size
-      limits, compatibility rules, and unknown-version behavior.
-- [ ] Define canonical subject mapping. Replace implicit global dot-to-underscore
-      assumptions with a reviewed, versioned registry or a documented deterministic
-      convention. Explicit work subjects must be allowlisted and map to provisioned
-      durable consumers. Reject unknown routing before marking an event published;
-      make the failure operator-visible and actionable.
+- [ ] Define/enforce the selected immutable envelope with `envelopeVersion: 1`,
+      required fields, JSON encoding, timestamp/UUID semantics, trusted correlation
+      and optional causation propagation, payload size limits, compatibility rules,
+      and unknown-version behavior. Keep envelope version separate from event type
+      suffix `.vN`; keep relay attempts out of the envelope.
+- [ ] Define the selected subject convention and registry: facts use
+      `myota.events.<eventType>` with dotted tokens preserved; work uses disjoint
+      `myota.work.activity.*` and `myota.work.geodata.*` namespaces. Add checked-in
+      per-event JSON Schemas and subscriber dispositions in `myota-contracts`.
+      Explicit work subjects must map to provisioned, non-overlapping durable
+      filters. Reject unknown routing before marking an event published; make the
+      failure operator-visible and actionable.
 - [ ] Implement safe stream/consumer provisioning as a controlled deployment step or
       idempotent reconciler with drift detection. Avoid multiple relay replicas
       racing to mutate stream configuration. Validate complete consumer config, not
       only filter and ack policy. Apply least-privilege NATS credentials per relay
       and worker role.
-- [ ] Set retention/resource limits and backups/replay procedure based on Phase 0
-      decisions. Validate outage, disk pressure, consumer deletion, stream restore,
-      and consumer recreation behavior in local and production-like environments.
+- [ ] Implement the selected stream topology: bounded Limits retention on
+      `MYOTA_EVENTS`, WorkQueue retention on the Activity and Geodata work streams,
+      finite limits and `DiscardNew`. Derive numeric caps from measured traffic and
+      recovery objectives. Keep replicas at one on a single server; qualify three
+      replicas only with a three-server cluster. Define backup, restore, replay, and
+      redrive procedures; validate outage, disk pressure, consumer deletion, stream
+      restore, and consumer recreation behavior in local and production-like
+      environments.
 - [ ] Add a consumer registry and contract fixtures so event publishers cannot add a
       subject without updating schema, intended subscriber, durable provisioning,
       docs, and compatibility checks.
 
 **Exit criteria**
 
-- [ ] Contract and subject registry covers the Phase 0 inventory.
+- [ ] Contract and subject registry covers the Phase 0 inventory and matches
+      ADR-0008's fact/work classification and subject namespaces.
 - [ ] Provisioning is deterministic, least-privilege, observable, and safe before
       first publish; incompatible drift fails deployment/readiness clearly.
 - [ ] Retention and restore/replay policies have an operator runbook and evidence.
@@ -235,10 +306,12 @@ compatibility rules. Update synchronized myota-platform/myota-deploy contract co
 only through their documented sync process.
 
 Make JetStream stream and durable-consumer provisioning deterministic and
-drift-checked. Ensure every producer subject has required durable coverage before
-publication under the selected retention policy. Prefer a single controlled
-provisioner/reconciler over concurrent relay configuration mutation if that is what
-the approved ADR specifies. Validate all correctness-sensitive consumer settings.
+drift-checked. Register every producer subject, but provision durables only for
+independent consumer groups with an intended business use; do not create broad
+no-op consumers for Limits-retained facts. Provision required consumers before
+relying on their processing. Implement the single controlled provisioner specified
+in ADR-0008; relay replicas must not concurrently mutate stream configuration.
+Validate all correctness-sensitive consumer settings.
 Add least-privilege credentials and deployment configuration for each relay/worker
 role. Add registry/contract checks that fail when a producer subject lacks schema,
 owner, consumer disposition, provisioning and documentation.
@@ -272,8 +345,8 @@ later phases complete.
       route every supported event through the transactionally coupled outbox. Remove
       any process-local event dispatch for accepted cross-service work.
 - [ ] Provision one durable per independently required domain-event consumer group.
-      Filter to supported event subjects where feasible; document explicit no-op
-      dispositions rather than relying on broad catch-all consumers.
+      Filter to supported event subjects where feasible; list event types with no
+      current subscriber in the registry instead of creating no-op consumers.
 - [ ] Confirm Operations remains metadata-only and does not accidentally become a
       broker consumer with acknowledgements.
 
@@ -281,8 +354,9 @@ later phases complete.
 
 - [ ] Inventory reconciliation finds no event write bypassing the outbox or
       unregistered event subject.
-- [ ] Relay restart/retry proves no lost accepted event and deduplicates a
-      publish/mark crash window.
+- [ ] Relay restart/retry proves no lost accepted event and safely recovers from a
+      publish/mark crash: broker deduplication applies within its configured window,
+      and database idempotency protects retries outside that window.
 - [ ] Outbox backlog, oldest age, retries, and dead letters are observable and
       actionable for all three relays.
 
@@ -306,12 +380,15 @@ let the Operations status path mutate broker state.
 
 Walk every event write and migration/recovery insert in the Phase 0 matrix. Ensure
 mutations and outbox inserts are atomic and all accepted cross-service events
-publish through the registered envelope/subject path. Add or update explicit durable
-consumers only for required domain-event groups in this phase; each must have clear
-supported-type filters, idempotency, explicit ack-after-commit, version handling,
-and a poison-event path. Do not add broad no-op consumers just to retain subjects
-under Interest retention; update provisioning and retention decisions according to
-the approved ADR.
+publish through the registered envelope/subject path. Add or update explicit
+durable consumers only for required domain-event groups in this phase; each must
+have clear supported-type filters, idempotency, explicit ack-after-commit,
+version handling, and a poison-event path. Do not add broad no-op consumers. The
+selected Limits-retained fact stream does not require a durable for every
+published subject; provision durables only for independent groups with an
+intended business use. Keep the four existing Geodata work durables on the
+current stream until the controlled migration provisions replacements on
+`MYOTA_GEODATA_WORK`.
 
 Synchronize authoritative sources into myota-deploy/myota-platform mirrors and
 update contracts/docs/operations for actual behavior. Use focused tests for relay
@@ -328,8 +405,10 @@ them to this phase.
 
 - [ ] Standardize Activity notification and all other event consumers around a
       shared service-owned JetStream adapter or an explicitly documented per service
-      pattern. Preserve domain ownership: Activity can create notices from approved
-      Identity/Geodata/Programme events, but must not own those domains' state.
+      pattern. Preserve domain ownership: Activity notification filters cover the
+      approved Identity facts and the two Geodata review/status facts in the
+      inventory. Do not add Programme notices or other subscriptions without an
+      owner and registered consumer-group decision.
 - [ ] Separate independent consumers into separate durables. Set explicit filter,
       ack wait, max deliveries, max ack pending, backoff, delivery policy, and
       concurrency based on measured handler duration and recovery needs.
@@ -342,7 +421,10 @@ them to this phase.
       without a supported recovery path.
 - [ ] Keep durable consumer names stable across releases; create successor durables
       deliberately and remove obsolete durables only after old workers drain and
-      backlog disposition is understood.
+      backlog disposition is understood. For fact replay, use a separate durable
+      with an explicit start position; never rewind a production side-effecting
+      durable. Preserve the selected 30-day bounded fact replay window and use
+      database state as the source for longer-term reconstruction.
 
 **Exit criteria**
 
@@ -370,9 +452,9 @@ explicitly.
 
 Replace catch-all/no-op behavior with reviewed filters and explicit event-type
 dispositions. Do not make Activity own Identity/Programme/Geodata records; it may
-own notification projections only. Preserve Operations as read-only status
-inspection. Keep stable durable names, and document how to roll to a successor
-durable without dropping Interest-retained events.
+own the selected notification projections only. Preserve Operations as read-only
+status inspection. Keep stable durable names, and document how to roll to a
+successor durable without dropping retained fact messages.
 
 Update owning service code, container/deployment wiring, synchronized mirrors,
 contracts, operations runbooks, and myota-docs. Add focused
@@ -386,62 +468,76 @@ verified rows complete.
 
 **Work**
 
-- [ ] For each `activity_worker.py` job kind (`ADIF_IMPORT`, `QSO_INGESTION`,
-      `AWARD_RECALCULATE`, `AWARD_EVALUATION`, `PDF_RENDER`, `STATISTICS_REBUILD`,
-      `NOTIFICATION_SEND`), trace the producer, job row, side effects, retry
+- [ ] For each selected migratable `activity_worker.py` job kind
+      (`QSO_INGESTION`, `ADIF_IMPORT`, `AWARD_RECALCULATE`, `AWARD_EVALUATION`,
+      `PDF_RENDER`, `STATISTICS_REBUILD`), trace the producer, job row, side effects, retry
       semantics, payload size, idempotency key and completion state. Include
       `activity.adif.queued.v1` and related outbox writes.
+- [x] Record the decision to exclude `NOTIFICATION_SEND` from JetStream migration:
+      its current handler
+      only changes notification state and has no external provider call. Correct or
+      remove the synthetic job in the Activity implementation phase; if external
+      delivery is introduced, define a separate provider-backed work command.
 - [ ] Move accepted jobs to transactional outbox + dedicated command subjects and
-      durable pull queues, keeping the job/resource row as domain status and
-      recovery evidence. Large payloads should remain in owned storage and the work
-      event should carry identifiers, not copied content.
+      durable pull queues on `MYOTA_ACTIVITY_WORK` using the selected
+      `myota.work.activity.*` namespace, keeping the job/resource row as domain
+      status and recovery evidence. Large payloads should remain in owned storage
+      and the work event should carry identifiers, not copied content.
 - [ ] Use per-kind or compatible worker-group durables and bounded concurrency; do
       not put unrelated long PDF/ADIF jobs behind a single serial queue unless
       ordering is explicitly required. Preserve leases for long-running work and
       heartbeat/visibility where appropriate.
-- [ ] Use a dual-read/dual-publish migration only if Phase 0 approves it. Define
-      event IDs and idempotency to prevent the same job running through both paths.
-      Stop new DB-queue claims before draining old work; provide rollback without
-      re-enqueueing completed jobs.
+- [ ] Use one publish path during migration; do not dual-publish work to both
+      systems. Define stable work IDs and database idempotency. Stop new DB-queue
+      claims before translating or draining pending rows, and switch producers
+      only after the durable is provisioned. Provide rollback without re-enqueueing
+      completed jobs.
 - [ ] Keep necessary periodic maintenance/reconciliation tasks in schedulers when
       they are timer-triggered rather than event-driven; record why they are not
       JetStream messages.
 
 **Exit criteria**
 
-- [ ] Every accepted Activity job is JetStream-backed or has a documented, approved
-      exception; no job is acknowledged/completed before durable side effects.
-- [ ] Cutover and rollback preserve exactly-once business effects under at-least-
-      once delivery, despite both systems briefly seeing the same job.
+- [ ] Each of the six selected Activity jobs is JetStream-backed; the excluded
+      `NOTIFICATION_SEND` state-only job is corrected or removed. No job is
+      acknowledged/completed before durable side effects.
+- [ ] Cutover and rollback preserve business invariants and prevent duplicate
+      effects under at-least-once delivery.
 - [ ] Activity job latency, queue age, failure, retry, and dead-letter states are
       visible in service and operations dashboards.
 
 **ChatGPT prompt — Phase 4**
 
 ```text
-Implement Phase 4: migrate the Activity service's accepted asynchronous jobs from
-PostgreSQL polling to NATS JetStream work queues, following the approved Phase 0
-decision and Phase 1 contracts. Inspect activity_repository.py, activity_worker.py,
+Implement Phase 4: migrate the six selected Activity asynchronous jobs from
+PostgreSQL polling to the `MYOTA_ACTIVITY_WORK` JetStream WorkQueue stream,
+following ADR-0008 and the Phase 1 contracts. Do not migrate the synthetic
+`NOTIFICATION_SEND` job: correct/remove its state-only transition in Activity; if
+external delivery is introduced, model it as a separate provider-backed command.
+Inspect activity_repository.py, activity_worker.py,
 outbox writes, job migrations/schema, Activity API job producers, deployment
 manifests, and all recovery/retention paths before editing.
 
-Inventory and handle these current job kinds individually: ADIF_IMPORT,
-QSO_INGESTION, AWARD_RECALCULATE, AWARD_EVALUATION, PDF_RENDER, STATISTICS_REBUILD,
-and NOTIFICATION_SEND. For each choose a versioned work subject and durable consumer
-group, or document an approved exception. Preserve resource/job status in
-myota_activity. Persist work request/outbox atomically with the accepted state
-transition; publish identifiers and bounded metadata rather than large content. Keep
-blob data in the configured object store. Ensure long-running tasks use suitable ack
-wait/progress/lease strategy and independent concurrency so unrelated heavy work
-does not block other kinds.
+Inventory and handle these selected job kinds individually: QSO_INGESTION,
+ADIF_IMPORT, AWARD_RECALCULATE, AWARD_EVALUATION, PDF_RENDER, and
+STATISTICS_REBUILD. Map each to a versioned `myota.work.activity.*` subject and
+one durable consumer group shared by its worker replicas. Do not include
+`NOTIFICATION_SEND` in the work stream because it has no external delivery side
+effect today. Preserve resource/job status in `myota_activity`. Persist work
+request/outbox atomically with the accepted state transition; publish identifiers
+and bounded metadata rather than large content. Keep blob data in the configured
+object store. Ensure long-running tasks use suitable ack wait/progress/lease
+strategy and independent concurrency so unrelated heavy work does not block other
+kinds.
 
 Implement at-least-once-safe processing: stable job/event ID, domain idempotency,
 explicit ack after committed completion/failure state, bounded redelivery/backoff,
 visible poison/dead-letter handling, graceful drain, and startup recovery. Design a
-controlled cutover from DB polling, including old-job drain, duplicate prevention
-during overlap, metrics, and rollback. Do not delete job history or claim exact-once
-broker delivery. Keep scheduled retention/reconciliation tasks as schedules unless
-the ADR specifically classifies them as event work.
+controlled cutover from DB polling, with one publish path, stable work IDs,
+old-job drain or translation, database idempotency, metrics, and rollback. Do not
+dual-publish, delete job history, or claim exactly-once broker delivery. Keep
+scheduled retention/reconciliation tasks on their scheduler/recovery paths as
+selected in ADR-0008.
 
 Update Activity source, contract/subject registry, deployment and synchronized
 myota-deploy/myota-platform copies, tests, Activity README and central MyOTA docs.
@@ -454,8 +550,14 @@ any blocked handler. Do not move Geodata work into Activity ownership.
 
 **Work**
 
-- [ ] Validate the four existing Geodata durables against the registered work
-      contracts, shared provisioning, deployment replicas and Operations view.
+- [ ] Move the four Geodata work kinds from their current `myota.geodata.*`
+      subjects in `MYOTA_EVENTS` to disjoint `myota.work.geodata.*` subjects in
+      `MYOTA_GEODATA_WORK`. Provision the new WorkQueue durables before switching
+      routing; move pending rows through one publish path, without dual-publishing.
+      Drain legacy messages and consumers only after rollback and database recovery
+      checks pass.
+- [ ] Validate each replacement Geodata durable against the registered work
+      contract, shared provisioning, deployment replicas and Operations view.
 - [ ] Confirm consumer side effects and processed-event/checkpoint state are atomic
       where possible; inspect `_consume` behavior for transient errors, max
       delivery, ack/nak/term and DLQ compatibility. Ensure long import jobs use
@@ -474,7 +576,8 @@ any blocked handler. Do not move Geodata work into Activity ownership.
 **Exit criteria**
 
 - [ ] Each Geodata queue has documented scaling, retry, DLQ, recovery and retention
-      behavior; all four durables are validated in each environment.
+      behavior; all four replacement durables on `MYOTA_GEODATA_WORK` are validated
+      in each environment and the legacy route is retired safely.
 - [ ] Broker loss, worker restart, delayed ack and duplicate delivery do not lose or
       repeat domain effects.
 - [ ] Recovery loops are bounded, observable, and do not become a second primary
@@ -483,13 +586,15 @@ any blocked handler. Do not move Geodata work into Activity ownership.
 **ChatGPT prompt — Phase 5**
 
 ```text
-Implement Phase 5: reconcile and qualify the existing Geodata JetStream work queues
-and all cross-service recovery paths. The four current Geodata durable pull
-consumers are preprocessing, import promotion, entity deletion, and location
-enrichment. Read the event contract, Geodata architecture/runbooks, Phase 0
-inventory, and approved ADR first.
+Implement Phase 5: move the four Geodata work kinds onto the selected
+`MYOTA_GEODATA_WORK` WorkQueue stream and qualify all cross-service recovery paths.
+The current durable pull consumers are preprocessing, import promotion, entity
+deletion, and location enrichment. Their current `myota.geodata.*` subjects are
+captured by `MYOTA_EVENTS`; use disjoint `myota.work.geodata.*` subjects for the
+new stream. Read the event contract, Geodata architecture/runbooks, Phase 0
+inventory, and ADR-0008 first.
 
-Verify the producer transaction, work subject, provisioned durable/filter/config,
+Verify the producer transaction, new work subject, provisioned durable/filter/config,
 worker replica model, explicit ack policy, ack wait/max-deliver/max-ack-pending,
 database idempotency/checkpoint/lease, long-work heartbeat, failure/dead-letter
 behavior, and recovery source for each queue. Inspect transient failures and ensure
@@ -498,6 +603,10 @@ acknowledgement follows durable side effects. Preserve location request ID and
 geometry-hash recheck, deletion authorization and Activity impact sequencing, import
 cancellation semantics, and database reconciliation loops as repair mechanisms
 rather than competing primary queues.
+
+Provision replacement durables before changing routes. Do not dual-publish. Drain
+or translate pending legacy work through one path, then remove the old filters only
+after rollback and database recovery checks pass. Keep Operations read-only.
 
 Exercise failure scenarios: publish acknowledgement lost before outbox mark; worker
 crash before/after database commit; database outage; delayed import beyond ack wait;
@@ -590,9 +699,9 @@ do not treat unit-only coverage as broker/recovery proof.
   grow broker/outbox backlog, and prove bounded memory/connections and isolation
   of unrelated event/work groups.
 - **Retention and recovery:** validate no required message is removed before
-  consumer completion; restore broker and consumer state; demonstrate supported
-  replay source for acknowledged work and show expiry recovery from database
-  records/reconcilers.
+  consumer completion; restore broker and consumer state; demonstrate bounded fact
+  replay through an isolated durable and work recovery/redrive from database
+  records and reconcilers.
 - **Security:** validate service-specific NATS credentials, TLS/auth policy,
   subject permissions, secret rotation, and no browser or web-client NATS
   access. Prevent event payload/log exposure of credentials or unnecessary PII.
@@ -603,8 +712,10 @@ do not treat unit-only coverage as broker/recovery proof.
 - **Deployment:** compose and Helm use equivalent subject/consumer config;
   workers have readiness/liveness behavior appropriate to broker availability,
   graceful drain, database pool limits, disruption/restart behavior, and
-  independent scaling. Test deployment ordering so consumers exist before
-  producers publish under Interest retention.
+  independent scaling. Test provisioning and rollout ordering so streams and
+  required durables are ready before associated workers rely on them. Validate
+  bounded fact replay under Limits and database recovery for work subject to
+  WorkQueue expiry.
 - **Inventory reconciliation:** compare registry against static event writes,
   runtime streams/consumers, deployed worker processes, and sampled event/job
   IDs. A zero backlog alone does not prove event coverage.
