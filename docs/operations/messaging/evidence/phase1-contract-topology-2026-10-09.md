@@ -102,7 +102,10 @@ run for all three streams and ten durables. The broker exposed omitted false-val
 `mem_storage` and `headers_only` fields; the validator now compares effective
 boolean behavior. The namespace was deleted and verified absent. The local `nats-py`
 and Ruff tools were installed in temporary virtual environments, not system Python.
-The live topology and producer/consumer runtime paths were not modified.
+The deploy main commit `1076584` passed Ruff formatting/lint and both gateway and
+service image build/publish checks. The platform main commit `b047a00` passed Ruff,
+unit tests, container build, and publish. See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)
+and [platform checks](https://github.com/myota-platform/myota-platform/commit/b047a00e15ecc619e3589fffee37a1aa779ff59a/checks). The live topology and producer/consumer runtime paths were not modified.
 
 The isolated test ran in a temporary namespace on the host's K3s cluster. It
 used an emptyDir-backed NATS pod and the already-deployed application image with

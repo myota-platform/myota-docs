@@ -312,9 +312,11 @@ All four implementation PRs are merged: [contracts #2](https://github.com/myota-
 [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
 and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
 Merge records and CI results are in the [Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md).
-Merging does not authorize live provisioning or runtime changes. The platform
-unit-test and Ruff jobs passed; the image-build job could not obtain a Docker Hub
-token on two attempts and remains unverified.
+Merging does not authorize live provisioning or runtime changes. The earlier
+platform image-build attempts timed out requesting a Docker Hub token. The latest
+main commits now pass deploy Ruff and both image builds, plus platform tests, Ruff,
+container build, and publish ([deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks),
+[platform checks](https://github.com/myota-platform/myota-platform/commit/b047a00e15ecc619e3589fffee37a1aa779ff59a/checks)).
 
 - [x] Add a contracts-owned registry for all 68 inventory facts, six legacy
       Geodata work/recovery event types mapped to four commands, and six

@@ -71,9 +71,8 @@ outer-envelope schemas; a create-only provisioner validates finite limits and
 configuration drift. Contract/deploy checks, platform unit tests, and Ruff
 format/lint CI pass. The expanded consumer configuration also passes four
 focused tests and an isolated create/idempotency run against a disposable broker.
-The platform container build is unverified after two
-Docker Hub token timeouts. The payload schemas are still incomplete. The
-deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
+Earlier platform image-build attempts timed out at Docker Hub; the latest deploy
+and platform main-branch image build/publish checks now pass. The payload schemas are still incomplete. The deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
 and no live migration or runtime change has occurred. Read-only sampling found
 19,103 outbox rows spanning only
 2–9 October and an unusually large Geodata payload; that is not a full-window

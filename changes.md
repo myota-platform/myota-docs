@@ -10,7 +10,10 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   inherited consumer replicas, durable state storage, and full-payload delivery.
   Normalized NATS server responses that omit false-valued optional settings.
 - Four focused tests and Ruff format/lint passed in deploy and its synchronized
-  platform mirror. An isolated host-K3s broker accepted initial provisioning and
+  platform mirror. Deploy commit `1076584` passed its Ruff and gateway/service image
+  build/publish checks. Platform commit `b047a00` passed Ruff, tests, container
+  build, and publish ([deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks),
+  [platform checks](https://github.com/myota-platform/myota-platform/commit/b047a00e15ecc619e3589fffee37a1aa779ff59a/checks)). An isolated host-K3s broker accepted initial provisioning and
   an idempotent rerun for three streams and ten durables; its namespace was
   removed and verified absent. No deployed topology or application path changed.
   Phase 1 remains open. See the [evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),

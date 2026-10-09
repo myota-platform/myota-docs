@@ -52,7 +52,11 @@ describe current ownership and are authoritative for the present-day system.
   remains the single prompt for this phase. On 10 October, the deploy-owned
   provisioner was hardened to pin and verify consumer replay, pull-wait, delivery,
   storage, and payload settings; four focused topology/provisioner tests passed.
-  This follow-up did not change a live stream or producer/consumer runtime path.
+  Direct-main commits `1076584` (deploy) and `b047a00` (platform) passed Ruff,
+  deploy gateway/service image builds, platform tests, container build, and publish.
+  See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)
+  and [platform checks](https://github.com/myota-platform/myota-platform/commit/b047a00e15ecc619e3589fffee37a1aa779ff59a/checks). This follow-up did not change
+  a live stream or producer/consumer runtime path.
 
 **Prompt used** (the copyable Phase 1 prompt in the plan):
 
