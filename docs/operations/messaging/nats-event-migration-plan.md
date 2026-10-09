@@ -53,15 +53,16 @@ records, and consumer idempotency/checkpoint state remain authoritative.
 
 ### Event/work inventory evidence
 
-The [Phase 0 inventory and decision proposal](nats-event-migration-inventory.md)
+The [Phase 0 inventory and selected topology](nats-event-migration-inventory.md)
 records the repository-source event scan, current subject derivation, explicit
 Geodata work routes, Activity job queue, recovery migration, relay and consumer
 behavior, deployment ownership, and mirror comparisons. It distinguishes
 observed subscribers from proposed consumers and records unresolved evidence.
+The selected target is documented in
+[ADR-0008](../../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
 The event contract remains a representative list, not a machine-checked event
-catalogue. The inventory proposes a topology but does not record owner approval.
-Phase 0 remains open until the pending approval and evidence gates in that
-document are resolved.
+catalogue. The workspace owner selected the documented topology; implementation,
+operational qualification, and unresolved evidence gates remain open.
 
 Do not silently turn every domain event into a command queue. Preserve the
 distinction:
@@ -81,7 +82,8 @@ distinction:
    versioned outbox/work record in one transaction. No event depends on an API
    process-local list, executor, or best-effort publish.
 2. The relay publishes the complete envelope (event ID/type/time, producer,
-   aggregate identity, correlation/causation context, payload, schema version)
+   aggregate identity, correlation/causation context, payload, and
+   `envelopeVersion`)
    using the stable event/work ID as JetStream message ID. It marks the outbox
    row published only after broker acknowledgement. Retry exhaustion is
    visible and recoverable from a dead-letter record.
@@ -132,12 +134,12 @@ distinction:
       boundary, current and target subject, independent durable groups, idempotency
       key, retry/dead-letter policy, retention/replay requirement, and API/business
       impact if delayed or lost.
-- [ ] Resolve whether the shared `MYOTA_EVENTS` stream remains the target or whether
+- [x] Resolve whether the shared `MYOTA_EVENTS` stream remains the target or whether
       domain events and work queues need separate streams. Compare Interest versus
       WorkQueue retention for each class, cross-service blast radius, independent
       replay/retention needs, deployment complexity, and migration safety. Do not
       split streams merely for naming symmetry.
-- [ ] Add an ADR or amend the event contract with the approved topology, subject
+- [x] Add an ADR or amend the event contract with the selected topology, subject
       naming, ownership, compatibility and deprecation policy. Flag uncovered
       consumers and unclassified event types as blockers to Phase 1.
 
@@ -145,7 +147,7 @@ distinction:
 
 - [x] Every outbox event write and database-backed asynchronous job is accounted
       for; each has a disposition and owner.
-- [ ] Stream/retention topology and activity-job migration scope are approved in
+- [x] Stream/retention topology and activity-job migration scope are selected in
       documentation before implementation changes begin.
 - [x] Mirrored files and authoritative repositories are explicitly identified.
 
@@ -220,8 +222,8 @@ mark implementation complete. Report missing evidence and Phase 0 exit criteria.
 **ChatGPT prompt — Phase 1**
 
 ```text
-Implement the approved Phase 1 NATS contract and topology decisions recorded in
-myota-docs/docs/operations/messaging/nats-event-migration-plan.md and the approved event ADR. First read
+Implement the selected Phase 1 NATS contract and topology decisions recorded in
+myota-docs/docs/operations/messaging/nats-event-migration-plan.md and ADR-0008. First read
 the Phase 0 inventory and repository ownership map. Do not expand scope beyond the
 approved topology.
 

@@ -19,3 +19,7 @@ summarized in the [repository map](../repository-map.md).
 - [Programme policy ownership](0004-programme-policy-ownership.md)
 - [Graphical geodata editing](0002-graphical-geodata-editing.md)
 - [Administration roles and geodata controls](0007-administration-role-and-geodata-controls.md)
+
+## Messaging and integration
+
+- [NATS JetStream event and work topology](0008-nats-jetstream-event-and-work-topology.md)
