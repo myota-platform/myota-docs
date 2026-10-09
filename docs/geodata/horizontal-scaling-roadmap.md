@@ -3,9 +3,10 @@
 ## Status and scope
 
 **Phase 0 evidence gate complete at 2,875 measured entities. Phases 1 and 2
-are implemented and verified. Phase 3 worker isolation is implemented, with
-bounded-memory and worker-failure gates still open; Phases 4 and 5 remain
-open.**
+are implemented and verified. Phase 3 has bounded GeoJSON preprocessing
+checkpoints for ordinary imports, but remains open: non-GeoJSON/snapshot parser
+fallbacks and worker failure-injection gates are not qualified. Phases 4 and 5
+remain open.**
 This checklist records the work needed before increasing the
 Geodata API beyond one replica in production. The baseline does not make the
 current service horizontally safe.
@@ -42,8 +43,12 @@ Current implementation and remaining hazards:
   record](phase1-relational-authority.md).
 - Durable imports now use resumable object-storage multipart sessions and a
   separately deployed JetStream worker. Source-reference and proximity
-  lookups are indexed, but large-source parsing and candidate staging are not
-  yet streaming/bounded end to end.
+  lookups are indexed. Uploaded GeoJSON FeatureCollections now stream from
+  object storage to a local scratch file, parse feature-by-feature, and commit
+  stable-ordinal candidate checkpoints in configurable batches (default 100).
+  KML, GPX, Shapefile, and other legacy decoders, plus complete-snapshot imports,
+  still have whole-document fallbacks; recovery under worker termination is
+  not yet proven. See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - Phase 2's API and SeaweedFS restart-recovery gate passed in an isolated CI
   environment using the exact SeaweedFS image digest observed in the live K3s
   pod. No production API or object-store process was restarted; see the
@@ -365,13 +370,17 @@ ChatGPT implementation prompt: [implement bounded workers and failure recovery](
   attempt count, bounded retry/backoff, and a visible terminal error state.
 - [x] Make each feature/candidate write idempotent; use stable import and
   source-record identity so a retry cannot create duplicate candidates.
-- [ ] Persist progress in bounded batches. Avoid holding an entire large
-  dataset or all entity geometries in worker memory when a streaming parser or
-  indexed spatial query can be used. Part transfer is bounded; feature parsing
-  and candidate writes remain whole-run/in-memory. Candidate replay is scoped
-  to its import and source-reference/nearby-entity checks use database indexes;
-  no catalogue snapshot is authoritative or rewritten. Phase 1 commits entity,
-  candidate-result and audit/outbox rows atomically at checkpoints.
+- [ ] Complete bounded progress for every supported source format and snapshot
+  mode. Uploaded GeoJSON FeatureCollections and top-level feature arrays now
+  use an incremental parser, and candidate rows checkpoint at a default
+  100-feature window with stable ordinal replay and committed projection
+  eviction. Source downloads use bounded streaming to worker-local scratch.
+  KML, GPX, Shapefile, parser fallback without `ijson`, and
+  `completeSnapshot` remain whole-document paths; aggregate run metadata also
+  grows with feature count. Candidate replay is range-scoped and duplicate
+  checks use indexed spatial queries; no authoritative catalogue snapshot is
+  read or rewritten. Expand the stream/batch proof before checking this item.
+  See the [partial implementation and limits](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - [x] Make promotion consume only confirmed candidate IDs and record the
   resulting status/entity IDs and audit information with idempotent stable IDs.
   Entity/result/audit atomicity and duplicate promotion replay now have local
@@ -386,13 +395,18 @@ ChatGPT implementation prompt: [implement bounded workers and failure recovery](
   does not consume, acknowledge, redrive or purge domain work.
 - [x] Add worker shutdown/drain behavior: stop fetching on SIGTERM/SIGINT,
   finish the active delivery, and drain the NATS connection.
-- [ ] Test pod termination during parsing, enrichment, candidate persistence,
-  and promotion, including forced termination after the grace period.
+- [ ] Test worker termination during parsing, enrichment, candidate
+  persistence, and promotion, including forced termination after the grace
+  period; then verify lease reclaim and replay in isolated CI.
 
 **Exit criteria: partially met.** API requests no longer execute durable
 preprocessing or promotion locally; worker retries use database leases and
-stable identities. The parser is not yet batch/stream bounded, and termination,
-forced-termination and concurrent multi-worker delivery scenarios remain required.
+stable identities. Ordinary uploaded GeoJSON now has streaming parse and
+bounded candidate checkpointing, covered by local unit tests. Phase 3 does not
+close until all accepted formats and snapshot mode have an explicit bounded
+strategy (or documented enforceable limits), peak-memory behavior is measured,
+and isolated CI proves normal/forced termination, replay, and concurrent worker
+claims. See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 
 ### Phase 4 — remove unsafe infrastructure constraints
 
@@ -431,9 +445,11 @@ queue, database-connection, or availability constraints.
 ### Phase 5 — staged rollout and operational proof
 
 Current CI now covers relational migrations, concurrent independent repositories,
-promotion replay, migration replay, and two actual API processes. Large-source
-memory, forced worker termination, node/storage failure and load/canary proof
-remain open. The API-session and SeaweedFS container restart gate is complete.
+promotion replay, migration replay, and two actual API processes. GeoJSON
+FeatureCollection streaming/checkpointing has focused unit coverage, but
+universal large-source memory evidence, worker termination/reclaim, node/storage
+failure and load/canary proof remain open. The API-session and SeaweedFS
+container restart gate is complete.
 
 ChatGPT implementation prompt: [complete staged rollout and operational proof](prompts/scaling/phase-5-rollout.md).
 

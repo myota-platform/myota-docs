@@ -3,6 +3,34 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 9 October 2026 — geodata Phase 3 bounded preprocessing (partial)
+
+- **Geodata service:** Added streamed object-to-scratch downloads and an
+  incremental `ijson` path for uploaded GeoJSON FeatureCollections/arrays.
+  Candidate persistence now checkpoints by stable ordinal in configurable
+  100-feature windows and evicts committed row projections before advancing.
+  Compose and Helm expose the batch-size setting. Replay/cancellation and
+  source metadata behavior remain covered by unit regressions.
+- **Verification boundary:** Ruff passed; all 121 service unit tests passed
+  with 17 environment-dependent skips; the focused import/worker suite passed
+  32 tests with its `ijson`-dependent test skipped locally. This host could not
+  reach PyPI, so local verification used the parser compatibility fallback.
+  The actual `ijson` path passed in the [PostGIS-backed GitHub quality run](https://github.com/myota-platform/myota-geodata-service/actions/runs/37913194172),
+  which installed service requirements and passed all 121 tests without skips.
+  Whole-document fallbacks remain for KML, GPX, Shapefile and snapshot imports.
+  No peak-RSS measurement, worker termination/forced reclaim, or concurrent
+  worker proof exists yet; Phase 3 remains open.
+- **Evidence:** [Phase 3 implementation and exit review](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md),
+  [horizontal-scaling roadmap](docs/geodata/horizontal-scaling-roadmap.md),
+  [geodata service commit 301bc28](https://github.com/myota-platform/myota-geodata-service/commit/301bc28),
+  and [deployment commit 890197f](https://github.com/myota-platform/myota-deploy/commit/890197f).
+  Service validation passed locally: 121 tests passed, 17 environment-dependent
+  tests skipped; Ruff passed. The streaming-dependency test was skipped locally
+  because this host could not reach PyPI. Updated root status, geodata index,
+  WIP, To do, and prioritized backlog with the precise partial status.
+  [Helm chart validation](https://github.com/myota-platform/myota-deploy/actions/runs/37913227459)
+  passed. Image publication and Fleet rollout are still pending verification.
+
 ## 9 October 2026 — geodata Phase 2 upload recovery gate
 
 - **Geodata service:** Added a repeatable CI failure-injection scenario pinned

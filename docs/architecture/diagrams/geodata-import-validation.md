@@ -14,12 +14,17 @@ flowchart LR
   Outbox --> NATS[NATS JetStream durable subject]
   NATS --> Pre[Separately scaled geodata worker]
   Pre --> Lease[(PostgreSQL import_run lease + heartbeat)]
-  Pre --> CancelCheck{Cancellation requested?}
+  Pre --> SourceStream[Stream GeoJSON object to worker-local scratch]
+  SourceStream --> Parser[Incremental FeatureCollection parser]
+  Parser --> Window[Bounded ordinal window default 100]
+  Window --> CancelCheck{Cancellation requested?}
   CancelCheck -->|No| Dedup[Duplicate verification]
   CancelCheck -->|Yes| Cancel[Stop at feature boundary]
   Cancel --> CancelCleanup[Delete staged rows + temporary source]
   CancelCleanup --> Cancelled[Retain summary as CANCELLED]
   Dedup --> Store[(Pre-processed candidate store)]
+  Store --> Checkpoint[(Commit window + evict worker projections)]
+  Checkpoint -->|Next ordinal window| Window
   Dedup -.-> Warning[Possible duplicate warning]
   Store --> Admin[Visible pre-processing queue]
   Warning -.-> Admin
@@ -98,9 +103,12 @@ administrator releases manual fields. Preprocessing never calls the provider.
 The worker looks up the persisted geometry centroid and discards a result if a
 newer request or geometry revision exists; explicit manual values and their
 codes are not overwritten.
-Streaming parser batches and bounded candidate/spatial traversals remain
-[scaling roadmap work](../../geodata/horizontal-scaling-roadmap.md); durable
-repositories no longer hydrate or rewrite a service-wide snapshot.
+Uploaded GeoJSON FeatureCollections/arrays now use streaming decode and
+bounded candidate checkpoints. KML, GPX, Shapefile, complete snapshots, and
+the no-`ijson` compatibility fallback still use whole-document processing;
+the worker failure-injection and peak-memory proof also remain open. See the
+[Phase 3 evidence review](../../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
+Durable repositories no longer hydrate or rewrite a service-wide snapshot.
 
 Permanent entity deletion is a separate geodata-owned execution path on
 `myota.geodata.entity.delete.v1`, consumer `geodata-entity-deletion-v1`, not
