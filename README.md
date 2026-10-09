@@ -10,7 +10,7 @@ This repository is the organization’s documentation hub. It does not own
 service runtime code. See the [repository map](docs/repository-map.md) for
 service ownership, deployment boundaries, and migration synchronization.
 
-## Project status — 8 October 2026
+## Project status — 9 October 2026
 
 The organization has a working multi-service vertical slice: radio-aware
 identity, programme configuration, relational PostgreSQL/PostGIS geodata,
@@ -27,7 +27,10 @@ size; broader geodata scale qualification remains open. The permanent synthetic
 Sevilla set imported 10,000 features in four batches of 2,500. Three batches
 promoted 5% each (split between Candidate and Approved); the first had already
 been queued for full approval and remains as a documented lifecycle exception.
-The final catalogue has 2,875 synthetic entities. The PostGIS plans, bounded
+The measured scale-run catalogue had 2,875 synthetic entities; this is historical
+evidence, not the current live inventory. The current catalogue contains ten
+entities as verified during the [9 October editor delivery](docs/evidence/entity-catalogue-2026-10-09.md).
+The PostGIS plans, bounded
 map-load review, retained write-profile summaries, live SeaweedFS correlation,
 pre-fixture plans, and evidence limits are recorded in the [Phase 0 evidence
 record](docs/geodata-phase0-production-evidence-2026-10-08.md) and

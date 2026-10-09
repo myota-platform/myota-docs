@@ -28,10 +28,20 @@ describe current ownership and are authoritative for the present-day system.
   browser regression checks, retained CI screenshots, developer instructions,
   [editor guide](entity-catalogue-editor.md) and
   [navigation diagram](diagrams/entity-catalogue-editor.md). Local types,
-  24 unit tests, four isolated desktop/mobile browser flows and production
+  24 unit tests, five isolated desktop/mobile browser flows and production
   build passed; the browser tests block public tiles and do not mutate live data.
   Implementation: [admin `5ac4534`](https://github.com/myota-platform/myota-admin-web/commit/5ac4534).
   Browser/CI checks: [admin `2d497e2`](https://github.com/myota-platform/myota-admin-web/commit/2d497e2).
+  Follow-up [map reveal/candidate drawing fix `d36a702`](https://github.com/myota-platform/myota-admin-web/commit/d36a702)
+  and [read-only live tool `780dad8`](https://github.com/myota-platform/myota-admin-web/commit/780dad8),
+  with [origin-confined verification `2a63bf0`](https://github.com/myota-platform/myota-admin-web/commit/2a63bf0).
+  The deployed ingress and catalogue/resource/audit APIs returned 200 from K3s,
+  and the served asset contains the new editor. Desktop live-browser checks
+  were blocked by a local DNS-filter redirect; no live entity was changed.
+  Final Fleet/Helm release **103** (`myota-0.2.11`) is deployed at
+  [digest commit `1909bde`](https://github.com/myota-platform/myota-deploy/commit/1909bde),
+  Fleet 1/1 ready, with all 21 deployments at their desired Ready replicas.
+  See [delivery evidence and verification limits](evidence/entity-catalogue-2026-10-09.md).
 
 - **Storage visibility and Grafana editing:** Added a SeaweedFS Admin UI page
   at `/object-storage`, backed by operations-owned health/exporter snapshots

@@ -84,5 +84,13 @@ with public tile requests blocked, not a live load-test dataset. They cover
 draft guards, retained bulk selection/focus, partial saves, real vertex controls,
 replacement drawing, retired restrictions, stacked deletion confirmations,
 bulk completion, unchanged review decisions and a 390px mobile viewport.
+They also cover collapsed-map reveal and manual candidate drawing/submission.
 CI retains desktop/mobile screenshots in `catalogue-browser-evidence`; these
 are presentation evidence, not proof of production queue or database writes.
+
+The optional `scripts/verify-catalogue-live.mjs` smoke tool accepts an ephemeral
+access-token JSON object through stdin, confines it to the intended HTTPS
+origin, refuses cross-origin navigation, and blocks non-GET API calls/public
+tile traffic. A desktop DNS-filter redirect prevented its live browser run;
+read-only ingress/API/asset checks succeeded from the K3s host instead. See the
+[delivery evidence and limits](evidence/entity-catalogue-2026-10-09.md).
