@@ -67,8 +67,10 @@ versions.
 
 ## Phase status
 
-The Phase 2 exit gate is closed for the recorded image digest. Phase 3 remains
-open for bounded-memory parsing and worker failure-injection/recovery. Phase 5
+The Phase 2 exit gate is closed for the recorded image digest. At the time this
+Phase 2 report was completed, Phase 3 remained open; it has since passed its
+bounded parser/RSS and worker-recovery gates. See the
+[current Phase 3 report](phase3-bounded-preprocessing-2026-10-09.md). Phase 5
 still requires broader receiver-pod, worker, duplicate-delivery, storage/node
 failure, canary and rollback evidence. The verified service image was rolled
 out through Fleet/Helm after CI; see the deployment row above. See the

@@ -33,6 +33,7 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   databases and object storage were not altered.
 - **Links:** [Phase 3 roadmap](docs/geodata/horizontal-scaling-roadmap.md#phase-3--isolate-preprocessing-and-promotion-from-api-pods),
   [Phase 3 evidence](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md),
+  [implementation timeline](docs/history/implementation-timeline.md),
   [service merge](https://github.com/myota-platform/myota-geodata-service/commit/cf286931db526ad1c990ed9fa32a0db37a5ff98a),
   [image build](https://github.com/myota-platform/myota-geodata-service/actions/runs/37924977799),
   [deployment commit](https://github.com/myota-platform/myota-deploy/commit/54ac990cc156ef85d841ab089284b8c82a1c7685),
@@ -119,8 +120,9 @@ entry above records the completed bounded parser and worker-recovery gates.
   the API and worker are each 1/1 ready. The worker uses batch size 100 and
   the published service image digest recorded in the linked evidence report.
   The gateway health check passed. No production import or worker fault
-  injection was performed; Phase 3 remains open pending bounded-path and
-  worker-recovery evidence.
+  injection was performed. At this checkpoint Phase 3 remained open pending
+  bounded-path and worker-recovery evidence; those gates are closed by the
+  later [Phase 3 qualification entry](history/implementation-timeline.md#9-october-2026--geodata-phase-3-bounded-processing-and-recovery).
 
 ## 9 October 2026 — geodata Phase 2 upload recovery gate
 

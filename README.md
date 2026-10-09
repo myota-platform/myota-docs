@@ -30,9 +30,9 @@ gates in an isolated disposable K3s namespace. The focused
 33-test Phase 3 suite covered all supported file/response formats, maximum-size
 geometry, complete snapshots, forced termination/replay at parse, checkpoint,
 enrichment, and promotion stages, and graceful JetStream drain. Service CI is
-green and the implementation is merged; merged-image publication, Helm
-rollout, and post-rollout health verification are recorded in the evidence
-report. Phases 4 and 5 remain open; Phase 3 evidence does not
+green and the implementation is merged; the image is deployed to the geodata
+API and processing worker. Fleet reported 54/54 resources ready and the gateway
+health check passed. Phases 4 and 5 remain open; Phase 3 evidence does not
 authorize increasing production replicas. See the
 [Phase 3 evidence review](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
 The permanent synthetic

@@ -41,8 +41,10 @@ Promotion atomically confirms selected records and associates them with a job.
 Queued records cannot be rejected or submitted to a second promotion job.
 Entity, candidate result and audit/outbox writes share each checkpoint transaction.
 Worker failures discard uncommitted deltas before writing terminal error state.
-Parsing remains whole-source/in-memory: the remaining Phase 3 batching/streaming
-and forced-termination gates are not closed by this change.
+At the time of this Phase 1 implementation, parsing and forced-termination
+qualification remained open. Phase 3 has since added bounded streaming and
+verified worker recovery for its documented limits; see the
+[Phase 3 evidence report](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 
 Confirmed entity deletion is also dispatched through
 `myota.geodata.entity.delete.v1`, durable pull consumer

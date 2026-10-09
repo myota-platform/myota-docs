@@ -349,9 +349,10 @@ reported by the live K3s deployment. Session resume after API process restart
 and SeaweedFS container restart, durable metadata/outbox handoff, replay,
 ownership checks and abort cleanup passed in an isolated CI environment.
 Production itself was not restarted or used for test writes. Re-run this gate
-if the deployed SeaweedFS image ID changes. This phase does not qualify
-large-source parser memory or worker restart behavior; those remain Phase 3
-gates.
+if the deployed SeaweedFS image ID changes. At the time of this Phase 2
+verification, large-source parser memory and worker restart behavior remained
+Phase 3 gates. They have since passed for the documented bounds; see the
+[Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 
 ### Phase 3 — isolate preprocessing and promotion from API pods
 

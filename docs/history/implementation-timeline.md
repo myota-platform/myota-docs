@@ -2,7 +2,7 @@
 
 This timeline reconstructs the major implementation milestones from the local
 Git histories of the service, client, contract, deployment, and integration
-repositories available on 8 October 2026, cross-checked against the current
+repositories available through 9 October 2026, cross-checked against the current
 architecture and operations documentation. It is intentionally a concise
 history of meaningful system changes, not a complete commit-by-commit changelog.
 Dates are repository commit dates. A commit link points to a representative
@@ -12,6 +12,52 @@ The architecture evolved quickly during this period. Earlier entries describe
 the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
+
+## 9 October 2026 — geodata Phase 3 bounded processing and recovery
+
+- **Streaming and memory bounds:** Completed streaming parsers for GeoJSON,
+  KML, GPX, zipped Shapefile/ParkServe, and OSM PBF; WFS and ArcGIS response
+  documents use the GeoJSON path. XML preflight rejects DTDs, oversized feature
+  subtrees, and excessive element counts before ElementTree builds the feature
+  tree. OSM area rings are bounded before GeoJSON conversion. Shapefile ZIP
+  sidecars are extracted to worker-local scratch files because the streaming
+  reader did not correctly consume ZIP member streams. Imports are bounded by
+  a 16 MiB decoded-feature limit, 250,000 vertices, and 5,000 features; candidate
+  checkpoints stop at 100 features or 32 MiB serialized input. Complete
+  snapshots preflight and reopen their source instead of retaining a decoded
+  feature list.
+- **Recovery and delivery:** Added process-death/replay verification before the
+  first parse checkpoint, after a committed checkpoint, during enrichment,
+  and during promotion. Database lease reclaim replayed without duplicate
+  candidate ordinals/entities. JetStream checks covered ACK-pending release,
+  commit-before-ACK redelivery without repeating handler effects, competing
+  pull consumers, and graceful drain of an active delivery.
+- **Evidence:** The focused K3s-hosted test suite passed 33/33 tests in a
+  disposable namespace with temporary PostGIS and JetStream services. Peak RSS
+  stayed under the 96 MiB test ceiling: 42.2 MB for large JSON/XML fixtures,
+  56.2 MB for zipped Shapefile/ParkServe and OSM PBF, 67.3 MB for a valid
+  250,000-vertex geometry, and 69.7 MB for complete-snapshot processing. The
+  test namespace, its non-persistent services, temporary checkout, and
+  port-forwards were removed; application databases and object storage were not
+  changed. These figures qualify the recorded fixtures and enforced bounds,
+  not every 1 GiB input or a higher production replica count.
+- **Release:** Service changes merged as
+  [geodata service `cf28693`](https://github.com/myota-platform/myota-geodata-service/commit/cf286931db526ad1c990ed9fa32a0db37a5ff98a).
+  Python quality, load-harness, upload-session recovery, and relational-boundary
+  checks passed; the [merged image build](https://github.com/myota-platform/myota-geodata-service/actions/runs/37924977799)
+  published digest
+  `sha256:04202907b6a0e872f14aa86d9a98c7932e1c10f5b6f29fa47672b7baef4ba275`.
+  [Deployment commit `54ac990`](https://github.com/myota-platform/myota-deploy/commit/54ac990cc156ef85d841ab089284b8c82a1c7685)
+  pinned that digest; GitHub Helm rendering and repository quality passed.
+  Fleet reported 54/54 resources ready, and the geodata API and processing
+  worker rolled out successfully on the new image. The gateway health check
+  returned healthy. A follow-up deployment guide update is in
+  [`a42dbc7`](https://github.com/myota-platform/myota-deploy/commit/a42dbc7f2d1611a9d509e33e64976ca402265f33).
+- **Current gate:** Phase 3 is closed for these bounded correctness and recovery
+  criteria. Phase 4 infrastructure review and Phase 5 staged scaling/rollout
+  qualification remain open; do not infer higher-replica or broad throughput
+  safety from this evidence. See the [Phase 3 evidence report](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md)
+  and [geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md).
 
 ## 9 October 2026 — programme/award editing, UTC, catalogue and observability
 
