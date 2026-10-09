@@ -27,11 +27,11 @@ new operational evidence.
 **Current evidence:** Phase 2 API/session recovery across API and SeaweedFS
 container restarts passed in isolated CI against the exact SeaweedFS image ID
 observed in the K3s deployment; see the [Phase 2 evidence record](../geodata/evidence/phase2-upload-recovery-2026-10-09.md).
-Phase 3 now has a first bounded path for uploaded GeoJSON FeatureCollections:
-streamed decode, 100-record durable checkpoints, and committed-candidate
-eviction. KML/GPX/Shapefile/snapshot fallbacks, measured peak memory, and
-graceful/forced termination, replay, and concurrent-worker evidence remain
-open. See the [Phase 3 evidence review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
+Phase 3 now streams supported uploaded formats, applies decoder/input limits,
+and has representative GeoJSON/KML/GPX peak-RSS evidence plus local PostGIS
+checkpoint-recovery and concurrent-claim tests. Worst-case XML/PBF allocations,
+Shapefile/PBF/snapshot/remote-feed RSS, and stage-by-stage graceful/forced
+recovery and JetStream redelivery remain open. See the [Phase 3 evidence review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
 The roadmap explicitly says these gates do not authorize increasing
 production replicas. The measured Phase 0 baseline is useful but does not
 establish broader capacity.
@@ -41,10 +41,11 @@ duplicate/lost processing if upload handoff, worker checkpoints, and recovery
 are not proven. This is the clearest explicitly stated rollout gate in the
 current backlog.
 
-**Next:** extend bounded parsing/checkpoint evidence to every supported format
-and snapshot mode; measure peak RSS; add isolated CI for normal and forced
-worker termination, lease recovery, replay, and at least two concurrent
-workers; then review Phase 4 infrastructure and Phase 5 staged-rollout gates.
+**Next:** safely bound worst-case XML/PBF parser allocations; measure peak RSS
+for Shapefile, PBF, snapshot, and remote adapter inputs; add isolated CI for
+normal and forced worker termination across parsing, enrichment, candidate
+persistence, and promotion, including JetStream ACK/replay with two consumers;
+then review Phase 4 infrastructure and Phase 5 staged-rollout gates.
 Re-run Phase 2's digest-pinned recovery job when the deployed SeaweedFS image
 changes. Coordinate with the NATS and observability work below.
 

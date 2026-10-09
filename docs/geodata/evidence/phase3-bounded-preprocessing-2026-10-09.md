@@ -1,94 +1,102 @@
 # Phase 3 bounded preprocessing — implementation and exit review
 
 **Review date:** 9 October 2026  
-**Result:** Partial implementation; Phase 3 remains open.  
-**Environment:** local service validation, GitHub Actions, and read-only
-verification of the live K3s rollout. No production imports or production
-worker fault-injection were run.
+**Result:** Streaming/checkpoint and local recovery gates advanced; Phase 3 remains open.
+**Environment:** Local service validation and disposable local PostGIS tests;
+read-only K3s inspection only. No production imports, entity mutations, or
+worker fault injection were run.
 
-## Implemented in this delivery
+## Implemented and verified in this follow-up
 
-- Large uploaded source objects are copied from SeaweedFS to a worker-local
-  temporary file using bounded I/O instead of `get_object(...).read()` into one
-  Python `bytes` object. The existing upload size ceiling is checked before
-  the download.
-- GeoJSON FeatureCollections and top-level feature arrays are decoded with
-  `ijson` incrementally. Each candidate uses its stable source ordinal; the
-  worker queries only the current ordinal range, commits the configured batch,
-  and evicts committed candidate projections before continuing. The default
-  batch is 100 and can be tuned with `MYOTA_IMPORT_BATCH_SIZE` in Compose and
-  Helm values (`geodataImportProcessing.batchSize`).
-- Replayed batches re-use their existing staged IDs and preserve validation,
-  processing, and audit-related state. Run feature-count progress is persisted
-  at each checkpoint. `ijson` is installed in the service image requirements.
-- Import parser and bounded-window unit coverage was added to the geodata
-  service. The test suite verifies ordinal-window behavior, batch checkpoints,
-  candidate preservation, and iterator compatibility.
+- Uploaded object-store sources stream to worker-local scratch files rather
+  than being copied into one Python `bytes` value. Candidate checkpoints use
+  stable import ordinals, default to 100 records per batch, and evict committed
+  row projections before advancing.
+- GeoJSON FeatureCollections/arrays use `ijson`; KML yields placemarks, GPX
+  yields waypoints and track segments, zipped Shapefile/ParkServe iterates
+  records after archive/record preflight, and OSM PBF uses PyOsmium with a
+  disk-backed sparse node-location index. Recovery metadata preserves snapshot
+  policy and reopens the immutable source instead of retaining a decoded list.
+- Decoder defaults cap a decoded feature at 16 MiB and 250,000 vertices.
+  Shapefile additionally caps expanded archive size at 1 GiB, member count at
+  100, and preflights record size before pyshp decodes geometry. Every import
+  is limited to 5,000 features by default. Complete snapshots are preflighted
+  against that limit and then replayed from source in one bounded window. These
+  are enforceable input/work ceilings, not a universal worker-memory guarantee.
+- Decoder fixtures cover the implemented upload formats, archive/record guard
+  regressions, recovery format selection, and snapshot replay.
+- An RSS subprocess test parsed 300,000 GeoJSON point features at **23.9 MB
+  peak RSS** on macOS. Separate KML and GPX subprocesses each parsed 50,000
+  small records at **20.5 MB** and **20.6 MB peak RSS**, respectively. Tests
+  enforce a 96 MiB ceiling. These fixtures do not qualify a 1 GiB upload or
+  worst-case geometry.
+- In a disposable local PostGIS `*_tests` database, a worker was killed after
+  its first committed 100-record checkpoint, reclaimed, and replayed to exactly
+  250 candidates with 250 distinct ordinals and `PREPROCESSED` status. A
+  separate two-process claim race produced exactly one lease owner. Fourteen
+  relational concurrency tests, including promotion replay, also passed.
+- An interrupted earlier local test run left rows in the disposable database.
+  The test container and its anonymous data volume were removed after
+  verification, erasing those fixtures. The live K3s cluster was not written.
 
-## Limits that keep the gate open
+## Remaining qualification gaps
 
-The bounded path is not yet universal:
-
-- KML, GPX, Shapefile, and remaining accepted binary/adapter formats still use
-  their existing whole-document decoder or parser-adapter path.
-- `completeSnapshot` currently materializes the full feature set because its
-  disappearance semantics compare the entire snapshot. It must be redesigned
-  with an incremental manifest before it can use batch checkpoints safely.
-- If `ijson` is absent, GeoJSON keeps a compatibility fallback that reads the
-  complete source. The published production image installs it, but the local
-  environment had no network access to install/test the dependency branch.
-- Result/manifest bookkeeping retains per-record identifiers and hashes, so
-  metadata is still proportional to import feature count even when geometry
-  payloads are windowed.
-- No peak-RSS measurement against a representative large fixture was captured.
-- No isolated worker process/pod kill test was run during parsing, enrichment,
-  candidate persistence, or promotion. Forced termination, lease reclaim,
-  duplicate delivery under two workers, and concurrent worker claims remain
-  unverified.
+- ElementTree may materialize a large individual XML text/element before the
+  decoded-feature guard can reject it. Large OSM areas are also converted
+  before the generic decoded-geometry check. The global upload-byte ceiling
+  and feature-count limit bound total admitted work, but do not prove safe
+  worst-case peak RSS for those parser objects.
+- Peak RSS has not been measured for Shapefile, OSM PBF, complete-snapshot
+  replay, remote WFS/ArcGIS adapter responses, or worst-case individual
+  features.
+- The full local suite collected 132 tests: 114 passed and 18 were skipped
+  because isolated database/process services were not configured. The 16
+  relevant database-backed worker/concurrency tests were run separately and
+  passed.
+- Failure injection directly covers forced death after a durable candidate
+  checkpoint, database lease reclaim, replay, and competing preprocessing
+  claims. It does not yet cover death while parsing before the first checkpoint,
+  location enrichment, promotion between commit and JetStream ACK, or actual
+  JetStream redelivery/ACK-pending behavior under competing consumers.
+- Graceful shutdown/drain has code and unit coverage, but it has not been
+  combined with each worker-stage crash/replay scenario in CI.
 
 ## Validation performed
 
 - Ruff lint and format checks passed locally.
-- Full local geodata unit suite: 104 passed and 17 environment-dependent tests
-  skipped (121 tests collected).
-- Focused worker/import suite: 32 tests passed; one streaming-dependency test
-  skipped because `ijson` could not be installed on this host.
-- GitHub Actions `Python quality` passed on service commit `301bc28`; its
-  PostGIS-backed two-API regression job applied every service migration,
-  installed `requirements.txt` (including `ijson`), and passed all 121 tests
-  without skips. This verifies the actual streaming parser test path, but is
-  not a forced worker-termination or peak-RSS test.
-- The local test environment lacked `ijson`; an attempted dependency install
-  could not reach PyPI. The test that exercises the real streaming parser was
-  locally skipped, but the PostGIS-backed GitHub Actions run installed
-  `requirements.txt` and passed it without skips.
-- Service commit: [`301bc28`](https://github.com/myota-platform/myota-geodata-service/commit/301bc28).
-- Deployment configuration commit: [`890197f`](https://github.com/myota-platform/myota-deploy/commit/890197f).
-- [Python quality and PostGIS-backed CI run](https://github.com/myota-platform/myota-geodata-service/actions/runs/37913194172) passed.
-- [Geodata image build/publication](https://github.com/myota-platform/myota-geodata-service/actions/runs/37913192906) and [Helm chart validation](https://github.com/myota-platform/myota-deploy/actions/runs/37913227459) passed.
-- Fleet observed deployment commit `890197fa4f00b828a0be3b1b4ab4b645471ba89f`;
-  the `myota-deploy` BundleDeployment reached `Ready=True`. Helm release
-  revision 118 is `deployed` (chart `myota-0.2.12`; Helm history describes it
-  as a rollback to revision 117 after an intermediate pending upgrade).
-- Geodata API and import worker are each `1/1` ready. The worker has
-  `MYOTA_IMPORT_BATCH_SIZE=100` and runs image digest
-  `ghcr.io/myota-platform/myota-geodata-service@sha256:ac113bf433fe01c61eb44dd16210751ac4ebf604b0269e1a9395eaa9f4a45fad`.
-  The public gateway `/healthz` returned `{"status":"ok","service":"gateway"}`.
-- Deployment verification was read-only after Fleet reconciliation: no
-  production import, entity mutation, or failure injection was performed.
-- No isolated NATS worker-termination/reclaim test, peak-RSS measurement, or
-  production import was run; those remain open Phase 3 gates.
+- Full local unit suite: **132 collected, 114 passed, 18 environment-dependent
+  skips**. Streaming dependencies (`ijson`, `osmium`, and `pyshp`) were installed
+  in a temporary Python environment, so parser/RSS tests ran rather than
+  skipping.
+- Database-backed recovery/concurrency subset: **16 passed** against the
+  disposable local PostGIS database. The database container and volume were
+  removed afterward; no test fixtures remain.
+- No live writes, load tests, pod/service kills, or database/object-store
+  changes were performed on K3s.
+- Service implementation commit:
+  [`b5b1acb`](https://github.com/myota-platform/myota-geodata-service/commit/b5b1acb1128f025049bbec30921663ed3949078b).
+- Previous implementation/deployment evidence: service commit
+  [`301bc28`](https://github.com/myota-platform/myota-geodata-service/commit/301bc28),
+  deployment commit
+  [`890197f`](https://github.com/myota-platform/myota-deploy/commit/890197f),
+  and the associated passing build/chart/Fleet checks recorded in the prior
+  evidence entry. These results predate this follow-up and do not verify its
+  image until the new rollout completes.
 
 ## Remaining exit actions
 
-1. Make all advertised formats and complete-snapshot processing bounded or
-   define an enforceable safe fallback per format.
-2. Add a representative large-fixture RSS test and retain its result.
-3. Add isolated CI failure injection for graceful and forced worker termination
-   at each lifecycle boundary, with lease reclaim and idempotent replay.
-4. Exercise duplicate deliveries and concurrent worker claims using at least
-   two workers against an isolated PostGIS database and JetStream instance.
-5. Close the Phase 3 checklist only after the above evidence passes.
+1. Reject oversized XML/PBF objects before parser-object allocation, then
+   measure Shapefile, PBF, snapshot, and remote adapter peak RSS on large
+   representative fixtures.
+2. Add isolated CI failure injection for worker death during parse,
+   enrichment, candidate persistence, and promotion—graceful and forced—with
+   lease reclaim and idempotent replay.
+3. Run a disposable JetStream integration test for duplicate delivery,
+   competing consumers, commit-before-ACK recovery, ACK-pending, and redelivery.
+4. Append new image-build and read-only K3s deployment evidence after publishing
+   and rolling out this follow-up.
+5. Close Phase 3 only when the remaining memory and worker-stage gates have
+   retained passing evidence.
 
 See the [Phase 3 roadmap section](../horizontal-scaling-roadmap.md#phase-3--isolate-preprocessing-and-promotion-from-api-pods),
 [active work index](../../work-in-progress/README.md), and

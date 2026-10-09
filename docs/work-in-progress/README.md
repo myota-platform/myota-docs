@@ -6,10 +6,11 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
 
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
-  image digest. Phase 3 now streams ordinary GeoJSON imports into bounded
-  candidate checkpoints, but other parser/snapshot paths and worker
-  failure-injection remain open. Phase 4 infrastructure review and Phase 5
-  staged rollout gates also remain. See the [Phase 2 evidence](../geodata/evidence/phase2-upload-recovery-2026-10-09.md)
+  image digest. Phase 3 now has streaming decoders, parser guards, representative
+  GeoJSON/KML/GPX RSS results, and local PostGIS checkpoint-recovery/claim-race
+  evidence. Worst-case parser memory, snapshot/PBF/Shapefile RSS, worker-stage
+  fault injection, and JetStream redelivery remain open. Phase 4 infrastructure
+  review and Phase 5 staged rollout gates also remain. See the [Phase 2 evidence](../geodata/evidence/phase2-upload-recovery-2026-10-09.md)
   and [Phase 3 implementation/exit review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
 - [Geodata Phase 0 evidence set](../geodata/evidence/phase0-production-evidence-2026-10-08.md)
   — current measured 2,875-entity baseline, with explicit limits on broader

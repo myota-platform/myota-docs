@@ -3,6 +3,29 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 9 October 2026 — geodata Phase 3 parser and recovery follow-up
+
+- **Geodata service:** Added streaming KML, GPX, zipped Shapefile/ParkServe,
+  and OSM PBF decoders alongside incremental GeoJSON. Added feature-size,
+  vertex, archive-expansion/member, and Shapefile-record guards. Snapshot
+  preprocessing now preflights the 5,000-feature limit and reopens the
+  immutable object instead of keeping a second decoded feature list. Fixed
+  stale binary-import tests to exercise the available streaming parser.
+- **Evidence:** Local RSS subprocesses processed 300,000 GeoJSON features at
+  23.9 MB peak, and 50,000 each of KML/GPX records at 20.5/20.6 MB. Sixteen
+  database-backed recovery/concurrency tests passed against a disposable local
+  PostGIS database; its container and attached volume were removed after a
+  check found earlier interrupted-run fixtures. No live cluster writes or
+  test entities were created. Ruff passed; the full local suite had 132
+  collected, 114 passed, 18 isolated-service skips.
+- **Still open:** worst-case XML/PBF memory, all-format/snapshot/remote-adapter
+  RSS, failure injection at parsing/enrichment/promotion boundaries, and
+  JetStream ACK/redelivery behavior. Phase 3 remains incomplete and the new
+  code still needs image publication plus read-only K3s rollout verification.
+- **Links:** [Phase 3 evidence](docs/geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md),
+  [horizontal-scaling roadmap](docs/geodata/horizontal-scaling-roadmap.md),
+  [geodata service README](https://github.com/myota-platform/myota-geodata-service#readme).
+
 ## 9 October 2026 — geodata Phase 3 bounded preprocessing (partial)
 
 - **Geodata service:** Added streamed object-to-scratch downloads and an
