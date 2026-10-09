@@ -13,7 +13,7 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](repository-map.md) and [architecture](architecture.md)
 describe current ownership and are authoritative for the present-day system.
 
-## 9 October 2026 — catalogue editing and observability
+## 9 October 2026 — programme/award editing, UTC, catalogue and observability
 
 - **UTC throughout MyOTA:** Established the UTC policy across operational
   timestamps, publication dates, UI displays and Grafana. Replaced local-time
@@ -25,6 +25,14 @@ describe current ownership and are authoritative for the present-day system.
   are not rewritten. Non-UTC browser/runtime regressions cover the policy.
   See the [UTC runbook](utc-time-policy.md) and
   [delivery evidence](evidence/programme-awards-2026-10-09.md).
+  Final Helm **0.2.12 revision 111** is deployed, Fleet **1/1 Ready** at
+  [digest commit `4a5b650`](https://github.com/myota-platform/myota-deploy/commit/4a5b650),
+  and all **21 deployments** are Ready. Live checks confirmed both programme
+  details, all four PDF paper/orientation combinations, UTC UI controls,
+  Grafana's UTC default and all five UTC dashboard settings. Eleven browser
+  flows, 26 frontend unit tests, activity/programme/runtime regressions,
+  contract checks and GitHub Helm rendering passed. No existing live policy
+  or award was modified; live artwork uploads/draft writes were not exercised.
 
 - **Programme and award editing:** Fixed reactive-copy failures and selection
   races that left programme identifier/name fields empty, aligned form fields

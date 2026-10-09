@@ -14,6 +14,12 @@ are complete; see [`charter-gap-analysis.md`](charter-gap-analysis.md).
 
 ## Service boundaries
 
+Cross-cutting time semantics follow the [UTC policy](utc-time-policy.md): all
+operational date-times, QSO/activation timestamps, publication effective dates,
+audit/events and observability use UTC. Browser/server local timezone must not
+change an instant; programme configuration does not override operational time.
+Existing database timestamps are not rewritten when applying this convention.
+
 ```mermaid
 flowchart LR
   UI[Universal web frontend] --> G[API gateway / ingress]

@@ -6,6 +6,11 @@ coverage for identity and programmes; see [current verification and gaps](#live-
 
 ## What was confirmed
 
+All five provisioned dashboards explicitly use UTC, and Grafana's Compose/Helm
+default is UTC for new/ad-hoc dashboards. Operational NATS/SeaweedFS history
+displays also identify UTC. The last-30-minutes and 30-second refresh defaults
+are unchanged; see the [system-wide UTC policy](utc-time-policy.md).
+
 The original Grafana panels were not seeded with fabricated business values.
 They were incomplete: request counters lived in each process and reset on a
 restart, while most business panels had no durable user, entity, QSO, or award
