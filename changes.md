@@ -3,6 +3,20 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 10 October 2026 — NATS Phase 1 durable configuration validation
+
+- Hardened the deploy-owned JetStream provisioner to pin and verify explicit ACK,
+  instant replay, bounded pull waiters and pending deliveries, retry settings,
+  inherited consumer replicas, durable state storage, and full-payload delivery.
+  Normalized NATS server responses that omit false-valued optional settings.
+- Four focused tests and Ruff format/lint passed in deploy and its synchronized
+  platform mirror. An isolated host-K3s broker accepted initial provisioning and
+  an idempotent rerun for three streams and ten durables; its namespace was
+  removed and verified absent. No deployed topology or application path changed.
+  Phase 1 remains open. See the [evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
+  [plan](docs/operations/messaging/nats-event-migration-plan.md), and
+  [implementation timeline](docs/history/implementation-timeline.md).
+
 ## 9 October 2026 — NATS Phase 1 contract and provisioner preparation
 
 - Added the contracts-owned fact/work registry and envelope schema baseline,

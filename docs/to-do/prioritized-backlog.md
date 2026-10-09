@@ -69,20 +69,18 @@ separate `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` WorkQueue streams. Phase
 1 has started: the contracts repo lists 68 facts and ten work commands and has
 outer-envelope schemas; a create-only provisioner validates finite limits and
 configuration drift. Contract/deploy checks, platform unit tests, and Ruff
-format/lint CI pass. The platform container build is unverified after two
+format/lint CI pass. The expanded consumer configuration also passes four
+focused tests and an isolated create/idempotency run against a disposable broker.
+The platform container build is unverified after two
 Docker Hub token timeouts. The payload schemas are still incomplete. The
 deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
 and no live migration or runtime change has occurred. Read-only sampling found
 19,103 outbox rows spanning only
 2–9 October and an unusually large Geodata payload; that is not a full-window
 capacity forecast. Credentials, numeric limits, broker restore/replay evidence,
-and relay-side provisioning behavior remain open. The artifacts are awaiting
-review in [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
-[deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
-[platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
-and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
-See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
-
+and relay-side provisioning behavior remain open. The contracts #2, deploy #4,
+platform mirror #1, and organization profile #1 PRs are merged; merge SHAs and CI
+outcomes are recorded in the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
 **Why second:** accepted asynchronous work must survive relay/worker restarts
 without losing or duplicating domain effects. The selected topology is now
 recorded, so the remaining priority is to establish the contract and safe

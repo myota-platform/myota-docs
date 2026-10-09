@@ -6,13 +6,13 @@ was changed. This record does not satisfy the Phase 1 exit criteria.
 
 ## Work completed in this pass
 
-The implementation artifacts are published for review: [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
+The implementation artifacts were merged: [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
 [deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
 [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
 and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
-These pull requests remain open and unmerged; the local checks below do not
-represent production approval. CI results are recorded in the verification
-table below.
+The merge commits are contracts `1ed27b6`, deploy `b1038e6`, platform `38f0d69`,
+and organization profile `a3cbc2c`. Merge closes review status; it is not production
+approval. CI results are recorded in the verification table below.
 
 - `myota-contracts/contracts/event-registry.json` now lists 68 domain facts,
   maps the six legacy Geodata work event types to four proposed commands, and
@@ -86,6 +86,23 @@ commands reference stored data instead of copying import content.
 - Exercise backup/restore, stream and durable recreation, disk-pressure
   backpressure, and bounded fact replay against an isolated broker. The local
   executor has no Docker CLI, and the shared live broker was not modified.
+
+## 10 October 2026 follow-up
+
+The deploy-owned provisioner now pins and checks correctness-sensitive durable
+consumer settings: explicit ACK, all-message/instant replay, bounded pending and
+waiting pulls, redelivery count and timeout, inherited stream replicas, durable
+file-backed consumer state, and full payload delivery. Drift in waiting-pull or
+header-only delivery is rejected. These settings were copied to the platform
+integration mirror. Four focused tests passed in both deploy and platform. Ruff format check and lint
+passed in both repositories; the deploy-owned files and documentation compare
+byte-for-byte with the platform mirror. A disposable `nats:2.10-alpine` broker in a
+temporary host-K3s namespace accepted initial provisioning and an idempotent second
+run for all three streams and ten durables. The broker exposed omitted false-valued
+`mem_storage` and `headers_only` fields; the validator now compares effective
+boolean behavior. The namespace was deleted and verified absent. The local `nats-py`
+and Ruff tools were installed in temporary virtual environments, not system Python.
+The live topology and producer/consumer runtime paths were not modified.
 
 The isolated test ran in a temporary namespace on the host's K3s cluster. It
 used an emptyDir-backed NATS pod and the already-deployed application image with

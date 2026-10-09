@@ -294,26 +294,27 @@ implementation complete. Report missing evidence and Phase 0 exit criteria.
 
 ### Phase 1 — Contracts, topology, provisioning, and operational safety
 
-**Current status (9 October 2026):** the first registry/schema and create-only
+**Current status (10 October 2026):** the first registry/schema and create-only
 provisioner artifacts are implemented and their focused local checks pass. No
 live topology or producer/consumer path changed. Payload schemas, least-privilege
 credentials, measured capacity limits, restore/replay qualification, and removal
 of legacy relay provisioning remain open. An isolated host-cluster broker test
 created all target streams/durables, passed an idempotent second run, and rejected
-configuration drift; its temporary namespace was removed. See the [Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md)
+configuration drift; its temporary namespace was removed. The 10 October follow-up
+also validates the expanded durable consumer configuration on a disposable broker.
+See the [Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md)
 and [current/target topology diagrams](../../architecture/diagrams/nats-event-migration.md).
 
 **Verified preparation (does not satisfy the phase exit criteria):**
 
-The implementation artifacts are awaiting review in [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
+All four implementation PRs are merged: [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
 [deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
 [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
 and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
-They are not merged and do not authorize live provisioning or runtime changes.
-Ruff formatting and lint pass in the contracts and deploy pull requests and in
-the platform mirror; its test workflow also passes. The platform image-build job
-could not start because Docker Hub token requests timed out twice. See the
-[Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md).
+Merge records and CI results are in the [Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md).
+Merging does not authorize live provisioning or runtime changes. The platform
+unit-test and Ruff jobs passed; the image-build job could not obtain a Docker Hub
+token on two attempts and remains unverified.
 
 - [x] Add a contracts-owned registry for all 68 inventory facts, six legacy
       Geodata work/recovery event types mapped to four commands, and six
@@ -339,9 +340,9 @@ could not start because Docker Hub token requests timed out twice. See the
       failure operator-visible and actionable.
 - [ ] Implement safe stream/consumer provisioning as a controlled deployment step or
       idempotent reconciler with drift detection. Avoid multiple relay replicas
-      racing to mutate stream configuration. Validate complete consumer config, not
-      only filter and ack policy. Apply least-privilege NATS credentials per relay
-      and worker role.
+      racing to mutate stream configuration. Validate all correctness-sensitive
+      consumer settings, including replay, waiting-pull, delivery, and storage
+      behavior. Apply least-privilege NATS credentials per relay and worker role.
 - [ ] Implement the selected stream topology: bounded Limits retention on
       `MYOTA_EVENTS`, WorkQueue retention on the Activity and Geodata work streams,
       finite limits and `DiscardNew`. Derive numeric caps from measured traffic and
@@ -357,7 +358,11 @@ could not start because Docker Hub token requests timed out twice. See the
 The machine-readable registry currently covers 68 domain facts and ten selected
 work commands. The six current Geodata work/recovery event types map to four
 target commands. Envelope wrappers exist, but event payload fields remain pending
-owner review; do not treat this draft registry as complete enforcement.
+repository evidence review; do not treat this draft registry as complete enforcement.
+The deploy-owned provisioner now fixes and validates pull delivery mode, explicit
+ACK, replay policy, retry limits, pending and waiting-pull bounds, consumer replicas,
+and full-payload delivery. The same source is synchronized to the platform mirror and has passed the
+disposable-broker idempotency check.
 
 **Exit criteria**
 

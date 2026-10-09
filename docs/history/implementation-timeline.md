@@ -2,7 +2,7 @@
 
 This timeline reconstructs the major implementation milestones from the local
 Git histories of the service, client, contract, deployment, and integration
-repositories available through 9 October 2026, cross-checked against the current
+repositories available through 10 October 2026, cross-checked against the current
 architecture and operations documentation. It is intentionally a concise
 history of meaningful system changes, not a complete commit-by-commit changelog.
 Dates are repository commit dates. A commit link points to a representative
@@ -41,16 +41,18 @@ describe current ownership and are authoritative for the present-day system.
   See the [evidence record](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
   [plan](../operations/messaging/nats-event-migration-plan.md), and
   [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
-  Preparation is published in open, unmerged [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
-  [deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
-  [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
-  and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
+  The contracts #2, deploy #4, platform mirror #1, and organization profile #1
+  PRs are merged. Merge records are linked from the evidence report. This closes
+  review status only; Phase 1 exit gates remain open.
 - **CI follow-up:** Corrected Ruff formatting in the contracts and deploy
   implementations and synchronized platform mirrors. Contract checks, deployment
   Ruff formatting/lint, and platform tests plus Ruff formatting/lint pass. The
   platform image-build job timed out requesting a Docker Hub token on two
   attempts; image-build status remains unverified. The Phase 1 prompt above
-  remains the single prompt for this phase.
+  remains the single prompt for this phase. On 10 October, the deploy-owned
+  provisioner was hardened to pin and verify consumer replay, pull-wait, delivery,
+  storage, and payload settings; four focused topology/provisioner tests passed.
+  This follow-up did not change a live stream or producer/consumer runtime path.
 
 **Prompt used** (the copyable Phase 1 prompt in the plan):
 

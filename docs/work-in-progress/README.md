@@ -8,19 +8,19 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   Phase 0 inventory, topology decision, and owner assignments are complete.
   Phase 1 is underway: contracts now list 68 domain facts and ten proposed work
   commands; a create-only, drift-checking provisioner requires explicit finite
-  limits. Contract/deploy checks, platform unit tests, and Ruff format/lint CI
-  pass. The platform container build is unverified after two Docker Hub token
+  limits and validates delivery, replay, waiting-pull, and consumer state settings.
+  Four focused tests and Ruff format/lint pass in deploy and its platform mirror;
+  isolated JetStream provisioning and its idempotent rerun pass. The platform container build remains unverified after two Docker Hub token
   timeouts. The per-event payload
   contracts, authenticated least-privilege NATS roles, measured capacity limits,
   restore/replay test, and removal of relay-side provisioning remain open. The
   deployed shared `MYOTA_EVENTS` stream still uses Interest retention; no
   producer/consumer path or live stream has changed. See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
-  Phase 1 preparation is under review in [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
-  [deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
-  [platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
-  and [organization profile #1](https://github.com/myota-platform/.github/pull/1);
-  none is merged yet.
+  The contracts, deploy, platform mirror, and organization profile PRs (#2, #4, #1,
+  and #1) are merged. Phase 1 remains in progress: payload evidence, authenticated
+  least-privilege roles, capacity limits, recovery qualification, and relay-side
+  topology mutation are still open.
   Volker Kerkhoff (`@kerk1v`) is assigned, with Codex pairing support. Evidence
   work is tracked in [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1),
   [Identity #1](https://github.com/myota-platform/myota-identity-service/issues/1),

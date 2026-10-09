@@ -51,6 +51,8 @@ flowchart LR
 ```
 
 **Status:** Phase 0 is complete. Phase 1 contract and create-only provisioning
-preparation is in progress and its review PRs remain open. Ruff formatting/lint
-and application test jobs pass; the platform image build could not reach Docker
-Hub on two attempts. No target stream or runtime path has been changed.
+preparation is in progress and the contracts, deploy, platform mirror, and
+organization profile PRs have merged. Ruff formatting/lint and application test
+jobs pass; the platform image build could not reach Docker Hub on two attempts.
+The provisioner now validates additional durable safety settings. No target stream
+or producer/consumer runtime path has changed.
