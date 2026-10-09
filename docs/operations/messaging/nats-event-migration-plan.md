@@ -51,15 +51,17 @@ subject without a matching durable interest can be discarded, and acknowledged
 messages are not an event archive. PostgreSQL domain state, outbox/dead-letter
 records, and consumer idempotency/checkpoint state remain authoritative.
 
-### Event/work inventory to close in Phase 0
+### Event/work inventory evidence
 
-The event contract lists representative versioned event names, but it is not yet
-a machine-checked exhaustive catalogue. Phase 0 must extract all event writes
-from service code, SQL migrations/recovery migrations, and test fixtures; map
-each to producer database, subject, schema/version, intended consumer(s),
-retention needs, and owner; and distinguish notification-only facts from
-commands/work requests. Include static review of generated/synchronized copies
-in `myota-platform` and `myota-deploy`, which are mirrors rather than owners.
+The [Phase 0 inventory and decision proposal](nats-event-migration-inventory.md)
+records the repository-source event scan, current subject derivation, explicit
+Geodata work routes, Activity job queue, recovery migration, relay and consumer
+behavior, deployment ownership, and mirror comparisons. It distinguishes
+observed subscribers from proposed consumers and records unresolved evidence.
+The event contract remains a representative list, not a machine-checked event
+catalogue. The inventory proposes a topology but does not record owner approval.
+Phase 0 remains open until the pending approval and evidence gates in that
+document are resolved.
 
 Do not silently turn every domain event into a command queue. Preserve the
 distinction:
@@ -120,13 +122,13 @@ distinction:
 
 **Work**
 
-- [ ] Produce the exhaustive producer/event/subject/consumer matrix across all five
+- [x] Produce the exhaustive producer/event/subject/consumer matrix across all five
       services, outbox relay, existing DB job queue, recovery migrations, and
       deployment mirrors.
-- [ ] Identify every accepted asynchronous request path, including Activity's
+- [x] Identify every accepted asynchronous request path, including Activity's
       PostgreSQL `claim_job` worker loop. Label each as domain event, work command,
       scheduled/reconciliation task, or synchronous request.
-- [ ] For each event, document the owning service, event schema/version, transaction
+- [x] For each event, document the owning service, event schema/version, transaction
       boundary, current and target subject, independent durable groups, idempotency
       key, retry/dead-letter policy, retention/replay requirement, and API/business
       impact if delayed or lost.
@@ -141,11 +143,11 @@ distinction:
 
 **Exit criteria**
 
-- [ ] Every outbox event write and database-backed asynchronous job is accounted
+- [x] Every outbox event write and database-backed asynchronous job is accounted
       for; each has a disposition and owner.
 - [ ] Stream/retention topology and activity-job migration scope are approved in
       documentation before implementation changes begin.
-- [ ] Mirrored files and authoritative repositories are explicitly identified.
+- [x] Mirrored files and authoritative repositories are explicitly identified.
 
 **ChatGPT prompt — Phase 0**
 
