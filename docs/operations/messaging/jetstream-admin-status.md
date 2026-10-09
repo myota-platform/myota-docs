@@ -19,6 +19,13 @@ ACK, purge, retry or delete controls on this page.
 
 ## What is shown
 
+This view reports the live broker, not the selected migration target. As of
+9 October 2026, the deployed `MYOTA_EVENTS` stream still mixes facts and
+Geodata work with Interest retention. Phase 1 has added isolated provisioning
+preparation only; no live stream or consumer settings have changed. See the
+[migration plan](nats-event-migration-plan.md), [evidence](evidence/phase1-contract-topology-2026-10-09.md),
+and [current/target diagram](../../architecture/diagrams/nats-event-migration.md).
+
 Streams: subjects, retained message count/bytes, storage and retention type,
 sequence range, consumer count and explicit truncation warnings.
 Consumers: durable name, filter subjects, pending and ack-pending deliveries,

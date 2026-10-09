@@ -32,14 +32,21 @@ with a missing configured URL then fails during startup instead of silently
 falling back to process memory. Psycopg's bounded connection pools provide one
 transaction boundary per request, startup retries five times with exponential
 backoff, and shutdown closes the pool. State, idempotency responses and events
-are committed together. `outbox_event` is relayed by the core and geodata
-workers to NATS JetStream. Claiming uses `FOR UPDATE SKIP LOCKED`, NATS message
-deduplication uses the event ID, and repeated failures are delayed and then
-written to `dead_letter_event`.
+are committed together. `outbox_event` is relayed by three database-specific
+core, activity, and geodata outbox workers to NATS JetStream. Claiming uses
+`FOR UPDATE SKIP LOCKED`, NATS message deduplication uses the event ID, and
+repeated failures are delayed and then written to `dead_letter_event`. The
+current shared `MYOTA_EVENTS` stream uses Interest retention and includes both
+fact and legacy Geodata work subjects. Phase 1 of the selected NATS migration
+is in progress; the target topology has not been applied. See the
+[migration plan](messaging/nats-event-migration-plan.md) and
+[current/target diagram](../architecture/diagrams/nats-event-migration.md).
 
-The current runtime event envelope is versioned by its `*.v1` event type. A
-consumer must tolerate additive fields, reject incompatible schema versions, and
-record a checkpoint/idempotency key before applying a side effect. The
+The current runtime has no separate envelope version; event types use a `.v1`
+suffix and the relay includes mutable attempt metadata. The target envelope
+separates `envelopeVersion` from event type versions. A consumer must tolerate
+approved additive fields, reject unsupported event versions, and record a
+checkpoint/idempotency key before applying a side effect. The
 `consumer_checkpoint` table is reserved for those consumers.
 
 The activity API uses a bounded request server and defaults to three stateless

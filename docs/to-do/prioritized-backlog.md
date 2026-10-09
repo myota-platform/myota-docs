@@ -65,15 +65,16 @@ and the active [Work in progress index](../work-in-progress/README.md).
 **Current evidence:** Phase 0's exhaustive inventory and decision record are
 complete. [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md)
 selects `MYOTA_EVENTS` with bounded Limits retention for domain facts, plus
-separate `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` WorkQueue streams. The
-plan records dotted event subjects, `envelopeVersion: 1`, checked-in event
-schemas, the six Activity job kinds to migrate, the state-only
-`NOTIFICATION_SEND` exception, and Geodata's four work kinds. The current
-runtime still uses the shared Interest-retained `MYOTA_EVENTS` stream; no
-runtime migration or production qualification is claimed. Remaining evidence
-gates have named work items assigned to Volker Kerkhoff (`@kerk1v`), with Codex
-pairing support. Recent award evidence also records that the platform
-integration test was not run against an isolated NATS broker.
+separate `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` WorkQueue streams. Phase
+1 has started: the contracts repo lists 68 facts and ten work commands and has
+outer-envelope schemas; a create-only provisioner validates finite limits and
+configuration drift. Two contract tests and three topology tests pass. The
+payload schemas are still incomplete. The deployed broker remains a single
+Interest-retained stream with an 8 GiB PVC, and no live migration or runtime
+change has occurred. Read-only sampling found 19,103 outbox rows spanning only
+2–9 October and an unusually large Geodata payload; that is not a full-window
+capacity forecast. Credentials, numeric limits, broker restore/replay evidence,
+and relay-side provisioning behavior remain open. See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
 
 **Why second:** accepted asynchronous work must survive relay/worker restarts
 without losing or duplicating domain effects. The selected topology is now
@@ -81,13 +82,13 @@ recorded, so the remaining priority is to establish the contract and safe
 provisioning, close the evidence gate for each affected flow, and verify relay,
 consumer, and recovery behavior before cutover.
 
-**Next:** implement Phase 1's schema/registry, deterministic single provisioner,
-finite stream limits, and restore/replay procedures. Complete the linked owner
-work items. Then execute relay, event-consumer, Activity-work, and Geodata-work
-cutovers in dependency order; do not change a producer/consumer path until its
-evidence gate is met or explicitly accepted with a time-bounded recovery plan.
-Use the isolated-broker test gap as a concrete verification item, not as evidence
-that production delivery is failing.
+**Next:** close Phase 1 payload and subscriber contracts, establish secure
+per-role broker access, derive limits from representative traffic and the
+allocated volume, and run restore/replay tests on an isolated broker. Remove
+relay-side topology mutation before provisioning can be used. Do not begin
+Phase 2 behavior changes until Phase 1 exit criteria pass, and do not change a
+producer/consumer path until its evidence gate is met or explicitly accepted
+with a time-bounded recovery plan.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [JetStream operations status](../operations/messaging/jetstream-admin-status.md),

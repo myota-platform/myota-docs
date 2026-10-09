@@ -13,6 +13,80 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 9 October 2026 — NATS migration Phase 1 contract and provisioner preparation
+
+- **Contract baseline:** Added a contracts-owned registry for 68 domain facts,
+  six proposed Activity work commands, and four proposed Geodata work commands.
+  Added event/work envelope schemas and generated per-event outer-envelope
+  schemas. Payload contracts remain pending owning-service review.
+- **Provisioning:** Added a create-only, drift-checking JetStream provisioner
+  that requires explicit finite capacity values and refuses to change existing
+  streams or durables. Added a disabled-by-default Compose profile and a
+  provisioning runbook. No producer, consumer, or live stream changed.
+- **Observed evidence:** Read-only inspection found the deployed single
+  `MYOTA_EVENTS` stream still uses Interest retention and has no finite
+  byte/message caps; the NATS PVC requests 8 GiB and server args show no auth
+  configuration. Three outbox databases had 19,103 rows in the measured 30-day
+  query window, but the rows span only 2–9 October and include test load, so
+  they do not establish 30-day capacity. The Phase 1 evidence report records
+  exact per-database figures and limits.
+- **Verification and disposition:** Two contract tests and three topology
+  tests passed; Python compilation and diff checks passed. An isolated host-K3s
+  JetStream broker created all target streams and work durables, accepted an
+  identical second provision, rejected changed capacity configuration without
+  mutation, and passed a subsequent matching recheck. The temporary namespace
+  was deleted. Live provisioning, restore/replay qualification,
+  least-privilege credentials, payload schemas, and relay-side provisioning
+  removal remain open. Phase 1 is not complete.
+  See the [evidence record](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
+  [plan](../operations/messaging/nats-event-migration-plan.md), and
+  [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
+
+**Prompt used** (the copyable Phase 1 prompt in the plan):
+
+```text
+Implement the selected Phase 1 NATS contract and topology decisions recorded in
+myota-docs/docs/operations/messaging/nats-event-migration-plan.md and ADR-0008. First read
+the Phase 0 inventory and repository ownership map. Do not expand scope beyond the
+approved topology.
+
+Review the Phase 0 evidence ownership and gates table. Contract, schema, registry,
+and isolated provisioning work may proceed, but do not apply live stream changes
+or change producer/consumer behavior until the relevant gap is closed or the
+specified owners record the required time-bounded risk acceptance and recovery
+plan.
+
+Update the authoritative myota-contracts event documentation/schema and any required
+owning-service helpers. Define the versioned envelope, stable message ID, subject
+naming/registry, event versus work-command classification, consumer-group naming,
+unknown-version behavior, payload bounds, correlation/causation fields, and backward
+compatibility rules. Update synchronized myota-platform/myota-deploy contract copies
+only through their documented sync process.
+
+Make JetStream stream and durable-consumer provisioning deterministic and
+drift-checked. Register every producer subject, but provision durables only for
+independent consumer groups with an intended business use; do not create broad
+no-op consumers for Limits-retained facts. Provision required consumers before
+relying on their processing. Implement the single controlled provisioner specified
+in ADR-0008; relay replicas must not concurrently mutate stream configuration.
+Validate all correctness-sensitive consumer settings.
+Add least-privilege credentials and deployment configuration for each relay/worker
+role. Add registry/contract checks that fail when a producer subject lacks schema,
+owner, consumer disposition, provisioning and documentation.
+
+Document retention limits, restore/replay and recovery procedures; preserve
+PostgreSQL as system of record and Operations as read-only broker inspection. Update
+myota-docs and operator docs. Add focused tests for routing, schema compatibility,
+provisioning drift, and unknown subjects only where the repository's existing test
+conventions support them. Keep mirrors synchronized and list every changed
+repo/file.
+
+Before editing, state the approved topology you found. If the ADR and plan conflict
+or the Phase 0 decision is absent, stop runtime changes and report the conflict with
+file references. At completion report evidence and remaining gates; do not claim
+later phases complete.
+```
+
 ## 9 October 2026 — NATS migration Phase 0 inventory and decision
 
 - **Inventory and decision:** Completed the cross-repository inventory of

@@ -18,7 +18,11 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  phased event/work migration roadmap, [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md), and [selected topology decision](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+  Phase 0 complete and Phase 1 contract/provisioner work in progress; see the
+  [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
+  [Phase 1 evidence](operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
+  [current/target diagrams](architecture/diagrams/nats-event-migration.md), and
+  [selected topology decision](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, prompts, and recent verification.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA

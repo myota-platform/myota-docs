@@ -2,6 +2,11 @@
 
 Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diagrams/service-boundaries.md), [`diagrams/programme-configuration-lifecycle.md`](diagrams/programme-configuration-lifecycle.md), and [`diagrams/data-model.md`](diagrams/data-model.md). This document remains the narrative architecture reference; the diagrams intentionally show the major ownership and lifecycle relationships without replacing detailed API or migration documentation.
 
+The current versus selected NATS event/work topology is kept separately in the
+[NATS migration diagram](diagrams/nats-event-migration.md). Phase 0 is complete;
+Phase 1 contract/provisioning preparation is in progress. The selected target is
+not deployed.
+
 ## Scope
 
 MyOTA is an Outdoor Activation Platform. A programme is configuration and policy data consumed by platform capabilities. MPOTA is only an optional programme-configuration example; entity seed data is no longer replayed. Future programmes use the same APIs without cloning a codebase. The platform does not copy, inherit or silently normalize another programme's charter, rules, minimum QSOs, award logic or eligibility policy. Those are programme-owned inputs, versioned and auditable as configuration or programme code.
@@ -49,7 +54,13 @@ processing. Core and activity use plain PostgreSQL. PostGIS is installed only
 where spatial indexes, geometry validation, conflation and QGIS integration
 require it: `myota_geo`.
 
-Each service owns its database tables and publishes events. No service reads another service's tables. The gateway/ingress is a routing boundary, not a domain owner.
+Each service owns its database tables and writes outbox events in its database.
+Three database-specific relays publish from core, activity, and geodata. No
+service reads another service's tables. The gateway/ingress is a routing
+boundary, not a domain owner. The current NATS stream still mixes facts and
+Geodata work with Interest retention; the selected bounded fact/work split is
+recorded in [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md)
+and remains unimplemented.
 
 The operations service owns timestamped broker samples in the control-plane
 database; domain workers still consume their own queues. Its

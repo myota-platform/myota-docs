@@ -12,9 +12,11 @@ documentation evidence and does not set delivery dates.
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phase 0 inventory and target topology are complete. Phase 1 contract and
-  provisioning work remains; runtime migration has not started. Active evidence
-  assignments are listed in [Work in progress](../work-in-progress/README.md).
+  — Phase 0 is complete; Phase 1 contract/schema and create-only provisioner
+  preparation is underway. Its payload, security, capacity, restore, and live
+  topology gates remain open. No producer/consumer migration has started. See
+  [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
+  and [Work in progress](../work-in-progress/README.md).
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
   Phase 5 remains planned until usage is measured and clients migrate.
 - [Programme configuration gaps](../domain/programmes/configuration-gap-analysis.md)

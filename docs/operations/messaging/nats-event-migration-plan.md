@@ -1,7 +1,8 @@
 # NATS JetStream event and work-queue migration plan
 
 **Status:** Phase 0 inventory and decision record complete. Phases 1–6 cover
-runtime implementation and qualification; none is claimed complete.
+runtime implementation and qualification. Phase 1 contract/provisioning
+preparation is in progress; no phase after Phase 0 is claimed complete.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -293,6 +294,25 @@ implementation complete. Report missing evidence and Phase 0 exit criteria.
 
 ### Phase 1 — Contracts, topology, provisioning, and operational safety
 
+**Current status (9 October 2026):** the first registry/schema and create-only
+provisioner artifacts are implemented and their focused local checks pass. No
+live topology or producer/consumer path changed. Payload schemas, least-privilege
+credentials, measured capacity limits, restore/replay qualification, and removal
+of legacy relay provisioning remain open. An isolated host-cluster broker test
+created all target streams/durables, passed an idempotent second run, and rejected
+configuration drift; its temporary namespace was removed. See the [Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md)
+and [current/target topology diagrams](../../architecture/diagrams/nats-event-migration.md).
+
+**Verified preparation (does not satisfy the phase exit criteria):**
+
+- [x] Add a contracts-owned registry for all 68 inventory facts, six legacy
+      Geodata work/recovery event types mapped to four commands, and six
+      proposed Activity work commands, with per-fact outer-envelope schemas.
+- [x] Add create-only provisioning for the three target streams and ten work
+      durables; verify initial creation, idempotent repeat, and drift rejection
+      on an isolated broker. Capacity values used in that test are not
+      production limits.
+
 **Work**
 
 - [ ] Define/enforce the selected immutable envelope with `envelopeVersion: 1`,
@@ -323,6 +343,11 @@ implementation complete. Report missing evidence and Phase 0 exit criteria.
 - [ ] Add a consumer registry and contract fixtures so event publishers cannot add a
       subject without updating schema, intended subscriber, durable provisioning,
       docs, and compatibility checks.
+
+The machine-readable registry currently covers 68 domain facts and ten selected
+work commands. The six current Geodata work/recovery event types map to four
+target commands. Envelope wrappers exist, but event payload fields remain pending
+owner review; do not treat this draft registry as complete enforcement.
 
 **Exit criteria**
 

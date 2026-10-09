@@ -6,9 +6,14 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md) —
   Phase 0 inventory, topology decision, and owner assignments are complete.
-  ADR-0008 selects a bounded Limits fact stream and separate Activity/Geodata
-  WorkQueue streams. Runtime implementation and production qualification remain
-  open; the current shared `MYOTA_EVENTS` stream still uses Interest retention.
+  Phase 1 is underway: contracts now list 68 domain facts and ten proposed work
+  commands; a create-only, drift-checking provisioner requires explicit finite
+  limits. Two contract and three topology tests pass. The per-event payload
+  contracts, authenticated least-privilege NATS roles, measured capacity limits,
+  restore/replay test, and removal of relay-side provisioning remain open. The
+  deployed shared `MYOTA_EVENTS` stream still uses Interest retention; no
+  producer/consumer path or live stream has changed. See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
+  and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
   Volker Kerkhoff (`@kerk1v`) is assigned, with Codex pairing support. Evidence
   work is tracked in [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1),
   [Identity #1](https://github.com/myota-platform/myota-identity-service/issues/1),

@@ -164,6 +164,14 @@ geometries. This keeps cancellation responsive when other datasets are large.
 
 ### JetStream event retention
 
+**Current-state runbook:** the instructions below describe the deployed legacy
+topology and are not the ADR-0008 target. Phase 1 contract/provisioner work is
+in progress, but no live broker configuration or producer/consumer path has
+changed. Do not run the target provisioner against the deployed broker until
+the [migration plan](messaging/nats-event-migration-plan.md) gates and a reviewed
+cutover procedure are complete. Current versus selected state is shown in the
+[topology diagrams](../architecture/diagrams/nats-event-migration.md).
+
 `MYOTA_EVENTS` is a file-backed JetStream stream with **Interest** retention,
 not an event-history log. It retains a message while at least one durable
 consumer whose subject filter matches has not acknowledged it. Once every

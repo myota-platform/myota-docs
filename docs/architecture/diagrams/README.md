@@ -24,3 +24,5 @@ the linked implementation/evidence document is authoritative for status.
 - [Activity and award jobs](activity-award-jobs.md)
 - [API Phase 4 client and operational migration](api-phase4-operational-migration.md)
 - [OpenTelemetry observability architecture](observability-architecture.md)
+- [NATS current and selected event/work topologies](nats-event-migration.md) —
+  live deployment versus the ADR-0008 target, with phase status.

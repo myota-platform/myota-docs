@@ -3,6 +3,19 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 9 October 2026 — NATS Phase 1 contract and provisioner preparation
+
+- Added the contracts-owned fact/work registry and envelope schema baseline,
+  plus a create-only JetStream provisioner with finite required limits and
+  drift rejection. Focused tests and an isolated host-K3s broker test passed;
+  the temporary broker namespace was removed.
+- Read-only live inspection confirmed the deployed shared `MYOTA_EVENTS` stream
+  still uses Interest retention and has no finite byte/message caps. No live
+  topology or runtime path changed. Payload schemas, credentials, measured
+  limits, restore/replay evidence, and relay-side provisioning removal remain
+  open, so Phase 1 is not complete. See the [evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
+  and [plan](docs/operations/messaging/nats-event-migration-plan.md).
+
 ## 9 October 2026 — geodata Phase 5 staged rollout evidence
 
 - **K3s rollout and recovery:** Replaced the two Geodata API pods one at a time

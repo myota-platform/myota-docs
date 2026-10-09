@@ -4,7 +4,9 @@
 
 Accepted for the target design by the workspace owner. Phase 0 inventory,
 decision, and evidence-owner assignments are complete. Runtime implementation,
-evidence closure, and production qualification remain open.
+evidence closure, and production qualification remain open. Phase 1 contract
+and create-only provisioner preparation has begun; it has not changed the live
+topology. See the [Phase 1 evidence record](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
 
 ## Context
 
