@@ -1,7 +1,10 @@
 # Geodata
 
 - [Horizontal-scaling roadmap](horizontal-scaling-roadmap.md) — current phase
-  status, capacity limits, and remaining rollout gates.
+  status, verified Phase 2 upload recovery, capacity limits, and remaining
+  rollout gates.
+- [Phase 2 upload-recovery evidence](evidence/phase2-upload-recovery-2026-10-09.md)
+  — restart/resume evidence against the current deployed SeaweedFS image ID.
 - [Phase 1 relational authority](phase1-relational-authority.md) — relational
   ownership and concurrency evidence.
 - [Location enrichment](location-enrichment.md) — provider-backed fields and

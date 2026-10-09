@@ -5,8 +5,10 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
-  database authority is implemented; upload/worker recovery proof, infrastructure
-  review, and staged rollout gates remain.
+  Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
+  image digest; Phase 3 bounded processing and worker recovery, Phase 4
+  infrastructure review, and Phase 5 staged rollout gates remain. See the
+  [Phase 2 evidence](../geodata/evidence/phase2-upload-recovery-2026-10-09.md).
 - [Geodata Phase 0 evidence set](../geodata/evidence/phase0-production-evidence-2026-10-08.md)
   — current measured 2,875-entity baseline, with explicit limits on broader
   capacity claims.

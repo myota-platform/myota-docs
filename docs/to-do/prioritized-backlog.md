@@ -24,21 +24,24 @@ new operational evidence.
 
 ### 1. Qualify geodata upload and worker recovery before scaling
 
-**Current evidence:** Phase 2 still lacks resumable-session recovery evidence
-against the deployed SeaweedFS image. Phase 3 still has open bounded-memory and
-worker termination/failure-injection gates. The roadmap explicitly says these
-gates do not authorize increasing production replicas. The measured Phase 0
-baseline is useful but does not establish broader capacity.
+**Current evidence:** Phase 2 API/session recovery across API and SeaweedFS
+container restarts passed in isolated CI against the exact SeaweedFS image ID
+observed in the K3s deployment; see the [Phase 2 evidence record](../geodata/evidence/phase2-upload-recovery-2026-10-09.md).
+Phase 3 still has open bounded-memory and worker termination/failure-injection
+gates. The roadmap explicitly says these gates do not authorize increasing
+production replicas. The measured Phase 0 baseline is useful but does not
+establish broader capacity.
 
 **Why first:** horizontal expansion can multiply a failure mode or create
 duplicate/lost processing if upload handoff, worker checkpoints, and recovery
 are not proven. This is the clearest explicitly stated rollout gate in the
 current backlog.
 
-**Next:** complete Phase 2 deployed-image restart recovery and Phase 3 bounded
-processing, termination, and concurrent-worker evidence; then review the
-Phase 4 infrastructure and Phase 5 staged-rollout gates. Coordinate with the
-NATS and observability work below.
+**Next:** complete Phase 3 bounded processing, worker termination and
+concurrent-worker evidence; then review Phase 4 infrastructure and Phase 5
+staged-rollout gates. Re-run Phase 2's digest-pinned recovery job when the
+deployed SeaweedFS image changes. Coordinate with the NATS and observability
+work below.
 
 See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md),
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),

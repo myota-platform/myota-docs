@@ -23,7 +23,10 @@ metrics currently have a documented live `/metrics` scrape gap.
 
 Implemented functionality is not the same as production qualification. The
 Phase 0 geodata baseline/evidence gate is complete at the measured catalogue
-size; broader geodata scale qualification remains open. The permanent synthetic
+size. Phase 2 resumable-upload recovery also passed in isolated CI against the
+SeaweedFS image ID deployed to K3s; broader geodata scale qualification remains
+open because Phase 3 worker/bounded-memory and later rollout gates are not
+complete. The permanent synthetic
 Sevilla set imported 10,000 features in four batches of 2,500. Three batches
 promoted 5% each (split between Candidate and Approved); the first had already
 been queued for full approval and remains as a documented lifecycle exception.

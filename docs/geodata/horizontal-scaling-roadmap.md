@@ -2,10 +2,10 @@
 
 ## Status and scope
 
-**Phase 0 evidence gate complete at 2,875 measured entities. Phase 1 database
-authority is implemented and verified. Phase 2 upload handoff and Phase 3
-worker isolation are implemented, with integration and failure-injection
-gates still open; Phases 4 and 5 remain open.**
+**Phase 0 evidence gate complete at 2,875 measured entities. Phases 1 and 2
+are implemented and verified. Phase 3 worker isolation is implemented, with
+bounded-memory and worker-failure gates still open; Phases 4 and 5 remain
+open.**
 This checklist records the work needed before increasing the
 Geodata API beyond one replica in production. The baseline does not make the
 current service horizontally safe.
@@ -44,6 +44,10 @@ Current implementation and remaining hazards:
   separately deployed JetStream worker. Source-reference and proximity
   lookups are indexed, but large-source parsing and candidate staging are not
   yet streaming/bounded end to end.
+- Phase 2's API and SeaweedFS restart-recovery gate passed in an isolated CI
+  environment using the exact SeaweedFS image digest observed in the live K3s
+  pod. No production API or object-store process was restarted; see the
+  [Phase 2 evidence](evidence/phase2-upload-recovery-2026-10-09.md).
 
 See [overall architecture](../architecture/overview.md),
 [operations](../operations/runbooks.md),
@@ -103,8 +107,38 @@ Phase 3 requirement; this fix does not mark that broader item complete.
 
 The Helm validation link records the chart-changing commit; later deployment
 changes have their own test/image result above. Local Colima evidence is recorded
-in the Phase 1 delivery record. These results do not substitute for termination,
-SeaweedFS restart, multi-worker, sustained-load or production-canary tests.
+in the Phase 1 delivery record. These results do not substitute for forced
+receiver-pod/worker termination, multi-worker, node/disk failure, sustained-load
+or production-canary tests. The controlled API and SeaweedFS container restarts
+are covered separately by the Phase 2 evidence below.
+
+## Phase 2 completion and evidence — 9 October 2026
+
+The remaining resumable upload recovery gate is complete. The recovery workflow
+used SeaweedFS image
+`docker.io/chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d`,
+matching the image ID read from the live `myota-seaweedfs` K3s pod on 9 October.
+GitHub Actions ran the service API and PostGIS against a disposable test
+database and this digest-pinned SeaweedFS image with a disposable named data
+volume. It restarted the API between multipart parts and restarted the
+isolated SeaweedFS container before completing the transfer. The assembled
+6,291,593-byte object matched the submitted whole-object SHA-256; its part
+checksums, completed upload row, import metadata and single outbox event
+survived the restarts. Completion retry did not duplicate the run/event,
+another subject could not inspect/resume/abort the session, and an incomplete
+second transfer was aborted with no lingering multipart entry. Disposable
+object-store data was removed at job end.
+
+The workflow and isolated test are in
+[geodata-service commit 853fcbc](https://github.com/myota-platform/myota-geodata-service/commit/853fcbc5b30085c8a450ff0accbe32e414348c22).
+The [CI run](https://github.com/myota-platform/myota-geodata-service/actions/runs/37908154059)
+passed the restart-recovery job and all service regression/quality jobs; image
+publication also succeeded. See the detailed [Phase 2 evidence record](evidence/phase2-upload-recovery-2026-10-09.md).
+This verifies graceful API process replacement and a SeaweedFS container
+restart with its persistent volume, not physical disk loss, abrupt node loss,
+or object-store multi-node failover. Re-run the gate whenever the deployed
+SeaweedFS image digest changes. The provisional-production cluster itself was
+not mutated by this failure-injection test.
 
 The [organization documentation reconciliation](../history/documentation-reconciliation-2026-10-07.md)
 records coverage of all twelve repositories, current contract checks and the
@@ -281,9 +315,12 @@ ChatGPT implementation prompt: [test upload recovery across restarts](prompts/sc
 - [x] Test SeaweedFS multipart create/upload/complete/read-checksum/delete and
   abort against the locally deployed pinned image
   `chrislusf/seaweedfs:latest@sha256:ce9e796f1fe6f06968f4c04bdaf8f678dad9c8acdfef3d244133d71bfa6bf882`.
-- [ ] Test resumable API-session recovery across API termination and object
-  storage restart against the production SeaweedFS image before closing the
-  version-specific integration gate.
+- [x] Test resumable API-session recovery across API termination and object
+  storage restart using the exact SeaweedFS image digest observed in the
+  deployment. The isolated database/object-store fixture, restart points,
+  checksums, owner controls, retry semantics and cleanup all passed; see the
+  [Phase 2 evidence](evidence/phase2-upload-recovery-2026-10-09.md) and
+  [successful CI run](https://github.com/myota-platform/myota-geodata-service/actions/runs/37908154059).
 - [x] Implement bounded 16 MiB multipart-part transfer through the API to
   object storage; do not materialize the complete upload in API memory or a
   shared `ReadWriteOnce` PVC.
@@ -299,11 +336,17 @@ ChatGPT implementation prompt: [test upload recovery across restarts](prompts/sc
   [admin upload behavior](../domain/administration/overview.md) and the [admin test/build evidence](#latest-delivery-and-evidence--8-october-2026).
 - [x] Remove the shared upload-spool PVC dependency. Any remaining local
   scratch space is bounded per part and reconstructible from the client or
-  object store; the restart/failure test is still outstanding.
+  object store; see the [restart/recovery evidence](evidence/phase2-upload-recovery-2026-10-09.md).
 
-**Exit criteria: not yet verified.** Multipart operations and checksums pass
-against the pinned local SeaweedFS image. API-session resume after API/SeaweedFS
-restart must still pass against the deployed image before this phase can close.
+**Exit criteria: complete for the tested SeaweedFS image digest.** Multipart
+operations and part/whole-object checksums passed against the pinned image
+reported by the live K3s deployment. Session resume after API process restart
+and SeaweedFS container restart, durable metadata/outbox handoff, replay,
+ownership checks and abort cleanup passed in an isolated CI environment.
+Production itself was not restarted or used for test writes. Re-run this gate
+if the deployed SeaweedFS image ID changes. This phase does not qualify
+large-source parser memory or worker restart behavior; those remain Phase 3
+gates.
 
 ### Phase 3 — isolate preprocessing and promotion from API pods
 
@@ -389,23 +432,26 @@ queue, database-connection, or availability constraints.
 
 Current CI now covers relational migrations, concurrent independent repositories,
 promotion replay, migration replay, and two actual API processes. Large-source
-memory, forced termination, storage restart and load/canary proof remain open.
+memory, forced worker termination, node/storage failure and load/canary proof
+remain open. The API-session and SeaweedFS container restart gate is complete.
 
 ChatGPT implementation prompt: [complete staged rollout and operational proof](prompts/scaling/phase-5-rollout.md).
 
 - [x] Run contract, integration, migration/replay and independent-instance
   concurrency checks in CI; see the [delivery evidence](#latest-delivery-and-evidence--8-october-2026)
   and [Phase 1 test inventory](phase1-relational-authority.md#recorded-validation).
-- [ ] Add and pass forced worker-recovery and API/object-storage restart
-  failure-injection tests in CI.
+- [x] Add and pass the resumable upload API/SeaweedFS restart-recovery test in
+  CI against the deployed SeaweedFS image; see the [Phase 2 evidence](evidence/phase2-upload-recovery-2026-10-09.md).
+- [ ] Add and pass forced worker-recovery failure-injection tests in CI.
 - [ ] Load-test the current provisional-production API at its deployed replica
   count; verify throughput and latency without shifting saturation to Postgres
   or object storage. Testing other replica counts requires a separately
   approved production rollout/change window; do not change replicas as part of
   a load run.
 - [ ] Exercise large-file upload, interrupted client upload, receiver-pod
-  termination, worker termination, duplicate event delivery, and SeaweedFS
-  restart scenarios.
+  termination, worker termination, duplicate event delivery, and production
+  storage/node-failure scenarios. The API-session and SeaweedFS container
+  restart subset is complete in the [Phase 2 evidence](evidence/phase2-upload-recovery-2026-10-09.md).
 - [ ] Run a bounded provisional-production canary at the currently deployed
   replica count and compare error rate, latency, DB pool waits, object-store
   metrics and JetStream lag. Any production replica change is a separate

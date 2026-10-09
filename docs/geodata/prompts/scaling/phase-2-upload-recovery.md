@@ -1,6 +1,15 @@
 # Phase 2 prompt — upload recovery across restarts
 
-Copy the prompt below into a coding task with the MyOTA repositories available.
+**Status: complete for SeaweedFS image digest
+`sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d` on
+9 October 2026.** This retained prompt describes the work specification; it is
+not an open request. See the [Phase 2 evidence record](../../evidence/phase2-upload-recovery-2026-10-09.md)
+and [current roadmap](../../horizontal-scaling-roadmap.md#phase-2--make-upload-handoff-durable-without-a-shared-pod-volume). Re-run the isolated
+CI gate only when the deployed SeaweedFS image ID changes or recovery behavior
+is modified.
+
+The original execution brief below is retained for traceability; the evidence
+record supersedes its open-gate wording and is the current acceptance record.
 
 ---
 
