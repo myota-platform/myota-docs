@@ -12,12 +12,14 @@ documentation evidence and does not set delivery dates.
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phases 0 and 1 contract/topology work are complete. Phase 1 evidence records
-  isolated provisioner, drift, PVC restore, replay, and capacity-pressure checks;
-  accepted single-node capacity limits and deferred off-node recovery are
-  explicit. Runtime envelope enforcement, payload projection, relay mutation
-  removal, and production cutover remain Phase 2 gates. See the
-  [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
+  — Phase 0 inventory, Phase 1 contracts/topology, and Phase 2 relay hardening
+  are complete within their recorded evidence bounds. Phase 2 added contract-
+  backed routing, read-only legacy topology validation, retry/DLQ recovery,
+  backlog metrics, alerts, and isolated broker/database qualification. The
+  mixed Interest stream and existing consumer/work paths remain deployed.
+  Payload privacy/schema enforcement and controlled consumer/work-stream
+  cutover remain open. See the [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
+  [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
   [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [recovery runbook](../operations/messaging/jetstream-recovery.md), and
   [Work in progress](../work-in-progress/README.md).

@@ -18,14 +18,16 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  Phase 0 and Phase 1 contract/topology work are complete. Contracts, source
-  audit, create-only provisioning, opt-in Helm readiness gate, and local restore/
-  replay qualification are verified. The accepted single-node capacity caveat and
-  deferred off-node recovery risk are recorded. Runtime enforcement and live
-  cutover remain Phase 2 gates. See the [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
+  Phase 0 inventory, Phase 1 contracts/topology, and Phase 2 relay hardening are
+  complete within their evidence bounds. The isolated relay drill verified
+  contract-backed routing, same-ID crash recovery, dead-letter redrive, and
+  backlog metrics. Production remains on the mixed Interest-retained stream;
+  payload/privacy enforcement and consumer/work-stream cutover remain open. See
+  the [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
   [joint review](operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [recovery runbook](operations/messaging/jetstream-recovery.md),
   [Phase 1 completion evidence](operations/messaging/evidence/phase1-completion-2026-10-10.md),
+  [Phase 2 relay evidence](operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
   [current/target diagrams](architecture/diagrams/nats-event-migration.md), and
   [selected topology decision](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
 - [Observability](observability/README.md) — telemetry architecture, logging

@@ -28,6 +28,30 @@ flowchart LR
   E -. read-only metadata .-> O[Operations observer]
 ```
 
+## Phase 2 relay source behavior — isolated verification
+
+This records the relay implementation that passed isolated tests. The live
+topology above was inspected separately; this flow does not claim a production
+cutover.
+
+```mermaid
+flowchart LR
+  subgraph DB[Owned transactional outboxes]
+    C[Core]
+    A[Activity]
+    G[Geodata]
+  end
+  C --> R[Contract-backed relay<br/>one row at a time]
+  A --> R
+  G --> R
+  R -->|registered facts<br/>stable Nats-Msg-Id<br/>size bounded| F[myota.events.&lt;dotted event type&gt;]
+  R -->|six mapped source types<br/>legacy subject preserved| W[myota.geodata.* work]
+  R -. topology checks only .-> E[Existing MYOTA_EVENTS<br/>Interest retention]
+  R -->|retry, metrics, DB dead letter| D[Owning PostgreSQL]
+  D -->|authorized, audited redrive| R
+  O[Operations] -. metadata only .-> E
+```
+
 ## Selected target — ADR-0008, not yet live
 
 ```mermaid
@@ -51,7 +75,8 @@ flowchart LR
   ES -. inspect only .-> O[Operations observer]
 ```
 
-**Status (10 October 2026):** Phases 0 and 1 contract/topology work are complete.
+**Status (10 October 2026):** Phases 0 and 1 contract/topology work and Phase 2
+relay hardening/source coverage are complete within their evidence bounds.
 The 68 fact schemas and ten selected work commands are registered; contract CI
 checks their schema/disposition coverage and exact work-to-durable mapping. The
 create-only provisioner and its drift checks passed focused and isolated tests.
@@ -60,8 +85,10 @@ authentication or TLS. The live NATS service is ClusterIP-only on port 4222;
 the `myota` namespace has no NetworkPolicy, so any pod with network reachability
 is trusted. Do not expose NATS outside the cluster. Provisional capacity,
 restore/replay policy, and provisioner ownership are decisions, not production
-qualification. No target stream or producer/consumer path changed. Geodata
-payload minimization, representative full-window sizing, off-node/PVC-loss
-restore qualification, chart readiness, unknown-route enforcement, and safe
-relay transition remain open. Basic isolated restore/replay passed; see the
-recovery runbook for remaining evidence.
+qualification. The source relay now enforces registry routing, size bounds,
+stable IDs, retries, dead-letter recovery, and metrics while validating legacy
+topology read-only. The target streams and consumer/work paths have not been cut
+over. Geodata payload minimization, schema/privacy enforcement, representative
+full-window sizing, off-node/PVC-loss restore qualification, and production
+compatibility transition remain open. See the recovery runbook and
+[Phase 2 evidence](../../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).

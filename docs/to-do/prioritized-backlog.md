@@ -62,36 +62,40 @@ and the active [Work in progress index](../work-in-progress/README.md).
 
 ### 2. Complete Phase 2 NATS runtime migration
 
-**Current evidence:** Phase 1 contract/topology and isolated single-node safety
-qualification are complete. The registry covers 68 facts and ten selected work
-commands with source-linked per-command bounded payload schemas. The deploy
-repository owns a create-only provisioner and an optional fail-closed Helm
-pre-upgrade hook. Isolated K3s checks covered idempotency, drift rejection,
-local PVC restore, replay, and `DiscardNew` pressure behavior. The live shared
-stream remains mixed under Interest retention; no producer or consumer path has
-changed.
+**Current evidence:** Phase 0 inventory, Phase 1 contract/topology work, and
+Phase 2 relay hardening/source-coverage checks are complete. The registry covers
+68 facts and ten selected work commands. Phase 2 added contract-backed dotted
+fact subjects, stable-ID publish/ack behavior, serialized-size bounds, retries,
+database dead-letter inspection/redrive, per-relay metrics, alerts, and
+read-only validation of the existing topology. An isolated K3s/PostgreSQL/NATS
+drill verified the publish/mark crash window and audited redrive. The full
+evidence is in the [Phase 2 record](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).
 
-The project owner accepts the conservative 1/1/3 GiB starting caps and the
-shorter-than-30-day sample risk for the current single-node deployment. Off-node
-recovery is deferred; PostgreSQL remains authoritative for reconciliation and
-work redrive. NATS remains cluster-internal without authentication or TLS.
-Payload projection, runtime envelope/unknown-route enforcement, relay topology
-mutation removal, and production cutover remain open Phase 2 gates.
+The live shared stream remains mixed under Interest retention; producer and
+consumer work paths have not been cut over. Unresolved Geodata dead letters are
+now protected from import-retention cleanup. The project owner accepts the
+conservative 1/1/3 GiB starting caps and shorter-than-30-day sample risk for the
+single-node scope. Off-node recovery is deferred; PostgreSQL remains the
+authority for reconciliation and redrive. NATS remains cluster-internal without
+authentication or TLS.
 
 **Why second:** Asynchronous work must survive relay and worker restarts without
-losing or duplicating domain effects. Phase 1 has established schemas, bounded
-topology, deployment checks, and local recovery evidence; Phase 2 must migrate
-producers and consumers only after each compatibility gate passes.
+losing or duplicating domain effects. Relay failure/recovery behavior is now
+qualified in isolation. The remaining risk is the compatibility transition from
+the mixed legacy stream to bounded fact retention and separate work queues.
 
-**Next:** Implement transactional outbox work-command publication and idempotent
-consumer handling by owning service. Preserve PostgreSQL authority, keep the
-Geodata preprocessed v1 payload source-compatible until a successor is agreed,
-and rehearse the legacy Interest-stream drain and compatibility barrier. Enable
-the Helm pre-upgrade gate only for that reviewed cutover. Keep scheduled and
-reconciliation jobs on their documented scheduler/database paths.
+**Next:** Close JSON Schema/prohibited-field and Geodata payload-minimization
+gates; introduce a registered-filter Activity durable with a safe legacy drain;
+then implement the accepted Activity and Geodata work commands with durable
+consumer idempotency. Preserve PostgreSQL authority, keep Geodata preprocessed
+v1 source-compatible until a successor is agreed, and rehearse the legacy
+Interest-stream drain and compatibility barrier. Enable the Helm pre-upgrade
+gate only for a reviewed cutover. Keep scheduled and reconciliation jobs on
+their documented scheduler/database paths.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
+[Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
 [JetStream operations status](../operations/messaging/jetstream-admin-status.md),
 [recovery runbook](../operations/messaging/jetstream-recovery.md), and
 [award designer delivery evidence](../domain/awards/evidence/programme-awards-2026-10-09.md).

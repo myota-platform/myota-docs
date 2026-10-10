@@ -9,6 +9,36 @@ authoritative repositories on 9 October 2026. Paths name the owning repository
 first. Deploy and platform copies are mirrors. This is a source audit, not a
 production broker inspection or a runtime test.
 
+**Time qualifier:** Event rows and profiles below preserve the 9 October
+baseline. Phase 2 relay source behavior and the 10 October read-only live-broker
+inspection are recorded separately below; do not interpret a source change as
+proof that production has deployed it.
+
+### Phase 2 source and live-state update — 10 October 2026
+
+- **Current source behavior:** `myota-deploy/services/outbox_routing.py` now
+  routes registered facts to `myota.events.<eventType>` with dotted tokens,
+  validates producer ownership and UUID/time fields, and keeps the six mapped
+  Geodata source event types on their registered legacy work subjects. The relay
+  enforces the configured serialized-message cap and marks an outbox row only
+  after JetStream acknowledgement.
+- **Topology ownership:** `myota-deploy/services/outbox_worker.py` now validates
+  the existing stream and durable settings read-only. It does not create or
+  update streams/durables. The Geodata worker no longer deletes the retired push
+  durable during startup; cleanup waits for a reviewed drain and disposition.
+- **Live broker evidence:** A read-only query on 10 October observed the
+  file-backed `MYOTA_EVENTS` stream with Interest retention, subjects
+  `myota.events.>` and `myota.geodata.>`, one replica, and zero stored messages.
+  It also confirmed the broad Activity pull durable and the four Geodata work
+  durables with explicit ACK and their current filters. No live broker object was
+  changed by this inspection.
+- **Boundaries:** The isolated Phase 2 test used disposable NATS and PostgreSQL
+  in `myota-phase2-test`; its namespace was removed after validation. The current
+  production stream, existing broad Activity durable, legacy Geodata work
+  subjects, and deployed consumer delivery handlers remain unchanged. The
+  Activity durable's narrower successor filter requires the Phase 3 transition
+  because the current Interest-retained durable cannot be edited in place safely.
+
 ## Evidence model and shared behavior
 
 The profiles below avoid repeating the same transport facts on every event

@@ -80,6 +80,36 @@ through its bounded retry/dead-letter policy. Before replay or re-drive, inspect
 the relevant database row and idempotency checkpoint. Do not rewind a
 production side-effecting durable.
 
+## Outbox dead-letter inspection and redrive
+
+The relay stores terminal failures in the owning database. Use the CLI inside
+the matching relay deployment; do not copy event payloads out of PostgreSQL.
+Restrict Kubernetes `pods/exec` permission on relay deployments to operators
+authorized to perform redrive. Kubernetes API audit logs are the identity
+evidence; the CLI's `--actor` is a recorded label and is not independently
+authenticated.
+
+```sh
+k3s kubectl -n myota exec deploy/myota-core-outbox -- \
+  python3 services/outbox_admin.py list --limit 100
+
+EVENT_UUID="replace-with-event-uuid"
+OPERATOR_ID="replace-with-authenticated-operator-name"
+REASON="cause corrected and source row verified"
+k3s kubectl -n myota exec deploy/myota-core-outbox -- \
+  python3 services/outbox_admin.py redrive "$EVENT_UUID" \
+  --actor "$OPERATOR_ID" \
+  --reason "$REASON"
+```
+
+Use `myota-activity-outbox` or `myota-geo-outbox` for their respective
+databases. Confirm the event type and redacted error, correct the cause, verify
+the retained source row and consumer idempotency behavior, then redrive. The
+CLI resets the owning outbox row with the original event ID and records actor,
+reason, prior attempt count, and prior error in `outbox_redrive_audit`. A later
+successful publish resolves the dead-letter entry. Never redrive an unresolved
+failure repeatedly without investigating it.
+
 Under the current Interest-retained legacy stream, messages already removed
 after all interested durables acknowledged them cannot be recovered from a
 snapshot taken later. At cutover, stop relays, inspect and snapshot the current
@@ -99,8 +129,10 @@ Deferred work and limits:
 
 - Off-node snapshot/restore remains deferred. If the project later requires
   node-loss recovery, add an approved backup destination and qualify its restore.
-- Production outbox watermark comparison and relay retry/dead-letter behavior
-  belong to the Phase 2 runtime migration gate.
+- Production outbox watermark comparison and compatibility rollout remain
+  open. Relay retry, dead-letter, and same-ID crash recovery passed in the
+  isolated Phase 2 drill; see the
+  [Phase 2 evidence](evidence/phase2-relay-hardening-2026-10-10.md).
 - Retain alarms and operator actions for capacity pressure and work redrive as
   operational follow-up; PostgreSQL remains authoritative for reconciliation.
 

@@ -1,10 +1,9 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phase 0 and Phase 1 contract/topology work are complete. Phase 1
-exit criteria are met by checked-in contracts, deploy-owned create-only
-provisioning and gated Helm preflight, and isolated single-node qualification.
-No producer or consumer path has been cut over. Phase 2 compatibility and
-production rollout gates remain open.
+**Status:** Phase 0, Phase 1, and Phase 2 relay hardening and source-coverage
+work are complete. Phase 2 exit criteria passed in focused tests and an isolated
+K3s namespace. The production compatibility rollout and remaining payload/privacy
+gates are still separate; source implementation does not certify deployment.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -270,8 +269,9 @@ Deploy and platform copies are identified as synchronized mirrors.
       `DiscardNew` capacity rejection. Off-node recovery is deferred at the
       project owner's direction; node/cluster loss may discard the bounded
       transport window, so reconcile facts and redrive work from PostgreSQL.
-      Production watermark comparison and relay retry/dead-letter qualification
-      remain Phase 2 gates.
+      Production watermark comparison and controlled cutover remain rollout
+      gates. Isolated relay retry/dead-letter qualification is recorded as
+      complete in the Phase 2 evidence.
 - [x] Add contract fixtures and CI checks for unique event/work subjects,
       per-event schemas, subscriber dispositions, source provenance, and
       registered work-to-durable topology. A new producer literal without a
@@ -282,46 +282,51 @@ runtime publication.
 
 #### Registry coverage and source audit
 
-- The machine-readable registry covers 68 domain facts and ten selected work
-  commands. Six current Geodata work/recovery event types map to four target
-  commands.
-- Each work command has a bounded payload schema, source-linked producer and
-  consumer paths, and an owning-row `workId` source.
-- `myota-contracts/contracts/event-registry.json` records the exact producer
-  source path for every fact. The workspace audit verifies those references and
-  classifies Python event-like literals as a fact or mapped legacy work type.
-- The 10 October audit found no unclassified Python event-like literals across
-  the five service repositories. The Contracts CI source audit passed on `main`.
+The Phase 1 registry is the contract inventory; Phase 2 added a generated
+runtime routing catalog without making the registry a permanent event archive.
+
+- **Coverage:** 68 domain facts and ten selected work commands are registered.
+  Six current Geodata work/recovery source types map to four target commands.
+- **Work contracts:** Each command has a bounded payload schema, source-linked
+  producer and consumer paths, and an owning-row `workId` source.
+- **Source audit:** `myota-contracts/contracts/event-registry.json` records the
+  exact producer path for every fact. The workspace audit validates each source
+  reference and classifies event-like Python literals as a registered fact or
+  mapped legacy work type.
+- **Result:** The 10 October audit found no undispositioned event-like literals
+  across the five service repositories. Contracts CI passed the source audit
+  on `main`.
 
 #### Payload schema evidence and enforcement gates
 
-- Source-derived payload schemas are generated from authoritative producer
-  files for all 68 facts: 19 Identity, 12 Programme, 10 Activity, and 27
-  Geodata events.
-- Identity, Programme, Activity, and Geodata schema checks passed in Contracts
-  CI. Recorded run IDs include [Geodata run 38042564323](https://github.com/myota-platform/myota-contracts/actions/runs/38042564323)
-  and [Activity run 38040217352](https://github.com/myota-platform/myota-contracts/actions/runs/38040217352).
-- The delegated schema review is complete. Producer payload projection,
-  prohibited-field and size checks, and consumer compatibility remain required
-  before enforcement.
-- Geodata preprocessing currently emits the full result object, including
-  internal `_records` and `_status`. Minimize this event before schema
-  enforcement.
-- The Phase 0 audit found no Operations event-producing call sites. An
-  Operations payload schema is not applicable unless Operations becomes a
+- **Schema inventory:** Source-derived payload schemas cover all 68 facts:
+  19 Identity, 12 Programme, 10 Activity, and 27 Geodata events. Identity,
+  Programme, Activity, and Geodata schema checks passed in Contracts CI;
+  recorded runs include [Geodata 38042564323](https://github.com/myota-platform/myota-contracts/actions/runs/38042564323)
+  and [Activity 38040217352](https://github.com/myota-platform/myota-contracts/actions/runs/38040217352).
+- **Relay enforcement:** Phase 2 source now caps the serialized message at
+  1 MiB. It does not validate each payload against JSON Schema or enforce
+  prohibited-field/purpose rules. Projection, privacy review, and consumer
+  compatibility remain required before those checks can be enforced.
+- **Geodata gate:** `geodata.import.preprocessed.v1` still carries the complete
+  result object, including internal `_records` and `_status`, which can contain
+  imported source features. Preserve v1 meaning and agree on a compatible
+  successor projection before publishing minimized data.
+- **Operations:** The Phase 0 audit found no Operations event-producing call
+  sites. An Operations payload schema is not applicable unless it becomes a
   producer.
-- These additive schemas do not certify purpose limitation or retention, so
-  they are not a complete enforcement policy.
+- **Limit:** Additive source-derived schemas describe observed shapes; they do
+  not certify purpose limitation or retention.
 
 #### Provisioner and CI evidence
 
 - The deploy-owned provisioner fixes and validates pull delivery mode, explicit
   ACK, replay policy, retry limits, pending and waiting-pull bounds, consumer
   replicas, and full-payload delivery.
-- The same source is synchronized to the platform mirror and passed the
-  disposable-broker idempotency check.
-- Contracts CI checks out the five service repositories and runs the workspace
-  event-source audit.
+- Its topology source is synchronized to the platform mirror. Contracts CI
+  checks out the five service repositories, runs the workspace event-source
+  audit, regenerates the runtime routing catalogs, and compares synchronized
+  runtime/migration copies.
 
 ### Delegated joint review decisions (10 October 2026)
 
@@ -427,32 +432,49 @@ gates, and Phase 1 exit criteria.
 
 **Work**
 
-- [ ] Bring the shared relay to the contract: stable event IDs, bounded payloads,
+- [x] Bring the shared relay to the contract: stable event IDs, bounded payloads,
       connection/reconnect behavior, bounded concurrency, retries/backoff,
       idempotent publish, publish-ack handling, failure metrics, and dead-letter
       inspection/replay. Ensure a crash after publish acknowledgement but before
-      outbox marking safely republishes the same message ID.
-- [ ] Verify the core, activity, and geo relays see only their owned database and
-      that retention cleanup cannot remove unpublished, dead-lettered, or
-      operationally needed rows. Add indexes/partitioning only from measured need.
-- [ ] Enumerate all writes in Identity, Programme, Activity, Geodata, Operations;
-      route every supported event through the transactionally coupled outbox. Remove
-      any process-local event dispatch for accepted cross-service work.
-- [ ] Provision one durable per independently required domain-event consumer group.
-      Filter to supported event subjects where feasible; list event types with no
-      current subscriber in the registry instead of creating no-op consumers.
-- [ ] Confirm Operations remains metadata-only and does not accidentally become a
-      broker consumer with acknowledgements.
+      outbox marking safely republishes the same message ID. Unknown routes and
+      serialized payloads above the configured cap dead-letter before publish.
+- [x] Verify the core, activity, and geo relays see only their owned database and
+      that retention cleanup cannot remove unpublished or unresolved dead-letter
+      rows. Geodata import cleanup preserves unresolved redrive evidence. No
+      indexes or partitioning were added without measured need.
+- [x] Reconcile all registered event writes in Identity, Programme, Activity,
+      Geodata, and Operations against the source audit. No undispositioned event
+      literal or Operations producer was found. Selected asynchronous work remains
+      on its documented owning-row path; no process-local cross-service dispatch
+      was introduced.
+- [x] Validate the existing Activity notification durable and four Geodata work
+      durables against the live legacy stream without creating or changing broker
+      topology. The broad Activity filter remains until its successor durable can
+      be provisioned and drained under the Phase 3 consumer gate; event types with
+      no intended subscriber remain explicitly listed in the registry.
+- [x] Confirm Operations remains metadata-only and does not consume or acknowledge
+      messages. Its broker inspection path uses read-only metadata APIs.
 
 **Exit criteria**
 
-- [ ] Inventory reconciliation finds no event write bypassing the outbox or
-      unregistered event subject.
-- [ ] Relay restart/retry proves no lost accepted event and safely recovers from a
+- [x] Inventory reconciliation finds no unregistered event source or subject;
+      source-linked producer records and helper transactions cover the registered
+      event set.
+- [x] Relay restart/retry proves no lost accepted event and safely recovers from a
       publish/mark crash: broker deduplication applies within its configured window,
       and database idempotency protects retries outside that window.
-- [ ] Outbox backlog, oldest age, retries, and dead letters are observable and
-      actionable for all three relays.
+- [x] Outbox backlog, oldest age, retries, and dead letters are observable and
+      actionable for all three relays through per-database metrics, Collector scrape
+      targets, dashboards, alerts, and the database-authoritative redrive CLI.
+
+**Phase 2 implementation evidence:** see the
+[relay hardening evidence record](evidence/phase2-relay-hardening-2026-10-10.md).
+The relay validates the existing mixed Interest stream and durable settings
+read-only; it does not provision, update, or delete broker topology. The live
+legacy filter set was inspected read-only on 10 October. No producer or consumer
+delivery path was changed. The Activity notification durable remains broad until
+its registered-filter successor can be introduced without abandoning its current
+Interest-retained backlog. The target Limits/work-stream cutover remains gated.
 
 **ChatGPT prompt — Phase 2**
 

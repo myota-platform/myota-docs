@@ -975,3 +975,48 @@ required for the current scope.
 The Phase 1 prompt in the [migration plan](../operations/messaging/nats-event-migration-plan.md)
 was used as the implementation basis and updated to reflect these accepted
 capacity, trust-boundary, recovery, and production-cutover decisions.
+
+## 10 October 2026 — NATS Phase 2 relay hardening
+
+- **Prompt used:**
+
+  ```text
+  OK. Go ahead and implement phase 2 iteratively and until exit criteria are complete.
+  Take sane and safe decisions based on your best criteria and best practice without external review.
+  ```
+
+- **Relay and contract coverage:** Added generated runtime routing data from the
+  canonical Contracts registry. The relay validates registered fact types,
+  producer ownership, UUID identity, UTC timestamps, exact subjects, and the
+  configured message-size cap. Facts use dotted registered subjects and stable
+  `Nats-Msg-Id`; six current Geodata work source event types remain on their
+  legacy subjects pending the controlled work-stream phase.
+- **Failure and topology behavior:** Publish acknowledgement precedes the
+  database mark. A failed mark leaves the row retryable with the same message
+  ID; retry delay is capped, and terminal failures can be inspected and
+  redriven from their source database with an audit record. Relay startup now
+  validates legacy stream/durable settings read-only. The Geodata worker no
+  longer removes a retired push durable at startup.
+- **Retention and operations:** Added resolution/audit migrations for core,
+  Activity, and Geodata dead letters. Geodata import cleanup preserves
+  unresolved dead letters. Added per-relay backlog/retry/DLQ metrics, three
+  scrape targets, alerts, and a dashboard; Operations remains metadata-only.
+- **Verification:** The workspace audit verified 68 registered facts and six
+  mapped legacy work types with no undispositioned event-like source literals.
+  Contracts tests passed 5/5, deploy relay tests 17/17, and Geodata retention
+  tests 6/6. The Activity duplicate-delivery regression passed 2 tests; its
+  broker-backed overlap/restart test was skipped because it was not configured
+  with an isolated broker. Ruff, Helm lint/render, Compose/Collector/alert/dashboard parsing,
+  migration idempotency, live legacy metadata inspection, actual same-ID
+  JetStream deduplication, publish/mark crash recovery, metrics, and audited
+  redrive passed. The broker/database drill ran in a temporary K3s namespace
+  that was removed after testing; no production broker or database object was
+  changed during verification.
+- **Boundaries:** The current production stream remains Interest-retained and
+  mixed. Activity's broad notification durable and four Geodata work durables
+  remain in place. Payload schema/prohibited-field enforcement, Geodata
+  preprocessing minimization, consumer/work migration, production watermark
+  comparison, and controlled cutover remain open. See the
+  [Phase 2 evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
+  [migration plan](../operations/messaging/nats-event-migration-plan.md), and
+  [topology diagrams](../architecture/diagrams/nats-event-migration.md).

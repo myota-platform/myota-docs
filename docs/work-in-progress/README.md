@@ -5,7 +5,8 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
-  — **Status:** Phase 0 and Phase 1 contract/topology work are complete.
+  — **Status:** Phase 0 inventory, Phase 1 contracts/topology, and Phase 2
+  relay hardening/source coverage are complete.
   - **Phase 1 evidence:** 68 facts and ten work commands are registered with
     bounded per-command payload schemas. Source and contract checks passed.
     The optional Helm pre-upgrade readiness hook fails closed.
@@ -14,12 +15,22 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     The 30-day database sample is short; accepted initial caps and that evidence
     limitation are recorded. Off-node recovery is deferred at the project
     owner's direction.
-  - **Phase 2 gates:** Runtime enforcement, payload minimization, relay mutation
-    removal, and production cutover remain open.
+  - **Phase 2 evidence:** Contract-backed dotted fact subjects, stable-ID
+    publish/ack, bounded serialized messages, retries, audited redrive, metrics,
+    alerts, and read-only legacy topology validation passed focused tests and an
+    isolated K3s drill. Unresolved Geodata dead letters now survive import
+    retention cleanup.
+  - **Remaining gates:** JSON Schema/prohibited-field enforcement, Geodata
+    preprocessed-payload minimization, the narrow Activity durable transition,
+    Activity work migration, Geodata work-stream migration, production
+    watermark review, and controlled topology cutover remain open.
   - **Current boundary:** NATS remains cluster-internal without auth/TLS. The
-    live shared stream still uses Interest retention; no producer or consumer
-    path has changed.
+    live shared stream remains file-backed with Interest retention. Relay source
+    validates its legacy topology without mutation. Producer publication source
+    now uses registered dotted fact subjects; consumer delivery handlers and
+    deployed work paths remain unchanged.
   - **References:** [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
+    [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
     [recovery runbook](../operations/messaging/jetstream-recovery.md), and
     [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —

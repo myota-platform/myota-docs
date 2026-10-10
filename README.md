@@ -72,11 +72,14 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   [Phase 0 evidence inventory](docs/operations/messaging/nats-event-migration-inventory.md),
   [Phase 1 joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [Phase 1 completion evidence](docs/operations/messaging/evidence/phase1-completion-2026-10-10.md),
+  [Phase 2 relay evidence](docs/operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
   and [recovery runbook](docs/operations/messaging/jetstream-recovery.md), with the
   selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-  Phase 1 contract/topology and isolated qualification are complete. The cluster-
-  internal trust boundary, finite starting caps, and deferred off-node risk are
-  recorded; runtime enforcement and production cutover remain Phase 2 gates.
+  Phases 0 and 1 are complete, and Phase 2 relay hardening passed focused tests
+  and an isolated K3s drill. Source-derived payload privacy/schema enforcement,
+  consumer/work migration, and production cutover remain open. The live broker
+  still uses the mixed Interest-retained stream; the accepted cluster-internal
+  trust boundary, finite caps, and deferred off-node recovery risk are recorded.
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
@@ -86,14 +89,21 @@ work is implemented or verified as stated. Open checkboxes identify work still
 in progress or evidence gates not yet met; implementation completion does not
 imply scale qualification or production readiness.
 
-NATS migration status on 10 October 2026: Phases 0 and 1 contract/topology work
-are complete. Decisions cover 68 facts, ten bounded work schemas, the cluster-
-internal trust boundary, accepted finite starting capacity, local recovery, and
-the gated deploy-owned provisioner. Off-node recovery is deferred for this
-single-node scope. Runtime projection/enforcement and safe relay transition
-remain Phase 2 gates. The live broker remains on Interest retention. See the
+NATS migration status on 10 October 2026:
+
+- Phases 0 and 1 contract/topology work and Phase 2 relay hardening are complete
+  within the evidence recorded in the linked plan.
+- The isolated drill qualified same-ID retry, dead-letter redrive, migration
+  scripts, and metrics. The source relay validates the legacy topology
+  read-only.
+- Production remains on the mixed Interest-retained stream. Payload privacy and
+  schema enforcement, consumer/work migration, and controlled cutover remain
+  open; off-node recovery is deferred for the single-node scope.
+
+See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 completion evidence](docs/operations/messaging/evidence/phase1-completion-2026-10-10.md),
+[Phase 2 relay evidence](docs/operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
 and [current/target diagrams](docs/architecture/diagrams/nats-event-migration.md).
 
 ## Source project
