@@ -1,14 +1,15 @@
 # NATS JetStream event and work-queue migration plan
 
 **Status:** Phases 0–4 are complete within their recorded evidence bounds.
-Phase 5 has moved the four Geodata work consumers to the dedicated
-`MYOTA_GEODATA_WORK` WorkQueue in production, installed migration 021, and
-verified the target durables and worker subscriptions. The latest Helm rollout
-also deployed the retry-safe partial-deletion recovery fix. No accepted
-production Geodata work was available for processing qualification. The four
-legacy Geodata durables remain empty and provisioned during the 24-hour rollback
-observation; cross-service retry and final durable retirement remain open.
-Phase 6 will handle the separate shared fact-stream retention transition.
+Phase 5's four Geodata work consumers, migration 021, retry-safe partial
+deletion recovery, and Activity idempotency fix are live. Helm revision 191 is
+deployed; Fleet is Ready=True at Deploy commit
+`a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources. Configured
+immutable image references match live pod IDs. The four legacy Geodata durables
+remain empty and inactive through the 24-hour observation ending no earlier
+than 21:28:41 UTC on 11 October 2026; safe retirement remains open. No accepted
+production Geodata work was available for processing. Phase 6 will handle the
+separate shared fact-stream retention transition.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -767,25 +768,35 @@ Phase 4 exit criterion.
 
 ### Phase 5 — Reconcile Geodata queues and cross-service recovery
 
-**Status (10 October 2026):** Production routes all four Geodata work kinds
-to `MYOTA_GEODATA_WORK`; the four workers subscribe to their registered
-`myota.work.geodata.*` subjects. Helm revision 189 is deployed, and Fleet is
-`Ready=True` at deploy commit `bbb3276296c8fa86941315b582caa76e178bd94f`
-with 60/60 resources ready. Migration 021 is installed. The target stream is
-file-backed WorkQueue with finite limits and zero messages; `MYOTA_EVENTS`
-remains file-backed with Interest retention and zero messages. The four former
-Geodata durable definitions remain empty and inactive through the rollback
-window, ending no earlier than 20:58:36 UTC on 11 October 2026. No accepted
-production Geodata work was available to exercise.
+**Status (10 October 2026):** Production routes all four Geodata work
+kinds to the immutable image-referenced `MYOTA_GEODATA_WORK` WorkQueue. Helm
+revision 191 is deployed at 21:28:41 UTC; Fleet reports `Ready=True` at Deploy
+commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109`, with 60/60 resources ready. The Deploy image
+references and live Activity/Geodata/outbox pod IDs resolve to the configured
+immutable digests. Activity runs
+`sha256:f764bfe7193ba8166c84f3d6b063547f94fcc17b6c819aa597c617ed6c835261`;
+Geodata runs
+`sha256:c6f5dee746579469ba827a4af78741acbe5d25e825471c84c95ec5574e6e2aee`;
+the shared runtime runs
+`sha256:1f4002619cee64d9d05f06b96c93d348df5ae725806d08da383d74e0c84c91e8`.
+The Activity idempotency fix is now live. The target stream and all four
+replacement durables are healthy and empty. The four prior Geodata durables in
+`MYOTA_EVENTS` are empty and inactive.
 
-A disposable two-database test now drives the real Geodata worker handler and
-Activity API through a private JetStream stream. An injected Geodata failure
-after Activity commits NAKs and redelivers; retry completes the deletion with
-one Activity cascade outbox fact and no pending message. That test exposed and
-fixed missing Activity request idempotency. The source change is committed to
-the Activity owner and synchronized mirrors, but its new image digest and
-production rollout are still pending. See the [Phase 5
-evidence](evidence/phase5-geodata-work-2026-10-10.md).
+The rollout check found that recorded digests previously changed only pod
+annotations while containers still referenced mutable `:latest` tags. Helm
+now renders first-party runtime, worker, provisioning, and scheduled-job
+images as `repository@sha256:…` whenever the digest is configured. Both Deploy
+and Platform carry the fix, and live pod image references match their
+configured digests.
+
+Restart the 24-hour rollback observation from revision 191's completed rollout
+at 21:28:41 UTC on 10 October. Keep the four legacy Geodata durables through
+21:28:41 UTC on 11 October 2026; then recheck Fleet, migration markers, recovery age and all
+legacy backlog counters before retiring only those four durables. Do not remove
+`MYOTA_EVENTS`, Activity's notification durable, Geodata source tables, work
+rows, outbox or recovery columns/indexes. No accepted production Geodata work
+was available to exercise.
 
 **Work**
 
@@ -814,8 +825,9 @@ evidence](evidence/phase5-geodata-work-2026-10-10.md).
       Geodata entity, emitted exactly one Activity cascade outbox fact, and
       drained the private stream. Activity persists the request idempotency key
       transactionally and serializes concurrent requests with a database
-      advisory lock. The API/repository source fix is committed; deployment of
-      its new image remains a gate.
+      advisory lock. Its immutable image digest is deployed to the Activity
+      API, workers and notification consumer; Helm 191/Fleet readiness is
+      verified.
 - [x] Qualify cancellation racing with an acknowledged Geodata preprocessing
       delivery. The worker claimed the run, the cancellation API committed
       CANCELLING, and the same delivery finalized CANCELLED before ACK; the
@@ -830,27 +842,34 @@ evidence](evidence/phase5-geodata-work-2026-10-10.md).
       retained an unacked message and durable state. A connected expiry →
       owner-row/outbox reconstruction → JetStream redelivery → completion check
       also passed. Off-node restore remains deferred.
-- [x] Recheck Fleet Ready state and production topology/schema gates after
-      the Geodata rollout: Fleet reports Ready=True with 60/60 resources at
-      deploy commit bbb3276296c8fa86941315b582caa76e178bd94f; Helm revision 189
-      is deployed. Keep Operations read-only. Recheck after the pending Activity
-      image and deployment change.
+- [x] Recheck Fleet and production topology/schema after immutable image
+      rollout. Helm revision 191 is deployed; Fleet reports Ready=True at Deploy
+      commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources ready. Activity, Geodata and
+      shared-runtime pod image references resolve to configured immutable
+      digests. The target durables and schema markers are healthy. Keep
+      Operations read-only.
 
 **Exit criteria**
 
-- [ ] All four Geodata queues have documented scaling, retry, DLQ, recovery and
-      retention behavior, and the replacement durables are validated in the
-      live and disposable environments. Retire the old durable definitions only
-      after the 24-hour rollback observation and the final database recovery
-      check. No Phase 5 database object is obsolete: migration 021's dispatch
-      columns/indexes and the domain/outbox rows remain required recovery state.
+- [x] The four Geodata queues have documented scaling, retry, DLQ,
+      recovery and retention behavior; replacement durables are validated in
+      live and disposable environments. No Phase 5 database object is obsolete:
+      migration 021's dispatch columns/indexes and domain/outbox rows remain
+      required recovery state.
+- [ ] Complete the 24-hour rollback observation after immutable-image Helm
+      revision 191, then recheck replacement/legacy filters, backlog counters,
+      migration markers, owner-row recovery age and Fleet readiness. Retire
+      only the four legacy Geodata durable definitions after this check. The
+      earliest time is 21:28:41 UTC on 11 October 2026.
 - [x] Broker Pod restart, worker restart, delayed ACK, duplicate/lost ACK,
       expiry/reconstruction/completion, database failure, the Activity-success/
       Geodata-failure retry, and cancellation racing with an acknowledged
       preprocessing delivery preserve durable effects in isolated tests.
-- [ ] Build and publish the committed Activity cascade idempotency change, pin
-      its immutable digest, deploy it through Fleet, and recheck live health and
-      topology.
+- [x] Build and publish the Activity cascade idempotency change,
+      configure its immutable image digest, deploy it through Fleet, and
+      recheck live health and topology. The Activity API, workers and
+      notification consumer use the configured digest; Helm revision 191 and
+      Fleet readiness are verified.
 - [x] Recovery loops are observable, age-bounded and limited to batches of 50;
       they enqueue repair through the transactional outbox and do not run as a
       second primary dispatcher.
