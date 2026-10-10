@@ -471,10 +471,13 @@ gates, and Phase 1 exit criteria.
 [relay hardening evidence record](evidence/phase2-relay-hardening-2026-10-10.md).
 The relay validates the existing mixed Interest stream and durable settings
 read-only; it does not provision, update, or delete broker topology. The live
-legacy filter set was inspected read-only on 10 October. No producer or consumer
-delivery path was changed. The Activity notification durable remains broad until
-its registered-filter successor can be introduced without abandoning its current
-Interest-retained backlog. The target Limits/work-stream cutover remains gated.
+legacy filter set was inspected read-only on 10 October. Service-side outbox
+write helpers and consumer handlers were not changed. The relay now routes
+registered facts to dotted contract subjects; the six mapped Geodata work
+source types retain their current legacy subjects. The Activity notification
+durable remains broad until its registered-filter successor can be introduced
+without abandoning its current Interest-retained backlog. The target
+Limits/work-stream cutover remains gated.
 
 **ChatGPT prompt — Phase 2**
 

@@ -23,7 +23,8 @@ indexes organize open work by delivery status.
   contract-backed routing, same-ID crash recovery, dead-letter redrive, and
   backlog metrics. The three relay Deployments are live and report healthy
   database/NATS connections with zero pending rows; six existing Geodata DLQs
-  remain unresolved. Fleet still reports the latest Helm release as pending.
+  remain unresolved. Fleet reports Ready with 59/59 resources and Helm revision
+  167 is deployed on chart 0.2.14.
   Production remains on the mixed Interest-retained stream; payload/privacy
   enforcement and consumer/work-stream cutover remain open. See
   the [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),

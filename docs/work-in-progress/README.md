@@ -32,7 +32,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     validates its legacy topology without mutation. Producer publication source
     now uses registered dotted fact subjects; consumer delivery handlers and
     deployed work paths remain unchanged. Fleet has fetched the current deploy
-    commit, but still reports `WaitApplied` and Helm revision 164 is pending.
+    commit and now reports Ready with 59/59 resources. Helm revision 167 is
+    deployed on chart 0.2.14; all three relay Deployments are Ready.
   - **References:** [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
     [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
     [recovery runbook](../operations/messaging/jetstream-recovery.md), and

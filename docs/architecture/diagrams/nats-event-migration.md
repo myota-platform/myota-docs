@@ -28,11 +28,11 @@ flowchart LR
   E -. read-only metadata .-> O[Operations observer]
 ```
 
-## Phase 2 relay source behavior — isolated verification
+## Phase 2 relay behavior — deployed 10 October 2026
 
-This records the relay implementation that passed isolated tests. The live
-topology above was inspected separately; this flow does not claim a production
-cutover.
+The relay mapping passed isolated checks and is now deployed to the local K3s
+cluster. The stream and durable configuration remains the observed mixed legacy
+topology above. This flow does not claim consumer or work-stream cutover.
 
 ```mermaid
 flowchart LR

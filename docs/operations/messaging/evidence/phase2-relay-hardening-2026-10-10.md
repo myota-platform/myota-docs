@@ -66,35 +66,30 @@ stream migration.
 - Ruff lint and format checks passed for the changed relay, routing, admin CLI,
   and tests. Helm lint and render passed. Compose, Collector configs, alert
   rules, rendered Helm YAML, and the dashboard JSON parsed successfully.
-- After the source push, the live Helm release exposed a value-typing issue:
-  YAML parsed `outbox.maxMessageBytes: 1048576` as a floating-point number and
-  rendered `OUTBOX_MAX_MESSAGE_BYTES` as `1.048576e+06`, which the relay's
-  integer parser rejects. The deploy-owned value is now the quoted string
-  `"1048576"` (commit `ca70e32`) and its platform mirror is synchronized
-  (commit `50d3ad3`). Helm lint/render confirms the environment value is
-  `"1048576"`; both repository CI checks passed. During the active Fleet
-  upgrade, the three outbox Deployments were temporarily set to that same
-  intended integer value and returned Ready. Fleet later applied that chart
-  value. The rollout then exposed a second issue: the migrations hook used
-  `IfNotPresent` with the mutable `myota-service:latest` tag and ran a cached
-  image that lacked the new dead-letter columns. Relay pods stayed up, but their
-  dead-letter metrics query logged `resolved_at does not exist`. The migration
-  hook now uses `imagePullPolicy: "Always"` in deploy commit `ce8065b`, with the
-  synchronized platform mirror in commit `1444d82`. The source chart was
-  versioned as `0.2.14` (`c7c904c`). The first retry still selected the pinned
-  stale image digest from `values-image-digests.yaml`; the digest-sync workflow
-  updated it to `sha256:858519…` in deploy commit `af5ef1d`, and the full digest
-  file was added to the platform mirror in commit `b0552b5`. Helm migration Job
-  revision 164 then ran with the current digest. Read-only schema checks found
-  `resolved_at` and its partial unresolved index in all three service-owned
-  databases. Each relay Deployment is 1/1 Ready; its metrics endpoint reports
-  database and NATS health `1`, pending outbox rows `0`, and no recent database
-  errors. Geodata reports six unresolved dead letters; these were left intact
-  for operator inspection. The Fleet GitRepo has fetched deploy commit
-  `af5ef1d`, but Fleet still reports `WaitApplied` and Helm history still shows
-  revision 164 as `pending-upgrade` at the time of this record. The relay
-  workloads and migrations are verified; final Helm/Fleet release convergence
-  remains an operational follow-up.
+- **Live rollout — message cap:** Helm initially rendered the numeric
+  `outbox.maxMessageBytes: 1048576` as `1.048576e+06`, which the relay's integer
+  parser rejects. The deploy-owned value is now the quoted string `"1048576"`
+  (commit `ca70e32`) and the platform mirror is synchronized (commit `50d3ad3`).
+  Helm render and both repository CI checks passed. During the active upgrade,
+  setting that same intended value on the three Deployments restored readiness;
+  Fleet later applied the chart value.
+- **Live rollout — migration image:** The migrations Job initially used a
+  cached image pinned to the old platform digest, which lacked the new
+  dead-letter columns. Relay metrics logged `resolved_at does not exist` while
+  the workers stayed up. The hook now uses `imagePullPolicy: "Always"` (deploy
+  commit `ce8065b`, platform mirror `1444d82`), and the chart is versioned as
+  `0.2.14` (deploy commit `c7c904c`). The digest-sync workflow recorded current
+  image digest `sha256:858519…` in deploy commit `af5ef1d`; the digest values
+  mirror is platform commit `b0552b5`.
+- **Live verification:** Migration Job 166 completed with the current pinned
+  image. Read-only checks found `resolved_at` and its partial unresolved index
+  in all three service databases. Each relay Deployment is 1/1 Ready; its
+  metrics endpoint reports database and NATS health `1` and pending rows `0`,
+  with no recent database errors. Geodata reports six unresolved dead letters;
+  these were left intact for operator inspection. Fleet is Ready with 59/59
+  resources and Helm revision 167 is deployed on chart `0.2.14` (Helm describes
+  it as a rollback to revision 166). Consumer/work-stream cutover and
+  mixed-stream retirement remain open.
 - All three redrive migration files applied idempotently against disposable
   PostgreSQL in the test namespace. The real relay published a registered fact
   to its dotted subject, used the event UUID as `Nats-Msg-Id`, and recovered

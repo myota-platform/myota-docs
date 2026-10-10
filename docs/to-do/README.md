@@ -18,8 +18,9 @@ documentation evidence and does not set delivery dates.
   backlog metrics, alerts, and isolated broker/database qualification. The
   three relay Deployments are live and report healthy database/NATS connections
   and zero pending outbox rows. Six Geodata dead letters remain unresolved.
-  Fleet still reports the latest Helm release as pending. The mixed Interest
-  stream and existing consumer/work paths remain deployed.
+  Fleet reports Ready with 59/59 resources; Helm revision 167 is deployed on
+  chart 0.2.14. The mixed Interest stream and existing consumer/work paths
+  remain deployed.
   Payload privacy/schema enforcement and controlled consumer/work-stream
   cutover remain open. See the [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
   [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),

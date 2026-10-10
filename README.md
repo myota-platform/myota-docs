@@ -78,11 +78,12 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   Phases 0 and 1 are complete, and Phase 2 relay hardening passed focused tests
   and an isolated K3s drill. The three relay Deployments are live with healthy
   database and NATS gauges and zero pending rows; six existing Geodata DLQs
-  remain for inspection. Fleet still reports the latest Helm release as
-  pending. Source-derived payload privacy/schema enforcement, consumer/work
-  migration, and production cutover remain open. The live broker still uses the
-  mixed Interest-retained stream; the accepted cluster-internal trust boundary,
-  finite caps, and deferred off-node recovery risk are recorded.
+  remain for inspection. Fleet reports Ready with 59/59 resources; Helm
+  revision 167 is deployed on chart 0.2.14. Source-derived payload
+  privacy/schema enforcement, consumer/work migration, and production cutover
+  remain open. The live broker still uses the mixed Interest-retained stream;
+  the accepted cluster-internal trust boundary, finite caps, and deferred
+  off-node recovery risk are recorded.
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
