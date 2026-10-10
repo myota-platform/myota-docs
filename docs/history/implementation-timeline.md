@@ -13,6 +13,42 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 10 October 2026 — NATS Phase 1 delegated joint review
+
+- **Prompt used:** “OK, condict the Joint review of all payload schemas,
+  credentials, production capacity limits, restore/replay qualification, and
+  relay-side provisioning on your own bsed on best practices and your best
+  criteria and continue phase 1 implementation.” This continues the existing
+  [single Phase 1 prompt](../operations/messaging/nats-event-migration-plan.md#chatgpt-prompt--phase-1);
+  no new phase prompt was introduced.
+- **Schema decisions:** Reviewed all 68 source-derived fact schemas and their
+  classifications/dispositions. Accepted them as inventory contracts, with
+  producer enforcement gated on minimal projections, prohibited-field/size
+  checks, compatibility fixtures, and Geodata preprocessing minimization.
+  The v1 Geodata preprocessed event still includes internal _records and
+  _status; a compact versioned summary is required before enforcement.
+- **Security and topology decisions:** Selected per-role NKey credentials from
+  operator-managed Kubernetes Secrets, NATS TLS, no shared runtime identity, a
+  read-only Operations role, and a separate create-only provisioner identity.
+  Relay-side topology mutation will be removed only at a reviewed compatibility
+  cutover.
+- **Capacity and recovery:** Proposed 1 GiB for facts, 1 GiB for Activity work,
+  and 3 GiB for Geodata work, reserving 3 GiB of the existing 8 GiB PVC.
+  Evidence queried from deployed relay pods had no pending outbox rows, but
+  covered only 2–9 October and included load-test data. Values are not final
+  until representative 30-day sizing and pressure/recovery tests pass. Selected
+  off-node stream snapshots, isolated restore/replay, declarative consumer
+  recreation, and database-authoritative work redrive.
+- **Checks and boundaries:** Read-only K3s query showed the node Ready, release
+  myota at Helm revision 157, NATS single replica with an 8 GiB PVC, and all
+  three outbox databases had no unpublished rows. No messages, streams, consumer
+  state, or domain data changed. Credential rollout, broker restore/replay,
+  measured sizing, chart provisioner readiness, payload enforcement, and relay
+  mutation removal remain open; Phase 1 is not complete. See the
+  [joint review evidence](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
+  [migration plan](../operations/messaging/nats-event-migration-plan.md),
+  and [topology diagram](../architecture/diagrams/nats-event-migration.md).
+
 ## 9 October 2026 — NATS migration Phase 1 contract and provisioner preparation
 
 - **Contract baseline:** Added a contracts-owned registry for 68 domain facts,
