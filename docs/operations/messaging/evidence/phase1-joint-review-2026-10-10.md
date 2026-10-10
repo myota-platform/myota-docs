@@ -1,4 +1,4 @@
-# Phase 1 joint review: schemas, credentials, capacity, and recovery
+# Phase 1 joint review: schemas, capacity, recovery, and relay ownership
 
 **Review date:** 10 October 2026  
 **Decision authority:** workspace owner delegated the review to the two-person project team (Volker Kerkhoff and Codex).  
@@ -118,23 +118,13 @@ external delivery command.
 
 **Open schema implementation gate:** add schema validation and focused fixtures for the exact producer projection, reject prohibited fields and oversized payloads, and cover all accepted consumer needs. In particular, complete the Geodata preprocessed projection before schema enforcement. Operations has no event-producing call site in the Phase 0 source audit; no Operations fact schema is required unless it becomes a producer.
 
-### Credentials and permissions
+### Cluster network boundary and Operations permissions
 
-**Decision — require distinct NKey credentials per runtime role, loaded from read-only Kubernetes Secret files backed by an operator-managed secret source.** Do not check seeds into Git, put them in Helm values, or share one application credential. Configure NATS authentication and TLS before cutover; restrict the ClusterIP through NetworkPolicy when the cluster CNI supports it.
+**Decision — keep NATS cluster-internal and do not require NATS authentication or TLS while it is exposed only through the Kubernetes ClusterIP service.** The workspace owner explicitly supersedes the earlier NKey/TLS proposal. This accepts all pods with network reachability to the service as trusted clients. Do not expose the NATS client port through an Ingress, NodePort, LoadBalancer, host port, or external service. Revisit the decision before any such exposure or before admitting workloads that are not trusted at the cluster boundary.
 
-| Role | Allowed purpose |
-|---|---|
-| `core-outbox` | Publish only registered fact subjects owned by Identity/Programme; no subscriptions. |
-| `activity-outbox` | Publish only Activity fact subjects and, after cutover, Activity work subjects; no subscriptions. |
-| `geo-outbox` | Publish only Geodata fact/work subjects; no subscriptions. |
-| Activity notification consumer | Pull only its named fact durable and acknowledge only delivered messages. |
-| Geodata work consumer | Pull only its registered work durables and acknowledge only delivered messages. |
-| Deployment provisioner | Create/inspect only the named streams and durables; separate from runtime identities and unavailable to application pods. |
-| Operations observer | Read stream/consumer metadata only; no message payload, consume, ACK, create/update/delete, or purge rights. |
+**Observed state:** the deployed `myota-nats` service is `ClusterIP` on port 4222. The `myota` namespace currently has no NetworkPolicy, so the cluster-internal service boundary does not restrict access to selected pods. The running broker has no authentication configuration or credentials, consistent with this decision. No runtime change is needed to apply the decision.
 
-JetStream management requests travel over NATS subjects, so the ACL must be tested against the actual NATS Python client’s API and ACK subjects; a broad `$JS.API.>` grant is limited to the one-shot provisioner. Keep clients inside the cluster and use TLS because connection authentication alone does not protect message contents in transit. Operations remains read-only as defined in `myota-operations-service` and `myota-docs/docs/operations/messaging/jetstream-admin-status.md`.
-
-**Observed state:** `myota-deploy/deploy/helm/myota/templates/messaging.yaml` starts NATS without an auth config; the deployed chart exposes internal port 4222 and no credentials are mounted. This is an unauthenticated trusted-cluster boundary, not least-privilege authorization. Existing clients and provisioner therefore cannot be switched to auth until a secret source, server config, role ACLs, TLS files, and client wiring pass an isolated end-to-end test.
+Operations remains read-only by application behavior: inspect stream and consumer metadata only; do not publish, consume, acknowledge, purge, or change topology. This is an application boundary, not a NATS credential/ACL guarantee under the accepted unauthenticated cluster trust model.
 
 ### Production capacity limits
 
@@ -171,7 +161,7 @@ Current `myota-deploy/services/outbox_worker.py` still creates/updates `MYOTA_EV
 |---|---|---|
 | 68 domain-fact schemas | Yes; per-event classification and consumer disposition are enumerated above. | Enforce only after projection, compatibility fixtures, payload-size checks, and the Geodata v1/v2 decision are implemented. |
 | Ten work contracts | Design policy selected. | Complete each producer’s transaction/idempotency/recovery evidence and payload-size test. |
-| Credentials | Role model and permission boundaries selected. | Supply secret material out of band; implement NATS auth/TLS, mount files, and prove allow/deny behavior per client role. |
+| Cluster network boundary | Accepted: no NATS auth/TLS while the broker remains ClusterIP-only and the cluster workload boundary is trusted. | Keep the service internal; re-evaluate before external exposure or admitting untrusted workloads. The current namespace has no NetworkPolicy. |
 | Capacity | Initial finite limits proposed against the 8 GiB PVC. | Full representative baseline, serialized NATS sizing, alerts, pressure/recovery test, and operator approval of final values. |
 | Restore/replay | Recovery policy selected; basic isolated snapshot/restore and replay passed. | Off-node backup, PVC-loss recovery, database reconciliation, and production-like qualification remain open. |
 | Relay provisioning | Single deployment owner and create-only model selected. | Add chart-run provisioning/readiness, remove mutation from relays at safe compatibility cutover, and prove no publish precedes preflight. |
@@ -192,19 +182,17 @@ and Contracts CI run
 The deploy-owned create-only topology definition and drift checks also pass
 focused and isolated broker checks. This completes the contract/subject-registry
 exit criterion; it does not mean that the current relay enforces the new
-envelope or subject rules. Remaining exit criteria are authenticated
-least-privilege provisioning with a readiness barrier, payload projection and
-unknown-route enforcement, measured final limits, and qualified off-node
-backup/restore/replay. The
+envelope or subject rules. Remaining exit criteria are deterministic provisioning with a readiness barrier,
+payload projection and unknown-route enforcement, measured final limits, and
+qualified off-node backup/restore/replay. NATS authentication and TLS are not
+requirements while the broker remains cluster-internal under the accepted trust boundary. The
 [recovery runbook](../jetstream-recovery.md) now records the procedure, but
 qualification evidence remains open. No phase after Phase 1 is claimed complete.
 
 
 ## Primary NATS references
 
-- [NATS authorization](https://docs.nats.io/learn/security/authorization) describes publish/subscribe permissions as subject allow-lists and notes that JetStream API requests also require suitable permissions. This is why each client role needs an isolated allow/deny test against its actual APIs.
 - [JetStream concepts](https://docs.nats.io/concepts/jetstream) describes stream and consumer persistence and replay. Replay is per consumer, so validation uses an isolated durable.
-- [NATS TLS and authentication](https://docs.nats.io/learn/resilient-clients/tls-and-auth) covers client connection security and supported credentials.
 - [JetStream stream API](https://docs.nats.io/reference/jetstream-api/stream) documents snapshot and restore operations. The planned drill includes consumer state verification and application database comparison because a broker snapshot does not make PostgreSQL state or the whole service system recoverable.
 
 
