@@ -73,8 +73,9 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   [Phase 1 joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   and [recovery runbook](docs/operations/messaging/jetstream-recovery.md), with the
   selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-  Contract and create-only topology foundations are verified; authentication,
-  capacity, deployment readiness, and restore qualification remain open.
+  Contract and create-only topology foundations are verified; the cluster-internal
+  trust boundary is accepted. Capacity, deployment readiness, runtime enforcement,
+  and restore qualification remain open.
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
@@ -85,8 +86,9 @@ in progress or evidence gates not yet met; implementation completion does not
 imply scale qualification or production readiness.
 
 NATS migration status on 10 October 2026: Phase 0 is complete and Phase 1 is
-in progress. Delegated decisions cover all 68 fact schemas, role credentials,
-provisional finite capacity, recovery, and relay provisioning. Payload projection, credential rollout, representative sizing, off-node/PVC-loss
+in progress. Delegated decisions cover all 68 fact schemas, the cluster-internal
+trust boundary, provisional finite capacity, recovery, and relay provisioning.
+Payload projection, representative sizing, deployment readiness, off-node/PVC-loss
 restore, and safe relay transition remain open. A basic isolated snapshot/restore
 and replay drill passed. The live broker remains on Interest retention. See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
