@@ -15,8 +15,9 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   undispositioned Python event-like source literals across five service
   repositories; the contracts main-branch source-audit workflow passed. Earlier platform
   image-build attempts timed out at Docker Hub; the latest deploy and platform
-  main-branch image build/publish checks now pass. Per-event payload contracts, authenticated least-privilege NATS roles, measured capacity limits,
-  restore/replay test, and removal of relay-side provisioning remain open. The
+  main-branch image build/publish checks now pass. CI confirmation and owner/privacy approval for source-derived payloads,
+  authenticated least-privilege NATS roles, measured capacity limits, restore/replay
+  testing, and removal of relay-side provisioning remain open. The
   deployed shared `MYOTA_EVENTS` stream still uses Interest retention; no
   producer/consumer path or live stream has changed. See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
