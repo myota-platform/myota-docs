@@ -265,3 +265,38 @@ these contracts/docs changes do not change the deployed stack, so no rollout was
 triggered. The same Phase 1 prompt remains in use. The Activity and Geodata source-schema
 checklist items are complete; owner/privacy review and the Phase 1 exit criteria
 remain open.
+
+
+## 10 October 2026 — delegated joint review and live sizing sample
+
+The workspace owner delegated a joint review to Volker Kerkhoff and Codex as
+the two-person project team. The review covered all 68 fact schemas, ten
+selected work contracts, role credentials, current broker capacity,
+restore/replay, and relay-side provisioning. Per-event classifications and
+dispositions are in the [Phase 1 joint review](phase1-joint-review-2026-10-10.md).
+
+Decisions: accept the source-derived schemas as inventory contracts only, with
+producer enforcement gated on minimal projections, prohibited-field and size
+checks, and compatibility fixtures; require per-role NKey credentials, TLS,
+and a separate provisioner identity; set provisional caps of 1 GiB facts,
+1 GiB Activity work, and 3 GiB Geodata work (5 GiB total against the 8 GiB PVC,
+reserving 3 GiB); restore stream snapshots off-node and recreate consumers from
+declarative config; and make one deployment-owned create-only provisioner the
+only topology writer. Do not run target provisioning against the mixed legacy
+stream before inspection and backup.
+
+Read-only queries from each deployed relay pod found no unpublished outbox
+rows. Under the 30-day query predicate, source rows actually span only 2–9
+October in core (162 rows, largest 387 bytes), 6–8 October in Activity (3,016,
+largest 150 bytes), and 6–9 October in Geodata (15,925, largest 373,607 bytes).
+Geodata includes load-test traffic. This is less than eight days of evidence and
+measures database JSON, not serialized NATS messages or future command traffic;
+the proposed limits are not production-qualified. The NATS PVC is 8 GiB; the
+single K3s node was Ready and Helm release myota was revision 157. No stream,
+message, durable, or application row changed.
+
+Remaining gates: server/client auth and TLS plus role ACL tests; representative
+full-window sizing and pressure recovery; off-node backup and isolated
+restore/replay; Helm/Fleet provisioner readiness; safe relay mutation removal;
+and a compact versioned Geodata preprocessing fact before enforcement. Phase 1
+remains in progress.
