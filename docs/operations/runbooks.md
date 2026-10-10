@@ -309,8 +309,9 @@ The current **MyOTA JetStream backlog and PostGIS query performance** dashboard
 shows broker-reported consumer pending/ack-pending counts, redeliveries, oldest
 outstanding message age and age-lookup availability, plus PostGIS query-time
 percentiles and slow-query rate. These are distinct from outbox rows waiting
-to publish and database import queue state. The Surveyor migration will replace
-the broker panels/dashboard while preserving the PostGIS panels; see the
+to publish and database import queue state. The two PostGIS panels have been removed from the source-managed combined
+dashboard assets and will not be recreated. Surveyor will replace the remaining
+broker dashboard after acceptance checks; see the
 [consolidation plan](../observability/nats-surveyor-migration.md). The
 [`geodata load and query-evidence runbook`](../geodata/evidence/load-test-and-query-evidence.md)
 documents profile safety, cleanup, metrics, and read-only query-plan capture.
