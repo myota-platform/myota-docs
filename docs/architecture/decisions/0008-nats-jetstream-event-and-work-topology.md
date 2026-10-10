@@ -3,10 +3,12 @@
 ## Status
 
 Accepted for the target design by the workspace owner. Phase 0 inventory,
-decision, and evidence-owner assignments are complete. Runtime implementation,
-evidence closure, and production qualification remain open. Phase 1 contract
-and create-only provisioner preparation has begun; it has not changed the live
-topology. See the [Phase 1 evidence record](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+decision, and evidence-owner assignments are complete. Delegated Phase 1 review
+decisions cover schemas, per-role credentials, provisional capacity,
+restore/replay policy, and relay-side provisioning ownership. Runtime
+implementation and production qualification remain open; the live topology has
+not changed. See the [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md)
+and [Phase 1 evidence record](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
 
 ## Context
 
