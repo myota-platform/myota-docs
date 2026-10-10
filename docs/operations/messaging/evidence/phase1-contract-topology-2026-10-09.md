@@ -166,7 +166,7 @@ passed, including the new schema test step and Ruff. Platform mirror commit
 `529631c` passed its unit tests, Ruff, and container workflow
 ([run 38033742782](https://github.com/myota-platform/myota-platform/actions/runs/38033742782)).
 No producer, consumer, broker, or deployed
-service behavior changed. The Identity team review of data minimization and
+service behavior changed. Our Identity owner/privacy review of data minimization and
 retention remains open, as do source-derived payload schemas for Programme,
 Activity, Geodata, and Operations. The existing Phase 1 prompt remains the sole
 phase prompt; this is a contract-only continuation.
