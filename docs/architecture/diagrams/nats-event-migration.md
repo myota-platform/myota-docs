@@ -56,4 +56,5 @@ The delegated review decided the 68-schema disposition, per-role auth/TLS,
 provisional capacity, restore/replay policy, and provisioner ownership. These
 are decisions, not qualification. No target stream or producer/consumer path
 changed. Geodata payload minimization, credentials, full-window sizing,
-restore/replay tests, chart readiness, and safe relay transition remain open.
+off-node/PVC-loss restore qualification, chart readiness, and safe relay transition
+remain open. Basic isolated restore/replay passed.
