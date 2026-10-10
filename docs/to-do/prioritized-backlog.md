@@ -73,11 +73,13 @@ a workspace audit found no undispositioned Python event-like literals across
 five service repositories. The contracts source-audit workflow passed; platform unit tests and
 Ruff format/lint CI pass. The expanded consumer configuration also passes four
 focused tests and an isolated create/idempotency run against a disposable broker.
-The 19 Identity, 12 Programme, and 10 Activity event payloads now have additive,
-source-derived schemas and data-classification metadata. Activity local schema
-assertions pass; its GitHub Actions status is not available from the connector.
-Joint owner/privacy review remains open, as do payload schemas for Geodata and
-Operations.
+The 19 Identity, 12 Programme, 10 Activity, and 27 Geodata event payloads now
+have additive, source-derived schemas and data-classification metadata. Activity
+and Geodata local schema assertions pass; their GitHub Actions status is not
+available from the connector. Joint owner/privacy review remains open. Geodata
+preprocessing currently includes internal `_records` and `_status` data in its
+event payload; minimization review is required before enforcement. Operations
+payload schemas remain open.
 Earlier platform image-build attempts timed out at Docker Hub; the latest deploy
 and platform main-branch image build/publish checks now pass. The payload schemas are still incomplete. The deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
 and no live migration or runtime change has occurred. Read-only sampling found
@@ -93,7 +95,8 @@ recorded, so the remaining priority is to establish the contract and safe
 provisioning, close the evidence gate for each affected flow, and verify relay,
 consumer, and recovery behavior before cutover.
 
-**Next:** close Phase 1 payload and subscriber contracts, establish secure
+**Next:** close Phase 1 owner/privacy review of the source-derived payloads and
+subscriber contracts, minimize the Geodata preprocessing event, establish secure
 per-role broker access, derive limits from representative traffic and the
 allocated volume, and run restore/replay tests on an isolated broker. Remove
 relay-side topology mutation before provisioning can be used. Do not begin
