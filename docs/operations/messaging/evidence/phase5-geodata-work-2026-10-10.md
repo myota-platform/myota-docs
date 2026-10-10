@@ -91,7 +91,10 @@ need confirmation.
 | Geodata lint/format | Pass | Ruff check and format check on `geodata.py`, `tests/test_geometry.py`, and `tests/test_jetstream_worker_delivery.py`. |
 | Deploy relay/topology | Pass | 25 tests in `test_outbox_contracts` and `test_jetstream_topology`; Ruff and formatting passed on the mirrored deletion handler. |
 | Database connection failure | Pass | In the disposable host-K3s test database, the first handler connection was refused on local test port 1; JetStream NAKed and redelivered the message, the next database connection succeeded, and the durable settled at zero pending and ack-pending. No false ACK occurred. |
-| Activity cascade idempotency propagation | Pass | Activity's HTTP handler forwards `Idempotency-Key` into its durable repository; the repository serializes concurrent keys with a transaction advisory lock and stores the response atomically with the cascade fact. Activity's 40-test suite passed (one optional JetStream broker test skipped); Ruff and formatting checks passed. |\n| Two-database cascade/JetStream retry | Pass, isolated host-K3s | Real Activity API and Activity PostgreSQL plus Geodata handler and PostGIS ran with a private file-backed WorkQueue and durable pull consumer. Injected Geodata failure after Activity commit produced NAK/redelivery; completion removed the entity, wrote exactly one `activity.entity.cascade-deleted.v1` outbox row, and left zero stream messages, pending messages or ack-pending messages. Disposable fixture rows, idempotency entry, event row and private stream were removed. |
+| Activity cascade idempotency | Pass, isolated | The durable repository serializes same-key requests with a transaction advisory lock and stores the response atomically with the cascade fact. Five rounds of eight concurrent requests each produced one response, one idempotency row and one outbox fact. Activity's 40-test suite passed (one optional JetStream broker test skipped); Ruff and formatting checks passed. The source fix is not yet deployed in the Activity image. |
+| Two-database cascade/JetStream retry | Pass, isolated host-K3s | Real Activity API and Activity PostgreSQL plus Geodata handler and PostGIS ran with a private file-backed WorkQueue and durable pull consumer. Injected Geodata failure after Activity commit produced NAK/redelivery; completion removed the entity, wrote exactly one `activity.entity.cascade-deleted.v1` outbox row, and left zero stream messages, pending messages or ack-pending messages. Disposable fixture rows, idempotency entry, event row and private stream were removed. |
+| Cancellation during acknowledged work | Pass, isolated host-K3s | The private preprocessing durable claimed a disposable import, the cancellation API persisted CANCELLING while work was in flight, and the worker finalized CANCELLED before ACK. One cancellation fact was durable; the stream ended with zero messages/pending/ack-pending. No production row or feature data was written. Confirmed deletion jobs are not cancellable. |
+| Expiry/replay/recompletion | Pass, connected disposable chain | A private WorkQueue message expired before consumption; the age-bounded Geodata scanner rebuilt a command from the processing owner row through the transactional outbox; a durable redelivery completed the Activity cascade and Geodata deletion. The stream ended with zero messages, pending and ack-pending. |
 | Duplicate/lost ACK and commit boundary | Pass, isolated | Existing JetStream integration confirms redelivery after commit is idempotent and ACK follows durable state. |
 | Long handler/ACK wait | Pass, isolated | Heartbeat test held a handler beyond its configured ACK wait without redelivery. |
 | Stale-row repair | Pass, database-backed | Each of preprocessing, promotion, deletion and location work was recreated once through the outbox; an immediate second scan emitted no duplicate. Recovery batch size is 50 and minimum work age is 300 seconds. |
@@ -110,13 +113,11 @@ need confirmation.
 2. Remove only the four legacy Geodata durable consumers from `MYOTA_EVENTS`
    after the observation and safe rollback check. Preserve Activity's
    notification durable and the shared stream.
-3. Qualify a cancellation racing with a real acknowledged delivery and connect
-   message expiry to owner-row reconstruction and successful completion.
-4. Confirm GitHub Actions for Activity commits, publish the corrected Activity
-   image, pin its immutable digest, and confirm the production rollout/Fleet
-   readiness. Keep the direct-main source and mirror commits linked.
-5. Recheck and update all Phase 5 plan/docs checkboxes and clean the isolated
-   K3s validation namespace after the remaining cases.
+3. Confirm GitHub Actions for the Activity source commits, publish the
+   corrected Activity image, pin its immutable digest, and verify Fleet's
+   rollout. Keep Phase 5 open until this source fix is live.
+4. Shut down the local Activity API and port-forwards, then remove the isolated
+   K3s namespace/PVC after final read-only cleanup checks.
 
 ## Schema retirement and cleanup
 
@@ -125,9 +126,9 @@ columns/indexes and the outbox, source jobs, cancellation/history records,
 checkpoints, and dead letters; these are the durable recovery boundary. Do not
 purge the six historical cancelled-import dead letters.
 
-The isolated namespace `myota-phase5-validation` currently contains its
-disposable NATS, Geodata PostGIS, and Activity PostgreSQL services. A local
-Activity API process and port-forwards support the cross-service test. The test
-fixtures and private JetStream stream have been removed; shut down the local
-process/forwards and delete the namespace/PVC after remaining isolated checks.
-No production data was used or modified.
+The isolated namespace `myota-phase5-validation` contains disposable NATS,
+Geodata PostGIS, and Activity PostgreSQL services plus a local Activity API
+process and port-forwards. Test fixtures, idempotency/outbox rows, checkpoints,
+and all private JetStream streams were removed after the checks. Stop the local
+process and port-forwards, then delete the namespace/PVC. No production data
+was used or modified.
