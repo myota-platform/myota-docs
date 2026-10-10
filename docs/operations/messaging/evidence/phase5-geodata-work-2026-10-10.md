@@ -2,8 +2,8 @@
 
 ## Current status — 11 October 2026
 
-Helm revision 193 completed successfully at 22:00:02 UTC on 10 October. Fleet
-reports `Ready=True` at Deploy commit
+Helm history records revision 193 at 22:00:02 UTC on 10 October with
+status deployed. Fleet reports `Ready=True` at Deploy commit
 `cfecd655d9c0eee9d19db26725fb11c99366815a` as of 22:03:29 UTC, and Helm reports
 revision 193 deployed. Migration Job 193 completed; all MyOTA Deployments are
 ready. Live first-party image references are digest-pinned: Activity
