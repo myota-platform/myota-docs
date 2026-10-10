@@ -18,8 +18,8 @@ describe current ownership and are authoritative for the present-day system.
 - **Prompt used:** “Inject some data to test the premises you are observing. If
   after this data everything is correct, close the observation window and finish
   phase 4 work. Clean up the test data afterwards.”
-- Helm revision 193 completed successfully at 22:00:02 UTC on 10 October and
-  Fleet reported Ready=True at Deploy commit
+- Helm history records revision 193 at 22:00:02 UTC on 10 October with
+  status deployed; Fleet reported Ready=True at Deploy commit
   `cfecd655d9c0eee9d19db26725fb11c99366815a` at 22:03:29 UTC. This later
   immutable-image rollout supersedes the previous revision 192 observation
   anchor.
