@@ -1,6 +1,6 @@
 # Prioritized backlog
 
-**Reviewed:** 2026-10-10
+**Reviewed:** 2026-10-11
 
 This page orders the currently listed open work using evidence in the linked
 plans. It is a documentation-based recommendation, not a committed delivery
@@ -60,53 +60,46 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Complete Phase 5 Geodata recovery and Phase 6 fact-stream lifecycle
+### 2. Phase 6 fact-stream lifecycle
 
-**Current evidence:** Phases 0–4 are complete within their recorded evidence
+**Current evidence:** Phases 0–5 are complete within their recorded evidence
 bounds. Phase 5 moved all four Geodata work kinds to the bounded
-`MYOTA_GEODATA_WORK` WorkQueue, applied migration 021, shipped retry-safe
-partial deletion and deployed the Activity cascade idempotency fix. Helm revision 193 is deployed; Fleet reports Ready=True at Deploy commit
-`cfecd655d9c0eee9d19db26725fb11c99366815a` with 60/60 resources ready. First-party runtime, worker,
-provisioner and scheduled-job images use configured immutable references;
-live pod image references/ImageIDs match. The 154-test Geodata suite, 40-test
-Activity suite (each with one optional skip), 25 relay/topology tests and
-isolated recovery checks passed. No accepted production Geodata work was
-available for processing. See the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+MYOTA_GEODATA_WORK WorkQueue, applied migration 021, shipped retry-safe
+partial deletion and deployed the Activity cascade idempotency fix. Helm
+revision 193 remains deployed; Fleet is Ready=True at Deploy commit
+cfecd655d9c0eee9d19db26725fb11c99366815a. First-party runtime, worker,
+provisioner and scheduled-job images use immutable references that match live
+pods. See the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
-All four target durables are empty with active workers. Four old Geodata
-durables in `MYOTA_EVENTS` remain inactive and empty. The 24-hour observation
-began at latest completed rollout revision 193, 22:03:29 UTC on
-10 October, and ends no earlier than 22:03:29 UTC on 11 October 2026. After that gate, recheck
-Fleet, stream filters/backlogs, migration markers and owner-row recovery age,
-then retire only the four old durables. A 22:05 UTC read-only sample after revision 193 found zero work
-messages and zero legacy pending/ack-pending/redelivery, but does not satisfy
-the full 24-hour gate. Synthetic recovery/delivery checks ran in a disposable
-namespace; recovery produced each command once and all private streams later
-settled at zero. Two full suite runs each exposed one immediate ACK-counter
-assertion race, so do not count them as a clean suite pass. The Activity notification durable and shared
-Interest-retained `MYOTA_EVENTS` remain. Off-node recovery stays
-deferred; Phase 6 governs the separate fact-stream retention transition.
+The four legacy Geodata durables were retired after final checks of replacement
+and legacy filters, backlog counters, migration 021 markers, age-bounded
+owner-row recovery and Fleet readiness. The user explicitly waived the
+24-hour elapsed-time requirement; closure occurred about ten minutes after
+the revision 193 Fleet readiness anchor. This does not claim a full 24-hour
+observation. The Activity notification durable, shared Interest-retained
+MYOTA_EVENTS, four target durables, recovery schema and authoritative
+database rows remain. A disposable broker deletion-semantics test passed and
+its namespace was removed. Two full delivery-suite attempts each exposed a
+timing-sensitive immediate ACK-counter assertion; focused ACK verification
+passed, but those runs are not recorded as clean suite passes.
 
-**Why second:** Only the safe rollback observation and legacy durable retirement
-remain for Phase 5. Phase 6 must stay behind those checks and must not turn a
-work stream into an unbounded event archive.
+**Why next:** Phase 5's bounded work migration and legacy durable retirement
+are complete within the user's explicit timing waiver. Phase 6 governs the
+separate fact-stream retention transition and must preserve the bounded replay
+contract; JetStream is not a permanent event archive.
 
-**Next:** keep authoritative Geodata work rows, outbox history, checkpoints,
-dead letters and migration 021 recovery columns/indexes. At the observation
-deadline, perform the documented read-only checks and remove only the legacy
-Geodata durables if all pass. Continue to Phase 6 only after Phase 5 exit
-evidence is complete.
+**Next:** follow the Phase 6 gates in the
+[NATS event migration plan](../operations/messaging/nats-event-migration-plan.md)
+and [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+Before changing MYOTA_EVENTS from Interest to Limits retention, verify
+retained-message implications, consumer/replay needs, capacity and rollback
+behavior. Keep facts, outbox history and consumer idempotency state in their
+authoritative stores; do not change runtime retention until the plan's gates
+are met.
 
-See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
-[Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
-[Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
-[Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
-[Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
-[Phase 3 consumer evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
-[Activity notification runbook](../operations/messaging/activity-notification-consumer.md),
-[JetStream operations status](../operations/messaging/jetstream-admin-status.md), and
-[recovery runbook](../operations/messaging/jetstream-recovery.md).
-
+See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+[Phase 6 plan](../operations/messaging/nats-event-migration-plan.md#phase-6),
+and [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
 ### 3. Establish programme governance### 3. Establish programme governance, jurisdiction, and eligibility controls
 
 **Current evidence:** the programme configuration gap analysis labels
