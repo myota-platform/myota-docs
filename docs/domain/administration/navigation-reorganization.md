@@ -31,7 +31,7 @@ URLs remain valid. The green/white MyOTA visual style is retained.
 | Programmes | Rules & policies `/policies`; Content & translations `/content`; Awards & certificates `/awards` |
 | People | Users & access `/identity`; tabs `?tab=users`, `roles`, `security` |
 | Activity | Activations & QSOs `/activity` |
-| Platform health | NATS / JetStream `/jetstream`; SeaweedFS storage `/object-storage`; Metrics & dashboards `/observability/` |
+| Platform health | Current NATS / JetStream `/jetstream` (planned for retirement after [Surveyor cutover](../../observability/nats-surveyor-migration.md)); SeaweedFS storage `/object-storage`; Metrics & dashboards `/observability/` |
 
 Use **Find a workspace** to filter authorized navigation. Overview's **Start a
 task** offers direct workflow entry points. On narrow screens the menu button
