@@ -6,7 +6,7 @@ target is deployed. See the [migration plan](../../operations/messaging/nats-eve
 [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md), and the [recovery runbook](../../operations/messaging/jetstream-recovery.md).
 
-## Current deployed topology — observed 10 October 2026
+## Current deployed topology — observed 10 October 2026 after Phase 5 cutover
 
 ```mermaid
 flowchart LR
@@ -18,21 +18,26 @@ flowchart LR
   C --> RC[Core relay]
   A --> RA[Activity relay]
   G --> RG[Geodata relay]
-  RC --> E[MYOTA_EVENTS<br/>file, Interest retention<br/>myota.events.* and myota.geodata.*]
+  RC --> E[MYOTA_EVENTS<br/>file, Interest retention<br/>registered facts and legacy subjects]
   RA --> E
   RG --> E
   E --> N[Activity notifications<br/>activity-notifications-v1<br/>21 exact fact subjects]
-  E --> GW[Four Geodata work durables]
-  A -. DB polling .-> AW[Activity worker]
-  G -. reconciliation .-> GR[Geodata recovery loops]
+  E -. four empty rollback durables<br/>inactive until window closes .-> L[Legacy Geodata work filters]
+  A --> AS[MYOTA_ACTIVITY_WORK<br/>WorkQueue, six exact durables]
+  G --> GS[MYOTA_GEODATA_WORK<br/>WorkQueue, four exact durables]
+  AS --> AW[Activity JetStream workers]
+  GS --> GW[Geodata JetStream workers]
+  A -. scheduled/recovery only .-> AR[Activity maintenance]
+  G -. bounded row repair .-> GR[Geodata recovery loops]
   E -. read-only metadata .-> O[Operations observer]
 ```
 
 ## Phase 2 relay behavior — deployed 10 October 2026
 
-The relay mapping passed isolated checks and is now deployed to the local K3s
-cluster. The stream and durable configuration remains the observed mixed legacy
-topology above. This flow does not claim consumer or work-stream cutover.
+The relay mapping is deployed to the local K3s cluster. Facts still publish to
+the Interest-retained shared stream; mapped Activity and Geodata work commands
+publish once to their disjoint WorkQueue streams. This Phase 2 view documents
+the relay path; consumer cutover status is shown in the current-topology diagram.
 
 ```mermaid
 flowchart LR
@@ -45,8 +50,9 @@ flowchart LR
   A --> R
   G --> R
   R -->|registered facts<br/>stable Nats-Msg-Id<br/>size bounded| F[myota.events.&lt;dotted event type&gt;]
-  R -->|six mapped source types<br/>legacy subject preserved| W[myota.geodata.* work]
-  R -. topology checks only .-> E[Existing MYOTA_EVENTS<br/>Interest retention]
+  R -->|six mapped Geodata source types<br/>four bounded commands| W[myota.work.geodata.*]
+  R -. fact validation only .-> E[MYOTA_EVENTS<br/>Interest retention]
+  W --> G[MYOTA_GEODATA_WORK<br/>WorkQueue]
   R -->|retry, metrics, DB dead letter| D[Owning PostgreSQL]
   D -->|authorized, audited redrive| R
   O[Operations] -. metadata only .-> E
@@ -63,7 +69,7 @@ is not claimed; isolated PostgreSQL/JetStream qualification processed all six
 registered command types. See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
 and [work queue runbook](../../operations/messaging/activity-work-queues.md).
 
-## Selected target — ADR-0008, not yet live
+## Remaining target — ADR-0008; Geodata/Activity work streams are live
 
 ```mermaid
 flowchart LR
@@ -87,16 +93,17 @@ flowchart LR
 ```
 
 **Status (10 October 2026):** Phases 0–4 are complete within their evidence
-bounds. Activity work is deployed with two JetStream workers and six exact
-durables. Migration 007 removed the claim index and synthetic notification
-jobs while preserving Activity job history. Prometheus returns zero-valued
-per-kind job metrics. Production had no selected work at cutover, so live
-processing of a real Activity job is not claimed; isolated qualification
-processed all six types. The mixed Interest-retained fact stream, the exact
-Activity notification durable, and four Geodata work durables are unchanged.
-Phase 5 Geodata work migration, payload privacy/schema enforcement, and the
-final mixed-stream cutover remain separate gates. The accepted cluster-internal
-trust boundary and deferred off-node recovery remain as recorded in ADR-0008.
-See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+bounds. Phase 5 has deployed the Geodata WorkQueue, four exact durables,
+migration 021 and retry-safe partial-deletion handling. The four old Geodata
+durables are inactive and empty during the rollback observation; remove them
+only after the 24-hour window and database recovery check. Helm revision 187
+pods and migration jobs were ready, while Fleet still reported `WaitApplied`
+during reconciliation. The production Geodata queues had no work to process.
+`MYOTA_EVENTS` remains file-backed with Interest retention and its Activity
+notification durable remains active. The target bounded Limits fact stream and
+Phase 6 lifecycle transition are not live. The accepted cluster-internal trust
+boundary and deferred off-node recovery remain as recorded in ADR-0008. See the
+[Phase 5 evidence](../../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+[Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
 [Activity work queues runbook](../../operations/messaging/activity-work-queues.md),
 and [Phase 3 evidence](../../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md).
