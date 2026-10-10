@@ -74,11 +74,18 @@ stream migration.
   (commit `50d3ad3`). Helm lint/render confirms the environment value is
   `"1048576"`; both repository CI checks passed. During the active Fleet
   upgrade, the three outbox Deployments were temporarily set to that same
-  intended integer value and returned Ready. This operational correction is
-  not evidence that Fleet completed the chart reconciliation: the release was
-  still `pending-upgrade` and Fleet was still applying commit `c92f1f3` at the
-  time of this record. Follow up with read-only rollout verification after the
-  corrected chart is fetched and applied.
+  intended integer value and returned Ready. Fleet later applied that chart
+  value. The rollout then exposed a second issue: the migrations hook used
+  `IfNotPresent` with the mutable `myota-service:latest` tag and ran a cached
+  image that lacked the new dead-letter columns. Relay pods stayed up, but their
+  dead-letter metrics query logged `resolved_at does not exist`. The migration
+  hook now uses `imagePullPolicy: Always` in deploy commit `57779dd`, with the
+  synchronized platform mirror in commit `155ce4a`; both commits are pushed.
+  At the time of this record Fleet had fetched deploy commit `ca70e32`, Helm
+  revision 161 was pending, and the new migration hook had not yet run. Verify
+  the next rollout applies `resolved_at` in all three owning databases and that
+  relay metrics refresh without database errors before treating the deployed
+  rollout as healthy.
 - All three redrive migration files applied idempotently against disposable
   PostgreSQL in the test namespace. The real relay published a registered fact
   to its dotted subject, used the event UUID as `Nats-Msg-Id`, and recovered

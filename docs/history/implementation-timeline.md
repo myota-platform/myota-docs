@@ -1024,7 +1024,11 @@ capacity, trust-boundary, recovery, and production-cutover decisions.
   configured 1 MiB limit as `1.048576e+06`; the relay expects an integer string.
   Quoted the deploy-owned value and synchronized the platform mirror. Helm
   render and both CI checks passed. Set the same intended integer value on the
-  three live outbox Deployments to restore readiness. At the time of this
-  update Fleet was still applying the earlier chart commit and Helm reported a
-  pending upgrade, so chart reconciliation remains unverified. See the
+  three live outbox Deployments to restore readiness. The next rollout exposed
+  a stale cached migration image: the outbox pods logged missing
+  `dead_letter_event.resolved_at` during metric refresh. Set the migrations
+  hook pull policy to `Always` in deploy and synchronized the platform mirror.
+  At this update, Fleet had not fetched that latest commit and Helm revision 161
+  remained pending; database migration and metrics recovery still require
+  read-only verification. See the
   [Phase 2 evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).
