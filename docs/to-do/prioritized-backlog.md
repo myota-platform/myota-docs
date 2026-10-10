@@ -65,9 +65,8 @@ and the active [Work in progress index](../work-in-progress/README.md).
 **Current evidence:** Phases 0–4 are complete within their recorded evidence
 bounds. Phase 5 moved all four Geodata work kinds to the bounded
 `MYOTA_GEODATA_WORK` WorkQueue, applied migration 021, shipped retry-safe
-partial deletion and deployed the Activity cascade idempotency fix. Helm
-revision 191 is deployed; Fleet reports Ready=True at Deploy commit
-`a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources ready. First-party runtime, worker,
+partial deletion and deployed the Activity cascade idempotency fix. Helm revision 192 is deployed; Fleet reports Ready=True at Deploy commit
+`6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources ready. First-party runtime, worker,
 provisioner and scheduled-job images use configured immutable references;
 live pod image references/ImageIDs match. The 154-test Geodata suite, 40-test
 Activity suite (each with one optional skip), 25 relay/topology tests and
@@ -76,8 +75,8 @@ available for processing. See the [Phase 5 evidence](../operations/messaging/evi
 
 All four target durables are empty with active workers. Four old Geodata
 durables in `MYOTA_EVENTS` remain inactive and empty. The 24-hour observation
-began at completed immutable-image rollout revision 191, 21:28:41 UTC on
-10 October, and ends no earlier than 21:28:41 UTC on 11 October 2026. After that gate, recheck
+began at latest completed rollout revision 192, 21:39:22 UTC on
+10 October, and ends no earlier than 21:39:22 UTC on 11 October 2026. After that gate, recheck
 Fleet, stream filters/backlogs, migration markers and owner-row recovery age,
 then retire only the four old durables. The Activity notification durable and
 shared Interest-retained `MYOTA_EVENTS` remain. Off-node recovery stays
