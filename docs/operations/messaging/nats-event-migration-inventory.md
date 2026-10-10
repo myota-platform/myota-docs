@@ -83,12 +83,18 @@ proof that production has deployed it.
   expired lease and NAKs rather than falsely completing.
 - **Legacy state:** The four former Geodata durable definitions remain empty
   and inactive during the 24-hour rollback observation, ending no earlier than
-  20:55:08 UTC on 11 October. `MYOTA_EVENTS` remains Interest-retained and
+  20:58:36 UTC on 11 October. `MYOTA_EVENTS` remains Interest-retained and
   still owns the Activity notification consumer. Preserve its stream and
   consumer.
+- **Recovery and idempotency:** A disposable two-database test used the real
+  Activity API, Geodata worker handler, and private JetStream WorkQueue. An
+  injected Geodata failure after the Activity cascade caused NAK/redelivery;
+  the retry completed with one Activity cascade outbox fact and zero pending
+  messages. The Activity handler/repository now honors and persists the
+  cross-service `Idempotency-Key`; its corrected image is not yet deployed.
 - **Boundaries:** No accepted production Geodata work was available for a live
-  handler test. Production records and historical cancelled-import DLQs were
-  not modified. Off-node broker recovery remains deferred. See the
+  domain handler test. Production records and historical cancelled-import DLQs
+  were not modified. Off-node broker recovery remains deferred. See the
   [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md); this update
   supersedes the Phase 4 boundary snapshot above for current topology only.
 
