@@ -1,16 +1,17 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phases 0–4 are complete within their recorded evidence bounds.
+**Status:** Phases 0–5 are complete within their recorded evidence bounds.
 Phase 5's four Geodata work consumers, migration 021, retry-safe partial
-deletion recovery, and Activity idempotency fix are live. Helm revision 193
-is deployed; Fleet is Ready=True at Deploy commit
-`cfecd655d9c0eee9d19db26725fb11c99366815a` as of 22:03:29 UTC on 10 October.
-The live MyOTA workloads are ready and use configured immutable image digests.
-The four legacy Geodata durables remain empty and inactive. The revised 24-hour
-observation runs through no earlier than 22:03:29 UTC on 11 October 2026.
-Safe retirement remains open. No accepted production Geodata work was available
-for processing. Phase 6 will handle the separate shared fact-stream retention
-transition.
+deletion recovery, and Activity idempotency fix are live. Helm revision 193 is
+deployed; Fleet is Ready=True at Deploy commit
+`cfecd655d9c0eee9d19db26725fb11c99366815a`. The four legacy Geodata durables
+were retired individually after current Fleet, stream, schema, and recovery
+checks passed. At the user's explicit direction, the 24-hour elapsed-time
+requirement was waived: the final check and retirement occurred about ten
+minutes after the revision 193 readiness anchor, so this is not a claim that
+24 hours elapsed. Both streams remain empty; Activity and the four replacement
+Geodata durables remain healthy. Phase 6 covers the separate shared fact-stream
+retention transition.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -769,49 +770,43 @@ Phase 4 exit criterion.
 
 ### Phase 5 — Reconcile Geodata queues and cross-service recovery
 
-**Status (11 October 2026):** Production routes all four Geodata
-work kinds to the immutable-image-referenced `MYOTA_GEODATA_WORK` WorkQueue.
-Helm history records revision 193 at 22:00:02 UTC on 10 October with status deployed; Fleet
-reports `Ready=True` at Deploy commit
-`cfecd655d9c0eee9d19db26725fb11c99366815a` as of 22:03:29 UTC, with all MyOTA
-workloads ready. Activity, Geodata, Identity, Programme and shared-runtime live
-image references resolve to the configured immutable digests. Migration Job
-193 completed. The target stream and all four replacement durables are healthy
-and empty; the four prior Geodata durables in `MYOTA_EVENTS` remain present,
-empty and inactive.
+**Status (11 October 2026):** Phase 5 is complete under the
+user-directed early-close decision recorded below. Helm revision 193 is
+deployed; Fleet is Ready=True at Deploy commit
+`cfecd655d9c0eee9d19db26725fb11c99366815a`, and all MyOTA Deployments are
+ready. The image references remain digest-pinned; migration Job 193 completed.
 
-The read-only production check at about 22:05 UTC found `MYOTA_EVENTS`
-file-backed with Interest retention and zero messages/bytes; Activity's
-notification durable and all four legacy Geodata durables had zero pending,
-ack-pending and redelivered messages. `MYOTA_GEODATA_WORK` remains file-backed
-WorkQueue with zero messages/bytes; all four target durables had their exact
-registered filters, zero pending/ack-pending/redelivery, and one waiting pull
-each. This sample does not shorten the rollback observation.
+Before retirement, the production streams were empty and had the expected
+retention/storage. Each of the four old Geodata durables had its exact legacy
+filter, explicit ACK, and zero pending, ack-pending, or redelivered messages.
+All four replacement durables had their registered filters, zero counters, and
+an active pull waiter. The Activity notification durable was healthy. Migration
+021's three dispatch columns and three recovery indexes were present; no
+preprocessing, promotion, deletion, or location row was due for recovery at the
+300-second threshold.
 
-The observation restarts from revision 193's fully ready rollout at
-22:03:29 UTC on 10 October and runs through 22:03:29 UTC on 11 October 2026.
-Keep the four legacy Geodata durables until then; recheck Fleet, filters,
-migration markers, owner-row recovery age and backlog counters before retiring
-only those four. No accepted production Geodata work was available, and no
-production row or message was written.
+A disposable NATS broker check verified one-at-a-time retirement semantics:
+it removed each exact old name and preserved the Activity and target durables.
+Production then removed only the four legacy definitions, one at a time, and
+verified each absent immediately. A final read-only check confirmed both
+streams still exist with zero messages/bytes, Activity remains, all four target
+durables remain correct and waiting, and the four old definitions are absent.
+The outbox logs had no warning/error/failure entries in the post-check window.
 
-A disposable `myota-phase5-validation` namespace exercised the worker
-recovery and delivery paths using synthetic stale owner rows, an isolated
-PostGIS database and an isolated in-memory JetStream broker. Recovery recreated
-each of the four Geodata command types once through the outbox; repeat recovery
-emitted none. Delivery, competing-consumer, retry, delayed-ACK, redelivery,
-expiry, shutdown and recreation checks ran. The two full suite attempts each
-hit an immediate broker-counter assertion race after an asynchronous ACK; a
-specific ACK test passed, and a post-suite broker query found zero messages,
-pending, ack-pending or redelivered across all 21 private test streams. Treat
-this as positive isolated behavior evidence with a flaky test-harness assertion,
-not a clean suite pass. The namespace and temporary fixtures were deleted.
+The user explicitly instructed completion while ignoring the earliest time.
+The 24-hour interval had **not** elapsed: closure occurred at about 22:13:48 UTC
+on 10 October, roughly ten minutes after Fleet became Ready at 22:03:29 UTC.
+This is a user-authorized early closure, not evidence of a completed 24-hour
+observation. No production event/work message or database row was injected.
+Two full isolated delivery-suite runs each had one timing-sensitive immediate
+ACK-counter assertion; the focused ACK check passed and subsequent inspection
+found all 21 test streams settled at zero. The separate retirement-semantics
+test passed. Both disposable namespaces and their contents were deleted and
+verified absent.
 
-The rollout check had previously found recorded digests only changed pod
-annotations while containers still referenced mutable tags. Deploy now renders
-first-party runtime, worker, provisioning and scheduled-job images as
-`repository@sha256:…` wherever a digest is configured; Platform mirrors that
-source, and live image references match the configured digests.
+No Phase 5 database schema object is obsolete. Keep migration 021's dispatch
+columns/indexes and authoritative work/outbox/history records. Phase 6 remains
+separate.
 
 **Work**
 
@@ -819,7 +814,8 @@ source, and live image references match the configured digests.
       from their legacy `MYOTA_EVENTS` subjects to the four disjoint
       `myota.work.geodata.*` subjects in `MYOTA_GEODATA_WORK`. Provisioned the
       target before cutover. Production workers now subscribe only to the new
-      subjects; the old durable definitions are retained inactive for rollback.
+      subjects; after the final safety checks, the four old durable definitions
+      were retired from `MYOTA_EVENTS` under the user-authorized early close.
 - [x] Validate the four replacement pull durables against the registered work
       contracts, exact filters, explicit ACK, max-delivery, pending bounds,
       stream limits and deployment-owned provisioner in the isolated and live
@@ -872,11 +868,13 @@ source, and live image references match the configured digests.
       live and disposable environments. No Phase 5 database object is obsolete:
       migration 021's dispatch columns/indexes and domain/outbox rows remain
       required recovery state.
-- [ ] Complete the 24-hour rollback observation after immutable-image Helm
-      revision 193, then recheck replacement/legacy filters, backlog counters,
-      migration markers, owner-row recovery age and Fleet readiness. Retire
-      only the four legacy Geodata durable definitions after this check. The
-      earliest time is 22:03:29 UTC on 11 October 2026.
+- [x] Recheck replacement/legacy filters, backlog counters, migration
+      markers, owner-row recovery age and Fleet readiness; retire only the four
+      legacy Geodata durable definitions. At the user's explicit direction,
+      waive the 24-hour elapsed-time minimum. The final read-only check and
+      retirement completed about 22:13:48 UTC on 10 October, roughly ten minutes
+      after revision 193 became Fleet-ready at 22:03:29 UTC. This is an early
+      closure, not a claim that the full observation duration elapsed.
 - [x] Broker Pod restart, worker restart, delayed ACK, duplicate/lost ACK,
       expiry/reconstruction/completion, database failure, the Activity-success/
       Geodata-failure retry, and cancellation racing with an acknowledged
