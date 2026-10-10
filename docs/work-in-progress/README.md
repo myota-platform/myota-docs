@@ -39,7 +39,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   and Helm assets and will not be recreated. Retire the combined dashboard
   after Surveyor acceptance. Phase 5 event/work migration is complete under its
   documented early-close waiver; Phase 6 fact-stream retention is separate.
-  No runtime components have been removed for this item.
+  The two PostGIS panels were removed from source assets, but live Grafana
+  reload has not been verified; other monitoring components remain deployed.
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates
