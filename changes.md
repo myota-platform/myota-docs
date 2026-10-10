@@ -12,7 +12,7 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
 - Local contracts tests (2/2), source audit, schema generation, Ruff format/lint,
   and byte-for-byte platform mirror checks passed. GitHub's connector status
   endpoint returned no combined statuses, so Actions results are not independently
-  verified. Commits include contracts `95eae9a` and platform mirror `cb6ea76`.
+  verified. Commits include contracts `95eae9a` and platform mirror `3ac5653`.
   Joint owner/privacy review, Geodata/Operations payloads, and producer enforcement
   remain open. No runtime or deployed topology changed; the existing Phase 1 prompt
   remains in use.
