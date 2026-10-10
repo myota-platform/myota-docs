@@ -109,8 +109,10 @@ NATS migration status on 10 October 2026:
   passed locally, with one optional skip in each service suite. The disposable
   two-database Activity/Geodata retry test completed after NAK/redelivery and
   produced exactly one Activity cascade fact. Activity's idempotency source fix
-  is committed and mirrored but its image is not yet deployed. Cancellation
-  race, expiry-to-completion, final durable retirement, and cleanup remain open.
+  is committed and mirrored but its image is not yet deployed. The acknowledged
+  cancellation race and expiry-to-completion chains passed. Final durable
+  retirement and the rollback window remain open; the isolated test namespace
+  was cleaned up.
 - Keep PostgreSQL work rows, outbox, dead letters, and migration 021 recovery
   columns/indexes. The shared `MYOTA_EVENTS` stream remains file-backed with
   Interest retention; off-node recovery remains deferred.
