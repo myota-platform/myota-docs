@@ -7,3 +7,4 @@
 - [Messaging and NATS](messaging/README.md)
 - [Storage operations](storage/README.md)
 - [Observability](../observability/README.md)
+- [NATS monitoring consolidation plan](../observability/nats-surveyor-migration.md) — proposed Surveyor deployment and legacy monitor retirement.
