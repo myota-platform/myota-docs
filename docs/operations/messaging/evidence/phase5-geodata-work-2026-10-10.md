@@ -122,6 +122,65 @@ and mirrored to Platform at
    stream, Geodata source tables, work rows, outbox/recovery history and all
    Phase 5 database recovery columns/indexes.
 
+## In-window production observation — 10 October 2026, 21:52 UTC
+
+This is an early read-only sample, about 13 minutes after the revision 192
+rollout. It does not complete or shorten the required 24-hour observation.
+
+- Helm history still reports revision 192 deployed, completed at 21:39:22 UTC.
+  Fleet GitRepo `myota-deploy` reports Ready=True at
+  `6443473828305ab9d02a918bbe990d01abe97f6a`; the MyOTA bundle is deployed
+  and monitored.
+- A metadata-only JetStream query through the existing `myota-geo-outbox`
+  pod made no publish, consume, ACK, purge, or configuration request.
+  `MYOTA_EVENTS` remains file-backed Interest retention with subjects
+  `myota.events.>` and `myota.geodata.>`; it reported zero messages and
+  bytes. Activity's `activity-notifications-v1` durable had zero pending,
+  ack-pending, and redelivered messages, with one waiting pull.
+- `MYOTA_GEODATA_WORK` remains file-backed WorkQueue and reported zero
+  messages and bytes. All four target durables had their exact registered
+  filters, zero pending/ack-pending/redelivered, and one waiting pull each.
+- The four legacy durables remain present with their expected old filters and
+  zero pending/ack-pending/redelivered, with no waiting workers. The disposable
+  validation namespace remains absent.
+
+The observation remains open until at least 21:39:22 UTC on 11 October 2026.
+A later Helm rollout/restart resets the observation anchor to that rollout's
+completion time.
+
+## Post-observation retirement procedure — prepared, not executed
+
+After the 24-hour gate has elapsed, perform the final checks in this order:
+
+1. Confirm no later Helm rollout has reset the observation clock. Require Helm
+   revision 192 to remain deployed, Fleet Ready=True at the expected commit,
+   the MyOTA bundle monitored/deployed, and all MyOTA Deployments ready.
+2. Inspect both streams and all eight work durables read-only. Confirm the four
+   legacy durable names and filters still match the table above and each has
+   zero pending, ack-pending, and redelivered messages. Confirm the four target
+   filters and active pull workers remain correct. Check the migration 021
+   markers and documented owner-row recovery/backlog queries. If any check is
+   unexpected or fails, stop and preserve every legacy durable.
+3. Open a temporary local port-forward:
+   `kubectl -n myota port-forward service/myota-nats 14222:4222`.
+   In another terminal, use the official [NATS CLI](https://github.com/nats-io/natscli)
+   against `nats://127.0.0.1:14222`. Inspect and remove one consumer at a
+   time, accepting the CLI's confirmation prompt only for these four exact
+   names. Do not use a force flag:
+   `nats --server nats://127.0.0.1:14222 consumer rm MYOTA_EVENTS geodata-entity-deletion-v1`
+   `nats --server nats://127.0.0.1:14222 consumer rm MYOTA_EVENTS geodata-import-processing-v2`
+   `nats --server nats://127.0.0.1:14222 consumer rm MYOTA_EVENTS geodata-location-enrichment-v1`
+   `nats --server nats://127.0.0.1:14222 consumer rm MYOTA_EVENTS geodata-preprocessing-v1`
+4. After each removal, verify that exact legacy consumer is absent before
+   proceeding. If removal or verification fails, stop. Finally verify
+   `MYOTA_EVENTS` and `activity-notifications-v1` still exist and the target
+   Geodata WorkQueue durables remain intact. Stop the port-forward and record
+   UTC timestamps, command results, final counters, Fleet status, migration
+   markers, and whether recovery rows were due.
+5. Never delete or purge `MYOTA_EVENTS`, its Activity durable, any target
+   work durable, PostgreSQL tables/columns/indexes, work/outbox/source rows,
+   checkpoints, or dead letters as part of this cleanup.
+
 ## Schema retirement and cleanup
 
 No Phase 5 database schema object is obsolete. Keep migration 021's dispatch
