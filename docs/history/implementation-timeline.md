@@ -13,6 +13,43 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 10 October 2026 — NATS migration Phase 5 Geodata cutover and recovery work
+
+- **Prompt used for this phase:**
+
+  ```text
+  Continue work implementing phase 5 iteratively,, same criteria and instructions as last phase.
+  ```
+
+- Moved all four Geodata work consumers to the file-backed, bounded
+  `MYOTA_GEODATA_WORK` WorkQueue and their exact pull subjects/durables.
+  Production workers now subscribe to target subjects; the previous Geodata
+  durable definitions remain empty and inactive during a 24-hour rollback
+  observation. The shared Interest-retained `MYOTA_EVENTS` stream and Activity
+  notification durable remain live.
+- Applied Geodata migration 021, adding owner-row dispatch timestamps and
+  recovery indexes. The queue source rows and outbox remain authoritative; no
+  Phase 5 database schema or history was removed.
+- Fixed partial deletion recovery: after a successful Activity cascade and
+  failed Geodata-side step, the work handler now persists an expired lease and
+  rethrows so JetStream retry and the bounded database repair path can continue.
+  The fix is mirrored to the deployment/runtime copies and shipped in the
+  digest-pinned Geodata image.
+- Isolated host-K3s verification passed the 154-test Geodata suite (one optional
+  test skipped), the 25 relay/topology tests, a real database connection-refusal
+  and reconnect test, same-node NATS Pod restart with persistent volume, and
+  focused partial-cascade retry coverage. No production work was injected.
+- At the recorded verification point, Helm 187's application pods and
+  migrations were ready while Fleet still reported `WaitApplied`. The full
+  two-database cascade-failure chain, cancellation race, expiry-to-completion,
+  final Fleet Ready check, and retirement of the four old durables remain open.
+  See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+- **Representative commits:** Geodata source
+  [`0a3c9e1`](https://github.com/myota-platform/myota-geodata-service/commit/0a3c9e199b7ea7754ef1be3244f60fecb25b0c75),
+  retry test [`29b3cda`](https://github.com/myota-platform/myota-geodata-service/commit/29b3cda6b00510f32b176a2a40d493790e9377fb),
+  deployment mirror [`5a758f4`](https://github.com/myota-platform/myota-deploy/commit/5a758f4dd88f49854afe2bd3ed7d2212a4958a6b),
+  and digest pin [`c1a4e60`](https://github.com/myota-platform/myota-deploy/commit/c1a4e609d2cb9166b873a8eaa263d66f378b2035).
+
 ## 10 October 2026 — NATS migration Phase 4 Activity work implementation
 
 - **Prompt used for this phase:**
