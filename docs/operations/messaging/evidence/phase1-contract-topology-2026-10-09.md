@@ -200,3 +200,22 @@ passed unit tests, Ruff, and its container job
 No runtime, consumer, or live broker behavior changed. Joint review of Identity
 and Programme payload fields remains open, along with Activity, Geodata, and
 Operations schemas. The same Phase 1 prompt continues to apply.
+
+
+## 10 October 2026 — Activity payload contract source pass
+
+The contracts registry now includes additive source-derived payload schemas for
+all ten Activity facts: activation created/closed, QSO recorded, ADIF queued,
+entity cascade deleted, and the five award definition/request/issuance/rendering
+facts. Evidence was traced to `myota-activity-service/activity.py`,
+`myota-activity-service/activity_repository.py`, and
+`myota-activity-service/awards.py`. Activity and award payloads contain personal
+activity and certificate information; imports expose object metadata. Flexible
+programme rules, award conditions, template elements, and nested asset records
+remain open in the schema where the producer permits caller-defined structures.
+No runtime producer/consumer code or deployed topology changed. Joint owner and
+privacy review remains required.
+
+The contracts schema unit tests, registry generation, workspace source audit,
+format/lint checks, mirror sync, and CI result are recorded after this entry is
+verified on the merged main commit.
