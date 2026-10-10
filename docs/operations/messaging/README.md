@@ -12,11 +12,11 @@
   - **Complete:** Phases 0–4 within their recorded evidence bounds.
   - **Phase 5 live:** Four Geodata work kinds route to the bounded
     `MYOTA_GEODATA_WORK` stream; migration 021 and Activity idempotency fix
-    are deployed. Helm 191 is deployed and Fleet is Ready=True at
-    `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109`, 60/60 resources. Configured digest refs match pod image IDs.
+    are deployed. Helm 192 is deployed and Fleet is Ready=True at
+    `6443473828305ab9d02a918bbe990d01abe97f6a`, 60/60 resources. Configured digest refs match pod image IDs.
     The target durables are empty with active workers.
   - **Rollback:** Four legacy Geodata durables remain inactive and empty until
-    the observation ends no earlier than 21:28:41 UTC on 11 October 2026. Do not remove Activity's
+    the observation ends no earlier than 21:39:22 UTC on 11 October 2026. Do not remove Activity's
     notification durable or `MYOTA_EVENTS`.
   - **Still open:** The 24-hour observation and safe retirement of those four
     durables, then the separate Phase 6 fact-stream retention transition. See
