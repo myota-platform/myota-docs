@@ -1,28 +1,35 @@
 # MyOTA changes
 
-## 11 October 2026 — Phase 5 synthetic validation and observation reset
+## 11 October 2026 — Phase 5 observation closure and legacy durable retirement
 
-- Automatic immutable-image digest update produced Helm revision 193. Helm history records it at 22:00:02 UTC on 10 October with status
-  deployed; Fleet became
-  Ready=True at Deploy commit
-  `cfecd655d9c0eee9d19db26725fb11c99366815a` at 22:03:29 UTC. All MyOTA
-  Deployments are ready and the migration Job completed.
-- A read-only production snapshot at about 22:05 UTC found zero messages/bytes
-  in `MYOTA_EVENTS` and `MYOTA_GEODATA_WORK`; all four target work durables
-  had exact filters, zero pending/ack-pending/redelivery and one waiting pull.
-  The four legacy Geodata durables remained present with zero counters and no
-  waiters. No production data or messages were written.
-- Injected synthetic stale owner rows into a disposable namespace. Geodata
-  recovery recreated four outbox commands once and a second scan emitted none.
-  The delivery suite exercised retry, competing consumers, ACK handling,
-  redelivery, expiry, shutdown and durable recreation. Two full-suite runs each
-  hit one timing-sensitive immediate ACK-counter assertion; focused ACK
-  verification passed and all 21 private streams subsequently settled at zero.
-  Treat this as isolated behavior evidence, not a clean suite pass.
-- Deleted and verified absent the namespace, temporary databases, private
-  streams, test fixtures and temporary virtual environment. Revision 193 resets
-  the 24-hour observation; it remains open until at least 22:03:29 UTC on
-  11 October 2026. Preserve the old durables until the final read-only checks.
+- Helm revision 193 remained deployed. Fleet was Ready=True at Deploy commit
+  cfecd655d9c0eee9d19db26725fb11c99366815a; all MyOTA Deployments were
+  Ready. Fleet's observation anchor was 22:03:29 UTC on 10 October.
+- At the user's explicit direction, the 24-hour elapsed-time requirement was
+  waived. Final checks and retirement occurred at approximately 22:13:48 UTC
+  on 10 October, roughly 10 minutes 19 seconds after the anchor. This is an
+  authorized early close, not a claim that 24 hours elapsed.
+- Before retirement, both file-backed streams were empty. The four legacy
+  filters and four replacement filters matched expectations; all counters
+  were zero, target workers had one waiting pull, and Activity notification
+  remained healthy. Migration 021 columns and indexes were present, and
+  age-bounded recovery checks found zero due owner rows.
+- Deleted and individually verified absent only these MYOTA_EVENTS consumers:
+  geodata-entity-deletion-v1, geodata-import-processing-v2,
+  geodata-location-enrichment-v1, and geodata-preprocessing-v1. Post-check
+  confirmed MYOTA_EVENTS and its Activity durable remain, along with
+  MYOTA_GEODATA_WORK and its four target durables.
+- An isolated in-memory broker deletion-semantics check passed without
+  publishing messages. The retirement-test namespace and the earlier
+  recovery/delivery validation namespace were deleted and verified absent.
+  No production test data, messages, rows, schema objects or recovery records
+  were changed.
+- Two full delivery-suite attempts each had one timing-sensitive immediate
+  ACK-counter assertion. Focused ACK verification passed and later isolated
+  broker metadata settled at zero; a clean full-suite pass is not claimed.
+  See the [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md)
+  and [migration plan](docs/operations/messaging/nats-event-migration-plan.md).
+
 
 ## 10 October 2026 — NATS Phase 5 Geodata work cutover and recovery
 
