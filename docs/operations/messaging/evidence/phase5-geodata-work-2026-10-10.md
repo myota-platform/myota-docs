@@ -168,6 +168,7 @@ checkpoints, and dead letters; these are the durable recovery boundary. Do not
 purge the six historical cancelled-import dead letters.
 
 Cleanup is complete. The local Activity API process and port-forwards were
-stopped; private streams, disposable test fixtures and namespace/PVC
-`myota-phase5-validation` were deleted and verified absent. No production
-data or production JetStream messages were used for failure injection.
+stopped. Disposable namespaces `myota-phase5-validation` and
+`myota-phase5-retirement-test`, their private streams, fixtures and test
+resources were deleted and verified absent. No production test data or
+production JetStream messages were created.
