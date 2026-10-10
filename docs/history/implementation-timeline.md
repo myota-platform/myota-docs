@@ -53,11 +53,13 @@ describe current ownership and are authoritative for the present-day system.
   target messages/counters are zero with active pull workers. `MYOTA_EVENTS`
   remains file-backed Interest retention with four inactive, empty legacy
   Geodata durables and its live Activity notification consumer.
-- **Remaining:** Restart the 24-hour rollback observation from revision 191's
-  completed rollout. It ends no earlier than 21:28:41 UTC on 11 October 2026. Recheck topology,
-  recovery and Fleet, then retire only the four old Geodata durables. No
-  database object is obsolete; migration 021 and authoritative records remain.
-  Phase 6 remains separate.
+- **Latest observation anchor:** Helm revision 192 completed at 21:39:22 UTC
+  on 10 October after a chart release restarted the pods with unchanged image
+  digests. Fleet is Ready=True at Deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a`, with 60/60
+  resources. The 24-hour rollback observation now ends no earlier than
+  21:39:22 UTC on 11 October. Recheck topology, recovery and Fleet, then retire
+  only the four old Geodata durables. No database object is obsolete; migration
+  021 and authoritative records remain. Phase 6 remains separate.
 - **Source commits:** Activity idempotency changes in
   `myota-activity-service` are handler `cdea2ba`, repository `d364932`,
   test `6448fc2`; mirrors are `6dbab48`/`9953b00` in Platform and
