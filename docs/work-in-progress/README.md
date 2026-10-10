@@ -16,8 +16,9 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   repositories; the contracts main-branch source-audit workflow passed. Latest deploy and platform image checks pass. The delegated review dispositioned
   all 68 schemas and selected credential, capacity, recovery, and provisioning
   policies. Runtime gates remain: Geodata payload minimization, credential/TLS
-  implementation, representative capacity evidence, restore/replay, chart
-  provisioner readiness, and relay mutation removal. The deployed shared stream
+  implementation, representative capacity evidence, off-node/PVC-loss restore qualification, chart
+  provisioner readiness, and relay mutation removal. Basic isolated restore/replay
+  passed without touching production. The deployed shared stream
   retains Interest policy; no producer/consumer path changed. See the
   [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
