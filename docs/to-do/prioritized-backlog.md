@@ -64,9 +64,9 @@ and the active [Work in progress index](../work-in-progress/README.md).
 
 **Current evidence:** The 68-fact and ten-work-command registry, checked-in
 schemas, source audit, and create-only provisioner foundations are in place.
-The delegated review has completed the schema dispositions and selected
-per-role NKey/TLS credentials, provisional caps against the 8 GiB NATS PVC,
-PostgreSQL-authoritative recovery, and one deploy-owned provisioner. Contracts
+The delegated review completed schema dispositions and accepted a cluster-internal
+NATS trust boundary without auth/TLS. It also proposed caps against the 8 GiB
+NATS PVC, PostgreSQL-authoritative recovery, and one deploy-owned provisioner. Contracts
 CI now checks event dispositions and schemas plus exact work-to-stream,
 subject, and durable alignment ([run 38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38046227981)).
 The isolated broker drill passed creation, idempotent rerun, drift rejection,
@@ -74,10 +74,10 @@ and a synthetic stream/durable-state restore/replay.
 
 Production readiness remains open. The sample spans fewer than ten days and
 includes Geodata load-test traffic, so proposed 1/1/3 GiB caps are not final.
-The deployed NATS has no authentication or TLS; the production secret source
-has not supplied role credentials. The target chart does not run a readiness
-preflight, and the active relays still mutate the mixed Interest-retained
-stream. Off-node backup, PVC-loss restore, and comparison to database
+The broker remains ClusterIP-only, as selected; the `myota` namespace has no
+NetworkPolicy, so all pods with network reachability are trusted. The target chart
+does not run a readiness preflight, and the active relays still mutate the mixed
+Interest-retained stream. Off-node backup, PVC-loss restore, and comparison to database
 watermarks remain unqualified. Geodata preprocessing v1 includes internal
 _records and _status fields and must be minimized before enforcement. See the
 [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
@@ -86,14 +86,11 @@ _records and _status fields and must be minimized before enforcement. See the
 
 **Why second:** Accepted asynchronous work must survive relay and worker
 restarts without losing or duplicating domain effects. Contract and topology
-foundations are verified; the remaining work closes the evidence and security
+foundations are verified; the remaining work closes the evidence and recovery
 gates before any producer or consumer path changes.
 
-**Next:** Supply an operator-managed source for distinct NKey credentials and
-TLS files, implement role-scoped server/client configuration, and prove allowed
-and denied operations against the actual NATS Python client. Complete bounded
-payload projections and contract compatibility checks, including the Geodata
-preprocessed event. Collect a representative 30-day serialized-traffic profile,
+**Next:** Complete bounded payload projections and contract compatibility checks,
+including the Geodata preprocessed event. Collect a representative 30-day serialized-traffic profile,
 size against outage backlog and the 3 GiB PVC reserve, and add pressure alerts.
 Implement a deployment-owned provisioning/readiness barrier and rehearse the
 legacy stream compatibility cutover without changing production until a
