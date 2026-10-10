@@ -192,9 +192,11 @@ provisioned dashboards default to the last 30 minutes and refresh every
 if its UI edits must survive later provisioning updates. The `MyOTA operations`,
 `MyOTA API performance`, `MyOTA Geodata capacity baseline`, and current
 `MyOTA JetStream backlog and PostGIS query performance` dashboards are tagged
-`real-data`. The broker dashboard is planned for replacement by Surveyor; its
-PostGIS panels must first move to the Geodata dashboard. See the
-[NATS monitoring consolidation plan](nats-surveyor-migration.md).
+`real-data`. The combined NATS/PostGIS dashboard is planned for retirement:
+move and verify its PostGIS panels in the Geodata dashboard first. The proposed
+Grafana folder `NATS` will contain dashboard 16256 and all ten JSON dashboards
+from the pinned NATS Surveyor provisioning source, subject to per-panel metric
+compatibility checks. See the [NATS monitoring consolidation plan](nats-surveyor-migration.md).
 
 Kubernetes enables the same collector, Prometheus, Alertmanager, Grafana and
 Tempo resources with `observability.enabled=true`, including persistent volumes.
@@ -215,8 +217,11 @@ and Operations sampler read broker metadata and persist seven days of samples
 in `myota_core`. Geodata also has a separate JetStream metrics poller. These
 are current components, not the target design. The proposed
 [NATS Surveyor consolidation](nats-surveyor-migration.md) will centralize
-broker/server metrics in Prometheus and Grafana, then retire duplicate
-broker-inspection code, history, and the Admin page after a verified overlap.
+broker/server metrics in Prometheus and Grafana. Its planned `NATS` folder
+contains dashboard 16256 plus the ten dashboards from Surveyor's provisioning
+folder, after compatibility checks. Following a verified overlap, retire
+duplicate broker-inspection code, history, the Admin page, and the combined
+MyOTA JetStream backlog/PostGIS dashboard.
 The app-level outbox and worker metrics remain because they describe delivery
 and domain processing, which Surveyor cannot observe.
 
