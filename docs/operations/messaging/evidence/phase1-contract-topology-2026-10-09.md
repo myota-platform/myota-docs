@@ -132,8 +132,11 @@ synchronized deploy migration. This audit establishes source coverage, not compl
 payload schemas or runtime enforcement.
 
 The contracts-owned CI workflow now checks out all five producer repositories and
-runs this audit. Locally, the audit passed; two contract registry tests, Ruff format
-and lint, workflow YAML parsing, and mirror equality checks passed. The registry
+runs this audit. [Contract CI run 38033202206](https://github.com/myota-platform/myota-contracts/actions/runs/38033202206)
+passed; its log reports 68 verified facts, six legacy source types classified, and
+no undispositioned event-like literals. The platform mirror commit `038cd90` passed
+tests, Ruff, and its container check. Locally, two registry tests, Ruff, workflow
+YAML parsing, and mirror equality checks passed. The registry
 was synchronized with `scripts/sync_contract_mirrors.py`; no producer, consumer, or
 live stream changed.
 
