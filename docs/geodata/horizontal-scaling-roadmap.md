@@ -248,7 +248,9 @@ ChatGPT implementation prompt: [review remaining query and bottleneck evidence](
   pool, and heartbeat alerts in local Compose and Helm Grafana/Prometheus files.
 - [x] Provision a separate **MyOTA JetStream backlog and PostGIS query
   performance** dashboard in Compose and Helm, with broker-lag and dedicated
-  PostGIS query percentiles/slow-query panels.
+  PostGIS query percentiles/slow-query panels. This records the original
+  implementation; the two PostGIS panels were later removed from source assets
+  as no longer needed. See the [NATS monitoring retirement plan](../observability/nats-surveyor-migration.md).
 - [x] Add a repeatable Grafana k6 script. It samples at most ten public
   entities in memory and makes no application writes or uploads; if the
   catalogue is empty, it clearly skips map/detail requests and still measures
