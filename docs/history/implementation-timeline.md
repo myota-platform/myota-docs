@@ -806,3 +806,25 @@ later phases complete.
 - [REST API consolidation plan](../domain/api/rest-consolidation-plan.md)
 - [Geodata scaling roadmap](../geodata/horizontal-scaling-roadmap.md)
 - [Project status and documentation index](../README.md)
+
+
+## 10 October 2026 — Geodata payload contract source pass
+
+- Added additive, source-derived schemas and classifications for all 27 Geodata
+  facts from `myota-geodata-service/geodata.py`. Registry tests assert the
+  source-derived evidence, classifications, and representative payload fields.
+  Full entity and deletion-job payloads remain additive because their nested
+  records are source-owned and extensible.
+- The source review exposed that `geodata.import.preprocessed.v1` currently
+  receives the complete preprocessing result, including internal `_records` and
+  `_status`; `_records` can contain imported source features. This requires
+  payload minimization and Geodata owner/privacy review before producer
+  enforcement. No runtime event path changed.
+- Local checks passed: contracts tests 2/2, all 68 schema generation, workspace
+  source audit, Ruff lint/format, and byte-identical contracts/platform mirror
+  comparison. The GitHub connector returned no combined statuses for the new
+  contracts/platform commits; CI remains unverified. Owner/privacy review and
+  Operations payload contracts remain open. The existing Phase 1 prompt was
+  reused; no new phase prompt or live topology change was introduced. See the
+  [evidence record](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
+  and [Phase 1 plan](../operations/messaging/nats-event-migration-plan.md).
