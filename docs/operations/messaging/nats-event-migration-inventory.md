@@ -703,6 +703,10 @@ Other evidence gaps assigned to closure owners/phases:
 9. Tests cover selected contracts, relay behavior, and Geodata worker recovery,
    but there is no cross-repository producer-to-consumer coverage matrix or
    exhaustive event registry check.
+The current Operations broker inspection boundary documented here remains
+in place until the separate [NATS Surveyor monitoring plan](../../observability/nats-surveyor-migration.md)
+passes its overlap and retirement gates.
+
 10. Stale links to the moved JetStream status page were found in the Identity,
     Operations, deploy, platform, and .github profile READMEs. This pass updated
     those links to docs/operations/messaging/jetstream-admin-status.md. The
