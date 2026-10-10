@@ -297,7 +297,7 @@ paths and should be observable independently from business work.
   make their domain state one ownership boundary.
 - **Operations is a read-only inspection boundary.**
   **myota-operations-service/operations.py** and
-  **myota-operations-service/jetstream_observability.py** sample stream and
+  **myota-operations-service/jetstream_observability.py** currently sample stream and
   consumer metadata and persist bounded snapshots. No Operations event call
   site or business consumer was found. It must not ack, purge, create/delete
   consumers, or become a work processor.
