@@ -5,7 +5,7 @@
 - [Metrics, traces, dashboards, and alerts](overview.md)
 - [Geodata and PostGIS query evidence](../geodata/evidence/load-test-and-query-evidence.md)
 - [NATS Surveyor and Grafana monitoring consolidation](nats-surveyor-migration.md)
-  — proposed replacement for duplicate broker inspection and NATS history.
+  — proposed replacement using dashboard 16256 plus Surveyor's provisioned dashboards in Grafana folder `NATS`; not deployed.
 - [Current legacy JetStream status page](../operations/messaging/jetstream-admin-status.md)
   — current implementation, planned for retirement after Surveyor cutover.
 - [SeaweedFS storage page and Grafana role mapping](../operations/storage/seaweedfs-admin-status.md)
