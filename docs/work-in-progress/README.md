@@ -5,72 +5,28 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
-  — **Status:** Phases 0–4 are complete within their recorded evidence
-  bounds. Phase 5's Geodata route, migration 021, Activity idempotency fix,
-  and immutable image rollout are live. Helm revision 193 is deployed; Fleet
-  reports Ready=True at Deploy commit `cfecd655d9c0eee9d19db26725fb11c99366815a` with 60/60 resources ready.
-  The configured Activity, Geodata and shared runtime digests match live pod
-  image references and IDs. All four target Geodata durables are empty with
-  waiting workers; four legacy durables remain empty and inactive during the
-  24-hour rollback observation. Phase 6 fact-stream retention remains planned.
+  — **Status:** Phases 0–5 are complete within their recorded evidence
+  bounds. Phase 5's Geodata work migration, migration 021, retry-safe recovery,
+  Activity idempotency fix, and immutable-image rollout are live. Helm revision
+  193 remains deployed; Fleet is Ready=True at Deploy commit
+  cfecd655d9c0eee9d19db26725fb11c99366815a. The four legacy Geodata
+  durables were retired after final filter, backlog, migration, recovery-age
+  and Fleet checks. The user waived the 24-hour elapsed-time requirement;
+  closure occurred about ten minutes after the revision 193 readiness anchor,
+  and is not represented as a full 24-hour observation. The Activity
+  notification durable, shared Interest-retained MYOTA_EVENTS, four target
+  Geodata durables, migration markers and authoritative recovery data remain.
+  Phase 6 fact-stream retention is next.
   - **Phase 5 verification:** Geodata (154 tests, one optional skip), Activity
     (40 tests, one optional broker skip), and relay/topology (25 tests) passed.
     Database refusal/reconnect, same-node NATS PVC restart, two-database
-    cascade retry, concurrent idempotency, cancellation race, and connected
-    expiry/recompletion passed in the disposable host-K3s namespace.
-  - **Digest correction:** A live check found container specs still used mutable
-    `:latest` references even though digest values only changed the pod
-    annotation. Deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` and Platform mirror
-    `a184baac3f36e0272cbc79107f4b362139de7515` now render configured image digests as immutable references.
-    Helm 193 is deployed, all 60 resources are ready, and live image IDs match.
-  - **Phase 5 remaining gates:** The latest successful rollout is Helm 193;
-    Fleet became Ready at 22:03:29 UTC on 10 October. Keep the four legacy
-    Geodata durables through 22:03:29 UTC on 11 October, then recheck Fleet,
-    stream filters/counters and database recovery before removing only those
-    four old durables. A 22:05 UTC read-only sample showed zero messages and
-    counters, with all replacement workers waiting. The separate synthetic
-    validation exercised all four recovery commands; its two full-suite runs
-    each hit a timing-sensitive immediate ACK-counter assertion. A focused ACK
-    rerun passed, and all 21 private test streams later settled to zero. The
-    namespace, fixtures, streams and temporary environment are deleted.
-    Preserve migration 021 and authoritative work/outbox/history records.
-  - **References:** [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
-    [Phase 5 plan](../operations/messaging/nats-event-migration-plan.md), and
-    [migration diagram](../architecture/diagrams/nats-event-migration.md).
-  - **Phase 4 implementation:** Six Activity commands use ID-only work
-    envelopes, transactional job/outbox writes, exact per-kind pull durables,
-    post-commit ACK, retry/backoff, renewable token-fenced leases, persisted
-    work dead letters, and audited database redrive. The first migration run
-    rejects old poll-claimed jobs still `RUNNING`; it backfills queued work and
-    drops the obsolete poller index while preserving `activity_job` status and
-    history. `NOTIFICATION_SEND` rows are corrected to delivered and its
-    synthetic jobs are removed.
-  - **Isolated evidence:** 38 Activity tests passed (one optional broker test
-    skipped); contract tests passed 7/7; the source audit covered 68 facts and
-    16 legacy work types; deploy tests passed 25/25; Helm lint passed. A
-    disposable host-K3s PostgreSQL/NATS namespace verified migration guard and
-    rerun, lease fencing, terminal DLQ/redrive, all six durables, ACK state,
-    and an empty WorkQueue after processing. The namespace and port forwards
-    were removed.
-  - **Production verification:** deploy commit `480c2031589e4947ecef6ba8940b54e60af77ed1`
-    provisioned `MYOTA_ACTIVITY_WORK`; the six durables report zero pending,
-    ack-pending, and redeliveries with active pull waiters. Migration 007 removed
-    `activity_job_claim_idx`, created the status/kind index and lease/DLQ/audit
-    schema, delivered 154 in-app notification rows, and purged their synthetic
-    jobs. Two workers and three APIs run the pinned Activity image; the
-    compatibility repair is disabled. Prometheus returns per-kind zero series.
-    No production Activity work was queued or executed during cutover.
-  - **Remaining gates:** Phase 5 Geodata work migration, Phase 6 fact-stream
-    retention transition, broader payload privacy/schema enforcement, and the
-    accepted off-node recovery deferral. The mixed fact stream and Geodata
-    work routes were unchanged in Phase 4.
-  - **References:** [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
-    [Activity work queue runbook](../operations/messaging/activity-work-queues.md),
-    [Phase 3 evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
-    [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
-    [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
-    [recovery runbook](../operations/messaging/jetstream-recovery.md), and
-    [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
+    cascade retry, concurrent idempotency, cancellation race, connected
+    expiry/recompletion and isolated exact-consumer deletion semantics were
+    exercised. Two full delivery-suite attempts each had a timing-sensitive
+    immediate ACK-counter assertion; focused ACK verification passed, but the
+    full suite is not claimed as a clean pass.
+  - **Cleanup:** Both disposable Phase 5 namespaces were deleted and verified
+    absent. No production test data or broker messages were created.
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates
