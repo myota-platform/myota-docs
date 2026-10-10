@@ -26,10 +26,15 @@ describe current ownership and are authoritative for the present-day system.
   and work envelopes also require UUID IDs and UTC timestamps ending in Z. The
   Contracts CI workflow passed on commit
   [d57f6b5](https://github.com/myota-platform/myota-contracts/commit/d57f6b5a8f8206639daac0426d08b81d10ba8b0f)
-  ([run 38046227981](https://github.com/myota-platform/myota-contracts/actions/runs/38046227981)).
+  ([run 38046041494](https://github.com/myota-platform/myota-contracts/actions/runs/38046041494)).
   Three focused contract tests passed, and the five-service source audit
   verified 68 fact types and six legacy work types with no undispositioned
-  event-like literals.
+  event-like literals. The UTC work-contract documentation was synchronized in
+  [contracts commit 4f6d33d](https://github.com/myota-platform/myota-contracts/commit/4f6d33d65d850f6b238bbc77cabda9be96ed250f)
+  and [platform mirror commit 19303f8](https://github.com/myota-platform/myota-platform/commit/19303f8b90e2b64495613837787a5d930a6ee886);
+  [Contracts CI](https://github.com/myota-platform/myota-contracts/actions/runs/38046227981)
+  and [platform CI](https://github.com/myota-platform/myota-platform/actions/runs/38046230452)
+  passed.
 - **Recovery documentation:** Added the [JetStream recovery and replay runbook](../operations/messaging/jetstream-recovery.md)
   and linked it from the messaging index, migration plan, and backlog. The
   runbook records PostgreSQL authority, isolated restore/replay, work redrive,
