@@ -800,7 +800,11 @@ recovery age and all legacy backlog counters before retiring only those four
 durables. Do not remove
 `MYOTA_EVENTS`, Activity's notification durable, Geodata source tables, work
 rows, outbox or recovery columns/indexes. No accepted production Geodata work
-was available to exercise.
+was available to exercise. A read-only sample at 21:52 UTC on 10 October found
+both streams and all eight work durables healthy with zero work messages; the
+four old durables had zero pending/ack-pending/redeliveries and no waiters. This
+single early sample does not complete the observation. The evidence page records
+the sample and the prepared, unexecuted retirement procedure.
 
 **Work**
 
