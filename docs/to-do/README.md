@@ -24,7 +24,7 @@ documentation evidence and does not set delivery dates.
   — planned, not deployed. Deploy NATS Surveyor and provision Grafana folder
   `NATS` with dashboard 16256 plus all ten dashboards from Surveyor's pinned
   Grafana provisioning folder. Validate every panel and the complete set
-  through a seven-day overlap. Then retire the existing Admin NATS page,
+  against read-only broker data, then retire the existing Admin NATS page,
   duplicate broker pollers, and combined `MyOTA JetStream backlog and PostGIS
   query performance` dashboard after moving its PostGIS panels to Geodata;
   retire sampler alerts, Operations snapshot API/history, and its database
