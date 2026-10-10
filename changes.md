@@ -1,5 +1,18 @@
 # MyOTA changes
 
+## 11 October 2026 — NATS Surveyor dashboard scope clarified
+
+- Corrected the proposed Grafana target: create a folder named `NATS` containing
+  dashboard 16256 and all ten dashboard JSON files in Surveyor's Grafana
+  provisioning source. Pin the Surveyor source revision and retain MyOTA's own
+  datasource/provider configuration. Check every dashboard panel against
+  Surveyor metrics before rollout; dashboard 16256 targets the built-in NATS
+  Prometheus exporter.
+- Retire the existing `MyOTA JetStream backlog and PostGIS query performance`
+  dashboard after migrating and verifying its two PostGIS panels in Geodata.
+  No dashboard has been deployed or removed; this is a plan correction only.
+  See the [NATS monitoring roadmap](docs/observability/nats-surveyor-migration.md).
+
 ## 11 October 2026 — NATS Surveyor monitoring consolidation planned
 
 - Added an observability roadmap for a pinned internal NATS Surveyor deployment
