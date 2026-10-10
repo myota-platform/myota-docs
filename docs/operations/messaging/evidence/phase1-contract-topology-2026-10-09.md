@@ -219,6 +219,6 @@ privacy review remains required.
 Local verification passed: registry/schema tests 2/2; schema generation; source
 audit for 68 facts and six legacy work types with no undispositioned literals;
 Ruff lint/format; and byte-for-byte registry/schema/event-doc mirror checks.
-Contracts commit `95eae9a` and platform mirror commit `3ac5653` are on `main`. The
+Contracts commit `2b8bddaf` and platform mirror commit `bf6f2727` are on `main`. The
 GitHub connector returned no combined status checks for these commits, so Actions
 results remain unverified. Runtime behavior and deployed topology did not change.
