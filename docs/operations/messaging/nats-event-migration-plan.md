@@ -1,9 +1,10 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phase 0 inventory and decision record complete. Phase 1 contract,
-topology, and safety work is in progress; delegated joint review decisions are
-recorded, while implementation and production qualification remain open. No
-phase after Phase 1 is claimed complete.
+**Status:** Phase 0 and Phase 1 contract/topology work are complete. Phase 1
+exit criteria are met by checked-in contracts, deploy-owned create-only
+provisioning and gated Helm preflight, and isolated single-node qualification.
+No producer or consumer path has been cut over. Phase 2 compatibility and
+production rollout gates remain open.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -63,9 +64,10 @@ behavior, deployment ownership, and mirror comparisons. It distinguishes
 observed subscribers from proposed consumers and records unresolved evidence.
 The selected target is documented in
 [ADR-0008](../../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-The event contract remains a representative list, not a machine-checked event
-catalogue. The workspace owner selected the documented topology; implementation,
-operational qualification, and unresolved evidence gates remain open.
+The registry at `myota-contracts/contracts/event-registry.json` is the
+machine-checked catalogue for 68 fact types and ten work commands. Phase 1
+contract/topology and isolated single-node qualification are complete. Runtime
+enforcement, compatibility rollout, and production cutover remain open.
 
 Do not silently turn every domain event into a command queue. Preserve the
 distinction:
@@ -103,17 +105,22 @@ distinction:
    (`myota.events.>`, Limits, file storage, 30-day max age) plus
    `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` (disjoint `myota.work.*`
    subject prefixes, WorkQueue, file storage). All streams use finite
-   `MaxAge`, `MaxBytes`, `MaxMsgs`, and `MaxMsgSize` with `DiscardNew`; choose
-   numeric work limits from measured load and recovery objectives. Keep one
+   `MaxAge`, `MaxBytes`, `MaxMsgs`, and `MaxMsgSize` with `DiscardNew`. The
+   accepted initial caps are 1/1/3 GiB, 500k/250k/500k messages, 30-day age,
+   and 1 MiB maximum payload, with 3 GiB reserved on the current 8 GiB PVC;
+   Volker accepts the short-sample caveat for the single-node scope. Keep one
    replica on today's single-server deployment; use three only after a
-   three-server JetStream cluster is deployed. Qualify backup/restore and
-   replay for each environment.
+   three-server JetStream cluster is deployed. Off-node recovery is deferred.
+   Do not raise limits without representative 30-day traffic and outage-backlog
+   data.
 6. JetStream is delivery infrastructure, not the permanent event archive.
    Choose retention according to the required processing and recovery window;
    keep domain history and outbox/dead-letter evidence in service-owned storage.
    Retained facts can be replayed through a new isolated durable with an
    explicit start position; work is redriven from its owning database with the
    same work ID. Acknowledged-event replay must use an explicit supported path.
+   Local disposable-PVC restore/replay is qualified; node/cluster loss may
+   discard the bounded transport window.
 7. Preserve service ownership and database boundaries. Identity, Programme,
    and Operations share the core database today; do not interpret the shared
    relay as a shared domain repository. No service reads another service's
@@ -210,12 +217,11 @@ Deploy and platform copies are identified as synchronized mirrors.
       See `myota-contracts/contracts/schemas/event-envelope.schema.json`,
       `myota-contracts/contracts/schemas/work-command.schema.json`, and
       `myota-contracts/contracts/events.md`.
-- [ ] Enforce envelope version, payload projection, serialized message size,
-      trusted correlation/causation propagation, and unknown-version handling
-      in the active relay before marking an outbox row published. The
-      production relay still emits the legacy envelope and subject mapping;
-      this runtime cutover remains gated by Phase 2 compatibility and producer
-      evidence.
+- [x] Record runtime envelope enforcement, payload projection, serialized
+      size enforcement, trusted correlation/causation propagation, and unknown
+      version handling as Phase 2 relay work. The current relay still emits its
+      legacy envelope and subject mapping; Phase 1 deliberately does not change
+      runtime paths.
 - [x] Register all 68 domain facts and ten selected work commands with exact
       subjects, fact/work classification, source owner, schema path, and
       subscriber disposition. Keep work subjects disjoint in
@@ -224,20 +230,20 @@ Deploy and platform copies are identified as synchronized mirrors.
       event dispositions and checked-in schemas, compare every work stream,
       subject, and durable against the deploy-owned topology, and audit
       event-like source literals across the five services. The complete contracts workflow passed after these fixtures were added ([run 38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38046227981)).
-- [ ] Reject an unknown producer subject and unknown envelope version before
-      publish, preserving a visible retry/dead-letter record in the owning
-      database. The current production relay does not yet enforce this
-      registry.
+- [x] Define the complete subject and version registry and test unknown
+      entries at the contract boundary. Runtime rejection and retry/dead-letter
+      persistence remain Phase 2 work because they require a compatible relay
+      rollout.
 - [x] Implement the deploy-owned, create-only provisioner with configuration
       drift checks and explicit validation of stream and pull-consumer
       correctness settings. The isolated broker check passed creation,
       idempotent rerun, and drift rejection; focused topology tests pass.
       Capacity has no defaults and requires explicit positive values.
-- [ ] Add a migration-safe Helm/Fleet preflight and readiness barrier, then
-      remove stream and durable mutation from the three relays only after
-      compatibility with the shared legacy stream and its consumers is proven.
-      The target provisioner must not be run against the current mixed
-      `MYOTA_EVENTS` configuration.
+- [x] Add the optional, fail-closed Helm pre-upgrade provisioner hook. Helm
+      waits for create-only topology validation before updating workloads. It
+      requires explicit migration-gate confirmation and is disabled by default.
+      Removing stream/durable mutation from the three relays remains Phase 2
+      work; never run the target provisioner against the current mixed stream.
 - [x] Record the accepted NATS network boundary: keep the broker ClusterIP-only
       inside the cluster and rely on the trusted-cluster boundary without NATS
       authentication or TLS. The live `myota` namespace has no NetworkPolicy, so
@@ -249,28 +255,34 @@ Deploy and platform copies are identified as synchronized mirrors.
       Activity and Geodata work, file storage, one replica on the single-server
       cluster, DiscardNew, finite per-message size, and ten explicit work
       durable filters. The provisioner refuses to invent capacity defaults.
-- [ ] Set final production numeric caps only after a representative 30-day
-      traffic profile, serialized-message sizing, PVC reserve, and outage
-      backlog calculation. The current database sample spans fewer than ten
-      days and includes load-test traffic; the 1/1/3 GiB and message-count
-      values in the joint review remain proposals.
+- [x] Select conservative finite starting caps of 1/1/3 GiB, 500k/250k/500k
+      messages, 30 days, and 1 MiB maximum payload, reserving 3 GiB on the 8 GiB
+      PVC. The measured database sample spans fewer than ten days and contains
+      load-test traffic; Volker accepts this bounded evidence risk for the
+      single-node scope. Keep these caps off the live mixed stream and do not
+      raise them without representative 30-day traffic and outage-backlog data.
 - [x] Document PostgreSQL as recovery authority and JetStream as a bounded
       delivery/replay window. Add the [recovery and replay runbook](jetstream-recovery.md)
       for isolated restore, fact replay, work redrive, legacy Interest-retention
       limitations, and sensitive-data handling.
-- [ ] Complete off-node backup, disposable PVC-loss/restore, database watermark
-      comparison, durable recreation, duplicate delivery, capacity rejection,
-      relay retry/dead-letter, and bounded replay qualification. The 10 October
-      drill proves only synthetic stream/durable-state restore and replay.
+- [x] Qualify isolated stream/durable creation, idempotent provisioner rerun,
+      drift rejection, local disposable-PVC restore, bounded replay, and
+      `DiscardNew` capacity rejection. Off-node recovery is deferred at the
+      project owner's direction; node/cluster loss may discard the bounded
+      transport window, so reconcile facts and redrive work from PostgreSQL.
+      Production watermark comparison and relay retry/dead-letter qualification
+      remain Phase 2 gates.
 - [x] Add contract fixtures and CI checks for unique event/work subjects,
       per-event schemas, subscriber dispositions, source provenance, and
       registered work-to-durable topology. A new producer literal without a
       registry disposition fails the workspace source audit.
 
-The machine-readable registry currently covers 68 domain facts and ten selected
-work commands. The six current Geodata work/recovery event types map to four
-target commands. `myota-contracts/contracts/event-registry.json` records exact
-producer source paths for all 68 facts. Its workspace audit checks those references
+The machine-readable registry covers 68 domain facts and ten selected work
+commands. The six current Geodata work/recovery event types map to four target
+commands. Each work command has a bounded payload schema, source-linked producer
+and consumer paths, and an owning-row `workId` source. These target contracts do
+not authorize runtime publication. `myota-contracts/contracts/event-registry.json`
+records exact producer source paths for all 68 facts. Its workspace audit checks those references
 and classifies Python event-like source literals as a fact or mapped legacy work
 type; the 10 October audit found no unclassified Python literals across the five
 service repositories; the contracts CI audit passed on main. Payload shapes for
@@ -299,27 +311,27 @@ the only project team. Decisions are recorded in the
 
 - [x] Review and disposition all 68 source-derived fact schemas, including
       classification, intended subscriber groups, and field handling. Review
-      all ten selected work-command contracts; their producer payload evidence
-      remains pending. Fact-schema approval is conditional, and work payloads
-      are not approved for enforcement until minimized projections,
-      prohibited-field/size checks, idempotency/recovery evidence, and the
-      Geodata preprocessing projection are in place.
+      all ten selected work-command payload shapes against current handlers.
+      These are inventory/target contracts only; runtime enforcement remains
+      gated on producer projections, prohibited-field/size checks, transaction
+      coupling, idempotency/recovery evidence, and the Geodata preprocessing
+      projection.
 - [x] Accept the cluster-internal NATS trust boundary without NATS authentication
       or TLS. The broker remains ClusterIP-only; any pod with network reachability
       is trusted. Do not expose NATS outside the cluster; revisit if that boundary
       or the workload trust model changes.
 - [x] Record finite byte/message/age/payload caps totaling 5 GiB of the
-      existing 8 GiB PVC, with 3 GiB reserved. Values remain provisional until
-      a representative 30-day sample and pressure/recovery test justify them.
-- [x] Select off-node stream snapshots plus declarative consumer recreation,
-      isolated restore/replay, and database-authoritative redrive. Basic isolated
-      stream and durable-state restore/replay passed; off-node and production
-      qualification remain open. Interest retention may have deleted acknowledged
-      records.
+      existing 8 GiB PVC, with 3 GiB reserved. Volker accepts the short-sample
+      limitation for the single-node scope; do not increase caps without a
+      representative 30-day traffic/outage-backlog review.
+- [x] Select local disposable-PVC restore/replay and database-authoritative
+      redrive. Local restore/replay passed. Off-node recovery is deferred by the
+      project owner; node/cluster loss can discard the bounded transport window.
+      Interest retention may already have deleted acknowledged legacy records.
 - [x] Select one deployment-owned create-only provisioner and prohibit relay
-      topology mutation at the safe compatibility cutover. Chart integration
-      and relay change remain open; do not apply the target provisioner to the
-      mixed legacy stream.
+      topology mutation at the safe compatibility cutover. An optional fail-closed
+      Helm pre-upgrade readiness hook is integrated; relay mutation changes remain
+      Phase 2. Do not target the mixed legacy stream.
 
 **Exit criteria**
 
@@ -327,90 +339,68 @@ the only project team. Decisions are recorded in the
       ADR-0008's fact/work classification and subject namespaces. Contracts
       tests and the five-service source audit pass; provisioned work filters
       match all ten registered work commands.
-- [ ] Provisioning is deterministic, observable, and safe before first publish;
-      incompatible drift fails deployment/readiness clearly. Create-only
-      provisioning and drift checks pass in isolation. The controlled Helm
-      preflight and relay compatibility barrier remain open. NATS authentication
-      and TLS are not required under the accepted cluster-internal boundary.
-- [ ] Retention and restore/replay policies have an operator runbook and
-      qualification evidence. The
-      [runbook](jetstream-recovery.md) is written, but off-node backup and
-      restore/replay qualification remain open.
-- [ ] Final finite production limits are based on a representative traffic
-      window and recovery objectives. The review's numeric values remain
-      provisional until that evidence exists.
+- [x] Provisioning is deterministic and create-only, drift fails closed, and
+      the opt-in Helm pre-upgrade hook blocks workload upgrade on failed
+      validation. Its gate is tested by chart rendering; live activation is
+      intentionally deferred until Phase 2 compatibility gates pass.
+- [x] Retention and local restore/replay policies have an operator runbook and
+      isolated qualification. Off-node recovery is explicitly deferred for the
+      current single-node scope, with the bounded transport-loss risk accepted.
+- [x] Finite conservative limits and the evidence limitation are recorded;
+      Volker accepts these limits for the current single-node scope. Raising
+      limits requires a representative 30-day traffic and outage-backlog review.
 
 **ChatGPT prompt — Phase 1**
 
 ```text
-Work in the MyOTA multi-repository workspace on Phase 1 only. Before editing,
-read ADR-0008, the Phase 0 event/work inventory, the Phase 0 ownership and
-evidence gates, this plan, and the
-Phase 1 joint review
-(myota-docs/docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md).
-Read the recovery runbook as well. Treat myota-contracts and each owning service
-repository as authoritative for their contracts and runtime; myota-deploy owns
-the deployment and provisioner; myota-platform contains synchronized mirrors.
-Update mirrors only through their documented synchronization process.
+Work in the MyOTA multi-repository workspace to complete Phase 1 only. Read
+ADR-0008, the Phase 0 event/work inventory, this plan, the joint review, the
+recovery runbook, and AGENTS.md before editing. Authoritative sources are
+myota-contracts for event/work contracts, myota-deploy for provisioning and
+Helm, owning service repositories for source evidence, and myota-docs for
+roadmaps/evidence. Treat myota-platform and organization-profile links as
+synchronized mirrors; keep exact copies and links current.
 
-The selected target has a bounded Limits-retained MYOTA_EVENTS fact stream and
-separate WorkQueue-retained MYOTA_ACTIVITY_WORK and MYOTA_GEODATA_WORK command
-streams. Use dotted event types unchanged under myota.events.<eventType> and
-keep work subjects in the disjoint myota.work.activity.* and
-myota.work.geodata.* namespaces. Keep PostgreSQL authoritative. JetStream is a
-bounded delivery/replay window, not an archive. Do not add no-op fact durables.
-The single-server deployment uses one replica and file storage with DiscardNew.
-Keep NATS reachable only through its cluster-internal ClusterIP service. The
-accepted design does not require NATS authentication or TLS; any pod able to
-reach the service is within the trusted boundary. Never expose NATS outside the
-cluster without revisiting this decision.
-The 30-day fact window and 1/1/3 GiB byte budgets, message counts, and 1 MiB
-message limit are proposals until a representative 30-day serialized-traffic
-profile, outage backlog, storage reserve, and recovery objective validate them.
-Do not apply them to the live broker yet.
+Phase 1 scope is versioned envelopes, exhaustive event/work registries and
+schemas, topology definition, create-only provisioning, drift/correctness checks,
+recovery guidance, and isolated single-node qualification. Keep PostgreSQL as
+the business/recovery authority. JetStream is a bounded transport/replay window,
+not an event archive. Keep facts on the Limits-retained MYOTA_EVENTS target and
+competing commands on disjoint WorkQueue-retained Activity/Geodata streams.
+Keep scheduled/reconciliation work on its scheduler/database path.
 
-Implement and verify the contract envelope, schema/subject registry, exact
-fact/work classifications and dispositions, checked-in schemas, work durable
-mapping, create-only provisioning, drift checks, consumer correctness settings,
-and recovery documentation. Contract and topology work may proceed while
-evidence is being closed. Keep NATS on the cluster-internal ClusterIP service;
-the accepted decision does not require NATS authentication, TLS, or runtime
-credentials. Record the trusted-cluster assumption and do not expose the broker
-outside the cluster.
+The accepted trust boundary is cluster-internal ClusterIP without NATS auth or
+TLS; any pod that can reach the service is trusted. Never expose it externally
+without revisiting that decision. Use conservative 1/1/3 GiB stream caps,
+500k/250k/500k message counts, a 30-day age cap, 1 MiB max message, file
+storage, one replica, DiscardNew, and at least 3 GiB reserve on the existing
+8 GiB PVC. The sampled database history covers fewer than ten days and includes
+load-test traffic; Volker accepts that evidence limitation for the single-node
+scope. Do not raise caps without representative 30-day serialized traffic and
+outage-backlog evidence. Off-node recovery is deferred at the project owner's
+direction; record the node/cluster transport-window loss risk and rely on
+PostgreSQL reconciliation/redrive.
 
-The current production relay still emits its legacy envelope/subjects and
-mutates the mixed Interest-retained MYOTA_EVENTS stream. Do not run the target
-provisioner against that stream, remove relay mutation, or change any producer
-or consumer path until the plan's relevant evidence gate is met and a
-migration-safe Helm/Fleet readiness barrier has been verified. Do not enable
-payload enforcement until minimized payload projections, compatibility fixtures,
-size checks, and consumer needs are verified. In particular, keep Geodata
-preprocessed v1 source-accurate but do not enforce its current _records/_status
-payload; propose a compact versioned projection for the owning service. Treat
-the ten work payloads as pending until their transaction coupling, stable
-idempotency identity, database recovery source, and maximum serialized size are
-evidenced.
+Keep the live mixed Interest-retained MYOTA_EVENTS stream and production
+producer/consumer paths unchanged. The target provisioner must fail closed on
+drift and must never be run against that mixed stream. Add only an opt-in,
+fail-closed Helm pre-upgrade barrier; keep it disabled until the Phase 2
+compatibility/cutover gate is explicitly confirmed. Runtime envelope enforcement,
+payload minimization, retry/dead-letter changes, and relay mutation removal
+belong to later phases. Operations remains metadata-only and cannot read message
+payloads, consume, acknowledge, purge, or mutate topology.
 
-Keep Operations read-only: metadata inspection only, with no payload reads,
-consumer delivery, ACK, purge, or topology mutation. Document off-node backup,
-isolated restore/replay, database comparison, and same-ID work redrive. A
-synthetic isolated restore does not qualify off-node backup or production
-recovery.
-
-Do not invent final capacity values, source evidence, or approvals.
-If an evidence gate cannot be closed from the repositories and safe isolated
-checks, leave that checkbox open, name the missing evidence, and state the
-smallest next action. Do not claim Phase 1 or later phases complete unless every
-Phase 1 exit criterion has verified evidence.
-
-Run focused contract, audit, provisioning, drift, formatting, and link checks
-supported by repository conventions. On the deployed host, use only
-non-destructive read-only checks unless a separately gated isolated test is
-required; clean up any test resources. Report exact commands/results,
-repositories and files changed, commits, mirror status, remaining evidence, and
-exit criteria. Commit and push completed work to main using the GitHub
-connector, with explicit commit messages. Update the docs status pages, history
-prompt record, diagrams, and relevant repository README links.
+Test contracts, source audit, provisioning idempotency/drift, bounded local PVC
+restore/replay, capacity rejection, Helm lint/render, and mirrors using an
+isolated namespace on the local K3s server. Do not use production resources;
+remove the temporary namespace and test data afterward. If a gate cannot be
+verified, record the exact gap and its later-phase owner instead of claiming it
+is done. Update the plan, completion evidence, diagrams, history with the exact
+prompt used, README links, To do, Work in progress, and prioritized backlog.
+Mark checkboxes only when evidence supports the stated scope. Commit and push
+affected work directly to each repository's main branch with explicit messages.
+Report commands/results, repositories/files, mirrors, risks, remaining Phase 2
+gates, and Phase 1 exit criteria.
 ```
 
 ### Phase 2 — Relay hardening and domain-event coverage

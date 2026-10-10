@@ -5,27 +5,20 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md) —
-  Phase 0 inventory and topology decisions are complete. Phase 1 contract work
-  now has 68 registered facts and ten selected work commands, checked-in
-  schemas, source audit, and a passing contracts CI check that each work command
-  matches its deploy-owned stream, subject, and durable. The create-only
-  provisioner and drift checks pass focused tests and an isolated broker
-  idempotency/drift check.
-  The 10 October delegated review dispositioned all 68 source-derived schemas
-  and selected the cluster-internal trust boundary, capacity, recovery, and relay ownership. That
-  decision review is complete; runtime gates remain for payload minimization,
-  representative capacity sizing, off-node restore and database reconciliation,
-  payload minimization, unknown-route enforcement, and a safe provisioning/readiness
-  barrier before relay mutation is removed. NATS auth/TLS is not required while
-  the broker remains cluster-internal. The
-  [recovery runbook](../operations/messaging/jetstream-recovery.md) records the
-  procedure and remaining qualification evidence. The live shared stream still
-  uses Interest retention and no producer or consumer path has changed. See the
-  [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
-  [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
-  and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
-  Phase 1 remains open until all exit criteria in the
-  [migration plan](../operations/messaging/nats-event-migration-plan.md) pass.
+  Phase 0 and Phase 1 contract/topology work are complete. Phase 1 registered 68
+  facts and ten work commands, added bounded per-command payload schemas, passed
+  source and contract checks, and added a fail-closed optional Helm pre-upgrade
+  readiness hook. Isolated K3s checks covered provisioner idempotency/drift,
+  local PVC restore, replay, and capacity rejection. The 30-day database sample
+  is short; accepted initial caps and the evidence caveat are recorded. Off-node
+  recovery is deferred at the project owner's direction. Runtime enforcement,
+  payload minimization, relay mutation removal, and production cutover remain
+  Phase 2 gates. NATS remains cluster-internal without auth/TLS. The live shared
+  stream still uses Interest retention and no producer or consumer path has
+  changed. See the
+  [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
+  [recovery runbook](../operations/messaging/jetstream-recovery.md), and
+  [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates

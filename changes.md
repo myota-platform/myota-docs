@@ -1,5 +1,21 @@
 # MyOTA changes
 
+## 10 October 2026 — Phase 1 NATS contract/topology closeout
+
+- Completed ten bounded per-command work schemas with owning-row identity and
+  producer/consumer source references; contract tests and the five-service event
+  source audit pass. Synchronized registry/schema/docs mirrors to `myota-platform`.
+- Added an optional fail-closed Helm pre-upgrade provisioner barrier. It is
+  disabled by default and requires explicit migration-gate confirmation. The live
+  mixed Interest-retained stream and all runtime producer/consumer paths remain
+  unchanged.
+- Local K3s evidence covers create/idempotency, drift rejection, local PVC
+  restore, bounded replay, and `DiscardNew` pressure rejection. The temporary
+  namespace was removed. Volker accepts the conservative caps despite a sample
+  shorter than 30 days; off-node recovery is deferred for the single-node scope.
+  See [Phase 1 completion evidence](docs/operations/messaging/evidence/phase1-completion-2026-10-10.md).
+
+
 ## 10 October 2026 — NATS Geodata payload contract source pass
 
 - Added additive, source-derived payload schemas for all 27 Geodata facts, with

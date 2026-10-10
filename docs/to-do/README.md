@@ -12,13 +12,12 @@ documentation evidence and does not set delivery dates.
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phase 0 is complete. Phase 1's contract registry and provisioner foundations
-  are verified; the delegated 68-schema decision review is complete. The
-  remaining work is payload minimization and relay enforcement, representative
-  capacity sizing, safe Helm/Fleet readiness before relay cutover, and off-node
-  restore/replay qualification. The accepted cluster-internal trust boundary does
-  not require NATS auth/TLS. The recovery
-  runbook records the selected procedure and open evidence. See the
+  — Phases 0 and 1 contract/topology work are complete. Phase 1 evidence records
+  isolated provisioner, drift, PVC restore, replay, and capacity-pressure checks;
+  accepted single-node capacity limits and deferred off-node recovery are
+  explicit. Runtime envelope enforcement, payload projection, relay mutation
+  removal, and production cutover remain Phase 2 gates. See the
+  [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
   [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [recovery runbook](../operations/messaging/jetstream-recovery.md), and
   [Work in progress](../work-in-progress/README.md).

@@ -1,8 +1,9 @@
 # NATS migration Phase 1 contract and topology evidence
 
-**Status:** Phase 1 is in progress. Contract and create-only provisioning
-preparation is checked locally; no live stream, producer, or consumer behavior
-was changed. This record does not satisfy the Phase 1 exit criteria.
+**Historical snapshot (9 October 2026):** The status and remaining gates below
+reflect the preparation pass at that time. They are superseded by the 10 October
+[joint review](phase1-joint-review-2026-10-10.md) and
+[Phase 1 completion evidence](phase1-completion-2026-10-10.md).
 
 ## Work completed in this pass
 

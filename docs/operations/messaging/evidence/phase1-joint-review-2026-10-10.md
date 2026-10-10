@@ -175,14 +175,16 @@ Current `myota-deploy/services/outbox_worker.py` still creates/updates `MYOTA_EV
 - Mirror evidence: matching deployment files in `myota-platform/deploy/`; matching contracts files in `myota-platform/contracts/`.
 - Deployed evidence: K3s `default` context, node `spainip-k3s` Ready, Helm release `myota` revision 157, NATS single replica and 8 GiB PVC. All cluster queries and database aggregates in this record were read-only.
 
-Phase 1 is not complete. The contracts-owned v1 envelope schemas and registry
+At the time this joint-review snapshot was recorded, Phase 1 was not complete.
+The contracts-owned v1 envelope schemas and registry
 for 68 facts and ten selected work commands are now verified by focused tests
 and Contracts CI run
 [38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38046227981).
 The deploy-owned create-only topology definition and drift checks also pass
 focused and isolated broker checks. This completes the contract/subject-registry
 exit criterion; it does not mean that the current relay enforces the new
-envelope or subject rules. Remaining exit criteria are deterministic provisioning with a readiness barrier,
+envelope or subject rules. At that review point, remaining exit criteria were deterministic provisioning
+with a readiness barrier,
 payload projection and unknown-route enforcement, measured final limits, and
 qualified off-node backup/restore/replay. NATS authentication and TLS are not
 requirements while the broker remains cluster-internal under the accepted trust boundary. The
@@ -215,3 +217,29 @@ production NATS service. The temporary namespace was deleted and verified
 absent; the CLI binary and snapshot were removed from /tmp. This was a same-host
 isolated drill, not an off-node backup, PVC-loss test, database reconciliation,
 authenticated-ACL test, or production recovery qualification.
+
+## Phase 1 closeout decisions — 10 October 2026
+
+The project team is Volker Kerkhoff and Codex. At the workspace owner's
+direction, off-node recovery is deferred for the current single-node scope.
+The accepted residual risk is loss of the bounded JetStream transport window
+with node/cluster loss; PostgreSQL remains the authority for business state,
+reconciliation, and work redrive.
+
+Volker accepts the conservative initial caps (1 GiB facts, 1 GiB Activity work,
+3 GiB Geodata work; finite message/age/payload limits and 3 GiB PVC reserve)
+despite the available database sample covering fewer than ten days and
+including load-test traffic. Treat those caps as fixed ceilings for the initial
+single-node scope. Do not increase them without representative 30-day
+serialized-traffic and outage-backlog evidence.
+
+The deploy repository now contains an optional fail-closed Helm pre-upgrade
+provisioner hook. It is disabled by default and requires explicit confirmation
+of the migration gate; the current mixed Interest-retained `MYOTA_EVENTS`
+stream must still not be targeted. The isolated 10 October closeout also
+verified a replacement local PVC, stream/durable restore, replay, idempotent
+provisioning, drift rejection, and `DiscardNew` pressure behavior. It did not
+touch the production namespace. Relay cutover, payload projection/enforcement,
+production outbox watermark comparison, and retry/dead-letter qualification
+remain Phase 2 gates. See the
+[Phase 1 completion evidence](phase1-completion-2026-10-10.md).

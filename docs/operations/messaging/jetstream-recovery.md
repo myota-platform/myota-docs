@@ -1,16 +1,17 @@
 # JetStream recovery and replay runbook
 
-**Status:** Selected recovery procedure; production qualification is incomplete.
-Do not use these steps to restore into the production broker until the recovery
-gate in the NATS migration plan is closed.
+**Status:** Local disposable-PVC recovery and replay are qualified for the
+single-node scope. Off-node recovery is explicitly deferred by the project
+owner; do not treat this runbook as a production off-node backup procedure.
 
 ## Recovery authority
 
 PostgreSQL in each owning service remains authoritative for accepted facts and
 work. JetStream is a bounded transport and replay window, not the event archive.
-Keep stream snapshots off the NATS node and keep topology and credential
-configuration in their separately managed source. Encrypt backups and restrict
-access to the same data classification as the messages they contain.
+Keep topology and credential configuration in their separately managed source.
+Any future off-node snapshots must be encrypted and restricted to the same
+data classification as the messages they contain. Off-node backup is not a
+current Phase 1 gate.
 
 Operations is limited to read-only stream and consumer metadata. It must not
 fetch message payloads, consume, acknowledge, create, update, delete, purge, or
@@ -25,18 +26,18 @@ for administrative actions.
 2. Confirm no migration or relay cutover is in progress. For the legacy shared
    MYOTA_EVENTS stream, record its Interest retention and current consumers;
    do not change its retention as part of backup.
-3. Use the approved JetStream stream-backup mechanism to capture each target
-   stream and its durable state. Record tool and server versions, UTC start and
-   finish times, stream metadata, and backup checksum.
-4. Copy the completed backup to storage outside the Kubernetes node and verify
-   the copy by checksum. Store the stream snapshot separately from the
-   declarative topology and out-of-band credential recovery procedure.
+3. For local qualification, use a disposable PVC snapshot/copy and record tool
+   and server versions, UTC start and finish times, stream metadata, and
+   checksums. The 10 October drill completed this step.
+4. A separate off-node backup destination and credential path may be added in
+   a future recovery phase; this is explicitly deferred for the current
+   single-node deployment.
 5. Record the source database watermark or outbox event/work IDs used for
    reconciliation. Never include database credentials or NATS private seeds in
    the backup record.
 
-A PVC snapshot by itself is not an off-node backup and does not close the
-recovery gate.
+The qualified local PVC copy protects only against broker-PVC replacement on
+the same node. Node or cluster loss can remove the bounded transport window.
 
 ## Restore qualification
 
@@ -63,7 +64,7 @@ databases or external side-effecting services.
 6. Record duplicate-delivery behavior, message and durable comparisons,
    application checkpoints, tool/server versions, test data IDs, and cleanup
    evidence. Remove the isolated namespace and temporary backup copy after the
-   evidence has been retained in the approved off-node location.
+   evidence has been recorded without retaining test payloads or credentials.
 
 ## Outage, capacity, and expiry handling
 
@@ -88,21 +89,20 @@ legacy stream until its consumer and replay needs are resolved.
 ## Qualification evidence and remaining work
 
 The 10 October 2026 disposable-broker drill restored a stream and its durable
-ACK state, then created a new durable and replayed three synthetic messages.
-The test namespace and its temporary files were removed. This proves a bounded
-restore/replay mechanic only.
+ACK state from a replacement local PVC, then created a new durable and replayed
+three synthetic messages. It also verified create/idempotency, drift rejection,
+and `DiscardNew` capacity rejection. The test namespace and temporary storage
+were removed. This qualifies only single-node local recovery mechanics.
 
-Still required before Phase 1 exit:
+Phase 1 exit criteria are complete within the accepted single-node scope.
+Deferred work and limits:
 
-- Create and checksum an off-node backup using the production backup
-  destination and credential path.
-- Qualify disposable PVC loss, off-node restore, durable recreation, duplicate
-  delivery, disk-capacity rejection, relay retry/dead-letter, and bounded
-  replay.
-- Compare restored IDs and ACK state with real source outbox watermarks.
-- Record alarms and operator actions for capacity pressure and work redrive.
-- Review the run with the workspace owner and retain the evidence without
-  publishing sensitive message contents or credentials.
+- Off-node snapshot/restore remains deferred. If the project later requires
+  node-loss recovery, add an approved backup destination and qualify its restore.
+- Production outbox watermark comparison and relay retry/dead-letter behavior
+  belong to the Phase 2 runtime migration gate.
+- Retain alarms and operator actions for capacity pressure and work redrive as
+  operational follow-up; PostgreSQL remains authoritative for reconciliation.
 
 See the [joint Phase 1 review](evidence/phase1-joint-review-2026-10-10.md) and
 the [migration plan](nats-event-migration-plan.md) for the selected topology and

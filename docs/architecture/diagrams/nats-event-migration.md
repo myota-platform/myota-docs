@@ -51,7 +51,7 @@ flowchart LR
   ES -. inspect only .-> O[Operations observer]
 ```
 
-**Status (10 October 2026):** Phase 0 is complete and Phase 1 is in progress.
+**Status (10 October 2026):** Phases 0 and 1 contract/topology work are complete.
 The 68 fact schemas and ten selected work commands are registered; contract CI
 checks their schema/disposition coverage and exact work-to-durable mapping. The
 create-only provisioner and its drift checks passed focused and isolated tests.

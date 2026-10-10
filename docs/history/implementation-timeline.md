@@ -934,3 +934,41 @@ later phases complete.
   reused; no new phase prompt or live topology change was introduced. See the
   [evidence record](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [Phase 1 plan](../operations/messaging/nats-event-migration-plan.md).
+
+
+## 10 October 2026 — Phase 1 contract/topology closeout
+
+- Added bounded per-command payload schemas for all ten selected work types,
+  with owning database row IDs and producer/consumer source references. The
+  Contracts suite passes 4/4 tests; the workspace source audit found no
+  undispositioned Python event-like literals.
+- Added the optional fail-closed Helm pre-upgrade provisioner hook and chart
+  render checks. It remains disabled until the Phase 2 compatibility gate is
+  confirmed. No live relay, producer, consumer, or `myota` namespace resource
+  changed.
+- Local K3s qualification verified provisioner create/idempotency/drift,
+  replacement local PVC restore, bounded replay, and `DiscardNew` capacity
+  rejection in `nats-phase1-verify-20261010`; the namespace and its resources
+  were deleted. Off-node recovery is deferred at the project owner's direction.
+  The short capacity sample and accepted 1/1/3 GiB starting caps are documented
+  as bounded single-node decisions, not 30-day measured capacity.
+- Deploy tests passed 36 tests with one Pillow-dependent skip. Helm lint passed
+  for default and Spainip values; the optional pre-upgrade hook rendered only
+  when explicitly enabled and confirmed. Docs, org profile links, and platform
+  mirrors were updated.
+
+**Prompt used for this Phase 1 continuation:**
+
+```text
+Address and work on the remaining Phase 1 tasks until completion, iteratively
+if needed. If a decision is required, make it yourself based on your best
+criteria and best practices.
+
+Don't use the cloud-environment skill. Conduct work on the local K3s server in
+a separate namespace and clean it up when done. Off-node recovery is not
+required for the current scope.
+```
+
+The Phase 1 prompt in the [migration plan](../operations/messaging/nats-event-migration-plan.md)
+was used as the implementation basis and updated to reflect these accepted
+capacity, trust-boundary, recovery, and production-cutover decisions.

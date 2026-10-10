@@ -377,8 +377,11 @@ overlap rules are described in [Your first stream](https://docs.nats.io/learn/je
 
 The current Compose NATS and Helm NATS are single-server deployments; Helm uses
 one NATS replica and an 8 GiB PVC. Treat these as persistent single-node state,
-not high availability. Keep replica count at one on the current topology and
-require tested off-host backup/restore. The production HA target is three
+not high availability. Keep replica count at one on the current topology.
+Off-node backup is deferred at the workspace owner's direction; qualify restore
+to a disposable PVC in the local K3s cluster. Loss of the node/cluster may lose
+the bounded JetStream transport window, while PostgreSQL remains the source of
+truth and supports work reconciliation/redrive. The production HA target is three
 JetStream replicas only after a three-server NATS cluster is deployed; do not
 configure three replicas against the current single-server service. NATS
 documents that replication protects node loss but costs storage/write load and
@@ -474,9 +477,11 @@ Other evidence gaps assigned to closure owners/phases:
 7. Migration 015 creates recovery rows, but there is no evidence for operator
    replay, duplicate recovery under concurrent startup, or preservation of
    original work identity across all recovery cases.
-8. Exact stream limits, production backup/restore, NATS account limits,
-   per-role permissions, measured rates/payloads, and deployed production
-   consumer configuration require operations evidence.
+8. Exact stream limits, a representative 30-day traffic profile, restore/replay,
+   and deployed production consumer configuration require operations evidence.
+   The Phase 1 joint review accepts conservative 5 GiB limits against the 8 GiB
+   PVC with a 3 GiB reserve, and defers off-node recovery. NATS auth/TLS is not
+   required on the accepted single-tenant cluster-internal boundary.
 9. Tests cover selected contracts, relay behavior, and Geodata worker recovery,
    but there is no cross-repository producer-to-consumer coverage matrix or
    exhaustive event registry check.

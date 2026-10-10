@@ -3,9 +3,9 @@
 Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diagrams/service-boundaries.md), [`diagrams/programme-configuration-lifecycle.md`](diagrams/programme-configuration-lifecycle.md), and [`diagrams/data-model.md`](diagrams/data-model.md). This document remains the narrative architecture reference; the diagrams intentionally show the major ownership and lifecycle relationships without replacing detailed API or migration documentation.
 
 The current versus selected NATS event/work topology is kept separately in the
-[NATS migration diagram](diagrams/nats-event-migration.md). Phase 0 is complete;
-Phase 1 contract/provisioning preparation is in progress. The selected target is
-not deployed.
+[NATS migration diagram](diagrams/nats-event-migration.md). Phases 0 and 1
+contract/topology work are complete. The selected target is not deployed; the
+legacy relay/stream remain in place pending Phase 2 compatibility gates.
 
 ## Scope
 
