@@ -277,8 +277,9 @@ service repositories; the contracts CI audit passed on main. Payload shapes for
 all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts now have
 source-derived payload schemas generated from their authoritative producer files.
 Identity, Programme, Activity, and Geodata schema checks passed in Contracts CI
-(run 38042564323 for Geodata; run 38040217352 for Activity). Joint owner/privacy
-reviews remain open. Geodata preprocessing currently emits the full result object,
+(run 38042564323 for Geodata; run 38040217352 for Activity). The delegated schema
+review is complete; payload projection, prohibited-field/size checks, and consumer
+compatibility remain prerequisites for enforcement. Geodata preprocessing currently emits the full result object,
 including internal `_records` and `_status`; minimize this event before schema
 enforcement. The Phase 0 audit found no Operations event-producing call sites; a payload
 schema is not applicable unless Operations becomes a producer. These additive schemas do
