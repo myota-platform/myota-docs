@@ -13,6 +13,31 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 10 October 2026 — NATS cluster-internal trust boundary decision
+
+- **Prompt used:** “Remove the requirement for secure NATS / Jetstream because
+  communication is cluster-internal. Then continue implementation of phase 1”.
+  This is a Phase 1 decision follow-up; the plan retains one copyable Phase 1
+  implementation prompt updated to match this decision.
+- **Decision:** The workspace owner superseded the earlier proposal to require
+  NKey credentials, NATS authentication, and TLS. Keep NATS reachable only via
+  the Kubernetes ClusterIP service and trust all pods that can reach it. Do not
+  expose port 4222 through an external service, NodePort, LoadBalancer, host
+  port, or Ingress. Revisit this if the network boundary or workload trust
+  model changes. Operations remains read-only by application behavior; the
+  unauthenticated broker does not enforce that distinction.
+- **Evidence:** Read-only K3s inspection showed `myota-nats` as ClusterIP
+  `10.43.85.18:4222`, no NetworkPolicy in namespace `myota`, and Helm release
+  `myota` at revision 157. No NATS deployment, stream, consumer, or application
+  runtime was modified for this decision.
+- **Phase 1 status:** Removed authentication/TLS and per-role NKey rollout from
+  the open work and exit gates. Capacity sizing, payload projection and unknown
+  route enforcement, chart readiness/relay compatibility, and off-node restore
+  and database reconciliation remain open. See the
+  [migration plan](../operations/messaging/nats-event-migration-plan.md),
+  [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
+  and [topology diagram](../architecture/diagrams/nats-event-migration.md).
+
 ## 10 October 2026 — NATS Phase 1 Work checklist follow-up
 
 - **Prompt used:** “OK, complete the section "work" in phase 1 now based on the
