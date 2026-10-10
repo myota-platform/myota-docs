@@ -6,25 +6,33 @@
   `MYOTA_GEODATA_WORK` WorkQueue, with exact pull durables and bounded capacity.
   Production workers subscribe to the new subjects; the previous Geodata
   durable definitions remain empty and inactive during the 24-hour rollback
-  observation. No production Geodata work was available for processing.
+  observation. Helm revision 189 is deployed and Fleet is Ready=True with 60/60
+  resources. No production Geodata work was available for processing.
 - Applied migration 021 and deployed dispatch timestamps/recovery indexes.
   PostgreSQL owner rows and outbox remain authoritative; no source rows,
   checkpoints, dead letters, or schema objects still needed for recovery were
   pruned.
 - Fixed partial cross-service deletion recovery: when Activity has completed
-  its idempotent cascade but the Geodata step fails, the handler leaves an
-  expired processing lease and NAKs the work instead of marking it terminal and
-  ACKing it.
+  its cascade but the Geodata step fails, the handler leaves an expired
+  processing lease and NAKs the work instead of marking it terminal and ACKing
+  it. A disposable two-database test confirmed JetStream redelivery completes
+  the job and emits one Activity cascade fact.
+- The test exposed missing Activity idempotency-key handling. The Activity API
+  and repository now persist the request key and result transactionally under a
+  PostgreSQL advisory lock. The source is committed to `myota-activity-service`
+  and synchronized to deploy/platform mirrors; image build and production
+  rollout remain open.
 - Pinned Geodata image
   `sha256:c6f5dee746579469ba827a4af78741acbe5d25e825471c84c95ec5574e6e2aee`
   and shared runtime image
   `sha256:1f4002619cee64d9d05f06b96c93d348df5ae725806d08da383d74e0c84c91e8`.
-- Isolated checks passed: 154 Geodata tests (one optional setup skipped), 25
-  relay/topology tests, real database socket refusal/reconnect, same-node NATS
-  Pod restart with persistent storage, and focused partial-cascade retry.
-  Fleet Ready, the two-database failure chain, cancellation-race and
-  expiry-to-completion checks, and safe removal of the four old durables remain
-  open. See the [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+- Isolated checks passed: 154 Geodata tests (one optional setup skipped), 40
+  Activity tests (one optional broker test skipped), 25 relay/topology tests,
+  real database socket refusal/reconnect, same-node NATS PVC restart, and the
+  two-database cascade-failure/redelivery chain. Activity's new image,
+  cancellation-race and expiry-to-completion chains, the rollback observation
+  through 20:58:36 UTC on 11 October, and safe removal of the four old durables
+  remain open. See the [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
 
 ## 10 October 2026 — NATS Phase 4 Activity work implementation
