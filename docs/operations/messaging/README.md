@@ -10,21 +10,19 @@
   broker state and sampled history.
 - [NATS event migration plan](nats-event-migration-plan.md)
   - **Complete:** Phases 0–4 within their recorded evidence bounds. Phase 4
-    production cutover provisioned `MYOTA_ACTIVITY_WORK`, deployed six exact
-    durables and JetStream workers, ran migration 007, retired the old claim
-    index, purged synthetic notification jobs, and disabled compatibility
-    repair. No selected production jobs existed at cutover; isolated
-    PostgreSQL/JetStream qualification processed all six kinds. See the
-    [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md) and
-    [work queue runbook](activity-work-queues.md).
-  - **Selected:** Cluster-internal trust boundary without NATS auth/TLS, bounded
-    work schemas, create-only provisioner, and accepted capacity limits.
-  - **Verified:** Fail-closed Helm pre-upgrade gate, local restore/replay, and
-    Phase 4 disposable broker/database migration and duplicate-safe ACK checks.
-  - **Still open:** payload/privacy enforcement, Geodata work migration, and
-    controlled stream-retention cutover. The live shared stream remains
-    Interest-retained. The Phase 4 evidence records the deployed state and its
-    no-production-workload limitation.
+    Activity work cutover and schema retirement are complete.
+  - **Phase 5 live:** Four Geodata work kinds route to `MYOTA_GEODATA_WORK`;
+    migration 021 and the retry-safe partial-deletion recovery fix are deployed.
+    Four replacement durables have exact filters and zero backlog. No accepted
+    production Geodata work was available at cutover.
+  - **Rollback:** Four legacy Geodata durable definitions remain empty and
+    inactive until the 24-hour observation expires at 20:55:08 UTC on 11 October
+    2026. Do not remove Activity's notification durable or `MYOTA_EVENTS`.
+  - **Still open:** Fleet Ready reconciliation, two-database cross-service
+    failure qualification, cancellation/expiry replay chains, final legacy
+    durable retirement, and Phase 6 fact-stream retention transition. See the
+    [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md), [Phase 5
+    plan](nats-event-migration-plan.md), and [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md).
 - [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.
