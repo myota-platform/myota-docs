@@ -63,38 +63,35 @@ and the active [Work in progress index](../work-in-progress/README.md).
 ### 2. Complete Phase 5 Geodata recovery and Phase 6 fact-stream lifecycle
 
 **Current evidence:** Phases 0–4 are complete within their recorded evidence
-bounds. Phase 5 has moved the four Geodata work kinds to the dedicated
-`MYOTA_GEODATA_WORK` WorkQueue in production, deployed exact pull durables,
-applied migration 021, and shipped retry-safe partial-deletion handling.
-Isolated K3s checks passed the 154-test Geodata suite (one optional setup
-skipped), 25 relay/topology tests, database connection refusal/reconnect,
-same-node NATS PVC restart, and focused deletion retry coverage. No Geodata
-production work was available for processing. See the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+bounds. Phase 5 moved all four Geodata work kinds to the bounded
+`MYOTA_GEODATA_WORK` WorkQueue, applied migration 021, shipped retry-safe
+partial deletion and deployed the Activity cascade idempotency fix. Helm
+revision 191 is deployed; Fleet reports Ready=True at Deploy commit
+`a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources ready. First-party runtime, worker,
+provisioner and scheduled-job images use configured immutable references;
+live pod image references/ImageIDs match. The 154-test Geodata suite, 40-test
+Activity suite (each with one optional skip), 25 relay/topology tests and
+isolated recovery checks passed. No accepted production Geodata work was
+available for processing. See the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
-The four prior Geodata durable definitions remain empty and inactive while the
-24-hour rollback observation runs. Helm revision 189 is deployed and Fleet
-reports Ready=True with 60/60 resources. The two-database Activity/Geodata
-partial-failure chain passed in the disposable host-K3s environment and emitted
-exactly one Activity cascade fact after retry. The Activity idempotency source
-fix is committed and mirrored, but its image deployment remains open.
-Cancellation during acknowledged preprocessing and the expiry → owner-row/outbox
-reconstruction → completion chains passed in disposable K3s. Final durable
-retirement and the rollback window remain open. `MYOTA_EVENTS` is still
-Interest-retained; Phase 6 will address its governed fact-stream transition.
-Off-node recovery remains deferred for the current single-node scope.
+All four target durables are empty with active workers. Four old Geodata
+durables in `MYOTA_EVENTS` remain inactive and empty. The 24-hour observation
+began at completed immutable-image rollout revision 191, 21:28:41 UTC on
+10 October, and ends no earlier than 21:28:41 UTC on 11 October 2026. After that gate, recheck
+Fleet, stream filters/backlogs, migration markers and owner-row recovery age,
+then retire only the four old durables. The Activity notification durable and
+shared Interest-retained `MYOTA_EVENTS` remain. Off-node recovery stays
+deferred; Phase 6 governs the separate fact-stream retention transition.
 
-**Why second:** routing is cut over and isolated recovery chains are verified,
-but rollback retirement must wait for the observation window. The Activity
-idempotency source fix must reach production before this phase can close.
-Phase 6 remains separately gated and must not turn a work stream into an
-unbounded event archive.
+**Why second:** Only the safe rollback observation and legacy durable retirement
+remain for Phase 5. Phase 6 must stay behind those checks and must not turn a
+work stream into an unbounded event archive.
 
-**Next:** verify the Activity idempotency image build, immutable digest pin,
-and production rollout; wait through the recorded rollback window; then
-recheck and remove only the four legacy Geodata durables. The observation ends no earlier than 20:58:36 UTC
-on 11 October 2026. Keep migration 021, work rows, outbox history, checkpoints
-and dead letters because they remain the recovery/source boundary. Continue to
-Phase 6 only after Phase 5 exit evidence is complete.
+**Next:** keep authoritative Geodata work rows, outbox history, checkpoints,
+dead letters and migration 021 recovery columns/indexes. At the observation
+deadline, perform the documented read-only checks and remove only the legacy
+Geodata durables if all pass. Continue to Phase 6 only after Phase 5 exit
+evidence is complete.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
@@ -106,7 +103,7 @@ See [NATS event migration plan](../operations/messaging/nats-event-migration-pla
 [JetStream operations status](../operations/messaging/jetstream-admin-status.md), and
 [recovery runbook](../operations/messaging/jetstream-recovery.md).
 
-### 3. Establish programme governance, jurisdiction, and eligibility controls
+### 3. Establish programme governance### 3. Establish programme governance, jurisdiction, and eligibility controls
 
 **Current evidence:** the programme configuration gap analysis labels
 programme identity/ownership, locale/content policy, jurisdiction/approver
