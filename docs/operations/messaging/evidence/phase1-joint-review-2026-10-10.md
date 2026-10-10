@@ -94,7 +94,27 @@ The following rows were read from `myota-contracts/contracts/event-registry.json
 | `programme.policy-draft.saved.v1` | `programme-service` | `internal-configuration-and-user-metadata` | none selected; no no-op durable | Conditionally accepted; apply the payload rules above before enforcement. |
 | `programme.updated.v1` | `programme-service` | `internal-configuration` | none selected; no no-op durable | Conditionally accepted; apply the payload rules above before enforcement. |
 
-The ten proposed work-command schemas are listed in the same registry under `workCommands`. Their payload evidence remains pending until each producer’s idempotency key, transaction coupling, recovery source, and maximum payload are asserted. Commands carry identifiers and small routing metadata, never source documents; the owning database remains the re-drive source. The six Activity job types remain distinct from facts; `NOTIFICATION_SEND` stays excluded because it represents state rather than an external delivery command.
+The ten proposed work types share the generic work envelope at
+myota-contracts/contracts/schemas/work-command.schema.json. The registry still
+marks each payload as pending owner evidence, so this review deliberately does
+not approve its producer payload for enforcement. Each command must use bounded
+identifiers and routing metadata, never source documents; the owning database
+remains the re-drive source. The six Activity jobs remain distinct from facts;
+NOTIFICATION_SEND stays excluded because it represents state rather than an
+external delivery command.
+
+| Work type | Target stream | Durable group | Current payload evidence | Review decision |
+|---|---|---|---|---|
+| `activity.qso-ingestion.v1` | `MYOTA_ACTIVITY_WORK` | `activity-qso-ingestion-v1` | `pending-activity-idempotency-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `activity.adif-import.v1` | `MYOTA_ACTIVITY_WORK` | `activity-adif-import-v1` | `pending-activity-idempotency-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `activity.award-recalculate.v1` | `MYOTA_ACTIVITY_WORK` | `activity-award-recalculate-v1` | `pending-activity-idempotency-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `activity.award-evaluation.v1` | `MYOTA_ACTIVITY_WORK` | `activity-award-evaluation-v1` | `pending-activity-idempotency-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `activity.pdf-render.v1` | `MYOTA_ACTIVITY_WORK` | `activity-pdf-render-v1` | `pending-activity-idempotency-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `activity.statistics-rebuild.v1` | `MYOTA_ACTIVITY_WORK` | `activity-statistics-rebuild-v1` | `pending-activity-idempotency-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `geodata.import-preprocess.v1` | `MYOTA_GEODATA_WORK` | `geodata-preprocessing-v1` | `pending-geodata-recovery-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `geodata.import-promotion.v1` | `MYOTA_GEODATA_WORK` | `geodata-import-promotion-v1` | `pending-geodata-recovery-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `geodata.entity-delete.v1` | `MYOTA_GEODATA_WORK` | `geodata-entity-deletion-v1` | `pending-geodata-recovery-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
+| `geodata.location-enrichment.v1` | `MYOTA_GEODATA_WORK` | `geodata-location-enrichment-v1` | `pending-geodata-recovery-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
 
 **Open schema implementation gate:** add schema validation and focused fixtures for the exact producer projection, reject prohibited fields and oversized payloads, and cover all accepted consumer needs. In particular, complete the Geodata preprocessed projection before schema enforcement. Operations has no event-producing call site in the Phase 0 source audit; no Operations fact schema is required unless it becomes a producer.
 
