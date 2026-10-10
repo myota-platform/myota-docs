@@ -181,10 +181,23 @@ Current `myota-deploy/services/outbox_worker.py` still creates/updates `MYOTA_EV
 - Registry and all event schemas: `myota-contracts/contracts/event-registry.json`, `myota-contracts/contracts/schemas/events/`, `myota-contracts/contracts/schemas/event-envelope.schema.json`, `myota-contracts/contracts/events.md`.
 - Payload source: `myota-identity-service/identity.py`; `myota-programme-service/programmes.py`; `myota-activity-service/activity.py`, `activity_repository.py`, `awards.py`; `myota-geodata-service/geodata.py`, `common.py`, `relational_state.py`.
 - Current relay and selected topology: `myota-deploy/services/outbox_worker.py`, `services/jetstream_topology.py`, `services/provision_jetstream.py`; Helm source `deploy/helm/myota/templates/messaging.yaml`, `templates/deployment.yaml`, and `values.yaml`.
+- Recovery procedure: `myota-docs/docs/operations/messaging/jetstream-recovery.md`.
 - Mirror evidence: matching deployment files in `myota-platform/deploy/`; matching contracts files in `myota-platform/contracts/`.
 - Deployed evidence: K3s `default` context, node `spainip-k3s` Ready, Helm release `myota` revision 157, NATS single replica and 8 GiB PVC. All cluster queries and database aggregates in this record were read-only.
 
-Phase 1 is not complete. The remaining exit criteria are checked implementation of the versioned envelope/subject registry, least-privilege authenticated provisioning, measured final limits, production-like backup/restore/replay evidence, and deterministic readiness before publishing. No phase after Phase 1 is claimed complete.
+Phase 1 is not complete. The contracts-owned v1 envelope schemas and registry
+for 68 facts and ten selected work commands are now verified by focused tests
+and Contracts CI run
+[38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38045763460).
+The deploy-owned create-only topology definition and drift checks also pass
+focused and isolated broker checks. This completes the contract/subject-registry
+exit criterion; it does not mean that the current relay enforces the new
+envelope or subject rules. Remaining exit criteria are authenticated
+least-privilege provisioning with a readiness barrier, payload projection and
+unknown-route enforcement, measured final limits, and qualified off-node
+backup/restore/replay. The
+[recovery runbook](../jetstream-recovery.md) now records the procedure, but
+qualification evidence remains open. No phase after Phase 1 is claimed complete.
 
 
 ## Primary NATS references
