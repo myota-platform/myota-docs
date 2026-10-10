@@ -68,7 +68,9 @@ checks. The delegated review dispositioned all 68 fact schemas and selected
 per-role NKey/TLS credentials, provisional caps against the 8 GiB NATS PVC,
 off-node snapshots with database-authoritative redrive, and one deployment-owned
 provisioner. The live sample spans under eight days and includes Geodata
-load-test traffic, so numeric values and restore/replay remain unqualified.
+load-test traffic, so numeric values remain unqualified. A basic isolated
+snapshot/restore and replay drill passed; off-node, PVC-loss, and database
+reconciliation remain unqualified.
 Geodata preprocessing v1 still includes internal _records and _status;
 credentials are not configured, the chart does not run the target provisioner,
 and relays still mutate the mixed Interest-retained stream. See the
