@@ -1026,9 +1026,13 @@ capacity, trust-boundary, recovery, and production-cutover decisions.
   render and both CI checks passed. Set the same intended integer value on the
   three live outbox Deployments to restore readiness. The next rollout exposed
   a stale cached migration image: the outbox pods logged missing
-  `dead_letter_event.resolved_at` during metric refresh. Set the migrations
-  hook pull policy to `Always` in deploy and synchronized the platform mirror.
-  At this update, Fleet had not fetched that latest commit and Helm revision 161
-  remained pending; database migration and metrics recovery still require
-  read-only verification. See the
+  `dead_letter_event.resolved_at` during metric refresh. Updated the migration
+  pull policy, versioned the chart as 0.2.14, and synchronized the current
+  platform image digest into Fleet values and its platform mirror. Migration
+  job revision 164 then applied `resolved_at` and the unresolved index in all
+  three databases. All three relays are 1/1 Ready, report database/NATS health,
+  and have zero pending rows; Geodata reports six unresolved DLQs, which were
+  not redriven. Fleet has fetched the current deploy commit, but its bundle
+  still reports `WaitApplied` and Helm revision 164 is pending, so final
+  release convergence remains open. See the
   [Phase 2 evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).

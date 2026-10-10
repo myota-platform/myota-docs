@@ -19,7 +19,10 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     publish/ack, bounded serialized messages, retries, audited redrive, metrics,
     alerts, and read-only legacy topology validation passed focused tests and an
     isolated K3s drill. Unresolved Geodata dead letters now survive import
-    retention cleanup.
+    retention cleanup. The three relay Deployments are live with healthy
+    database/NATS connections and zero pending rows. Six Geodata dead letters
+    remain unresolved and were not redriven. Migration schema is present in all
+    three databases.
   - **Remaining gates:** JSON Schema/prohibited-field enforcement, Geodata
     preprocessed-payload minimization, the narrow Activity durable transition,
     Activity work migration, Geodata work-stream migration, production
@@ -28,7 +31,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     live shared stream remains file-backed with Interest retention. Relay source
     validates its legacy topology without mutation. Producer publication source
     now uses registered dotted fact subjects; consumer delivery handlers and
-    deployed work paths remain unchanged.
+    deployed work paths remain unchanged. Fleet has fetched the current deploy
+    commit, but still reports `WaitApplied` and Helm revision 164 is pending.
   - **References:** [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
     [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
     [recovery runbook](../operations/messaging/jetstream-recovery.md), and

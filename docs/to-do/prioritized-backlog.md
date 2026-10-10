@@ -70,6 +70,9 @@ database dead-letter inspection/redrive, per-relay metrics, alerts, and
 read-only validation of the existing topology. An isolated K3s/PostgreSQL/NATS
 drill verified the publish/mark crash window and audited redrive. The full
 evidence is in the [Phase 2 record](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).
+The relay Deployments are live with healthy database/NATS connections and zero
+pending rows. Six existing Geodata dead letters remain unresolved. Fleet still
+reports the latest Helm release as pending.
 
 The live shared stream remains mixed under Interest retention; producer and
 consumer work paths have not been cut over. Unresolved Geodata dead letters are

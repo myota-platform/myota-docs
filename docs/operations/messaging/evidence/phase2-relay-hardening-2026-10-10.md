@@ -79,13 +79,22 @@ stream migration.
   `IfNotPresent` with the mutable `myota-service:latest` tag and ran a cached
   image that lacked the new dead-letter columns. Relay pods stayed up, but their
   dead-letter metrics query logged `resolved_at does not exist`. The migration
-  hook now uses `imagePullPolicy: Always` in deploy commit `57779dd`, with the
-  synchronized platform mirror in commit `155ce4a`; both commits are pushed.
-  At the time of this record Fleet had fetched deploy commit `ca70e32`, Helm
-  revision 161 was pending, and the new migration hook had not yet run. Verify
-  the next rollout applies `resolved_at` in all three owning databases and that
-  relay metrics refresh without database errors before treating the deployed
-  rollout as healthy.
+  hook now uses `imagePullPolicy: "Always"` in deploy commit `ce8065b`, with the
+  synchronized platform mirror in commit `1444d82`. The source chart was
+  versioned as `0.2.14` (`c7c904c`). The first retry still selected the pinned
+  stale image digest from `values-image-digests.yaml`; the digest-sync workflow
+  updated it to `sha256:858519…` in deploy commit `af5ef1d`, and the full digest
+  file was added to the platform mirror in commit `b0552b5`. Helm migration Job
+  revision 164 then ran with the current digest. Read-only schema checks found
+  `resolved_at` and its partial unresolved index in all three service-owned
+  databases. Each relay Deployment is 1/1 Ready; its metrics endpoint reports
+  database and NATS health `1`, pending outbox rows `0`, and no recent database
+  errors. Geodata reports six unresolved dead letters; these were left intact
+  for operator inspection. The Fleet GitRepo has fetched deploy commit
+  `af5ef1d`, but Fleet still reports `WaitApplied` and Helm history still shows
+  revision 164 as `pending-upgrade` at the time of this record. The relay
+  workloads and migrations are verified; final Helm/Fleet release convergence
+  remains an operational follow-up.
 - All three redrive migration files applied idempotently against disposable
   PostgreSQL in the test namespace. The real relay published a registered fact
   to its dotted subject, used the event UUID as `Nats-Msg-Id`, and recovered

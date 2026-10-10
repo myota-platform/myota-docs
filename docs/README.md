@@ -21,8 +21,11 @@ indexes organize open work by delivery status.
   Phase 0 inventory, Phase 1 contracts/topology, and Phase 2 relay hardening are
   complete within their evidence bounds. The isolated relay drill verified
   contract-backed routing, same-ID crash recovery, dead-letter redrive, and
-  backlog metrics. Production remains on the mixed Interest-retained stream;
-  payload/privacy enforcement and consumer/work-stream cutover remain open. See
+  backlog metrics. The three relay Deployments are live and report healthy
+  database/NATS connections with zero pending rows; six existing Geodata DLQs
+  remain unresolved. Fleet still reports the latest Helm release as pending.
+  Production remains on the mixed Interest-retained stream; payload/privacy
+  enforcement and consumer/work-stream cutover remain open. See
   the [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
   [joint review](operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [recovery runbook](operations/messaging/jetstream-recovery.md),

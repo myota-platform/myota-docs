@@ -76,10 +76,13 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   and [recovery runbook](docs/operations/messaging/jetstream-recovery.md), with the
   selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
   Phases 0 and 1 are complete, and Phase 2 relay hardening passed focused tests
-  and an isolated K3s drill. Source-derived payload privacy/schema enforcement,
-  consumer/work migration, and production cutover remain open. The live broker
-  still uses the mixed Interest-retained stream; the accepted cluster-internal
-  trust boundary, finite caps, and deferred off-node recovery risk are recorded.
+  and an isolated K3s drill. The three relay Deployments are live with healthy
+  database and NATS gauges and zero pending rows; six existing Geodata DLQs
+  remain for inspection. Fleet still reports the latest Helm release as
+  pending. Source-derived payload privacy/schema enforcement, consumer/work
+  migration, and production cutover remain open. The live broker still uses the
+  mixed Interest-retained stream; the accepted cluster-internal trust boundary,
+  finite caps, and deferred off-node recovery risk are recorded.
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
