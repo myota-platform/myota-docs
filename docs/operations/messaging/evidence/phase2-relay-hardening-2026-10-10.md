@@ -53,6 +53,10 @@ stream migration.
   across Identity, Programme, Activity, Geodata, and Operations.
 - Contracts registry suite: **5/5 passed**. Deploy relay/topology suite:
   **17/17 passed**. Geodata import-retention suite: **6/6 passed**.
+- The synchronized `myota-platform` integration suite passed **47 tests** with
+  one skip for an unconfigured dedicated JetStream service. Its old outbox tests
+  were replaced with the deploy-owned contract and read-only topology suites
+  after the first post-push CI run exposed stale underscore-subject expectations.
 - Activity notification duplicate-delivery regression: **2 passed**, with the
   broker-backed overlap/restart case skipped because that test suite was not
   configured with its own JetStream service. The consumer checks
