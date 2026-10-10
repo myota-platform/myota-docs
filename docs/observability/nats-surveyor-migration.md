@@ -166,7 +166,7 @@ access decision, rollback steps, and any evidence gaps. Mark checkboxes only
 when verified and commit documentation directly to main.
 ```
 
-### Phase 1 — Deploy Surveyor and Grafana dashboard
+### Phase 1 — Deploy Surveyor and Grafana dashboards
 
 **Status: planned; gated on Phase 0.**
 
@@ -181,9 +181,10 @@ when verified and commit documentation directly to main.
   workload in an isolated namespace; clean up test resources.
 - [ ] Provision dashboard 16256 and all ten Surveyor-source dashboard JSON
   files in Grafana folder `NATS`, with MyOTA's existing Prometheus datasource.
-  Confirm each dashboard renders real broker data (or record an evidence-based
-  exclusion before rollout), health alerts fire for a controlled exporter
-  failure in isolation, and no panel treats missing data as zero.
+  Confirm all ten dashboards and dashboard 16256 load. Validate relevant panels
+  against real broker data; document any panel that is not applicable to this
+  single-server deployment, and ensure no panel treats missing data as zero.
+  Health alerts must fire for a controlled exporter failure in isolation.
 - [ ] Keep the existing Admin page, Operations sampler/table and legacy
   Grafana dashboards during a seven-day comparison period.
 
@@ -204,8 +205,8 @@ sampler or history table, Geodata broker poller, alerts, or current Grafana
 dashboard yet.
 
 Deploy a single digest-pinned Surveyor internally, with bounded JSZ collection,
-least-privilege monitoring access, a Prometheus scrape target and the selected
-Grafana dashboard. Do not add external NATS or metrics exposure. Test using
+least-privilege monitoring access, a Prometheus scrape target, and dashboard
+16256 plus all ten pinned Surveyor dashboards in Grafana folder `NATS`. Do not add external NATS or metrics exposure. Test using
 isolated synthetic broker data and remove that data afterward. Compare dashboard
 values with read-only broker metadata, check scrape and dashboard health, and
 record the seven-day overlap start. Preserve outbox and worker outcome signals.
