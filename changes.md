@@ -24,8 +24,11 @@
 - No accepted production Geodata work was available; production data and
   messages were not modified. Keep the four legacy Geodata durables empty
   through the 24-hour observation anchored at revision 192, ending no earlier
-  than 21:39:22 UTC on 11 October 2026. Then
-  recheck recovery and remove only those four. Activity's notification durable,
+  than 21:39:22 UTC on 11 October 2026. A 21:52 UTC read-only sample found
+  zero work messages and zero legacy pending/ack-pending/redelivery; it is only
+  an early sample, not the gate. The retirement checklist and one-at-a-time CLI
+  commands are recorded in the evidence page. Then recheck recovery and remove
+  only those four. Activity's notification durable,
   `MYOTA_EVENTS`, migration 021 and authoritative DB rows remain. See the
   [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
