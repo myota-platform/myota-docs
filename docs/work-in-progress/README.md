@@ -33,8 +33,9 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   poller, and combined MyOTA JetStream backlog/PostGIS dashboard remain in
   place. The roadmap proposes Grafana folder `NATS` containing dashboard 16256
   plus all ten dashboards from a pinned Surveyor provisioning revision, after
-  per-panel compatibility checks. A seven-day overlap gates removal of duplicate
-  broker inspection. The combined dashboard retires only after its PostGIS
+  per-panel compatibility checks. Direct broker comparison and the recorded
+  cutover/rollback checks gate removal of duplicate broker inspection; there is
+  no timed overlap. The combined dashboard retires only after its PostGIS
   panels move to Geodata. Phase 5 event/work migration is complete under its
   documented early-close waiver; Phase 6 fact-stream retention is separate.
   No runtime components have been removed for this item.
