@@ -251,5 +251,10 @@ passed for the changed Python files. GitHub connector checks returned no combine
 CI status for contracts commit `e34de821` or platform mirror commit `63cec55e`,
 so CI is not verified.
 Joint Geodata owner/privacy review remains open. No producer/consumer runtime path,
-stream, or deployed workload changed. The same Phase 1 prompt remains in use; the
-Phase 1 checklist stays open.
+stream, or deploy input changed. A read-only 10 October cluster check reported the
+default K3s context, the `spainip-k3s` node Ready, Fleet `myota-deploy` Ready at
+commit `042a45b01ec8b94ed4f64bbc1b854744b9f96ed1`, and Helm release `myota`
+deployed at revision 157. The deploy runbook sends chart changes through Fleet;
+these contracts/docs changes do not change the deployed stack, so no rollout was
+triggered. The same Phase 1 prompt remains in use; the Phase 1 checklist stays
+open.
