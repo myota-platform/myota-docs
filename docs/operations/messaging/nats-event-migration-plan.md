@@ -372,7 +372,7 @@ isolated restore/replay, database comparison, and same-ID work redrive. A
 synthetic isolated restore does not qualify off-node backup or production
 recovery.
 
-Do not invent credentials, final capacity values, source evidence, or approvals.
+Do not invent final capacity values, source evidence, or approvals.
 If an evidence gate cannot be closed from the repositories and safe isolated
 checks, leave that checkbox open, name the missing evidence, and state the
 smallest next action. Do not claim Phase 1 or later phases complete unless every
@@ -433,7 +433,7 @@ Harden myota-deploy/services/outbox_worker.py and its source/synchronized copies
 appropriate: stable Nats-Msg-Id, publish acknowledgement before marking published,
 retry/backoff, bounded connection/concurrency behavior, dead-letter
 visibility/recovery, safe duplicate publish after crash, unknown-subject handling,
-metrics/logging, shutdown and credential handling. Preserve database ownership:
+metrics/logging, shutdown and cluster-internal connection handling. Preserve database ownership:
 core, activity, and geo relays must each use only their configured database. Do not
 let the Operations status path mutate broker state.
 
