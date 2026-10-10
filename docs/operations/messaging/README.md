@@ -9,22 +9,21 @@
 - [JetStream administration and status](jetstream-admin-status.md) — read-only
   broker state and sampled history.
 - [NATS event migration plan](nats-event-migration-plan.md)
-  - **Complete:** Phases 0–4 within their recorded evidence bounds. Phase 4
-    Activity work cutover and schema retirement are complete.
-  - **Phase 5 live:** Four Geodata work kinds route to `MYOTA_GEODATA_WORK`;
-    migration 021 and the retry-safe partial-deletion recovery fix are deployed.
-    Four replacement durables have exact filters and zero backlog. No accepted
-    production Geodata work was available at cutover.
-  - **Rollback:** Four legacy Geodata durable definitions remain empty and
-    inactive until the 24-hour observation expires no earlier than 20:58:36 UTC
-    on 11 October 2026. Do not remove Activity's notification durable or
-    `MYOTA_EVENTS`.
-  - **Still open:** Activity idempotency image build/deployment, the 24-hour
-    rollback observation and final legacy durable retirement, plus the separate
-    Phase 6 fact-stream retention transition. See the
-    [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md), [Phase 5
-    plan](nats-event-migration-plan.md), and [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md).
-- [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
+  - **Complete:** Phases 0–4 within their recorded evidence bounds.
+  - **Phase 5 live:** Four Geodata work kinds route to the bounded
+    `MYOTA_GEODATA_WORK` stream; migration 021 and Activity idempotency fix
+    are deployed. Helm 191 is deployed and Fleet is Ready=True at
+    `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109`, 60/60 resources. Configured digest refs match pod image IDs.
+    The target durables are empty with active workers.
+  - **Rollback:** Four legacy Geodata durables remain inactive and empty until
+    the observation ends no earlier than 21:28:41 UTC on 11 October 2026. Do not remove Activity's
+    notification durable or `MYOTA_EVENTS`.
+  - **Still open:** The 24-hour observation and safe retirement of those four
+    durables, then the separate Phase 6 fact-stream retention transition. See
+    [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md),
+    [Phase 5 plan](nats-event-migration-plan.md), and
+    [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md).
+- [JetStream recovery and replay runbook]- [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.
 - [Phase 0 event and work inventory](nats-event-migration-inventory.md) —
