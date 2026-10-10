@@ -1,5 +1,24 @@
 # MyOTA changes
 
+## 11 October 2026 — NATS Surveyor monitoring consolidation planned
+
+- Added an observability roadmap for a pinned internal NATS Surveyor deployment
+  and Grafana dashboard 16256. Its PromQL must be checked against Surveyor's
+  metrics because the upstream dashboard is documented for the NATS built-in
+  Prometheus exporter.
+- Recorded the current monitoring inventory and source owners: Admin
+  NATS/JetStream page and Operations sampler/history table, Geodata broker
+  poller, current MyOTA Grafana dashboard, sampler alerts, and deployment
+  mirrors.
+- Planned a seven-day overlap before removing duplicate broker-inspection
+  components, database history, and the old Grafana dashboard. The existing
+  combined dashboard's two PostGIS panels must move to the Geodata dashboard.
+  Preserve the Operations SeaweedFS page and app-level outbox/worker metrics.
+- This is documentation and planning only; Surveyor is not deployed and no
+  runtime component or database object was changed. See the
+  [NATS monitoring roadmap](docs/observability/nats-surveyor-migration.md).
+
+
 ## 11 October 2026 — Phase 5 observation closure and legacy durable retirement
 
 - Helm revision 193 remained deployed. Fleet was Ready=True at Deploy commit
