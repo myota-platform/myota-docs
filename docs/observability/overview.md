@@ -164,10 +164,12 @@ emails, callsigns, or entity identifiers:
   activators, hunters, aggregate callsign/entity rows, award definitions and
   progress, ADIF imports, jobs, corrections, and queue lag.
 - JetStream: per-stream/consumer pending and ack-pending messages, broker
-  redeliveries, oldest outstanding message age, and metrics-poller health. The
-  age lookup is marked unavailable if the broker no longer retains the target
-  sequence. These are broker-side measurements, distinct from outbox/import
-  database counts.
+  redeliveries, oldest outstanding message age, and metrics-poller health are
+  currently provided by the custom Geodata poller. The age lookup is marked
+  unavailable if the broker no longer retains the target sequence. These are
+  broker-side measurements, distinct from outbox/import database counts. The
+  [NATS Surveyor plan](nats-surveyor-migration.md) proposes centralizing these
+  broker metrics and retiring the duplicate poller after validation.
 
 All service-specific values are read from the service's durable store at scrape
 time. Request counters and distributed request histograms are emitted through
