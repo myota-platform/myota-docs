@@ -39,7 +39,7 @@ modified.
 | `DiscardNew` capacity behavior | A disposable 256-byte stream accepted the first payload, rejected the next with JetStream `503 / maximum bytes exceeded`, and retained exactly one message. |
 | PVC restore | Stopped the broker, copied its local PVC data to a new disposable PVC, and restarted NATS from that PVC. NATS restored `MYOTA_EVENTS` with 3 messages and recovered the provisioned durables. |
 | Bounded replay | A new explicit durable replayed synthetic sequences `[0, 1, 2]` from the restored Limits stream. The test durable and all synthetic messages existed only in the temporary namespace. |
-| Source/contract checks | 68 fact registry entries and ten per-command work schemas reconciled with authoritative service source; no undispositioned event-like source literals. Contracts unit tests: 4 passed. |
+| Source/contract checks | 68 fact registry entries and ten per-command work schemas reconciled with authoritative service source; no undispositioned event-like source literals. Contracts unit tests: 4 passed; [Contracts CI run 38051378258](https://github.com/myota-platform/myota-contracts/actions/runs/38051378258) passed source audit, schema generation, and route-inventory checks. |
 | Deploy checks | Full deploy test suite: 36 passed, 1 skipped because Pillow is not installed in the host test environment. Topology focused tests: 4 passed. |
 | Helm barrier | Default and Spainip chart lint passed. The opt-in pre-upgrade Job rendered with explicit capacity/gate values; rendering with only `enabled=true` failed closed. |
 | Mirror checks | Contract registry, event/work schemas, contract docs, provisioner, topology, chart values/template, and topology guide match their platform mirrors. |

@@ -956,6 +956,9 @@ later phases complete.
   for default and Spainip values; the optional pre-upgrade hook rendered only
   when explicitly enabled and confirmed. Docs, org profile links, and platform
   mirrors were updated.
+- Post-push CI passed: [Contracts run 38051378258](https://github.com/myota-platform/myota-contracts/actions/runs/38051378258),
+  deploy Python and Helm validation runs 38051333534/38051332975, and
+  [platform mirror run 38051342419](https://github.com/myota-platform/myota-platform/actions/runs/38051342419).
 
 **Prompt used for this Phase 1 continuation:**
 
