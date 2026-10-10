@@ -6,7 +6,13 @@ target is deployed. See the [migration plan](../../operations/messaging/nats-eve
 [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md), and the [recovery runbook](../../operations/messaging/jetstream-recovery.md).
 
-## Current deployed topology — observed 10 October 2026 after Phase 5 cutover
+## Current deployed topology — observed after immutable Phase 5 rollout, Helm 191, 10 October 2026
+
+Fleet is Ready=True at deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources ready.
+First-party workload references and live Activity, Geodata and shared-runtime
+pod ImageIDs match configured immutable digests. The 24-hour Geodata rollback
+observation ends no earlier than 21:28:41 UTC on 11 October 2026; the four old durables remain visible
+below, inactive and empty.
 
 ```mermaid
 flowchart LR
@@ -15,9 +21,15 @@ flowchart LR
     A[Activity outbox and activity_job]
     G[Geodata outbox and recovery rows]
   end
+  subgraph DEPLOY[Deploy owner: Helm 191]
+    IMG[First-party images pinned by digest]
+  end
   C --> RC[Core relay]
   A --> RA[Activity relay]
   G --> RG[Geodata relay]
+  IMG -. deploys .-> RC
+  IMG -. deploys .-> RA
+  IMG -. deploys .-> RG
   RC --> E[MYOTA_EVENTS<br/>file, Interest retention<br/>registered facts and legacy subjects]
   RA --> E
   RG --> E
@@ -32,7 +44,7 @@ flowchart LR
   E -. read-only metadata .-> O[Operations observer]
 ```
 
-## Phase 2 relay behavior — deployed 10 October 2026
+## Phase 2 relay behavior — deployed 10 October 2026## Phase 2 relay behavior — deployed 10 October 2026
 
 The relay mapping is deployed to the local K3s cluster. Facts still publish to
 the Interest-retained shared stream; mapped Activity and Geodata work commands
@@ -92,18 +104,17 @@ flowchart LR
   ES -. inspect only .-> O[Operations observer]
 ```
 
-**Status (10 October 2026):** Phases 0–4 are complete within their evidence
-bounds. Phase 5 has deployed the Geodata WorkQueue, four exact durables,
-migration 021 and retry-safe partial-deletion handling. Helm revision 189 is
-deployed and Fleet reports Ready=True with 60/60 resources. The four old
-Geodata durables are inactive and empty during the rollback observation; remove
-them only after the 24-hour window and database recovery check. A disposable
-two-database retry test completed after NAK/redelivery with one Activity
-cascade fact. The corrected Activity idempotency source is committed and
-mirrored, but its new image is not yet deployed. Production Geodata queues had
-no work to process. `MYOTA_EVENTS` remains file-backed with Interest retention
-and its Activity notification durable remains active. The target bounded Limits fact stream and
-Phase 6 lifecycle transition are not live. The accepted cluster-internal trust
+**Status after Helm revision 191 (10 October 2026):** Phases 0–4 are complete
+within their evidence bounds. Phase 5 routes Geodata work to the four exact
+`MYOTA_GEODATA_WORK` durables and has deployed migration 021, retry-safe
+partial-deletion recovery, Activity idempotency and immutable image refs.
+Fleet reports Ready=True with 60/60 resources; pod image references/IDs match
+their configured digests. The four legacy Geodata durables remain inactive and
+empty until the rollback observation ends no earlier than
+21:28:41 UTC on 11 October; retire them only after database recovery and
+backlog checks. No production work was available to process. `MYOTA_EVENTS`
+remains file-backed with Interest retention and Activity's notification
+durable remains active. Phase 6's bounded fact-stream transition is not live. The accepted cluster-internal trust
 boundary and deferred off-node recovery remain as recorded in ADR-0008. See the
 [Phase 5 evidence](../../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
 [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
