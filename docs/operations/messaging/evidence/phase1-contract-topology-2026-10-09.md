@@ -192,6 +192,11 @@ shapes. Local checks passed: two registry/schema tests, Ruff lint/format,
 regeneration of all 68 event schemas, the workspace source audit (68 facts,
 six legacy work types, zero undispositioned Python event-like literals), and
 byte-for-byte sync of registry, schemas, and event docs to the platform mirror.
+Contracts CI run
+[38034857206](https://github.com/myota-platform/myota-contracts/actions/runs/38034857206)
+passed, including the schema step and Ruff. Platform mirror commit `b8c8507`
+passed unit tests, Ruff, and its container job
+([run 38034874824](https://github.com/myota-platform/myota-platform/actions/runs/38034874824)).
 No runtime, consumer, or live broker behavior changed. Joint review of Identity
 and Programme payload fields remains open, along with Activity, Geodata, and
 Operations schemas. The same Phase 1 prompt continues to apply.

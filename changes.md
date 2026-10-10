@@ -12,6 +12,8 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   source-derived Identity and Programme fact payloads. Joint owner review and
   payload schemas for Activity, Geodata, and Operations remain open. No runtime
   or deployed topology changed; the existing Phase 1 prompt remains in use.
+  Contracts CI passed on `677f8ae`; platform unit, Ruff, and container checks
+  passed on `b8c8507`.
   See the [Phase 1 evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [plan](docs/operations/messaging/nats-event-migration-plan.md).
 

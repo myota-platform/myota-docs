@@ -66,6 +66,9 @@ describe current ownership and are authoritative for the present-day system.
   remain unconstrained; review metadata is classified. The same Phase 1 prompt
   continues. Identity and Programme joint review and three other service payload
   schemas remain open.
+  The Programme contract commit `677f8ae` passed Contracts CI, including schema
+  assertions and Ruff; platform mirror commit `b8c8507` passed unit, Ruff, and
+  container checks.
   Direct-main commits `1076584` (deploy) and `b047a00` (platform) passed Ruff,
   deploy gateway/service image builds, platform tests, container build, and publish.
   See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)
