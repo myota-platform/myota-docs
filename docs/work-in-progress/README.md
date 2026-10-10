@@ -12,18 +12,25 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   Final Fleet readiness, the two-database failure chain and old durable
   retirement remain open. Phase 6 fact-stream retention remains planned.
   - **Phase 5 production:** `MYOTA_GEODATA_WORK` is a finite file-backed
-    WorkQueue with four exact pull durables. All four Geodata workers subscribe
-    to the target subjects; migration 021's recovery columns/indexes are
-    present, and the live un-dispatched accepted-work count is zero. New
-    Geodata/runtime images are digest-pinned. A disposable PostGIS/JetStream
-    suite passed 154 tests (one optional setup skipped), including real socket
-    refusal/reconnect and the focused partial-cascade retry test. The latter
-    still needs two real service databases for end-to-end qualification.
-  - **Phase 5 remaining gates:** Fleet was still `WaitApplied` during rollout
-    reconciliation. Keep the four legacy durables until 20:55:08 UTC on
-    11 October 2026, then recheck topology/recovery and retire those four only.
-    Expiry-to-completion and cancellation-race chains also remain open. Preserve
-    migration 021 and all authoritative job/outbox/history rows.
+    WorkQueue with four exact pull durables. Migration 021's recovery
+    columns/indexes are present, and the live un-dispatched work count is zero.
+    Helm revision 189 is deployed; Fleet reports Ready=True with 60/60
+    resources. Geodata, shared runtime, and Activity images remain digest-pinned.
+    The Geodata suite passed 154 tests (one optional test skipped); Activity's
+    40-test suite passed (one optional broker test skipped); 25 relay/topology
+    tests passed. Real database refusal/reconnect and same-node NATS PVC restart
+    passed.
+  - **Phase 5 retry qualification:** A disposable host-K3s test used both real
+    service databases, the Activity API, the Geodata handler, and a private
+    JetStream stream. Injected Geodata failure NAKed the delivery; redelivery
+    completed with exactly one Activity cascade outbox fact and zero pending
+    messages. Activity's Idempotency-Key fix is committed and mirrored, but its
+    image build/publish and production rollout remain open.
+  - **Phase 5 remaining gates:** Keep the four legacy durables through
+    20:58:36 UTC on 11 October 2026, then recheck topology/recovery and retire
+    only those four. Cancellation racing with acknowledged work, expiry-to-
+    completion, Activity image deployment, and final cleanup remain open.
+    Preserve migration 021 and authoritative job/outbox/history rows.
   - **References:** [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
     [Phase 5 plan](../operations/messaging/nats-event-migration-plan.md), and
     [migration diagram](../architecture/diagrams/nats-event-migration.md).
