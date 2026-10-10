@@ -13,6 +13,35 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 10 October 2026 — NATS Phase 1 Work checklist follow-up
+
+- **Prompt used:** “OK, complete the section "work" in phase 1 now based on the
+  decisions in https://github.com/myota-platform/myota-docs/blob/main/docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md”.
+  This continues the same Phase 1 prompt in the
+  [migration plan](../operations/messaging/nats-event-migration-plan.md#chatgpt-prompt--phase-1);
+  no new phase prompt was introduced.
+- **Contract checks:** Added fixtures requiring every event to declare a
+  consumer disposition and every selected work command to match its registered
+  subject, stream, schema, and deploy-owned durable filter. The Contracts CI
+  workflow passed on commit
+  [88c6b36](https://github.com/myota-platform/myota-contracts/commit/88c6b362161606ef32619debac1fb50ffbc8cb4e)
+  ([run 38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38045763460)).
+  Three focused contract tests passed, and the five-service source audit
+  verified 68 fact types and six legacy work types with no undispositioned
+  event-like literals.
+- **Recovery documentation:** Added the [JetStream recovery and replay runbook](../operations/messaging/jetstream-recovery.md)
+  and linked it from the messaging index, migration plan, and backlog. The
+  runbook records PostgreSQL authority, isolated restore/replay, work redrive,
+  legacy Interest-retention limits, and remaining qualification requirements.
+- **Phase status:** Marked only verified contract, registry, topology-definition,
+  provisioning-test, and runbook tasks complete. Authentication/TLS and role ACLs,
+  final capacity values, deployment preflight, unknown-route enforcement,
+  off-node/PVC-loss recovery, and relay cutover remain open. The review decisions
+  are complete; their evidence gates are not.
+- **Host verification:** Read-only K3s and Helm inspection found the MyOTA release
+  at revision 157 and the node Ready. No production resource or producer/consumer
+  path was changed.
+
 ## 10 October 2026 — NATS Phase 1 delegated joint review
 
 - **Prompt used:** “OK, condict the Joint review of all payload schemas,
