@@ -24,7 +24,9 @@ describe current ownership and are authoritative for the present-day system.
 - **Schema decisions:** Reviewed all 68 source-derived fact schemas and their
   classifications/dispositions. Accepted them as inventory contracts, with
   producer enforcement gated on minimal projections, prohibited-field/size
-  checks, compatibility fixtures, and Geodata preprocessing minimization.
+  checks, compatibility fixtures, and Geodata preprocessing minimization. The
+  ten selected work-command payloads were dispositioned as pending source,
+  idempotency, recovery, and size evidence.
   The v1 Geodata preprocessed event still includes internal _records and
   _status; a compact versioned summary is required before enforcement.
 - **Security and topology decisions:** Selected per-role NKey credentials from
