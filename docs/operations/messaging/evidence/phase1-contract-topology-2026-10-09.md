@@ -166,7 +166,32 @@ passed, including the new schema test step and Ruff. Platform mirror commit
 `529631c` passed its unit tests, Ruff, and container workflow
 ([run 38033742782](https://github.com/myota-platform/myota-platform/actions/runs/38033742782)).
 No producer, consumer, broker, or deployed
-service behavior changed. Our Identity owner/privacy review of data minimization and
-retention remains open, as do source-derived payload schemas for Programme,
-Activity, Geodata, and Operations. The existing Phase 1 prompt remains the sole
-phase prompt; this is a contract-only continuation.
+service behavior changed. Our Identity owner/privacy review of data minimization
+and retention remains open. At the time of this first payload pass, Programme,
+Activity, Geodata, and Operations payload schemas were still open; the following
+section records the Programme source pass. The existing Phase 1 prompt remains
+the sole phase prompt; this is a contract-only continuation.
+
+## 10 October 2026 — Programme payload contract source pass
+
+The Programme contract step adds payload schemas for all 12 registered facts,
+derived from event callsites in `myota-programme-service/programmes.py`.
+Schemas cover programme create/update/archive, entity-category catalogue and
+assignment changes, content review/publication, and policy-draft save and
+publication. Content and policy schemas include their current review-history
+fields and classify reviewer/publisher metadata as internal. The producer does
+not validate the structure of programme `rules`, `theme`, `oidc`, content
+`value`, or policy `schema`; these fields remain open in the schemas rather than
+being assigned unsupported constraints. Nested legacy catalogue entries allow
+their observed older fields. All payload objects allow additive properties.
+
+The registry marks these entries `source-derived-programme-callsite`; generated
+schemas include the evidence and data classification extensions. Contracts tests
+now assert all 19 Identity and 12 Programme facts have source-derived payload
+shapes. Local checks passed: two registry/schema tests, Ruff lint/format,
+regeneration of all 68 event schemas, the workspace source audit (68 facts,
+six legacy work types, zero undispositioned Python event-like literals), and
+byte-for-byte sync of registry, schemas, and event docs to the platform mirror.
+No runtime, consumer, or live broker behavior changed. Joint review of Identity
+and Programme payload fields remains open, along with Activity, Geodata, and
+Operations schemas. The same Phase 1 prompt continues to apply.

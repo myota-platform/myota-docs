@@ -61,6 +61,11 @@ describe current ownership and are authoritative for the present-day system.
   phase prompt or runtime migration was introduced. Contract CI passed on
   commit `99547de`; the synchronized platform mirror passed unit, Ruff, and
   container checks on `529631c`.
+  A subsequent source pass derived schemas for all 12 Programme facts, including
+  content and policy review histories. Untyped producer-controlled configuration/content fields
+  remain unconstrained; review metadata is classified. The same Phase 1 prompt
+  continues. Identity and Programme joint review and three other service payload
+  schemas remain open.
   Direct-main commits `1076584` (deploy) and `b047a00` (platform) passed Ruff,
   deploy gateway/service image builds, platform tests, container build, and publish.
   See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)

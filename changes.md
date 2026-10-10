@@ -3,6 +3,18 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 10 October 2026 — NATS Programme payload contract source pass
+
+- Added source-derived additive payload schemas for all 12 Programme facts,
+  including content and policy review histories, and marked internal reviewer
+  and publisher metadata. Fields the producer accepts without structural
+  validation remain unconstrained. Registry tests and CI now cover all 31
+  source-derived Identity and Programme fact payloads. Joint owner review and
+  payload schemas for Activity, Geodata, and Operations remain open. No runtime
+  or deployed topology changed; the existing Phase 1 prompt remains in use.
+  See the [Phase 1 evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
+  and [plan](docs/operations/messaging/nats-event-migration-plan.md).
+
 ## 10 October 2026 — NATS Identity payload contract source pass
 
 - Added source-derived, additive payload schemas for all 19 Identity facts and
