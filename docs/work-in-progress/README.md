@@ -7,8 +7,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
   — **Status:** Phases 0–4 are complete within their recorded evidence
   bounds. Phase 5's Geodata route, migration 021, Activity idempotency fix,
-  and immutable image rollout are live. Helm revision 192 is deployed; Fleet
-  reports Ready=True at Deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources ready.
+  and immutable image rollout are live. Helm revision 193 is deployed; Fleet
+  reports Ready=True at Deploy commit `cfecd655d9c0eee9d19db26725fb11c99366815a` with 60/60 resources ready.
   The configured Activity, Geodata and shared runtime digests match live pod
   image references and IDs. All four target Geodata durables are empty with
   waiting workers; four legacy durables remain empty and inactive during the
@@ -22,21 +22,22 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     `:latest` references even though digest values only changed the pod
     annotation. Deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` and Platform mirror
     `a184baac3f36e0272cbc79107f4b362139de7515` now render configured image digests as immutable references.
-    Helm 192 is deployed, all 60 resources are ready, and live image IDs match.
-  - **Phase 5 remaining gates:** Keep the four legacy Geodata durables through
-    21:39:22 UTC on 11 October 2026. Recheck Fleet, stream filters/counters and database recovery;
-    then remove only those four old durables. The observation and retirement
-    remain open. At 21:52 UTC, a read-only broker sample found both streams
-    healthy with zero work messages; all four old durables had zero pending,
-    ack-pending and redelivery. This early sample is not the full observation.
-    The post-gate checks and one-at-a-time retirement procedure are in the
-    evidence page. The isolated namespace/PVC, API process, port-forwards, test
-    fixtures and private streams are deleted. Preserve migration 021 and all
-    authoritative work/outbox/history records.
+    Helm 193 is deployed, all 60 resources are ready, and live image IDs match.
+  - **Phase 5 remaining gates:** The latest successful rollout is Helm 193;
+    Fleet became Ready at 22:03:29 UTC on 10 October. Keep the four legacy
+    Geodata durables through 22:03:29 UTC on 11 October, then recheck Fleet,
+    stream filters/counters and database recovery before removing only those
+    four old durables. A 22:05 UTC read-only sample showed zero messages and
+    counters, with all replacement workers waiting. The separate synthetic
+    validation exercised all four recovery commands; its two full-suite runs
+    each hit a timing-sensitive immediate ACK-counter assertion. A focused ACK
+    rerun passed, and all 21 private test streams later settled to zero. The
+    namespace, fixtures, streams and temporary environment are deleted.
+    Preserve migration 021 and authoritative work/outbox/history records.
   - **References:** [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
     [Phase 5 plan](../operations/messaging/nats-event-migration-plan.md), and
     [migration diagram](../architecture/diagrams/nats-event-migration.md).
-  - **Phase 4 implementation:**  - **Phase 4 implementation:** Six Activity commands use ID-only work
+  - **Phase 4 implementation:** Six Activity commands use ID-only work
     envelopes, transactional job/outbox writes, exact per-kind pull durables,
     post-commit ACK, retry/backoff, renewable token-fenced leases, persisted
     work dead letters, and audited database redrive. The first migration run
