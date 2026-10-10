@@ -241,6 +241,9 @@ ChatGPT implementation prompt: [review remaining query and bottleneck evidence](
   state. Age is explicitly marked unavailable if retention removes the
   referenced message before its timestamp is read. See the
   [JetStream metrics implementation](https://github.com/myota-platform/myota-geodata-service/blob/main/jetstream_observability.py).
+  This current broker poller is planned for retirement after the seven-day
+  Surveyor overlap; see the [NATS monitoring consolidation plan](../observability/nats-surveyor-migration.md).
+  Geodata import, worker, outbox and PostGIS measurements remain service-owned.
 - [x] Provision the **MyOTA Geodata capacity baseline** dashboard and backlog,
   pool, and heartbeat alerts in local Compose and Helm Grafana/Prometheus files.
 - [x] Provision a separate **MyOTA JetStream backlog and PostGIS query
