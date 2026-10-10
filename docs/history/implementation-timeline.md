@@ -13,6 +13,32 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 11 October 2026 — Phase 5 synthetic validation and observation reset
+
+- **Prompt used:** “Inject some data to test the premises you are observing. If
+  after this data everything is correct, close the observation window and finish
+  phase 4 work. Clean up the test data afterwards.”
+- Helm revision 193 completed successfully at 22:00:02 UTC on 10 October and
+  Fleet reported Ready=True at Deploy commit
+  `cfecd655d9c0eee9d19db26725fb11c99366815a` at 22:03:29 UTC. This later
+  immutable-image rollout supersedes the previous revision 192 observation
+  anchor.
+- In isolated PostGIS and JetStream services, stale owner rows for preprocessing,
+  promotion, deletion and location work each produced exactly one outbox command;
+  a second recovery scan produced none. The existing delivery suite exercised
+  ACK/retry/redelivery, competing consumers, expiry, shutdown and recreation.
+  Two full-suite attempts each exposed one timing-sensitive immediate
+  ACK-counter assertion; a focused ACK rerun passed, and later broker metadata
+  showed all private streams empty with zero pending/ack-pending/redelivery.
+- Production received no test data. Its read-only 22:05 UTC sample showed both
+  streams at zero messages/bytes and all target/legacy counters at zero. The
+  disposable namespace, data, streams and temporary virtual environment were
+  removed. Keep the observation open through 22:03:29 UTC on 11 October, then
+  recheck production and retire only the four legacy Geodata durables if every
+  gate passes.
+- **Phase 5 status:** observation remains open; Phase 6 remains gated. See the
+  [updated Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+
 ## 10 October 2026 — NATS migration Phase 5 Geodata cutover and recovery work
 
 - **Prompt used for this phase:**
@@ -53,7 +79,7 @@ describe current ownership and are authoritative for the present-day system.
   target messages/counters are zero with active pull workers. `MYOTA_EVENTS`
   remains file-backed Interest retention with four inactive, empty legacy
   Geodata durables and its live Activity notification consumer.
-- **Latest observation anchor:** Helm revision 192 completed at 21:39:22 UTC
+- **Previous observation anchor (superseded):** Helm revision 192 completed at 21:39:22 UTC
   on 10 October after a chart release restarted the pods with unchanged image
   digests. Fleet is Ready=True at Deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a`, with 60/60
   resources. The 24-hour rollback observation now ends no earlier than
