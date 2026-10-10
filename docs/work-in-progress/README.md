@@ -4,21 +4,24 @@ This index points to active delivery and verification threads. Completed
 components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
-- [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md) —
-  Phase 0 and Phase 1 contract/topology work are complete. Phase 1 registered 68
-  facts and ten work commands, added bounded per-command payload schemas, passed
-  source and contract checks, and added a fail-closed optional Helm pre-upgrade
-  readiness hook. Isolated K3s checks covered provisioner idempotency/drift,
-  local PVC restore, replay, and capacity rejection. The 30-day database sample
-  is short; accepted initial caps and the evidence caveat are recorded. Off-node
-  recovery is deferred at the project owner's direction. Runtime enforcement,
-  payload minimization, relay mutation removal, and production cutover remain
-  Phase 2 gates. NATS remains cluster-internal without auth/TLS. The live shared
-  stream still uses Interest retention and no producer or consumer path has
-  changed. See the
-  [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
-  [recovery runbook](../operations/messaging/jetstream-recovery.md), and
-  [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
+- [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
+  — **Status:** Phase 0 and Phase 1 contract/topology work are complete.
+  - **Phase 1 evidence:** 68 facts and ten work commands are registered with
+    bounded per-command payload schemas. Source and contract checks passed.
+    The optional Helm pre-upgrade readiness hook fails closed.
+  - **Local qualification:** Isolated K3s checks covered provisioner
+    idempotency and drift, local PVC restore, replay, and capacity rejection.
+    The 30-day database sample is short; accepted initial caps and that evidence
+    limitation are recorded. Off-node recovery is deferred at the project
+    owner's direction.
+  - **Phase 2 gates:** Runtime enforcement, payload minimization, relay mutation
+    removal, and production cutover remain open.
+  - **Current boundary:** NATS remains cluster-internal without auth/TLS. The
+    live shared stream still uses Interest retention; no producer or consumer
+    path has changed.
+  - **References:** [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
+    [recovery runbook](../operations/messaging/jetstream-recovery.md), and
+    [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates

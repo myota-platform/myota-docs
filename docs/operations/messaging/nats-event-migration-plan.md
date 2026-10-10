@@ -277,31 +277,51 @@ Deploy and platform copies are identified as synchronized mirrors.
       registered work-to-durable topology. A new producer literal without a
       registry disposition fails the workspace source audit.
 
-The machine-readable registry covers 68 domain facts and ten selected work
-commands. The six current Geodata work/recovery event types map to four target
-commands. Each work command has a bounded payload schema, source-linked producer
-and consumer paths, and an owning-row `workId` source. These target contracts do
-not authorize runtime publication. `myota-contracts/contracts/event-registry.json`
-records exact producer source paths for all 68 facts. Its workspace audit checks those references
-and classifies Python event-like source literals as a fact or mapped legacy work
-type; the 10 October audit found no unclassified Python literals across the five
-service repositories; the contracts CI audit passed on main. Payload shapes for
-all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts now have
-source-derived payload schemas generated from their authoritative producer files.
-Identity, Programme, Activity, and Geodata schema checks passed in Contracts CI
-(run 38042564323 for Geodata; run 38040217352 for Activity). The delegated schema
-review is complete; payload projection, prohibited-field/size checks, and consumer
-compatibility remain prerequisites for enforcement. Geodata preprocessing currently emits the full result object,
-including internal `_records` and `_status`; minimize this event before schema
-enforcement. The Phase 0 audit found no Operations event-producing call sites; a payload
-schema is not applicable unless Operations becomes a producer. These additive schemas do
-not certify purpose limitation or retention, so the registry is not complete
-enforcement.
-The deploy-owned provisioner now fixes and validates pull delivery mode, explicit
-ACK, replay policy, retry limits, pending and waiting-pull bounds, consumer replicas,
-and full-payload delivery. The same source is synchronized to the platform mirror and has passed the
-disposable-broker idempotency check. Contract CI now checks out the five service
-repositories and runs the workspace event-source audit.
+The Phase 1 registry and audit provide source coverage, but do not authorize
+runtime publication.
+
+#### Registry coverage and source audit
+
+- The machine-readable registry covers 68 domain facts and ten selected work
+  commands. Six current Geodata work/recovery event types map to four target
+  commands.
+- Each work command has a bounded payload schema, source-linked producer and
+  consumer paths, and an owning-row `workId` source.
+- `myota-contracts/contracts/event-registry.json` records the exact producer
+  source path for every fact. The workspace audit verifies those references and
+  classifies Python event-like literals as a fact or mapped legacy work type.
+- The 10 October audit found no unclassified Python event-like literals across
+  the five service repositories. The Contracts CI source audit passed on `main`.
+
+#### Payload schema evidence and enforcement gates
+
+- Source-derived payload schemas are generated from authoritative producer
+  files for all 68 facts: 19 Identity, 12 Programme, 10 Activity, and 27
+  Geodata events.
+- Identity, Programme, Activity, and Geodata schema checks passed in Contracts
+  CI. Recorded run IDs include [Geodata run 38042564323](https://github.com/myota-platform/myota-contracts/actions/runs/38042564323)
+  and [Activity run 38040217352](https://github.com/myota-platform/myota-contracts/actions/runs/38040217352).
+- The delegated schema review is complete. Producer payload projection,
+  prohibited-field and size checks, and consumer compatibility remain required
+  before enforcement.
+- Geodata preprocessing currently emits the full result object, including
+  internal `_records` and `_status`. Minimize this event before schema
+  enforcement.
+- The Phase 0 audit found no Operations event-producing call sites. An
+  Operations payload schema is not applicable unless Operations becomes a
+  producer.
+- These additive schemas do not certify purpose limitation or retention, so
+  they are not a complete enforcement policy.
+
+#### Provisioner and CI evidence
+
+- The deploy-owned provisioner fixes and validates pull delivery mode, explicit
+  ACK, replay policy, retry limits, pending and waiting-pull bounds, consumer
+  replicas, and full-payload delivery.
+- The same source is synchronized to the platform mirror and passed the
+  disposable-broker idempotency check.
+- Contracts CI checks out the five service repositories and runs the workspace
+  event-source audit.
 
 ### Delegated joint review decisions (10 October 2026)
 

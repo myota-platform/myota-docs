@@ -2,12 +2,14 @@
 
 - [JetStream administration and status](jetstream-admin-status.md) — read-only
   broker state and sampled history.
-- [NATS event migration plan](nats-event-migration-plan.md) — Phases 0 and 1
-  contract/topology work are complete. The delegated review dispositioned all
-  68 fact schemas and accepted a cluster-internal trust boundary without NATS
-  auth/TLS. The bounded work schemas, create-only provisioner, fail-closed
-  opt-in Helm pre-upgrade gate, accepted capacity limits, and local restore/replay
-  evidence are recorded. Runtime paths and production cutover remain Phase 2.
+- [NATS event migration plan](nats-event-migration-plan.md)
+  - **Complete:** Phase 0 inventory and Phase 1 contract/topology work. The
+    delegated review dispositioned all 68 fact schemas.
+  - **Selected:** Cluster-internal trust boundary without NATS auth/TLS, bounded
+    work schemas, create-only provisioner, and accepted capacity limits.
+  - **Verified:** Fail-closed opt-in Helm pre-upgrade gate and local
+    restore/replay evidence.
+  - **Still open:** Runtime path changes and production cutover in Phase 2.
 - [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.

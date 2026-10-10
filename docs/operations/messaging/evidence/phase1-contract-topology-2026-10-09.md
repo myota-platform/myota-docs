@@ -94,22 +94,36 @@ commands reference stored data instead of copying import content.
 ## 10 October 2026 follow-up
 
 The deploy-owned provisioner now pins and checks correctness-sensitive durable
-consumer settings: explicit ACK, all-message/instant replay, bounded pending and
-waiting pulls, redelivery count and timeout, inherited stream replicas, durable
-file-backed consumer state, and full payload delivery. Drift in waiting-pull or
-header-only delivery is rejected. These settings were copied to the platform
-integration mirror. Four focused tests passed in both deploy and platform. Ruff format check and lint
-passed in both repositories; the deploy-owned files and documentation compare
-byte-for-byte with the platform mirror. A disposable `nats:2.10-alpine` broker in a
-temporary host-K3s namespace accepted initial provisioning and an idempotent second
-run for all three streams and ten durables. The broker exposed omitted false-valued
-`mem_storage` and `headers_only` fields; the validator now compares effective
-boolean behavior. The namespace was deleted and verified absent. The local `nats-py`
-and Ruff tools were installed in temporary virtual environments, not system Python.
-The deploy main commit `1076584` passed Ruff formatting/lint and both gateway and
-service image build/publish checks. The platform main commit `b047a00` passed Ruff,
-unit tests, container build, and publish. See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)
-and [platform checks](https://github.com/myota-platform/myota-platform/commit/b047a00e15ecc619e3589fffee37a1aa779ff59a/checks). The live topology and producer/consumer runtime paths were not modified.
+consumer settings:
+
+- Explicit ACK and all-message/instant replay.
+- Bounded pending messages and waiting pulls.
+- Redelivery count and timeout.
+- Inherited stream replicas and durable file-backed consumer state.
+- Full-payload delivery.
+
+It rejects drift in waiting-pull and header-only delivery. These settings were
+copied to the platform integration mirror.
+
+**Verification:**
+
+- Four focused tests passed in both deploy and platform. Ruff format and lint
+  checks passed in both repositories.
+- Deploy-owned files and documentation compare byte-for-byte with the platform
+  mirror.
+- A disposable `nats:2.10-alpine` broker in a temporary host-K3s namespace
+  accepted initial provisioning and an idempotent second run for all three
+  streams and ten durables.
+- The broker exposed omitted false-valued `mem_storage` and `headers_only`
+  fields; the validator now compares effective boolean behavior.
+- The temporary namespace was deleted and verified absent. `nats-py` and Ruff
+  were installed in temporary virtual environments rather than system Python.
+- Deploy commit `1076584` passed Ruff formatting/lint and gateway/service image
+  build/publish checks ([deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)).
+- Platform commit `b047a00` passed Ruff, unit tests, container build, and publish
+  ([platform checks](https://github.com/myota-platform/myota-platform/commit/b047a00e15ecc619e3589fffee37a1aa779ff59a/checks)).
+
+The live topology and producer/consumer runtime paths were not modified.
 
 The isolated test ran in a temporary namespace on the host's K3s cluster. It
 used an emptyDir-backed NATS pod and the already-deployed application image with
