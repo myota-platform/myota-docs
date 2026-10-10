@@ -25,9 +25,10 @@ indexes organize open work by delivery status.
   cfecd655d9c0eee9d19db26725fb11c99366815a. See [Phase 5 evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md)
   and [Phase 6 plan](operations/messaging/nats-event-migration-plan.md#phase-6).
 - [NATS Surveyor monitoring consolidation](observability/nats-surveyor-migration.md) —
-  proposed Surveyor deployment, dashboard 16256 compatibility, seven-day
-  overlap, and staged removal of the current Admin page, broker pollers,
-  Grafana dashboard and NATS snapshot table.
+  proposed Surveyor deployment and Grafana folder `NATS` containing dashboard
+  16256 plus ten pinned upstream Surveyor dashboards, with panel compatibility
+  and seven-day overlap gates before removing the current Admin page, broker
+  pollers, combined MyOTA dashboard and NATS snapshot table.
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, Surveyor migration plan, prompts, and recent verification.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA
