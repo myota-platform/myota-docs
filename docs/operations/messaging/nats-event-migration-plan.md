@@ -411,10 +411,12 @@ the only project team. Decisions are recorded in the
 [joint review evidence](evidence/phase1-joint-review-2026-10-10.md).
 
 - [x] Review and disposition all 68 source-derived fact schemas, including
-      classification, intended subscriber groups, and field handling. Source
-      approval is conditional; producer enforcement waits for minimized
-      projections, prohibited-field/size checks, compatibility fixtures, and
-      the Geodata preprocessing projection.
+      classification, intended subscriber groups, and field handling. Review
+      all ten selected work-command contracts; their producer payload evidence
+      remains pending. Fact-schema approval is conditional, and work payloads
+      are not approved for enforcement until minimized projections,
+      prohibited-field/size checks, idempotency/recovery evidence, and the
+      Geodata preprocessing projection are in place.
 - [x] Select per-role NKey credentials mounted from operator-managed Secrets,
       NATS authentication and TLS, and a separate provisioner identity.
       Secret provisioning and allow/deny qualification remain open.
