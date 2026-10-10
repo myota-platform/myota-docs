@@ -196,7 +196,7 @@ rollback and database recovery checks pass.
       to its intended stream and unique durable. Contracts checks require
       event dispositions and checked-in schemas, compare every work stream,
       subject, and durable against the deploy-owned topology, and audit
-      event-like source literals across the five services. The complete contracts workflow passed after these fixtures were added ([run 38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38045763460)).
+      event-like source literals across the five services. The complete contracts workflow passed after these fixtures were added ([run 38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38045951777)).
 - [ ] Reject an unknown producer subject and unknown envelope version before
       publish, preserving a visible retry/dead-letter record in the owning
       database. The current production relay does not yet enforce this
