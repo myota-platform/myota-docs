@@ -22,106 +22,51 @@ describe current ownership and are authoritative for the present-day system.
   ```
 
 - Moved all four Geodata work consumers to the file-backed, bounded
-  `MYOTA_GEODATA_WORK` WorkQueue and their exact pull subjects/durables.
-  Production workers now subscribe to target subjects; the previous Geodata
-  durable definitions remain empty and inactive during a 24-hour rollback
-  observation. The shared Interest-retained `MYOTA_EVENTS` stream and Activity
-  notification durable remain live.
-- Applied Geodata migration 021, adding owner-row dispatch timestamps and
-  recovery indexes. The queue source rows and outbox remain authoritative; no
-  Phase 5 database schema or history was removed.
-- Fixed partial deletion recovery: after a successful Activity cascade and
-  failed Geodata-side step, the work handler now persists an expired lease and
-  rethrows so JetStream retry and the bounded database repair path can continue.
-  The fix is mirrored to the deployment/runtime copies and shipped in the
-  digest-pinned Geodata image.
-- Isolated host-K3s verification passed the 154-test Geodata suite (one optional
-  test skipped), the 25 relay/topology tests, a real database connection-refusal
-  and reconnect test, same-node NATS Pod restart with persistent volume, and
-  focused partial-cascade retry coverage. No production work was injected.
-- Helm revision 189 is deployed, and Fleet now reports Ready=True with 60/60
-  resources at deploy commit `bbb3276296c8fa86941315b582caa76e178bd94f`.
-  A disposable two-database test with the real Activity API, Geodata handler,
-  and private JetStream durable proved Activity commit → injected Geodata
-  failure/NAK → successful redelivery. The Activity cascade emitted exactly
-  one outbox fact, the entity was deleted, and the stream drained.
-- This exposed a missing Activity request idempotency boundary. The Activity
-  handler now forwards `Idempotency-Key`; the repository persists its response
-  with the cascade fact under a transaction advisory lock. The Activity
-  40-test suite passed (one optional broker test skipped), and Ruff/format
-  checks passed. Five rounds of eight concurrent same-key cascades each wrote
-  one outbox fact. A real acknowledged preprocessing delivery finalized a
-  concurrent cancellation before ACK; the connected expiry → owner-row/outbox
-  reconstruction → redelivery → completion chain also passed. The Activity
-  source fix is not yet deployed; CI/build status, the 24-hour rollback
-  observation and legacy durable retirement remain open. The isolated
-  validation namespace and PVC were deleted. The observation ends
-  no earlier than 20:58:36 UTC on 11 October 2026.
-- **Additional source commits:** Activity handler
-  [`cdea2ba`](https://github.com/myota-platform/myota-activity-service/commit/cdea2baaf76cd33415225863d3843b7ff1707930),
-  repository idempotency
-  [`d364932`](https://github.com/myota-platform/myota-activity-service/commit/d36493215204584cc3c2c7873c0262f5d29be53b),
-  regression test
-  [`6448fc2`](https://github.com/myota-platform/myota-activity-service/commit/6448fc2f319c1678874f068f235de8dc69f20080),
-  and synchronized mirrors `myota-platform`/`myota-deploy`:
-  `6dbab48`, `9953b00`, `b76f825`, `259e2a7`, `84764e9`.
+  `MYOTA_GEODATA_WORK` WorkQueue and exact pull subjects/durables. Production
+  workers use target subjects; the four legacy Geodata durables remain empty
+  and inactive during the rollback observation. The Interest-retained
+  `MYOTA_EVENTS` stream and Activity notification durable remain live.
+- Applied Geodata migration 021 with owner-row dispatch timestamps and recovery
+  indexes. Source rows and outbox remain authoritative. No Phase 5 database
+  schema, source rows, history or dead letters were removed.
+- The partial-deletion recovery fix keeps failed Geodata work retryable after an
+  Activity cascade. The Activity handler/repository idempotency fix persists
+  the request key and result transactionally. Five rounds of eight concurrent
+  same-key requests each produced one cascade outbox fact.
+- Isolated host-K3s checks passed: 154 Geodata tests (one optional skip), 40
+  Activity tests (one optional broker skip), 25 relay/topology tests, actual
+  database refusal/reconnect, same-node NATS PVC restart, two-database
+  cascade-failure redelivery, cancellation racing acknowledged preprocessing,
+  and the connected expiry → owner-row/outbox reconstruction → completion
+  chain. The disposable namespace/PVC, test fixtures, API process and
+  port-forwards were removed.
+- A production inspection found that image digest settings changed only pod
+  annotations while the container refs remained mutable `:latest` tags.
+  Deploy now renders all configured first-party runtime, worker, provisioner
+  and scheduled-job digests as immutable `repository@sha256:…` refs; Platform
+  mirrors those templates. Helm revision 191 deployed at 21:28:41 UTC on
+  10 October. Fleet reports Ready=True at Deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with
+  60/60 resources. Activity, Geodata and shared-runtime pod refs and ImageIDs
+  match the configured digests. Activity idempotency fix is live.
+- Read-only broker verification found `MYOTA_GEODATA_WORK` file-backed,
+  one-replica WorkQueue with finite limits and four exact pull durables; all
+  target messages/counters are zero with active pull workers. `MYOTA_EVENTS`
+  remains file-backed Interest retention with four inactive, empty legacy
+  Geodata durables and its live Activity notification consumer.
+- **Remaining:** Restart the 24-hour rollback observation from revision 191's
+  completed rollout. It ends no earlier than 21:28:41 UTC on 11 October 2026. Recheck topology,
+  recovery and Fleet, then retire only the four old Geodata durables. No
+  database object is obsolete; migration 021 and authoritative records remain.
+  Phase 6 remains separate.
+- **Source commits:** Activity idempotency changes in
+  `myota-activity-service` are handler `cdea2ba`, repository `d364932`,
+  test `6448fc2`; mirrors are `6dbab48`/`9953b00` in Platform and
+  `b76f825`/`259e2a7`/`84764e9` in Deploy. Image reference hardening:
+  [Deploy `a68eedd`](https://github.com/myota-platform/myota-deploy/commit/a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109)
+  and [Platform `a184baa`](https://github.com/myota-platform/myota-platform/commit/a184baac3f36e0272cbc79107f4b362139de7515).
   See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
-## 10 October 2026 — NATS migration Phase 4 Activity work implementation
-
-- **Prompt used for this phase:**
-
-  ```text
-  Iteratively implement phase 4, take decisions based on own best criteria and general best practices, be sure to retire/delete/purge/prune DB schema objects that are no longer needed when the exit criteria are met, follow same rigurous documentation criteria as before.
-  ```
-
-- Added six Activity work routes to the transactional job/outbox path, with
-  ID-only JetStream envelopes, per-kind pull durables, explicit ACK after
-  committed status, retry/backoff, renewable UUID-fenced leases, persisted
-  terminal work dead letters, and audited database-authoritative redrive.
-- Added migration 007 to backfill queued selected work, gate first execution on
-  no selected `RUNNING` legacy jobs, mark in-app notifications delivered, and
-  remove synthetic `NOTIFICATION_SEND` jobs. Removed recreation of the legacy
-  `activity_job_claim_idx`, dropped it during cutover, and added the status/kind
-  index needed by status and compatibility recovery. Retained `activity_job`
-  and all domain/resource history.
-- Synchronized Activity and deployment/runtime catalogs into `myota-deploy` and
-  `myota-platform`; updated contracts, diagrams, work-queue runbook, phase plan,
-  evidence, README links, To do, Work in progress, and prioritized backlog.
-- **Verification:** 38 Activity tests passed (one optional broker test skipped);
-  Contracts tests passed 7/7 and source audit found 68 registered facts, 16
-  legacy work types, and no unclassified event-like literals; Deploy relay,
-  retention, and topology tests passed 25/25; Ruff/format checks and Helm lint
-  passed. Disposable K3s/PostgreSQL/NATS checks covered migration guard/rerun,
-  six durable filters, duplicate-safe ACK, lease fencing, DLQ, redrive, and
-  cleanup. Temporary namespace and port forwards were deleted.
-- **Production cutover:** the Activity DB-polling workers were drained before
-  migration 007. `MYOTA_ACTIVITY_WORK` was provisioned as WorkQueue with six
-  exact durables; two workers and three API replicas now run the pinned
-  Activity image. The old claim index was dropped, the status/kind index and
-  lease/DLQ/audit schema were added, all 154 in-app notifications were marked
-  delivered, and synthetic `NOTIFICATION_SEND` jobs were purged. `activity_job`
-  and domain history remain intact. After old API pods left, the compatibility
-  repair was disabled.
-- **Live checks and limits:** all six durables report zero pending,
-  ack-pending, and redeliveries with active pull waiters; `MYOTA_ACTIVITY_WORK`
-  has zero messages and bytes. The zero-valued per-kind job, queue-age, retry,
-  and dead-letter metrics are visible in Activity and Prometheus. Production
-  had no selected job at cutover, so no live handler execution or latency sample
-  is claimed. Isolated PostgreSQL/JetStream checks processed all six registered
-  command types. The mixed Interest-retained fact stream and Geodata work
-  routes were left unchanged. Fleet tracks deploy commit
-  `480c2031589e4947ecef6ba8940b54e60af77ed1`; Helm's latest deployed revision is
-  181 after its reconciliation rollback/retry.
-- **Status:** Phase 4 exit criteria are complete within the explicitly recorded
-  no-production-workload evidence bound. Phase 5 Geodata work and Phase 6
-  shared fact-stream retention transition remain open.
-- **Files/evidence:** see [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
-  [Activity work queues runbook](../operations/messaging/activity-work-queues.md),
-  [migration plan](../operations/messaging/nats-event-migration-plan.md), and
-  [current/target diagram](../architecture/diagrams/nats-event-migration.md).
-
-## 10 October 2026 — NATS migration Phase 3 domain-event consumers
+## 10 October 2026 — NATS migration Phase 3 domain-event consumers## 10 October 2026 — NATS migration Phase 3 domain-event consumers
 
 - **Prompt used:** “Continue with the implementation of phase 3, decide any
   blocker based on your best criteria and established best practices, verify
