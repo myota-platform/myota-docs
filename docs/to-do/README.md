@@ -12,21 +12,22 @@ documentation evidence and does not set delivery dates.
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phases 0–4 are complete within their recorded evidence bounds. Phase 5's
-  four Geodata work routes, migration 021, partial-cascade recovery and
-  Activity idempotency fix are live. Helm revision 192 is deployed; Fleet is
-  Ready=True at `6443473828305ab9d02a918bbe990d01abe97f6a`, with 60/60 resources. Configured immutable image
-  references match live pod IDs. Target durables are empty with active workers;
-  four legacy Geodata durables remain empty through the rollback observation,
-  ending no earlier than 21:39:22 UTC on 11 October 2026. Isolated retry, cancellation and
-  expiry-to-completion checks passed; the test namespace is deleted. The only
-  Phase 5 gate is the remaining observation and safe retirement of those four
-  durables. Phase 6's fact-stream transition remains planned. See the
-  [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
-  [migration plan](../operations/messaging/nats-event-migration-plan.md),
-  [work queue runbook](../operations/messaging/activity-work-queues.md), and
-  [Work in progress](../work-in-progress/README.md).
-- [REST API alias retirement]- [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
+  — Phases 0–5 are complete within their recorded evidence bounds. Helm
+  revision 193 remains deployed; Fleet is Ready=True at Deploy commit
+  cfecd655d9c0eee9d19db26725fb11c99366815a. The four legacy Geodata durables
+  were retired after final checks. The 24-hour elapsed-time requirement was
+  explicitly waived, so this is early closure rather than a completed 24-hour
+  observation. Activity and target durables, migration 021, recovery data and
+  the Interest-retained MYOTA_EVENTS stream remain. Phase 6 fact-stream
+  retention work is next. See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+- [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md)
+  — planned, not deployed. Deploy NATS Surveyor and a compatible Grafana
+  dashboard, validate them through a seven-day overlap, then retire the
+  existing Admin NATS page, duplicate broker pollers, old NATS Grafana
+  dashboard, sampler alerts, Operations snapshot API/history, and its database
+  table/index. Preserve outbox/worker signals, SeaweedFS operations, and
+  PostGIS query panels. See the roadmap for owners and gates.
+- [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
   Phase 5 remains planned until usage is measured and clients migrate.
 - [Programme configuration gaps](../domain/programmes/configuration-gap-analysis.md)
   — implementation-pending configuration catalogue.
