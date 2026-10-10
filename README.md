@@ -98,17 +98,19 @@ imply scale qualification or production readiness.
 NATS migration status on 10 October 2026:
 
 - Phases 0–4 are complete within their recorded evidence bounds. Phase 5 has
-  moved the four Geodata work kinds to `MYOTA_GEODATA_WORK`, applied migration
-  021, and deployed the retry-safe partial-cascade recovery fix.
+  moved all four Geodata work kinds to `MYOTA_GEODATA_WORK`, applied migration
+  021, and deployed the retry-safe partial-cascade recovery fix. Helm revision
+  189 is deployed; Fleet reports Ready=True with 60/60 resources.
 - The four target durables and worker subscriptions are live and empty; no
-  production Geodata work was available to process. The old Geodata durable
-  definitions remain inactive for the 24-hour rollback window. Fleet still
-  reported `WaitApplied` during the latest reconciliation.
-- The isolated Geodata suite passed 154 tests (one optional process setup
-  skipped); 25 relay/topology tests passed. Database refusal/reconnect,
-  same-node NATS PVC restart, and focused partial-cascade recovery passed.
-  Two-database cross-service, cancellation-race, expiry-to-completion, and
-  final legacy durable retirement remain open.
+  production Geodata work was available to process. The four old Geodata
+  durable definitions remain inactive until the rollback observation ends no
+  earlier than 20:58:36 UTC on 11 October 2026.
+- Geodata (154 tests), Activity (40 tests), and relay/topology (25 tests)
+  passed locally, with one optional skip in each service suite. The disposable
+  two-database Activity/Geodata retry test completed after NAK/redelivery and
+  produced exactly one Activity cascade fact. Activity's idempotency source fix
+  is committed and mirrored but its image is not yet deployed. Cancellation
+  race, expiry-to-completion, final durable retirement, and cleanup remain open.
 - Keep PostgreSQL work rows, outbox, dead letters, and migration 021 recovery
   columns/indexes. The shared `MYOTA_EVENTS` stream remains file-backed with
   Interest retention; off-node recovery remains deferred.
