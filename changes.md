@@ -3,6 +3,22 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 10 October 2026 — NATS Activity payload contract source pass
+
+- Added source-derived additive payload schemas for all ten Activity facts and
+  classifications for personal activity, import metadata, award configuration,
+  and certificate details. Flexible rule/configuration and nested award asset
+  shapes remain unconstrained where producer inputs are extensible.
+- Local contracts tests (2/2), source audit, schema generation, Ruff format/lint,
+  and byte-for-byte platform mirror checks passed. GitHub's connector status
+  endpoint returned no combined statuses, so Actions results are not independently
+  verified. Commits include contracts `95eae9a` and platform mirror `cb6ea76`.
+  Joint owner/privacy review, Geodata/Operations payloads, and producer enforcement
+  remain open. No runtime or deployed topology changed; the existing Phase 1 prompt
+  remains in use.
+- See the [Phase 1 evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+
+
 ## 10 October 2026 — NATS Programme payload contract source pass
 
 - Added source-derived additive payload schemas for all 12 Programme facts,
