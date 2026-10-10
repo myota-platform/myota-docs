@@ -5,45 +5,26 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md) —
-  Phase 0 inventory, topology decision, and owner assignments are complete.
-  Phase 1 is underway: contracts now list 68 domain facts and ten proposed work
-  commands; a create-only, drift-checking provisioner requires explicit finite
-  limits and validates delivery, replay, waiting-pull, and consumer state settings.
-  Four focused tests and Ruff format/lint pass in deploy and its platform mirror;
-  isolated JetStream provisioning and its idempotent rerun pass. The registry maps
-  all 68 fact types to source files, and its workspace audit found no
-  undispositioned Python event-like source literals across five service
-  repositories; the contracts main-branch source-audit workflow passed. Latest deploy and platform image checks pass. The delegated review dispositioned
-  all 68 schemas and selected credential, capacity, recovery, and provisioning
-  policies. Runtime gates remain: Geodata payload minimization, credential/TLS
-  implementation, representative capacity evidence, off-node/PVC-loss restore qualification, chart
-  provisioner readiness, and relay mutation removal. Basic isolated restore/replay
-  passed without touching production. The deployed shared stream
-  retains Interest policy; no producer/consumer path changed. See the
+  Phase 0 inventory and topology decisions are complete. Phase 1 contract work
+  now has 68 registered facts and ten selected work commands, checked-in
+  schemas, source audit, and a passing contracts CI check that each work command
+  matches its deploy-owned stream, subject, and durable. The create-only
+  provisioner and drift checks pass focused tests and an isolated broker
+  idempotency/drift check.
+  The 10 October delegated review dispositioned all 68 source-derived schemas
+  and selected credentials, capacity, recovery, and relay ownership. That
+  decision review is complete; runtime gates remain for payload minimization,
+  NATS auth/TLS and role ACL proof, representative capacity sizing, off-node
+  restore and database reconciliation, and a safe provisioning/readiness
+  barrier before relay mutation is removed. The
+  [recovery runbook](../operations/messaging/jetstream-recovery.md) records the
+  procedure and remaining qualification evidence. The live shared stream still
+  uses Interest retention and no producer or consumer path has changed. See the
   [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
   and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
-  Payload schemas for all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts are now
-  derived from producer callsites and classified for sensitive/internal content.
-  Identity, Programme, Activity, and Geodata schemas pass Contracts CI; the
-  platform mirror CI also passes. Joint owner/privacy review remains open. Geodata
-  preprocessing currently includes internal `_records` and `_status` in the
-  preprocessed event payload and needs minimization review. Operations has no event-producing call sites in the source audit; an Operations
-  payload schema is not applicable unless it becomes a producer. Authenticated credentials, capacity limits, recovery qualification, and relay-side
-  topology mutation remain open. The contracts, deploy, platform mirror, and organization profile PRs (#2, #4, #1,
-  and #1) are merged. Phase 1 remains in progress: owner/privacy review, Geodata payload minimization, authenticated
-  least-privilege roles, capacity limits, recovery qualification, and relay-side
-  topology mutation are still open.
-  Volker Kerkhoff (`@kerk1v`) is assigned, with Codex pairing support. Evidence
-  work is tracked in [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1),
-  [Identity #1](https://github.com/myota-platform/myota-identity-service/issues/1),
-  [Programme #1](https://github.com/myota-platform/myota-programme-service/issues/1),
-  [Activity #1](https://github.com/myota-platform/myota-activity-service/issues/1),
-  [Geodata #2](https://github.com/myota-platform/myota-geodata-service/issues/2),
-  [deploy #3](https://github.com/myota-platform/myota-deploy/issues/3), and
-  [Operations #1](https://github.com/myota-platform/myota-operations-service/issues/1).
-  A producer or consumer path remains gated on its assigned evidence; no runtime
-  change is claimed complete.
+  Phase 1 remains open until all exit criteria in the
+  [migration plan](../operations/messaging/nats-event-migration-plan.md) pass.
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates
