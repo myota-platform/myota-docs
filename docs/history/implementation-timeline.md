@@ -42,9 +42,12 @@ describe current ownership and are authoritative for the present-day system.
 - **Checks and boundaries:** Read-only K3s query showed the node Ready, release
   myota at Helm revision 157, NATS single replica with an 8 GiB PVC, and all
   three outbox databases had no unpublished rows. No messages, streams, consumer
-  state, or domain data changed. Credential rollout, broker restore/replay,
-  measured sizing, chart provisioner readiness, payload enforcement, and relay
-  mutation removal remain open; Phase 1 is not complete. See the
+  state, or domain data changed. Credential rollout, off-node/PVC-loss restore, measured sizing, chart
+  provisioner readiness, payload enforcement, and relay mutation removal remain
+  open. A disposable two-broker NATS 2.10 drill restored three messages and the
+  durable ACK position; a fresh durable replayed all three. Temporary namespace,
+  CLI, and backup were removed. No production service was modified. Phase 1 is
+  not complete. See the
   [joint review evidence](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [migration plan](../operations/messaging/nats-event-migration-plan.md),
   and [topology diagram](../architecture/diagrams/nats-event-migration.md).
