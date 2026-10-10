@@ -17,7 +17,8 @@ The shell groups work into domain workspaces and platform health:
   tabs.
 - **Activity**: protected activation/QSO operational list.
 - **Platform health**: Grafana observability and authenticated
-  [NATS / JetStream status and history](../../operations/messaging/jetstream-admin-status.md).
+  current [NATS / JetStream status and history](../../operations/messaging/jetstream-admin-status.md), planned for replacement by the
+  [Surveyor/Grafana monitoring path](../../observability/nats-surveyor-migration.md).
 
 Programme-owned workspaces have one local selector; the top bar shows its scope
 read-only. Entity filters still offer all programmes, including unassigned;
