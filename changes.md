@@ -1,5 +1,23 @@
 # MyOTA changes
 
+## 10 October 2026 — NATS Phase 3 Activity notification consumer
+
+- Completed the selected committed-fact consumer group: Activity now handles
+  19 Identity facts and two Geodata review/status facts through the exact
+  `activity-notifications-v1` subject filter. Its projection and idempotency
+  record commit together before ACK; poison events are redacted, and redrive is
+  audited. Producer routes, Geodata work durables, Activity database-polled
+  jobs, and Operations' read-only inspection boundary remain unchanged.
+- Deployed on local K3s at Helm revision 170. Live checks found the Activity
+  durable healthy with no pending, ack-pending, or redelivered messages; the
+  four Geodata work durables and file-backed Interest-retained `MYOTA_EVENTS`
+  stream are unchanged. Focused source, deploy, contracts, and isolated broker
+  integration checks passed. Test namespaces and repair Job were removed.
+- Phase 3 exit criteria are met. Before Phase 4, reconcile the Fleet bundle,
+  which still reports `WaitApplied` despite the deployed Helm release and
+  60/60 ready resources. See the [Phase 3 evidence report](docs/operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md)
+  and [Activity consumer runbook](docs/operations/messaging/activity-notification-consumer.md).
+
 ## 10 October 2026 — Phase 1 NATS contract/topology closeout
 
 - Completed ten bounded per-command work schemas with owning-row identity and
