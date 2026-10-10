@@ -39,16 +39,29 @@ describe current ownership and are authoritative for the present-day system.
   test skipped), the 25 relay/topology tests, a real database connection-refusal
   and reconnect test, same-node NATS Pod restart with persistent volume, and
   focused partial-cascade retry coverage. No production work was injected.
-- At the recorded verification point, Helm 187's application pods and
-  migrations were ready while Fleet still reported `WaitApplied`. The full
-  two-database cascade-failure chain, cancellation race, expiry-to-completion,
-  final Fleet Ready check, and retirement of the four old durables remain open.
+- Helm revision 189 is deployed, and Fleet now reports Ready=True with 60/60
+  resources at deploy commit `bbb3276296c8fa86941315b582caa76e178bd94f`.
+  A disposable two-database test with the real Activity API, Geodata handler,
+  and private JetStream durable proved Activity commit → injected Geodata
+  failure/NAK → successful redelivery. The Activity cascade emitted exactly
+  one outbox fact, the entity was deleted, and the stream drained.
+- This exposed a missing Activity request idempotency boundary. The Activity
+  handler now forwards `Idempotency-Key`; the repository persists its response
+  with the cascade fact under a transaction advisory lock. The Activity
+  40-test suite passed (one optional broker test skipped), and Ruff/format
+  checks passed. The new Activity image is not yet deployed; CI/build status
+  remains to be verified. Cancellation race, expiry-to-completion, 24-hour
+  legacy durable retirement, and final cleanup remain open. The observation
+  ends no earlier than 20:58:36 UTC on 11 October 2026.
+- **Additional source commits:** Activity handler
+  [`cdea2ba`](https://github.com/myota-platform/myota-activity-service/commit/cdea2baaf76cd33415225863d3843b7ff1707930),
+  repository idempotency
+  [`d364932`](https://github.com/myota-platform/myota-activity-service/commit/d36493215204584cc3c2c7873c0262f5d29be53b),
+  regression test
+  [`6448fc2`](https://github.com/myota-platform/myota-activity-service/commit/6448fc2f319c1678874f068f235de8dc69f20080),
+  and synchronized mirrors `myota-platform`/`myota-deploy`:
+  `6dbab48`, `9953b00`, `b76f825`, `259e2a7`, `84764e9`.
   See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
-- **Representative commits:** Geodata source
-  [`0a3c9e1`](https://github.com/myota-platform/myota-geodata-service/commit/0a3c9e199b7ea7754ef1be3244f60fecb25b0c75),
-  retry test [`29b3cda`](https://github.com/myota-platform/myota-geodata-service/commit/29b3cda6b00510f32b176a2a40d493790e9377fb),
-  deployment mirror [`5a758f4`](https://github.com/myota-platform/myota-deploy/commit/5a758f4dd88f49854afe2bd3ed7d2212a4958a6b),
-  and digest pin [`c1a4e60`](https://github.com/myota-platform/myota-deploy/commit/c1a4e609d2cb9166b873a8eaa263d66f378b2035).
 
 ## 10 October 2026 — NATS migration Phase 4 Activity work implementation
 
