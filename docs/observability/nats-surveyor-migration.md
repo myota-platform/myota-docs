@@ -196,9 +196,11 @@ gaps and rollback evidence; mark only verified checkboxes.
 - [ ] Remove the Geodata broker metadata polling helper and startup hook from
   its authoritative service source and synchronized runtime mirrors. Retain
   Geodata domain and worker metrics.
-- [ ] Move the PostGIS panels into the Geodata dashboard, then delete the
-  previous MyOTA NATS backlog dashboard from Grafana provisioning and all
-  authoritative/mirror JSON copies.
+- [ ] Inventory provisioned and manually imported NATS dashboards by UID.
+  Move the PostGIS panels into the Geodata dashboard, then remove all prior
+  NATS dashboards from Grafana, including the MyOTA backlog dashboard and any
+  stale/duplicate import. Leave exactly one source-managed Surveyor dashboard.
+  Remove its old provisioning references and authoritative/mirror JSON copies.
 - [ ] Replace sampler-specific alerts with Surveyor health and broker alerts.
   Remove only alerts tied to the retired sampling endpoints/table.
 - [ ] Add the Operations-owned forward migration to drop
