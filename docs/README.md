@@ -18,21 +18,18 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  Phases 0–4 are complete within their recorded evidence bounds. Phase 5
-  routes four Geodata work kinds to `MYOTA_GEODATA_WORK`, applies migration
-  021 and deploys transactional Activity idempotency. Helm revision 192 is
-  deployed; Fleet reports Ready=True at `6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources.
-  Configured immutable image refs and live Activity/Geodata/shared-runtime
-  ImageIDs match. Four target durables are empty with active workers; four
-  legacy durables remain empty through the observation ending no earlier than
-  21:39:22 UTC on 11 October 2026. No accepted production Geodata work was available. Isolated
-  retry/cancellation/expiry qualification passed and the temporary namespace
-  was removed. See [Phase 5 evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
-  [migration plan](operations/messaging/nats-event-migration-plan.md),
-  [current/target diagrams](architecture/diagrams/nats-event-migration.md),
-  and [ADR-0008](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-- [Observability](observability/README.md)- [Observability](observability/README.md) — telemetry architecture, logging
-  roadmap, prompts, and recent verification.
+  Phases 0–5 are complete within their documented evidence bounds. Phase 5's
+  four legacy Geodata durables were retired after final checks under an
+  explicit early-close waiver; no claim is made that 24 hours elapsed. Helm
+  revision 193 remains deployed and Fleet reports Ready=True at
+  cfecd655d9c0eee9d19db26725fb11c99366815a. See [Phase 5 evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md)
+  and [Phase 6 plan](operations/messaging/nats-event-migration-plan.md#phase-6).
+- [NATS Surveyor monitoring consolidation](observability/nats-surveyor-migration.md) —
+  proposed Surveyor deployment, dashboard 16256 compatibility, seven-day
+  overlap, and staged removal of the current Admin page, broker pollers,
+  Grafana dashboard and NATS snapshot table.
+- [Observability](observability/README.md) — telemetry architecture, logging
+  roadmap, Surveyor migration plan, prompts, and recent verification.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA
   migration context.
 - [History and status reconciliation](history/README.md) — project timeline,
