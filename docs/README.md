@@ -26,8 +26,9 @@ indexes organize open work by delivery status.
   durables remain empty during the 24-hour rollback observation, ending no
   earlier than 20:58:36 UTC on 11 October. The disposable two-database failure
   chain passes with one Activity cascade fact after retry; the committed
-  Activity idempotency fix still needs its image deployment. Cancellation race,
-  expiry-to-completion, and safe legacy durable retirement remain open.
+  Activity idempotency fix still needs its image deployment. Cancellation and
+  expiry-to-completion chains passed in isolation; only the rollback gate and
+  safe legacy durable retirement remain open.
   Activity's notification durable and the Interest-retained `MYOTA_EVENTS`
   stream remain live. See the [Phase 5
   evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
