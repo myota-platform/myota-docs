@@ -176,214 +176,72 @@ rollback and database recovery checks pass.
 
 **Work**
 
-- [x] Produce the exhaustive producer/event/subject/consumer matrix across all five
-      services, outbox relay, existing DB job queue, recovery migrations, and
-      deployment mirrors.
-- [x] Identify every accepted asynchronous request path, including Activity's
-      PostgreSQL `claim_job` worker loop. Label each as domain event, work command,
-      scheduled/reconciliation task, or synchronous request.
-- [x] For each event, document the owning service, event schema/version, transaction
-      boundary, current and target subject, independent durable groups, idempotency
-      key, retry/dead-letter policy, retention/replay requirement, and API/business
-      impact if delayed or lost.
-- [x] Resolve whether the shared `MYOTA_EVENTS` stream remains the target or whether
-      domain events and work queues need separate streams. Compare Interest versus
-      WorkQueue retention for each class, cross-service blast radius, independent
-      replay/retention needs, deployment complexity, and migration safety. Do not
-      split streams merely for naming symmetry.
-- [x] Add an ADR or amend the event contract with the selected topology, subject
-      naming, ownership, compatibility and deprecation policy. Carry uncovered
-      consumers and unclassified event types as gates on the affected producer or
-      consumer rollout; Phase 1 contract work resolves their dispositions.
-- [x] Create the evidence register below with proposed authoritative repository
-      owners, closure phases, and the producer/consumer cutover each gap gates.
-- [x] Confirm the assignments with the workspace owner and record the individual
-      assignee in each owning repository's work item. Phase 1 contract/topology
-      work may proceed while evidence is being closed; a producer or consumer path
-      must not change until its listed gate is met.
-
-**Exit criteria**
-
-- [x] Every outbox event write and database-backed asynchronous job is accounted
-      for; each has a disposition and owner.
-- [x] Stream/retention topology and activity-job migration scope are selected in
-      documentation before implementation changes begin.
-- [x] Mirrored files and authoritative repositories are explicitly identified.
-- [x] Every remaining evidence gap is mapped to a proposed authoritative repository,
-      closure phase, and explicit cutover gate.
-- [x] The workspace owner confirms the assignments; individual assignees are
-      recorded in the owning work items. Record any future risk acceptance there
-      with its expiry/review point and recovery plan.
-
-#### Phase 0 evidence ownership and gates
-
-The evidence gaps are not a blanket blocker to starting Phase 1 contract and
-topology work: defining the contract, registry, limits, and safe provisioning is
-part of Phase 1. They are gates on the runtime change that depends on them. Phase 1
-may implement and validate changes in isolation, but must not activate live stream
-configuration or change producer/consumer behavior before the relevant gate.
-
-The workspace owner confirmed the assignments in this task. This workspace has no
-separate service teams: Volker Kerkhoff (`@kerk1v`) is the named individual and
-GitHub assignee for the evidence work items; Codex is the pairing agent and is not
-a separate GitHub account. Accountable source repositories below follow the
-[repository map](../../architecture/repository-map.md); mirrors are not owners.
-Each work item records the evidence, gate, and assignee.
-
-| Inventory gap | Accountable repository owner | Close before | Individual assignee and work item |
-|---|---|---|
-| 1. Envelope schema and compatibility rules | `myota-contracts` (with event-producing service owners) | Phase 2 publishes the new envelope or subject contract | Volker Kerkhoff (`@kerk1v`); [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1) |
-| 2. Intended subscriber groups and event dispositions | `myota-contracts`, with each relevant service owner (`myota-identity-service`, `myota-programme-service`, `myota-activity-service`, `myota-geodata-service`) | Phase 3 enables or changes a consumer group | Volker Kerkhoff (`@kerk1v`); [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1), [Identity #1](https://github.com/myota-platform/myota-identity-service/issues/1), [Programme #1](https://github.com/myota-platform/myota-programme-service/issues/1), [Activity #1](https://github.com/myota-platform/myota-activity-service/issues/1) |
-| 3. Activity notification/checkpoint atomicity and synthetic job state | `myota-activity-service` | Phase 3 changes the notification consumer; Phase 4 removes/corrects the synthetic job | Volker Kerkhoff (`@kerk1v`); [Activity #1](https://github.com/myota-platform/myota-activity-service/issues/1) |
-| 4. Geodata transaction coupling and source recovery for fallback/upload paths | `myota-geodata-service` | Phase 2 changes affected fact publication or Phase 5 changes affected work routing | Volker Kerkhoff (`@kerk1v`); [Geodata #2](https://github.com/myota-platform/myota-geodata-service/issues/2) |
-| 5. Activity worker idempotency and missing `Idempotency-Key` behavior | `myota-activity-service` | Phase 4 switches the affected job producer/worker | Volker Kerkhoff (`@kerk1v`); [Activity #1](https://github.com/myota-platform/myota-activity-service/issues/1) |
-| 6. Relay/consumer dead-letter redrive and database retention | `myota-deploy` coordinates relay/runbook and physical-database retention evidence with the service owners | Before enabling a cutover that relies on redrive or cleanup of those records | Volker Kerkhoff (`@kerk1v`); [deploy #3](https://github.com/myota-platform/myota-deploy/issues/3) |
-| 7. Geodata migration-015 recovery identity and concurrent-startup behavior | `myota-geodata-service`, with `myota-deploy` for migration rollout | Phase 5 switches Geodata work to `MYOTA_GEODATA_WORK` | Volker Kerkhoff (`@kerk1v`); [Geodata #2](https://github.com/myota-platform/myota-geodata-service/issues/2) |
-| 8. Measured limits, backup/restore, permissions, and deployed NATS config | `myota-deploy`; `myota-operations-service` supplies inspection/observability evidence | Before stream provisioning is qualified; production evidence before Phase 6 rollout | Volker Kerkhoff (`@kerk1v`); [deploy #3](https://github.com/myota-platform/myota-deploy/issues/3), [Operations #1](https://github.com/myota-platform/myota-operations-service/issues/1) |
-| 9. Producer-to-consumer coverage and registry checks | `myota-contracts` coordinates; owning service and `myota-deploy` test owners supply evidence | Before Phase 2/3 coverage is declared complete and before Phase 6 retirement | Volker Kerkhoff (`@kerk1v`); [contracts #1](https://github.com/myota-platform/myota-contracts/issues/1) |
-
-For each gap, the linked work item includes the individual assignee and target
-gate. Record evidence links, residual risk, and mitigation as the work progresses.
-If evidence cannot be completed
-before its gate, the affected service owner and `myota-deploy` must record explicit
-risk acceptance, expiry/review point, and recovery plan. A blanket “accepted” entry
-without those fields does not satisfy the gate. Documentation link cleanup is a
-separate maintenance item and is not a runtime migration gate.
-
-**ChatGPT prompt — Phase 0**
-
-```text
-Work in the MyOTA multi-repository workspace. Create an exhaustive, evidence-backed
-inventory for moving all outbox events and asynchronous consumers to NATS JetStream
-streams and durable queues. Do not change runtime code in this phase.
-
-Read ADR-0008 before reviewing the topology. The selected target is one bounded
-Limits fact stream and separate Activity/Geodata WorkQueue streams. Verify that
-repository evidence supports the recorded decision; do not reopen it based only
-on preference. Report concrete contradictions or evidence that requires changing
-the decision.
-
-Inspect the authoritative repositories: myota-identity-service,
-myota-programme-service, myota-activity-service, myota-geodata-service,
-myota-operations-service, myota-contracts, myota-deploy, myota-platform, and
-myota-docs. Treat deploy/platform copies as synchronized mirrors and identify their
-source owners. Inspect migrations, recovery SQL, event creation helpers/call sites,
-outbox relay/routing, consumer subscriptions/handlers, workers, compose/Helm
-deployment, docs, and tests.
-
-Return a table with one row per event type and asynchronous work type: producer
-service/database, transaction/write location, current event type and subject,
-envelope/schema version, intended consumer groups, current durable/filter,
-processing and idempotency boundary, retry/dead-letter behavior, current source of
-truth, retention/replay need, deployment owner, and missing evidence. Distinguish
-committed domain facts, competing-consumer work commands, scheduled/reconciliation
-work, and synchronous operations. Include Activity database-polled jobs and identify
-whether each should migrate to JetStream or remain as a justified exception.
-
-Specifically assess the current shared file-backed MYOTA_EVENTS stream, Interest
-retention, currently provisioned Activity notification durable and four Geodata
-work durables, the three database-specific outbox relays, operations read-only
-inspection boundary, and existing replay limitations. Reconcile current behavior
-with ADR-0008's selected topology and record its tradeoffs; do not assume every
-event is a command or that JetStream is an event archive.
-
-Edit only myota-docs in this phase: reconcile the inventory, migration plan, and
-ADR-0008; resolve remaining evidence gates or identify their owners. Keep claims
-labeled current/selected and cite exact repository paths. Do not mark runtime
-implementation complete. Report missing evidence and Phase 0 exit criteria.
-```
-
-### Phase 1 — Contracts, topology, provisioning, and operational safety
-
-**Current status (10 October 2026):** the registry/schema and create-only
-provisioner foundations are implemented and focused checks pass. No live stream
-or producer/consumer behavior changed. The delegated joint review records
-decisions for all 68 fact schemas, role credentials, initial finite capacity
-budgets, recovery policy, and relay-side provisioning ownership. Those decisions
-do not complete implementation or production qualification. The Geodata
-preprocessed v1 payload still includes internal _records and _status; use a
-compact versioned projection before enforcement. Credentials are not configured,
-limits are not justified by a representative 30-day window. A basic isolated
-snapshot/restore and replay drill passed; off-node backup, PVC-loss recovery,
-database reconciliation, and production restore/replay remain unqualified. The
-Helm chart does not yet run the provisioner. See the
-[joint review](evidence/phase1-joint-review-2026-10-10.md), [Phase 1 evidence](evidence/phase1-contract-topology-2026-10-09.md),
-and [current/target topology diagrams](../../architecture/diagrams/nats-event-migration.md).
-
-**Verified preparation (does not satisfy the phase exit criteria):**
-
-All four implementation PRs are merged: [contracts #2](https://github.com/myota-platform/myota-contracts/pull/2),
-[deploy #4](https://github.com/myota-platform/myota-deploy/pull/4),
-[platform mirror #1](https://github.com/myota-platform/myota-platform/pull/1),
-and [organization profile #1](https://github.com/myota-platform/.github/pull/1).
-Merge records and CI results are in the [Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md).
-Merging does not authorize live provisioning or runtime changes. The earlier
-platform image-build attempts timed out requesting a Docker Hub token. The latest
-main commits now pass deploy Ruff and both image builds, plus platform tests, Ruff,
-container build, and publish ([deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks),
-[platform checks](https://github.com/myota-platform/myota-platform/commit/b047a00e15ecc619e3589fffee37a1aa779ff59a/checks)).
-
-- [x] Add a contracts-owned registry for all 68 inventory facts, six legacy
-      Geodata work/recovery event types mapped to four commands, and six
-      proposed Activity work commands, with per-fact outer-envelope schemas.
-- [x] Add create-only provisioning for the three target streams and ten work
-      durables; verify initial creation, idempotent repeat, and drift rejection
-      on an isolated broker. Capacity values used in that test are not
-      production limits.
-- [x] Derive additive payload schemas for all 19 Identity facts from the
-      authoritative Identity producer callsites, record data classification,
-      and add schema assertions to contracts CI. Joint owner/privacy review and
-      producer enforcement remain gated.
-- [x] Derive additive payload schemas for all 12 Programme facts from the
-      authoritative Programme producer callsites, record data classification,
-      and verify generated schemas in contracts CI. Joint owner review and
-      producer enforcement remain gated.
-- [x] Derive additive payload schemas for all 10 Activity facts from the
-      authoritative Activity producer callsites; classify personal, import,
-      award-configuration, and certificate metadata; verify in contracts CI.
-      Local checks pass and Contracts CI passed on commit `2b8bddaf`. Joint
-      owner/privacy review and producer enforcement remain gated.
-- [x] Derive additive payload schemas for all 27 Geodata facts from the
-      authoritative Geodata producer callsites; classify geometry, location,
-      imported source, and reviewer data; verify in contracts CI. Local checks
-      and Contracts CI passed on commit `e34de821`. Joint owner/privacy review
-      remains open. The preprocessed import result currently includes internal
-      `_records`/`_status` data and requires minimization before producer enforcement.
-
-**Work**
-
-- [ ] Define/enforce the selected immutable envelope with `envelopeVersion: 1`,
-      required fields, JSON encoding, timestamp/UUID semantics, trusted correlation
-      and optional causation propagation, payload size limits, compatibility rules,
-      and unknown-version behavior. Keep envelope version separate from event type
-      suffix `.vN`; keep relay attempts out of the envelope.
-- [ ] Define the selected subject convention and registry: facts use
-      `myota.events.<eventType>` with dotted tokens preserved; work uses disjoint
-      `myota.work.activity.*` and `myota.work.geodata.*` namespaces. Add checked-in
-      per-event JSON Schemas and subscriber dispositions in `myota-contracts`.
-      Explicit work subjects must map to provisioned, non-overlapping durable
-      filters. Reject unknown routing before marking an event published; make the
-      failure operator-visible and actionable.
-- [ ] Implement safe stream/consumer provisioning as a controlled deployment step or
-      idempotent reconciler with drift detection. Avoid multiple relay replicas
-      racing to mutate stream configuration. Validate all correctness-sensitive
-      consumer settings, including replay, waiting-pull, delivery, and storage
-      behavior. Apply least-privilege NATS credentials per relay and worker role.
-- [ ] Implement the selected stream topology: bounded Limits retention on
-      `MYOTA_EVENTS`, WorkQueue retention on the Activity and Geodata work streams,
-      finite limits and `DiscardNew`. Derive numeric caps from measured traffic and
-      recovery objectives. Keep replicas at one on a single server; qualify three
-      replicas only with a three-server cluster. Define backup, restore, replay, and
-      redrive procedures; validate outage, disk pressure, consumer deletion, stream
-      restore, and consumer recreation behavior in local and production-like
-      environments.
-- [ ] Add a consumer registry and contract fixtures so event publishers cannot add a
-      subject without updating schema, intended subscriber, durable provisioning,
-      docs, and compatibility checks.
+- [x] Define the immutable event envelope v1 and work-command envelope v1 in
+      checked-in JSON Schemas. Require stable UUID identity, UTC timestamps,
+      producer and aggregate identity, bounded correlation/causation fields,
+      and strict outer-envelope fields; keep relay attempts outside the
+      envelope and the envelope version independent from event type version.
+      See `myota-contracts/contracts/schemas/event-envelope.schema.json`,
+      `schemas/work-command.schema.json`, and `contracts/events.md`.
+- [ ] Enforce envelope version, payload projection, serialized message size,
+      trusted correlation/causation propagation, and unknown-version handling
+      in the active relay before marking an outbox row published. The
+      production relay still emits the legacy envelope and subject mapping;
+      this runtime cutover remains gated by Phase 2 compatibility and producer
+      evidence.
+- [x] Register all 68 domain facts and ten selected work commands with exact
+      subjects, fact/work classification, source owner, schema path, and
+      subscriber disposition. Keep work subjects disjoint in
+      `myota.work.activity.*` and `myota.work.geodata.*`; map each command
+      to its intended stream and unique durable. Contracts checks require
+      event dispositions and checked-in schemas, compare every work stream,
+      subject, and durable against the deploy-owned topology, and audit
+      event-like source literals across the five services.
+- [ ] Reject an unknown producer subject and unknown envelope version before
+      publish, preserving a visible retry/dead-letter record in the owning
+      database. The current production relay does not yet enforce this
+      registry.
+- [x] Implement the deploy-owned, create-only provisioner with configuration
+      drift checks and explicit validation of stream and pull-consumer
+      correctness settings. The isolated broker check passed creation,
+      idempotent rerun, and drift rejection; focused topology tests pass.
+      Capacity has no defaults and requires explicit positive values.
+- [ ] Add a migration-safe Helm/Fleet preflight and readiness barrier, then
+      remove stream and durable mutation from the three relays only after
+      compatibility with the shared legacy stream and its consumers is proven.
+      The target provisioner must not be run against the current mixed
+      `MYOTA_EVENTS` configuration.
+- [ ] Configure NATS authentication, TLS, and the selected distinct NKey role
+      credentials for relays, workers, provisioner, and the Operations
+      metadata-only observer. Secret material must come from the external
+      operator-managed source; no such production material is available in
+      this workspace, and the deployed broker currently has no auth.
+- [x] Encode the selected target retention/storage policy in the declarative
+      topology: finite Limits retention for facts, WorkQueue retention for
+      Activity and Geodata work, file storage, one replica on the single-server
+      cluster, DiscardNew, finite per-message size, and ten explicit work
+      durable filters. The provisioner refuses to invent capacity defaults.
+- [ ] Set final production numeric caps only after a representative 30-day
+      traffic profile, serialized-message sizing, PVC reserve, and outage
+      backlog calculation. The current database sample spans fewer than ten
+      days and includes load-test traffic; the 1/1/3 GiB and message-count
+      values in the joint review remain proposals.
+- [x] Document PostgreSQL as recovery authority and JetStream as a bounded
+      delivery/replay window. Add the [recovery and replay runbook](jetstream-recovery.md)
+      for isolated restore, fact replay, work redrive, legacy Interest-retention
+      limitations, and sensitive-data handling.
+- [ ] Complete off-node backup, disposable PVC-loss/restore, database watermark
+      comparison, durable recreation, duplicate delivery, capacity rejection,
+      relay retry/dead-letter, and bounded replay qualification. The 10 October
+      drill proves only synthetic stream/durable-state restore and replay.
+- [x] Add contract fixtures and CI checks for unique event/work subjects,
+      per-event schemas, subscriber dispositions, source provenance, and
+      registered work-to-durable topology. A new producer literal without a
+      registry disposition fails the workspace source audit.
 
 The machine-readable registry currently covers 68 domain facts and ten selected
 work commands. The six current Geodata work/recovery event types map to four
-target commands. `myota-contracts/contracts/event-registry.json` now records exact
+target commands. `myota-contracts/contracts/event-registry.json` records exact
 producer source paths for all 68 facts. Its workspace audit checks those references
 and classifies Python event-like source literals as a fact or mapped legacy work
 type; the 10 October audit found no unclassified Python literals across the five
@@ -435,11 +293,22 @@ the only project team. Decisions are recorded in the
 
 **Exit criteria**
 
-- [ ] Contract and subject registry covers the Phase 0 inventory and matches
-      ADR-0008's fact/work classification and subject namespaces.
+- [x] Contract and subject registry covers the Phase 0 inventory and matches
+      ADR-0008's fact/work classification and subject namespaces. Contracts
+      tests and the five-service source audit pass; provisioned work filters
+      match all ten registered work commands.
 - [ ] Provisioning is deterministic, least-privilege, observable, and safe before
       first publish; incompatible drift fails deployment/readiness clearly.
-- [ ] Retention and restore/replay policies have an operator runbook and evidence.
+      Create-only provisioning and drift checks pass in isolation, but the
+      authenticated Helm preflight, production credentials/TLS, and relay
+      compatibility barrier are not implemented or qualified.
+- [ ] Retention and restore/replay policies have an operator runbook and
+      qualification evidence. The
+      [runbook](jetstream-recovery.md) is written, but off-node backup and
+      restore/replay qualification remain open.
+- [ ] Final finite production limits are based on a representative traffic
+      window and recovery objectives. The review's numeric values remain
+      provisional until that evidence exists.
 
 **ChatGPT prompt — Phase 1**
 
