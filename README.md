@@ -97,26 +97,24 @@ imply scale qualification or production readiness.
 
 NATS migration status on 10 October 2026:
 
-- Phases 0–4 are complete within their recorded evidence bounds. Phase 5 has
-  moved all four Geodata work kinds to `MYOTA_GEODATA_WORK`, applied migration
-  021, and deployed the retry-safe partial-cascade recovery fix. Helm revision
-  189 is deployed; Fleet reports Ready=True with 60/60 resources.
-- The four target durables and worker subscriptions are live and empty; no
-  production Geodata work was available to process. The four old Geodata
-  durable definitions remain inactive until the rollback observation ends no
-  earlier than 20:58:36 UTC on 11 October 2026.
-- Geodata (154 tests), Activity (40 tests), and relay/topology (25 tests)
-  passed locally, with one optional skip in each service suite. The disposable
-  two-database Activity/Geodata retry test completed after NAK/redelivery and
-  produced exactly one Activity cascade fact. Activity's idempotency source fix
-  is committed and mirrored but its image is not yet deployed. The acknowledged
-  cancellation race and expiry-to-completion chains passed. Final durable
-  retirement and the rollback window remain open; the isolated test namespace
-  was cleaned up.
-- Keep PostgreSQL work rows, outbox, dead letters, and migration 021 recovery
-  columns/indexes. The shared `MYOTA_EVENTS` stream remains file-backed with
-  Interest retention; off-node recovery remains deferred.
-
+- Phases 0–4 are complete within their recorded evidence bounds. Phase 5
+  routes all four Geodata work kinds to `MYOTA_GEODATA_WORK`, applied
+  migration 021 and deployed the Activity idempotency fix. Helm 191 is deployed;
+  Fleet reports Ready=True at commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources.
+- First-party runtime/workers use immutable digest references; live pod refs
+  and ImageIDs match configured pins. A mutable-tag gap discovered in Phase 5
+  was fixed and verified.
+- Target Geodata durables are empty with live waiting workers. Four old
+  Geodata durables remain inactive and empty during the rollback observation,
+  ending no earlier than 21:28:41 UTC on 11 October 2026. No accepted production work was available.
+- Isolated Geodata, Activity, and relay/topology suites passed (154, 40 and 25
+  tests; one optional skip in each service suite). Two-database retry,
+  cancellation and expiry/recompletion passed; the isolated namespace and
+  test data were removed.
+- Keep migration 021, work rows, outbox, dead letters and recovery indexes.
+  No Phase 5 database object is obsolete. `MYOTA_EVENTS` remains file-backed
+  with Interest retention; Phase 6 will address its retention transition.
+  Off-node recovery remains deferred.
 
 See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
