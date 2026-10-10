@@ -97,17 +97,22 @@ imply scale qualification or production readiness.
 
 NATS migration status on 10 October 2026:
 
-- Phases 0–4 are complete within the recorded evidence bounds. Phase 4's six
-  Activity work routes, transactional outbox, leases/retries, dead letters,
-  audited redrive, and production cutover are complete.
-- The production Activity WorkQueue and six durables are live. The retired
-  claim index is absent, the synthetic notification jobs are purged, and the
-  compatibility repair is disabled. The production backlog was zero at
-  cutover, so no real Activity job execution is claimed; all six types passed
-  isolated PostgreSQL/JetStream processing qualification.
-- The shared `MYOTA_EVENTS` stream remains file-backed with Interest retention;
-  four Geodata work durables are unchanged. Off-node recovery remains deferred
-  for the single-node scope.
+- Phases 0–4 are complete within their recorded evidence bounds. Phase 5 has
+  moved the four Geodata work kinds to `MYOTA_GEODATA_WORK`, applied migration
+  021, and deployed the retry-safe partial-cascade recovery fix.
+- The four target durables and worker subscriptions are live and empty; no
+  production Geodata work was available to process. The old Geodata durable
+  definitions remain inactive for the 24-hour rollback window. Fleet still
+  reported `WaitApplied` during the latest reconciliation.
+- The isolated Geodata suite passed 154 tests (one optional process setup
+  skipped); 25 relay/topology tests passed. Database refusal/reconnect,
+  same-node NATS PVC restart, and focused partial-cascade recovery passed.
+  Two-database cross-service, cancellation-race, expiry-to-completion, and
+  final legacy durable retirement remain open.
+- Keep PostgreSQL work rows, outbox, dead letters, and migration 021 recovery
+  columns/indexes. The shared `MYOTA_EVENTS` stream remains file-backed with
+  Interest retention; off-node recovery remains deferred.
+
 
 See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
