@@ -106,10 +106,12 @@ authorize broader changes. Keep replica counts unchanged outside an explicitly
 approved rollout until Phase 5 capacity/failure gates pass. See the
 [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
 
-For broker troubleshooting use the authenticated admin `/jetstream` page or
-the [status/history API and runbook](messaging/jetstream-admin-status.md). Samples are
-persisted by the operations service in `myota_core`; history does not depend
-on a browser session or geodata pod cache.
+For broker troubleshooting, the authenticated Admin `/jetstream` page and
+[status/history API](messaging/jetstream-admin-status.md) are the current
+legacy path. Their planned replacement and retirement gates are in the
+[NATS Surveyor consolidation plan](../observability/nats-surveyor-migration.md).
+Samples currently persist in `myota_core`; history does not depend on a browser
+session or Geodata pod cache.
 
 Import history is durable and should be used as the operational source for
 file visibility and processing status. The HTTP API only accepts durable work;
@@ -303,11 +305,13 @@ import queue age/heartbeat, feature/attempt totals, and unpublished geodata
 outbox depth/age. Application metrics use bounded service/route/method/status
 labels and do not label series with entity IDs, import IDs, or filenames.
 
-The separate **MyOTA JetStream backlog and PostGIS query performance**
-dashboard shows broker-reported consumer pending/ack-pending counts,
-redeliveries, oldest outstanding message age and age-lookup availability, plus
-PostGIS query-time percentiles and slow-query rate. These are distinct from
-outbox rows waiting to publish and database import queue state. The
+The current **MyOTA JetStream backlog and PostGIS query performance** dashboard
+shows broker-reported consumer pending/ack-pending counts, redeliveries, oldest
+outstanding message age and age-lookup availability, plus PostGIS query-time
+percentiles and slow-query rate. These are distinct from outbox rows waiting
+to publish and database import queue state. The Surveyor migration will replace
+the broker panels/dashboard while preserving the PostGIS panels; see the
+[consolidation plan](../observability/nats-surveyor-migration.md). The
 [`geodata load and query-evidence runbook`](../geodata/evidence/load-test-and-query-evidence.md)
 documents profile safety, cleanup, metrics, and read-only query-plan capture.
 
