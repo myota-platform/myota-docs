@@ -166,12 +166,14 @@ configure a system account; monitoring access needs a compatibility review
 before deployment.
 
 **Next:** qualify pinned Surveyor metrics, least-privilege system monitoring
-access, compatibility of the complete dashboard set, and PostGIS panel
-relocation. Deploy internally, compare Surveyor and Grafana directly with read-only broker
+access, compatibility of the complete dashboard set, and confirmation that the
+two obsolete PostGIS panels are absent from all dashboard assets. Deploy internally, compare Surveyor and Grafana directly with read-only broker
 metadata, then retire the Admin page, duplicate broker pollers, combined MyOTA
 JetStream backlog/PostGIS dashboard, and history table/index through a forward
-migration. Preserve Operations SeaweedFS functionality and app-level
-outbox/worker telemetry.
+migration. The two PostGIS panels from the combined dashboard are not needed
+and must not be migrated or recreated. Preserve Operations SeaweedFS
+functionality, Geodata service instrumentation, and app-level outbox/worker
+telemetry.
 
 See [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md),
 [observability overview](../observability/overview.md), and the
