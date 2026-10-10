@@ -26,7 +26,11 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   - **Phase 5 remaining gates:** Keep the four legacy Geodata durables through
     21:39:22 UTC on 11 October 2026. Recheck Fleet, stream filters/counters and database recovery;
     then remove only those four old durables. The observation and retirement
-    remain open. The isolated namespace/PVC, API process, port-forwards, test
+    remain open. At 21:52 UTC, a read-only broker sample found both streams
+    healthy with zero work messages; all four old durables had zero pending,
+    ack-pending and redelivery. This early sample is not the full observation.
+    The post-gate checks and one-at-a-time retirement procedure are in the
+    evidence page. The isolated namespace/PVC, API process, port-forwards, test
     fixtures and private streams are deleted. Preserve migration 021 and all
     authoritative work/outbox/history records.
   - **References:** [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
