@@ -153,7 +153,7 @@ Current `myota-deploy/services/outbox_worker.py` still creates/updates `MYOTA_EV
 | Ten work contracts | Design policy selected. | Complete each producer’s transaction/idempotency/recovery evidence and payload-size test. |
 | Credentials | Role model and permission boundaries selected. | Supply secret material out of band; implement NATS auth/TLS, mount files, and prove allow/deny behavior per client role. |
 | Capacity | Initial finite limits proposed against the 8 GiB PVC. | Full representative baseline, serialized NATS sizing, alerts, pressure/recovery test, and operator approval of final values. |
-| Restore/replay | Recovery policy selected. | Create off-node backup and complete isolated loss/restore/replay qualification. |
+| Restore/replay | Recovery policy selected; basic isolated snapshot/restore and replay passed. | Off-node backup, PVC-loss recovery, database reconciliation, and production-like qualification remain open. |
 | Relay provisioning | Single deployment owner and create-only model selected. | Add chart-run provisioning/readiness, remove mutation from relays at safe compatibility cutover, and prove no publish precedes preflight. |
 
 ### Exact source evidence
@@ -173,3 +173,24 @@ Phase 1 is not complete. The remaining exit criteria are checked implementation 
 - [JetStream concepts](https://docs.nats.io/concepts/jetstream) describes stream and consumer persistence and replay. Replay is per consumer, so validation uses an isolated durable.
 - [NATS TLS and authentication](https://docs.nats.io/learn/resilient-clients/tls-and-auth) covers client connection security and supported credentials.
 - [JetStream stream API](https://docs.nats.io/reference/jetstream-api/stream) documents snapshot and restore operations. The planned drill includes consumer state verification and application database comparison because a broker snapshot does not make PostgreSQL state or the whole service system recoverable.
+
+
+## 10 October 2026 — disposable restore and replay drill
+
+A disposable namespace on the host K3s cluster ran two clean NATS 2.10
+JetStream servers. The NATS CLI v0.2.3 created a finite Limits stream, published
+three synthetic messages, and created a pull durable. After acknowledging
+sequence 1 and leaving sequences 2–3 pending, a stream backup was restored to
+the second server. The restored stream contained all three messages and the
+durable preserved its acknowledged position with two unprocessed messages.
+The durable then consumed and acknowledged those two messages. A new isolated
+durable with DeliverPolicy.ALL replayed all three restored messages, including
+sequence 1. The restored stream's message 1 was also read directly by sequence.
+The test therefore verified the basic snapshot data, consumer-state restore,
+resume, and independent bounded replay behavior.
+
+The test created no application/database data and did not connect to the
+production NATS service. The temporary namespace was deleted and verified
+absent; the CLI binary and snapshot were removed from /tmp. This was a same-host
+isolated drill, not an off-node backup, PVC-loss test, database reconciliation,
+authenticated-ACL test, or production recovery qualification.
