@@ -122,20 +122,19 @@ and 30 days. These are harness inputs only, not selected production limits.
 `myota-contracts/contracts/event-registry.json` now records repository-relative
 source paths for all 68 registered fact types. The new
 `myota-contracts/scripts/audit_workspace_event_sources.py` verified each path
-against the literal event type in its owner source file, then scanned the five
-authoritative Identity, Programme, Activity, Geodata, and Operations repositories
-for event-like literals without a disposition. Result: 68 facts verified, all six
+against the literal event type in its owner source file, then scanned Python source
+in the five authoritative Identity, Programme, Activity, Geodata, and Operations
+repositories for event-like literals without a disposition. Result: 68 facts verified, all six
 legacy Geodata work source types mapped in the work registry, and no
-undispositioned source literals. The two recovery event types are sourced from
+undispositioned Python event-like source literals. The two recovery event types are sourced from
 `myota-geodata-service/migrations/015_jetstream_worker_dispatch.sql` and its
 synchronized deploy migration. This audit establishes source coverage, not complete
 payload schemas or runtime enforcement.
 
 The contracts-owned CI workflow now checks out all five producer repositories and
 runs this audit. [Contract CI run 38033202206](https://github.com/myota-platform/myota-contracts/actions/runs/38033202206)
-passed; its log reports 68 verified facts, six legacy source types classified, and
-no undispositioned event-like literals. The platform mirror commit `038cd90` passed
-tests, Ruff, and its container check. Locally, two registry tests, Ruff, workflow
+passed; its log reports 68 verified facts, six legacy source types classified, and no undispositioned Python event-like literals. The platform mirror commit
+`038cd90` passed tests, Ruff, and its container check. Locally, two registry tests, Ruff, workflow
 YAML parsing, and mirror equality checks passed. The registry
 was synchronized with `scripts/sync_contract_mirrors.py`; no producer, consumer, or
 live stream changed.

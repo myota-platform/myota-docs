@@ -361,9 +361,9 @@ The machine-readable registry currently covers 68 domain facts and ten selected
 work commands. The six current Geodata work/recovery event types map to four
 target commands. `myota-contracts/contracts/event-registry.json` now records exact
 producer source paths for all 68 facts. Its workspace audit checks those references
-and classifies event-like source literals as a fact or mapped legacy work type;
-the 10 October audit found no unclassified literals across the five service
-repositories; the contracts CI audit passed on main. Envelope wrappers exist, but
+and classifies Python event-like source literals as a fact or mapped legacy work
+type; the 10 October audit found no unclassified Python literals across the five
+service repositories; the contracts CI audit passed on main. Envelope wrappers exist, but
 event payload fields remain pending
 source-payload review; do not treat this draft registry as complete enforcement.
 The deploy-owned provisioner now fixes and validates pull delivery mode, explicit

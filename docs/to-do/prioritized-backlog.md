@@ -69,8 +69,8 @@ separate `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` WorkQueue streams. Phase
 1 has started: the contracts repo lists 68 facts and ten work commands and has
 outer-envelope schemas; a create-only provisioner validates finite limits and
 configuration drift. The registry now maps all 68 facts to producer source files;
-a workspace audit found no undispositioned event-like literals across five service
-repositories. The contracts source-audit workflow passed; platform unit tests and
+a workspace audit found no undispositioned Python event-like literals across
+five service repositories. The contracts source-audit workflow passed; platform unit tests and
 Ruff format/lint CI pass. The expanded consumer configuration also passes four
 focused tests and an isolated create/idempotency run against a disposable broker.
 Earlier platform image-build attempts timed out at Docker Hub; the latest deploy

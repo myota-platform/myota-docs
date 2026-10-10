@@ -7,8 +7,8 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
 
 - Added exact producer source references for all 68 fact types to the
   contracts-owned event registry and a workspace audit that verifies those
-  references and rejects undispositioned event-like literals. The audit covered
-  five authoritative service repositories and found all six legacy Geodata work
+  references and rejects undispositioned Python event-like literals. The audit
+  covered five authoritative service repositories and found all six legacy Geodata work
   event types classified by the registry. Contract CI checks out those repositories
   and runs the audit; [run 38033202206](https://github.com/myota-platform/myota-contracts/actions/runs/38033202206) passed.
 - Synchronized the registry to the platform mirror. Commit `038cd90` passed tests,
