@@ -2,28 +2,31 @@
 
 ## Status
 
-Phase 5 is in production cutover and qualification. Helm revision 187 applied the
-Geodata WorkQueue route and the new immutable Geodata/runtime image digests. All
-four Geodata workers now subscribe to their target subjects in
-`MYOTA_GEODATA_WORK`; migration 021 is installed and the recovery columns and
-indexes are present. The previous production route remains provisioned but
+Phase 5 is in production cutover and qualification. Helm revision 189 is
+deployed. Fleet reports `Ready=True` at commit
+`bbb3276296c8fa86941315b582caa76e178bd94f`, with 60/60 resources ready.
+The file-backed Geodata WorkQueue route, four target subscriptions, and
+migration 021 are live; the former production route remains provisioned but
 inactive and empty for rollback.
 
-The follow-up partial-cascade recovery fix is now in the deployed Geodata image.
-A failure after the Activity cascade no longer becomes a terminal Geodata failure
-that is ACKed: the handler persists an expired processing lease and rethrows so
-JetStream retries; the database repair scanner can reconstruct the command
-after its age bound. The isolated test covers Activity success followed by a
-Geodata-side failure and a successful retry. A full cross-service test using two
-disposable databases and both real service handlers remains open.
+The deployed Geodata image contains the partial-cascade recovery fix. A failure
+after the Activity cascade leaves an expired processing lease and rethrows so
+JetStream retries; the bounded database repair scanner can reconstruct the
+command after its age bound. A disposable two-database test now uses the real
+Activity API/database, Geodata handler/database, and private JetStream stream.
+An injected Geodata-side failure after Activity commits is NAKed; redelivery
+completes deletion, with exactly one Activity cascade outbox fact and no
+remaining stream message or pending delivery. This test exposed that Activity
+was not persisting the request `Idempotency-Key`; that source bug is fixed and
+committed, but its new image has not yet been published/deployed.
 
-The latest rollout began at 20:55:08 UTC on 10 October. Keep the four legacy
-Geodata durables through the 24-hour rollback observation, ending no earlier
-than 20:55:08 UTC on 11 October. Remove only those four obsolete durable
-consumers after confirming the target route, database recovery and no legacy
-backlog. Do not remove the shared `MYOTA_EVENTS` stream, its Activity
-notification consumer, Geodata source tables, work rows, outbox or recovery
-columns/indexes.
+The Geodata rollback observation began at 20:58:36 UTC on 10 October, when Helm
+revision 189 became deployed. Keep the four legacy Geodata durables through
+24 hours, ending no earlier than 20:58:36 UTC on 11 October. Remove only those
+four durable consumers after confirming the target route, database recovery,
+Fleet readiness, and no legacy backlog. Do not remove the shared
+`MYOTA_EVENTS` stream, its Activity notification consumer, Geodata source
+tables, work rows, outbox or recovery columns/indexes.
 
 ## Ownership and boundaries
 
@@ -43,15 +46,15 @@ columns/indexes.
 
 | Component | Observed state |
 |---|---|
-| Helm/Fleet | Helm revision 187; migration and JetStream provisioner jobs completed. All application pods became ready on the pinned image digests. Fleet was still reporting `WaitApplied` while the reconciliation completed. |
-| Geodata API/worker image | `ghcr.io/myota-platform/myota-geodata-service@sha256:c6f5dee746579469ba827a4af78741acbe5d25e825471c84c95ec5574e6e2aee`. The source commit's immutable tag and `latest` resolved to this same digest. |
-| Shared runtime image | `ghcr.io/myota-platform/myota-service@sha256:1f4002619cee64d9d05f06b96c93d348df5ae725806d08da383d74e0c84c91e8`. The deploy commit tag and `latest` resolved to this same digest. |
+| Helm/Fleet | Helm revision 189 is deployed. Fleet `Ready=True` at deploy commit `bbb3276296c8fa86941315b582caa76e178bd94f`; 60/60 resources ready at inspection. |
+| Geodata API/worker image | `ghcr.io/myota-platform/myota-geodata-service@sha256:c6f5dee746579469ba827a4af78741acbe5d25e825471c84c95ec5574e6e2aee`; live pods match this digest. |
+| Shared runtime image | `ghcr.io/myota-platform/myota-service@sha256:1f4002619cee64d9d05f06b96c93d348df5ae725806d08da383d74e0c84c91e8`; live outbox pods match this digest. |
 | `MYOTA_EVENTS` | File storage, Interest retention, zero messages. Activity's notification durable remains live. Four old Geodata durable definitions remain for the rollback window with zero pending, ack-pending and redelivery counts. |
 | `MYOTA_GEODATA_WORK` | File storage, one replica, WorkQueue retention, configured finite 30-day/3-GiB/500k-message/1-MiB limits, zero messages. |
 | Replacement consumers | Exact pull filters: `geodata-preprocessing-v1` → `myota.work.geodata.import-preprocess.v1`; `geodata-import-promotion-v1` → `myota.work.geodata.import-promotion.v1`; `geodata-entity-deletion-v1` → `myota.work.geodata.entity-delete.v1`; `geodata-location-enrichment-v1` → `myota.work.geodata.location-enrichment.v1`. All use explicit ACK, bounded pending and configured retry limits (100 deliveries, except location enrichment at 8). All four had zero pending, ack-pending and redelivered messages at inspection. |
 | Worker subscriptions | Live logs show all four replacement subjects. The workers no longer subscribe to the legacy Geodata work subjects. |
 | Database migration | Migration job 187 completed. Read-only inspection found `work_dispatched_at` on `import_run`, `geodata_import_processing_queue`, and `geodata_entity`, plus `import_run_work_recovery_idx`, `import_queue_work_recovery_idx`, and `geodata_location_work_recovery_idx`. Active queued/processing rows without dispatch timestamps: zero. |
-| Production domain work | No accepted Geodata work was available for a production processing test. No production row, outbox record, message, or dead letter was created, redriven, resolved, or deleted during this qualification. Six historical DLQs map to cancelled imports and remain untouched. |
+| Activity API image | Live Activity API/worker pods still use `ghcr.io/myota-platform/myota-activity-service@sha256:f46c10c286ed82c15bed37dc84f9152a782403198ae0332c8cf04bf75067b023`. The new Activity idempotency fix is source-committed but is not yet present in this deployed image. |\n| Production domain work | No accepted Geodata work was available for a production processing test. No production row, outbox record, message, or dead letter was created, redriven, resolved, or deleted. Six historical DLQs map to cancelled imports and remain untouched. |
 
 ## Changes and source commits
 
@@ -68,11 +71,17 @@ columns/indexes.
 - Platform digest mirror: `myota-platform` commit
   [`c8137fd`](https://github.com/myota-platform/myota-platform/commit/c8137fd5310ed904611aa2394a074e75234bbd3a).
 
-The corresponding source tag and registry digest were verified before updating
-the Deploy pin. The values file is byte-identical in Deploy and Platform.
-Runtime migrations are additive; no unused Phase 5 database object was
-identified for retirement. The recovery columns and indexes are required by
-the live repair worker and must remain.
+The source tag/digest and values mirrors were verified before the Deploy pin.
+No unused Phase 5 database object was identified for retirement. Migration
+021's dispatch columns and indexes remain required by the live repair worker.
+Activity cascade retry idempotency is committed in the authoritative
+`myota-activity-service` repository and synchronized to `myota-deploy` and
+`myota-platform`: handler `cdea2ba`, repository transaction
+`d364932`, regression test `6448fc2`; mirror commits are
+`b76f825`/`259e2a7`/`84764e9` in Deploy and
+`6dbab48`/`9953b00` in Platform. GitHub combined status queries returned no
+status contexts for these Activity commits, so CI and image publication still
+need confirmation.
 
 ## Focused verification
 
@@ -82,7 +91,7 @@ the live repair worker and must remain.
 | Geodata lint/format | Pass | Ruff check and format check on `geodata.py`, `tests/test_geometry.py`, and `tests/test_jetstream_worker_delivery.py`. |
 | Deploy relay/topology | Pass | 25 tests in `test_outbox_contracts` and `test_jetstream_topology`; Ruff and formatting passed on the mirrored deletion handler. |
 | Database connection failure | Pass | In the disposable host-K3s test database, the first handler connection was refused on local test port 1; JetStream NAKed and redelivered the message, the next database connection succeeded, and the durable settled at zero pending and ack-pending. No false ACK occurred. |
-| Partial Activity/Geodata deletion | Pass, focused unit test | Activity cascade success was followed by an injected Geodata-side failure; the work remained retryable, and a subsequent delivery completed. It does not yet prove two real service/database instances end to end. |
+| Activity cascade idempotency propagation | Pass | Activity's HTTP handler forwards `Idempotency-Key` into its durable repository; the repository serializes concurrent keys with a transaction advisory lock and stores the response atomically with the cascade fact. Activity's 40-test suite passed (one optional JetStream broker test skipped); Ruff and formatting checks passed. |\n| Two-database cascade/JetStream retry | Pass, isolated host-K3s | Real Activity API and Activity PostgreSQL plus Geodata handler and PostGIS ran with a private file-backed WorkQueue and durable pull consumer. Injected Geodata failure after Activity commit produced NAK/redelivery; completion removed the entity, wrote exactly one `activity.entity.cascade-deleted.v1` outbox row, and left zero stream messages, pending messages or ack-pending messages. Disposable fixture rows, idempotency entry, event row and private stream were removed. |
 | Duplicate/lost ACK and commit boundary | Pass, isolated | Existing JetStream integration confirms redelivery after commit is idempotent and ACK follows durable state. |
 | Long handler/ACK wait | Pass, isolated | Heartbeat test held a handler beyond its configured ACK wait without redelivery. |
 | Stale-row repair | Pass, database-backed | Each of preprocessing, promotion, deletion and location work was recreated once through the outbox; an immediate second scan emitted no duplicate. Recovery batch size is 50 and minimum work age is 300 seconds. |
@@ -90,23 +99,24 @@ the live repair worker and must remain.
 | Durable recreation | Pass, isolated | An unacked command survived consumer recreation and was ACKed after redelivery. |
 | Broker restart/restore | Pass, isolated, same node only | A file-backed WorkQueue message and durable state survived a NATS Pod restart using the same PVC, then were ACKed. Off-node restore is out of scope. The test-only namespace contains no production data. |
 | Production route/schema | Pass, read-only | Four live worker logs use target subjects; exact target durables and migration 021 markers were inspected; both streams had zero messages. Production processing was not claimed because there was no accepted work. |
-| GitHub Actions status | Not recorded | The GitHub connector returned no combined status contexts for the direct-main commits. Local tests and live image/digest checks are recorded; confirm repository Actions checks before final phase closure. |
+| GitHub Actions and Activity image | Open | GitHub combined-status queries returned no contexts for Activity source commits. The Activity container still runs its previous digest; verify CI, published image, immutable digest pin, and production rollout before closing. |
 
 ## Remaining gates
 
-1. Complete the full 24-hour rollback observation after the latest rollout. Then
-   recheck zero legacy pending/ack-pending/redelivered messages, exact replacement
-   filters, migration markers, outbox/row recovery age, and Fleet readiness.
+1. Complete the 24-hour Geodata rollback observation after Helm revision 189.
+   Recheck zero legacy pending/ack-pending/redelivered messages, exact replacement
+   filters, migration markers, owner-row recovery age and Fleet readiness. Do
+   not retire a durable before 20:58:36 UTC on 11 October 2026.
 2. Remove only the four legacy Geodata durable consumers from `MYOTA_EVENTS`
-   after the observation and the safe rollback check. Preserve Activity's
+   after the observation and safe rollback check. Preserve Activity's
    notification durable and the shared stream.
-3. Run a disposable two-database cross-service test of Activity cascade success,
-   Geodata failure, JetStream retry/database repair, and final completion. Include
-   cancellation racing with a real acknowledged delivery and connect message
-   expiry to successful owner-row reconstruction and completion.
-4. Record successful GitHub Actions checks for the two service commits, deploy
-   image and mirrored values commit, then confirm their source links remain valid.
-5. Refresh Phase 5 plan checkboxes and report cleanup after all gates pass.
+3. Qualify a cancellation racing with a real acknowledged delivery and connect
+   message expiry to owner-row reconstruction and successful completion.
+4. Confirm GitHub Actions for Activity commits, publish the corrected Activity
+   image, pin its immutable digest, and confirm the production rollout/Fleet
+   readiness. Keep the direct-main source and mirror commits linked.
+5. Recheck and update all Phase 5 plan/docs checkboxes and clean the isolated
+   K3s validation namespace after the remaining cases.
 
 ## Schema retirement and cleanup
 
@@ -115,7 +125,9 @@ columns/indexes and the outbox, source jobs, cancellation/history records,
 checkpoints, and dead letters; these are the durable recovery boundary. Do not
 purge the six historical cancelled-import dead letters.
 
-The isolated namespace `myota-phase5-validation` currently contains only NATS
-and PostGIS test services. Remove the namespace, test PVC, and local port
-forwards after the remaining isolated cross-service checks. No production test
-data was created.
+The isolated namespace `myota-phase5-validation` currently contains its
+disposable NATS, Geodata PostGIS, and Activity PostgreSQL services. A local
+Activity API process and port-forwards support the cross-service test. The test
+fixtures and private JetStream stream have been removed; shut down the local
+process/forwards and delete the namespace/PVC after remaining isolated checks.
+No production data was used or modified.
