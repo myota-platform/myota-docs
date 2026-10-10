@@ -3,6 +3,18 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 10 October 2026 — NATS Phase 1 producer source audit
+
+- Added exact producer source references for all 68 fact types to the
+  contracts-owned event registry and a workspace audit that verifies those
+  references and rejects undispositioned event-like literals. The audit covered
+  five authoritative service repositories and found all six legacy Geodata work
+  event types classified by the registry. Contract CI now checks out those
+  repositories and runs the audit.
+- Synchronized the registry to the platform mirror. Two registry tests, Ruff, and
+  local source audit passed. Payload schemas remain incomplete; no runtime paths
+  or deployed topology changed. See the [Phase 1 evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+
 ## 10 October 2026 — NATS Phase 1 durable configuration validation
 
 - Hardened the deploy-owned JetStream provisioner to pin and verify explicit ACK,

@@ -117,5 +117,25 @@ executor, so Compose-based tests were unavailable. Test-only finite values were
 per command for each work stream; Activity and Geodata test max ages were seven
 and 30 days. These are harness inputs only, not selected production limits.
 
-The exact Phase 1 prompt used is the copyable
+## 10 October 2026 — producer source audit
+
+`myota-contracts/contracts/event-registry.json` now records repository-relative
+source paths for all 68 registered fact types. The new
+`myota-contracts/scripts/audit_workspace_event_sources.py` verified each path
+against the literal event type in its owner source file, then scanned the five
+authoritative Identity, Programme, Activity, Geodata, and Operations repositories
+for event-like literals without a disposition. Result: 68 facts verified, all six
+legacy Geodata work source types mapped in the work registry, and no
+undispositioned source literals. The two recovery event types are sourced from
+`myota-geodata-service/migrations/015_jetstream_worker_dispatch.sql` and its
+synchronized deploy migration. This audit establishes source coverage, not complete
+payload schemas or runtime enforcement.
+
+The contracts-owned CI workflow now checks out all five producer repositories and
+runs this audit. Locally, the audit passed; two contract registry tests, Ruff format
+and lint, workflow YAML parsing, and mirror equality checks passed. The registry
+was synchronized with `scripts/sync_contract_mirrors.py`; no producer, consumer, or
+live stream changed.
+
+The exact Phase 1 prompt used remains the copyable
 [Phase 1 prompt in the migration plan](../nats-event-migration-plan.md#chatgpt-prompt--phase-1).

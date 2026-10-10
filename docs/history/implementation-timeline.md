@@ -57,9 +57,11 @@ describe current ownership and are authoritative for the present-day system.
   deploy gateway/service image builds, platform tests, container build, and publish.
   See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)
   and [platform checks](https://github.com/myota-platform/myota-platform/commit/b047a00e15ecc619e3589fffee37a1aa779ff59a/checks). This follow-up did not change
-  a live stream or producer/consumer runtime path.
+  a live stream or producer/consumer runtime path. The same Phase 1 prompt
+  remained in use for the source audit follow-up below.
 
-**Prompt used** (the copyable Phase 1 prompt in the plan):
+**Prompt used** (the single copyable Phase 1 prompt in the plan; retained for the
+10 October follow-up audit):
 
 ```text
 Implement the selected Phase 1 NATS contract and topology decisions recorded in

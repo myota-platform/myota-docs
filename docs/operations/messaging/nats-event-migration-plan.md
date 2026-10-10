@@ -359,12 +359,17 @@ container build, and publish ([deploy checks](https://github.com/myota-platform/
 
 The machine-readable registry currently covers 68 domain facts and ten selected
 work commands. The six current Geodata work/recovery event types map to four
-target commands. Envelope wrappers exist, but event payload fields remain pending
-repository evidence review; do not treat this draft registry as complete enforcement.
+target commands. `myota-contracts/contracts/event-registry.json` now records exact
+producer source paths for all 68 facts. Its workspace audit checks those references
+and classifies event-like source literals as a fact or mapped legacy work type;
+the 10 October audit found no unclassified literals across the five service
+repositories. Envelope wrappers exist, but event payload fields remain pending
+source-payload review; do not treat this draft registry as complete enforcement.
 The deploy-owned provisioner now fixes and validates pull delivery mode, explicit
 ACK, replay policy, retry limits, pending and waiting-pull bounds, consumer replicas,
 and full-payload delivery. The same source is synchronized to the platform mirror and has passed the
-disposable-broker idempotency check.
+disposable-broker idempotency check. Contract CI now checks out the five service
+repositories and runs the workspace event-source audit.
 
 **Exit criteria**
 

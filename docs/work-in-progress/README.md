@@ -10,7 +10,9 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   commands; a create-only, drift-checking provisioner requires explicit finite
   limits and validates delivery, replay, waiting-pull, and consumer state settings.
   Four focused tests and Ruff format/lint pass in deploy and its platform mirror;
-  isolated JetStream provisioning and its idempotent rerun pass. Earlier platform
+  isolated JetStream provisioning and its idempotent rerun pass. The registry maps
+  all 68 fact types to source files, and its workspace audit found no
+  undispositioned event-like source literals across five service repositories. Earlier platform
   image-build attempts timed out at Docker Hub; the latest deploy and platform
   main-branch image build/publish checks now pass. Per-event payload contracts, authenticated least-privilege NATS roles, measured capacity limits,
   restore/replay test, and removal of relay-side provisioning remain open. The
