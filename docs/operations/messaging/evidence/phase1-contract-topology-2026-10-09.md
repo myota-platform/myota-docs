@@ -216,6 +216,9 @@ remain open in the schema where the producer permits caller-defined structures.
 No runtime producer/consumer code or deployed topology changed. Joint owner and
 privacy review remains required.
 
-The contracts schema unit tests, registry generation, workspace source audit,
-format/lint checks, mirror sync, and CI result are recorded after this entry is
-verified on the merged main commit.
+Local verification passed: registry/schema tests 2/2; schema generation; source
+audit for 68 facts and six legacy work types with no undispositioned literals;
+Ruff lint/format; and byte-for-byte registry/schema/event-doc mirror checks.
+Contracts commit `95eae9a` and platform mirror commit `cb6ea76` are on `main`. The
+GitHub connector returned no combined status checks for these commits, so Actions
+results remain unverified. Runtime behavior and deployed topology did not change.
