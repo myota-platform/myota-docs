@@ -2,12 +2,14 @@
 
 ## Status
 
-Phase 5 production cutover is healthy and its image deployment is now digest
-immutable. Helm revision 191 completed at 21:28:41 UTC on 10 October. Fleet
-reports `Ready=True` at deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109`; its MyOTA
-BundleDeployment reports 60/60 resources Ready. Activity, Geodata and shared
-runtime pods reference their configured digests directly, and live pod
-ImageIDs match. The Activity idempotency fix is live.
+Phase 5 production cutover is healthy and its image deployment is digest
+immutable. Helm revision 192 completed at 21:39:22 UTC on 10 October. Fleet
+reports `Ready=True` at deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a`; its MyOTA BundleDeployment
+reports 60/60 resources Ready. Activity, Geodata and shared runtime pods
+reference their configured digests directly, and live pod ImageIDs match. The
+Activity idempotency fix is live. Revision 192 restarted pods with the same
+configured image digests as revision 191 and is the current rollback-observation
+anchor.
 
 The production route uses the file-backed `MYOTA_GEODATA_WORK` WorkQueue with
 four target durables. All four target durables are empty with one active pull
@@ -22,9 +24,9 @@ container references still used mutable `:latest` tags. Deploy now uses
 Platform mirrors this source. The corrected chart was applied at Helm revision
 191 and the live images now match the pins.
 
-The 24-hour rollback observation now starts from the completed immutable-image
-rollout at 21:28:41 UTC on 10 October and ends no earlier than
-21:28:41 UTC on 11 October. Keep all four old durables until the final
+The 24-hour rollback observation starts from the latest completed rollout,
+revision 192, at 21:39:22 UTC on 10 October and ends no earlier than
+21:39:22 UTC on 11 October. Keep all four old durables until the final
 topology, backlog, recovery and Fleet checks, then retire only those four. Keep
 Activity's notification durable, `MYOTA_EVENTS`, PostgreSQL source/job/outbox
 records, recovery columns/indexes and historical DLQs.
@@ -45,7 +47,7 @@ records, recovery columns/indexes and historical DLQs.
 
 | Component | Observed state |
 |---|---|
-| Helm/Fleet | Helm revision 191 is deployed. Fleet GitRepo `myota-deploy` is `Ready=True` at deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109`; the MyOTA BundleDeployment reports 60/60 resources Ready. |
+| Helm/Fleet | Helm revision 192 is deployed. Fleet GitRepo `myota-deploy` is `Ready=True` at deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a`; the MyOTA BundleDeployment reports 60/60 resources Ready. |
 | Activity API/worker/notification | Pod template image reference and live pod ImageID are `ghcr.io/myota-platform/myota-activity-service@sha256:f764bfe7193ba8166c84f3d6b063547f94fcc17b6c819aa597c617ed6c835261`. This image includes transactional `Idempotency-Key` handling. |
 | Geodata API/worker | Pod template image reference and live pod ImageID are `ghcr.io/myota-platform/myota-geodata-service@sha256:c6f5dee746579469ba827a4af78741acbe5d25e825471c84c95ec5574e6e2aee`; includes partial-cascade recovery. |
 | Shared runtime/outbox | Pod template image reference and live pod ImageID are `ghcr.io/myota-platform/myota-service@sha256:1f4002619cee64d9d05f06b96c93d348df5ae725806d08da383d74e0c84c91e8`. |
@@ -112,7 +114,7 @@ and mirrored to Platform at
 ## Remaining gates
 
 1. Keep the four legacy Geodata durables through the 24-hour rollback
-   observation, which ends no earlier than 21:28:41 UTC on 11 October 2026.
+   observation, which ends no earlier than 21:39:22 UTC on 11 October 2026.
    Recheck zero pending/ack-pending/redelivered, exact target filters, schema
    markers, owner-row recovery age and Fleet readiness.
 2. After those checks pass, retire only the four named legacy Geodata durables
