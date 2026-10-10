@@ -9,10 +9,11 @@
   Surveyor metrics before rollout; dashboard 16256 targets the built-in NATS
   Prometheus exporter.
 - Retire the existing `MyOTA JetStream backlog and PostGIS query performance`
-  dashboard after migrating and verifying its two PostGIS panels in Geodata.
-  The timed seven-day overlap was removed: direct broker/dashboard checks,
-  rollback readiness, and a verified pre-migration backup gate retirement.
-  No dashboard has been deployed or removed; this is a plan correction only.
+  dashboard after removing its two obsolete PostGIS panels from the Compose
+  and Helm dashboard assets. Do not migrate or recreate those panels. The timed
+  seven-day overlap was removed: direct broker/dashboard checks, rollback
+  readiness, and a verified pre-migration backup gate retirement. The combined
+  dashboard source remains; its live Grafana reload is not yet verified.
   See the [NATS monitoring roadmap](docs/observability/nats-surveyor-migration.md).
 
 ## 11 October 2026 — NATS Surveyor monitoring consolidation planned
