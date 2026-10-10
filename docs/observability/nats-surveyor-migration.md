@@ -291,8 +291,8 @@ Commit and push each repository directly to main with explicit messages.
 ## Acceptance reporting
 
 The implementation record must list every changed repository/path, pinned
-Surveyor image, NATS permissions and secret source, dashboard revision/query
-mapping, scrape/alert results, seven-day comparison, migration and backup
-evidence, removed legacy components, preserved app signals, test cleanup, and
-Fleet readiness. Do not mark this work complete from a successful Helm render
+Surveyor image, NATS permissions and secret source, dashboard revisions/query
+mapping, scrape/alert results, direct broker comparison and rollback evidence,
+forward migration and verified backup, removed legacy components, preserved app
+signals, test cleanup, and Fleet readiness. Do not mark this work complete from a successful Helm render
 alone.
