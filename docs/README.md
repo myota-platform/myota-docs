@@ -19,10 +19,10 @@ indexes organize open work by delivery status.
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
   Phase 0 and the delegated Phase 1 decision review are complete. The contracts
-  registry and create-only provisioner foundations are verified; auth/TLS,
-  final capacity, deployment readiness, runtime enforcement, and recovery
-  qualification remain open. A basic isolated snapshot/restore and replay drill
-  passed. See the [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
+  registry and create-only provisioner foundations are verified; cluster-internal
+  access is accepted without NATS auth/TLS. Final capacity, deployment readiness,
+  runtime enforcement, and recovery qualification remain open. A basic isolated
+  snapshot/restore and replay drill passed. See the [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
   [joint review](operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [recovery runbook](operations/messaging/jetstream-recovery.md),
   [Phase 1 evidence](operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
