@@ -80,8 +80,10 @@ work is implemented or verified as stated. Open checkboxes identify work still
 in progress or evidence gates not yet met; implementation completion does not
 imply scale qualification or production readiness.
 
-NATS migration status on 9 October 2026: Phase 0 is complete; Phase 1 contract
-and create-only provisioning preparation is in progress. The live broker remains
+NATS migration status on 10 October 2026: Phase 0 is complete; Phase 1 contract
+and create-only provisioning preparation is in progress. Source-derived payload
+schemas cover Identity, Programme, Activity, and Geodata; CI/owner review and
+Geodata preprocessing payload minimization remain open. The live broker remains
 on the existing Interest-retained topology. See the [Phase 1 evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
 and [current/target diagrams](docs/architecture/diagrams/nats-event-migration.md).
 
