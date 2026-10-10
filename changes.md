@@ -2,8 +2,8 @@
 
 ## 11 October 2026 — Phase 5 synthetic validation and observation reset
 
-- Automatic immutable-image digest update produced Helm revision 193. It
-  completed successfully at 22:00:02 UTC on 10 October; Fleet became
+- Automatic immutable-image digest update produced Helm revision 193. Helm history records it at 22:00:02 UTC on 10 October with status
+  deployed; Fleet became
   Ready=True at Deploy commit
   `cfecd655d9c0eee9d19db26725fb11c99366815a` at 22:03:29 UTC. All MyOTA
   Deployments are ready and the migration Job completed.
