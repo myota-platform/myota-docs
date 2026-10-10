@@ -60,40 +60,48 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Continue the NATS migration with Geodata work and fact-stream lifecycle
+### 2. Complete Phase 5 Geodata recovery and Phase 6 fact-stream lifecycle
 
 **Current evidence:** Phases 0–4 are complete within their recorded evidence
-bounds. Phase 4 production cutover deployed `MYOTA_ACTIVITY_WORK` and six exact
-durables, migrated the Activity schema, removed the obsolete claim index and
-synthetic notification jobs, and disabled the transitional repair scan. The
-production selected-job backlog was zero at cutover; isolated qualification
-processed all six registered command types. See the [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md).
+bounds. Phase 5 has moved the four Geodata work kinds to the dedicated
+`MYOTA_GEODATA_WORK` WorkQueue in production, deployed exact pull durables,
+applied migration 021, and shipped retry-safe partial-deletion handling.
+Isolated K3s checks passed the 154-test Geodata suite (one optional setup
+skipped), 25 relay/topology tests, database connection refusal/reconnect,
+same-node NATS PVC restart, and focused deletion retry coverage. No Geodata
+production work was available for processing. See the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
-The four Geodata work consumers still use their legacy routes. The shared
-`MYOTA_EVENTS` stream remains Interest-retained, and payload privacy/schema
-enforcement and its controlled retention transition remain open. Off-node
-recovery is deferred for the current single-node scope.
+The four prior Geodata durable definitions remain empty and inactive while the
+24-hour rollback observation runs. Fleet readiness was still `WaitApplied`
+during rollout reconciliation. Two-database partial-failure qualification,
+cancellation race, expiry-to-completion, final durable retirement, and the
+rollback window remain open. The shared `MYOTA_EVENTS` stream is still
+Interest-retained; Phase 6 will address its governed fact-stream transition.
+Off-node recovery remains deferred for the current single-node scope.
 
-**Why second:** these are the remaining accepted-work and fact-retention paths
-in the migration plan. Their recovery, payload purpose limitation, and
-stream lifecycle need their own gates; Activity's successful cutover does not
-qualify them.
+**Why second:** routing is cut over, but rollback retirement must wait for
+verified source-row recovery and the observation window. The cross-service
+deletion and replay chains need direct evidence before declaring the work path
+complete. Phase 6 remains separately gated and must not turn a work stream into
+an unbounded event archive.
 
-**Next:** follow Phase 5 to migrate Geodata work with source-owned IDs,
-idempotent handlers, bounded retries, and database-authoritative recovery.
-Then follow Phase 6 for shadow/canary validation and the controlled fact-stream
-retention transition. Preserve PostgreSQL authority, keep scheduled work on
-its owning scheduler/recovery path, and retain the accepted off-node recovery
-deferral unless that scope changes.
+**Next:** confirm Fleet Ready and the live image/schema/topology; run the
+disposable two-database Activity/Geodata cascade failure and cancellation-race
+scenarios; connect message expiry to owner-row reconstruction and successful
+processing; wait through the recorded rollback window; then recheck and remove
+only the four legacy Geodata durables. Keep migration 021, work rows, outbox
+history, checkpoints and dead letters because they remain the recovery/source
+boundary. Continue to Phase 6 only after Phase 5 exit evidence is complete.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
+[Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+[Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
 [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
 [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
 [Phase 3 consumer evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
 [Activity notification runbook](../operations/messaging/activity-notification-consumer.md),
-[JetStream operations status](../operations/messaging/jetstream-admin-status.md),
-[recovery runbook](../operations/messaging/jetstream-recovery.md), and
-[award designer delivery evidence](../domain/awards/evidence/programme-awards-2026-10-09.md).
+[JetStream operations status](../operations/messaging/jetstream-admin-status.md), and
+[recovery runbook](../operations/messaging/jetstream-recovery.md).
 
 ### 3. Establish programme governance, jurisdiction, and eligibility controls
 
