@@ -21,11 +21,15 @@ indexes organize open work by delivery status.
   Phases 0–4 are complete within their recorded evidence bounds. Phase 5 has
   moved all four Geodata work consumers to `MYOTA_GEODATA_WORK`, installed
   migration 021, and deployed the retry-safe cross-service deletion fix.
-  Production had no accepted Geodata work at cutover. The four old Geodata
-  durable definitions remain empty during the 24-hour rollback observation;
+  Production had no accepted Geodata work at cutover. Helm revision 189 is
+  deployed and Fleet is Ready=True with 60/60 resources. The old Geodata
+  durables remain empty during the 24-hour rollback observation, ending no
+  earlier than 20:58:36 UTC on 11 October. The disposable two-database failure
+  chain passes with one Activity cascade fact after retry; the committed
+  Activity idempotency fix still needs its image deployment. Cancellation race,
+  expiry-to-completion, and safe legacy durable retirement remain open.
   Activity's notification durable and the Interest-retained `MYOTA_EVENTS`
-  stream remain live. Phase 5 stays open for the cross-service failure chain,
-  final Fleet readiness, and safe legacy durable retirement. See the [Phase 5
+  stream remain live. See the [Phase 5
   evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
   [migration plan](operations/messaging/nats-event-migration-plan.md),
   [Activity work queues runbook](operations/messaging/activity-work-queues.md),
