@@ -54,8 +54,8 @@ describe current ownership and are authoritative for the present-day system.
   concurrent cancellation before ACK; the connected expiry → owner-row/outbox
   reconstruction → redelivery → completion chain also passed. The Activity
   source fix is not yet deployed; CI/build status, the 24-hour rollback
-  observation, legacy durable retirement, and production test namespace cleanup
-  remain/open were tracked. The namespace is now deleted. The observation ends
+  observation and legacy durable retirement remain open. The isolated
+  validation namespace and PVC were deleted. The observation ends
   no earlier than 20:58:36 UTC on 11 October 2026.
 - **Additional source commits:** Activity handler
   [`cdea2ba`](https://github.com/myota-platform/myota-activity-service/commit/cdea2baaf76cd33415225863d3843b7ff1707930),
