@@ -78,8 +78,10 @@ durables in `MYOTA_EVENTS` remain inactive and empty. The 24-hour observation
 began at latest completed rollout revision 192, 21:39:22 UTC on
 10 October, and ends no earlier than 21:39:22 UTC on 11 October 2026. After that gate, recheck
 Fleet, stream filters/backlogs, migration markers and owner-row recovery age,
-then retire only the four old durables. The Activity notification durable and
-shared Interest-retained `MYOTA_EVENTS` remain. Off-node recovery stays
+then retire only the four old durables. A 21:52 UTC read-only sample found
+zero work messages and zero legacy pending/ack-pending/redelivery, but does not
+satisfy the full 24-hour gate. The Activity notification durable and shared
+Interest-retained `MYOTA_EVENTS` remain. Off-node recovery stays
 deferred; Phase 6 governs the separate fact-stream retention transition.
 
 **Why second:** Only the safe rollback observation and legacy durable retirement
