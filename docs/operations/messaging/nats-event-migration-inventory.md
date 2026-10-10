@@ -1,8 +1,9 @@
 # NATS migration Phase 0 inventory and selected topology
 
-**Status:** current-state inventory plus an accepted target-design decision
-recorded at the workspace owner's request. Runtime implementation and
-deployment qualification remain open.
+**Status:** Phase 0 source-inventory baseline plus the accepted target-design
+decision. Later runtime implementation and deployment qualification are
+tracked in the migration plan and dated phase evidence; this inventory is not
+a claim that implementation remains unstarted.
 
 **Scope:** event writes, asynchronous work, relay and consumer paths found in the
 authoritative repositories on 9 October 2026. Paths name the owning repository
@@ -67,9 +68,13 @@ proof that production has deployed it.
   `480c2031589e4947ecef6ba8940b54e60af77ed1`, and Helm revision 181 is deployed.
   See the [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md).
 
-### Phase 5 consumer and production update — 10 October 2026
+### Phase 5 consumer and production snapshot — 10 October 2026 (superseded by the immutable-image update below)
 
-- **Current work route:** The four Geodata work kinds now publish once to
+This subsection records the earlier Phase 5 state before the immutable-image
+reference correction and final Helm revision 191 rollout. Use the dated
+production update below for the current deployment state.
+
+- **Work route at this snapshot:** The four Geodata work kinds publish once to
   `myota.work.geodata.*` on the deployment-owned
   `MYOTA_GEODATA_WORK` file-backed WorkQueue. The exact pull durables are
   preprocessing, import promotion, entity deletion, and location enrichment.
@@ -82,10 +87,11 @@ proof that production has deployed it.
   and age-bounded. A partial Activity/Geodata deletion failure now leaves an
   expired lease and NAKs rather than falsely completing.
 - **Legacy state:** The four former Geodata durable definitions remain empty
-  and inactive during the 24-hour rollback observation, ending no earlier than
-  20:58:36 UTC on 11 October. `MYOTA_EVENTS` remains Interest-retained and
-  still owns the Activity notification consumer. Preserve its stream and
-  consumer.
+  and inactive during the initial rollback observation after revision 189. That window
+  was restarted after the immutable-image revision 191 rollout and now ends no
+  earlier than 21:28:41 UTC on 11 October. `MYOTA_EVENTS` remains
+  Interest-retained and still owns the Activity notification consumer.
+  Preserve its stream and consumer.
 - **Recovery and idempotency:** A disposable two-database test used the real
   Activity API, Geodata worker handler, and private JetStream WorkQueue. An
   injected Geodata failure after the Activity cascade caused NAK/redelivery;
@@ -703,6 +709,30 @@ Other evidence gaps assigned to closure owners/phases:
     .github profile README is in a local working tree and its change is visible
     for review; no repository publication was requested.
 
+### Phase 5 production and immutable-image update — 10 October 2026
+
+- **Current deployment:** Helm revision 191 is deployed. Fleet is Ready=True at
+  Deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109`, 60/60 resources. The four Geodata commands use
+  the file-backed, finite `MYOTA_GEODATA_WORK` WorkQueue; all target durables
+  have exact work filters, zero pending/ack-pending/redelivery counts, and
+  active pull workers.
+- **Rollback:** The four prior Geodata durables remain in `MYOTA_EVENTS`,
+  inactive and empty. The observation restarted after immutable-image rollout
+  revision 191 and ends no earlier than 21:28:41 UTC on 11 October 2026. Activity's notification durable
+  and the shared Interest-retained `MYOTA_EVENTS` remain live.
+- **Image evidence:** The digest audit found container references still used
+  mutable `:latest` tags while digest values only changed rollout annotations.
+  Deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` and Platform mirror `a184baac3f36e0272cbc79107f4b362139de7515` now render
+  configured digests as immutable first-party image references. Live Activity,
+  Geodata and shared-runtime refs/ImageIDs match the configured values.
+- **Data boundary:** Migration 021's dispatch columns/indexes, owner rows,
+  transactional outbox, checkpoints, source jobs and six cancelled-import
+  dead letters remain. No Phase 5 database object is obsolete. Production
+  Geodata work was unavailable; no production work or test messages were
+  created or modified.
+- **Detailed evidence:** [Phase 5 report](evidence/phase5-geodata-work-2026-10-10.md);
+  isolated test namespace/PVC and private streams are deleted.
+
 ## Phase 0 exit criteria
 
 - [x] Source inventory covers event call sites, explicit routed Geodata work,
@@ -724,10 +754,7 @@ Other evidence gaps assigned to closure owners/phases:
   proceed while gaps are closed; a dependent producer or consumer path must not
   change before its gate.
 
-The checked items record repository inspection, a selected target design, and
-assigned evidence work; they do not mean runtime work is implemented. Phase 0's
-inventory/decision exit criteria are complete. Evidence closure continues in the
-linked issues, and each producer/consumer cutover remains blocked until its listed
-gate is met or the specified owners record an explicit, time-bounded risk
-acceptance and recovery plan. Phase 1 must implement and qualify the selected
-design before any migration is marked complete.
+These checkboxes record completion of the Phase 0 inventory and decision
+criteria only. Later phase implementation and evidence are tracked in the
+migration plan and phase reports; the baseline inventories and the newer live
+status above are time-qualified, not interchangeable.
