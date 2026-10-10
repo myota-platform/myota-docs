@@ -1,5 +1,10 @@
 # NATS / JetStream administration status
 
+> **Current legacy implementation:** this Admin UI page, Operations sampler, and
+> database-backed NATS history are planned for retirement after the Surveyor
+> and Grafana cutover passes its overlap and rollback gates. See the
+> [NATS monitoring consolidation plan](../../observability/nats-surveyor-migration.md).
+
 The admin UI's **Platform health → NATS / JetStream** page (`/jetstream`) is a
 read-only operational view, served by `myota-operations-service`. Business-domain
 workers remain in their domain repositories; the new service does not consolidate
