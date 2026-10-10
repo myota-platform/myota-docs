@@ -6,7 +6,9 @@
 - [Activity JetStream work queues](activity-work-queues.md) — six job kinds,
   registered subjects/durables, lease and retry behavior, dead-letter recovery,
   schema retirement, and staged rollout checks.
-- [NATS Surveyor monitoring consolidation](../../observability/nats-surveyor-migration.md) — proposed central broker metrics and Grafana dashboard; includes staged removal of the current Admin page, pollers and DB history.
+- [NATS Surveyor monitoring consolidation](../../observability/nats-surveyor-migration.md)
+  — proposed central broker metrics and Grafana dashboard; includes staged
+  removal of the current Admin page, pollers and database history.
 - [Current legacy JetStream administration page](jetstream-admin-status.md) — read-only broker state and sampled history, pending the planned Surveyor cutover.
 - [NATS event migration plan](nats-event-migration-plan.md)
   - **Complete:** Phases 0–5 within their documented evidence bounds. Helm
