@@ -3,22 +3,28 @@
 - [Activity domain-event notification consumer](activity-notification-consumer.md)
   — exact registered filters, durable rollout, retries, metrics, and audited
   poison-event redrive.
+- [Activity JetStream work queues](activity-work-queues.md) — six job kinds,
+  registered subjects/durables, lease and retry behavior, dead-letter recovery,
+  schema retirement, and staged rollout checks.
 - [JetStream administration and status](jetstream-admin-status.md) — read-only
   broker state and sampled history.
 - [NATS event migration plan](nats-event-migration-plan.md)
-  - **Complete:** Phases 0–3 within their evidence bounds. Phase 3 deployed
-    Activity's exact 21-subject notification durable, transactional
-    idempotency, audited poison recovery, and bounded metrics. See the
-    [Phase 3 evidence](evidence/phase3-domain-consumers-2026-10-10.md) and
-    [Activity notification runbook](activity-notification-consumer.md).
+  - **Complete:** Phases 0–3 within their recorded evidence bounds. Phase 4
+    code and isolated PostgreSQL/JetStream qualification are complete. Its
+    production cutover is not complete: the live Activity worker still polls
+    PostgreSQL, the live target Activity stream is absent, and the current
+    Activity schema still has its old claim index. The exact staged gate and
+    results are in the [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md)
+    and [work queue runbook](activity-work-queues.md).
   - **Selected:** Cluster-internal trust boundary without NATS auth/TLS, bounded
     work schemas, create-only provisioner, and accepted capacity limits.
-  - **Verified:** Fail-closed opt-in Helm pre-upgrade gate and local
-    restore/replay evidence.
-  - **Still open:** Payload/privacy enforcement, Activity and Geodata work
-    migration, and controlled production cutover. The live stream remains
-    Interest-retained. Fleet reports 60/60 resources ready, but its bundle is
-    `WaitApplied` after recovery; reconcile before Phase 4 runtime changes.
+  - **Verified:** Fail-closed Helm pre-upgrade gate, local restore/replay, and
+    Phase 4 disposable broker/database migration and duplicate-safe ACK checks.
+  - **Still open:** Activity production worker drain/migration/rollout, Activity
+    compatibility-repair removal, payload/privacy enforcement, Geodata work
+    migration, and controlled stream-retention cutover. The live shared stream
+    remains Interest-retained. Helm revision 173 is deployed and Fleet reports
+    the MyOTA bundle Ready; see live state in the Phase 4 evidence.
 - [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.

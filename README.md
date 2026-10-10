@@ -75,18 +75,16 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   [Phase 2 relay evidence](docs/operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
   and [recovery runbook](docs/operations/messaging/jetstream-recovery.md), with the
   selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-  Phases 0–3 are complete within their evidence bounds. Phase 2 relay hardening
-  and Phase 3 Activity notification reliability passed focused and disposable
-  K3s/PostgreSQL/NATS checks. The 21-subject Activity durable is deployed and
-  idempotent; its two broad predecessors are retired. The four Geodata work
-  durables remain unchanged. Six existing Geodata DLQs remain for inspection.
-  Helm revision 170 is deployed on chart 0.2.14; Fleet reports 60/60 resources
-  ready but the bundle condition is `WaitApplied` after rollout recovery, so
-  reconcile Fleet before Phase 4 runtime work. Payload privacy/schema
-  enforcement, work migration, and controlled production cutover remain open.
-  The live broker still uses the mixed Interest-retained stream; the accepted
-  cluster-internal trust boundary, finite caps, and deferred off-node recovery
-  risk are recorded.
+  Phases 0–3 are complete within their evidence bounds. Phase 4 source code,
+  disposable database/broker tests, and obsolete poll-index migration are
+  complete, but production still runs the DB-polled Activity worker. The
+  staged worker drain, guarded migration, new image rollout, and compatibility
+  reconciler retirement remain open. Helm revision 173 is deployed; Fleet
+  reports the MyOTA bundle Ready. The live `MYOTA_EVENTS` stream remains
+  Interest-retained and Geodata work remains on the legacy topology. See the
+  [Phase 4 evidence](docs/operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+  [Activity work runbook](docs/operations/messaging/activity-work-queues.md),
+  and [current/target diagrams](docs/architecture/diagrams/nats-event-migration.md).
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
@@ -98,24 +96,25 @@ imply scale qualification or production readiness.
 
 NATS migration status on 10 October 2026:
 
-- Phases 0–3 are complete within the recorded evidence bounds. Phase 3 deployed
-  Activity's exact 21-subject notification durable, transactionally coupled
-  idempotency, audited poison-event redrive, and bounded metrics. The two broad
-  Activity durables are retired; four Geodata work durables remain unchanged.
-- The live `MYOTA_EVENTS` stream remains file-backed with Interest retention.
-  Activity/Geodata work migration, payload privacy/schema enforcement, and
-  controlled topology cutover remain open. Off-node recovery is deferred for
-  the single-node scope.
-- Helm revision 170 is deployed and all 60 Fleet resources report ready, but
-  the Fleet bundle condition is still `WaitApplied` following rollout recovery.
-  Reconcile Fleet before Phase 4 runtime work.
+- Phases 0–3 are complete within the recorded evidence bounds. Phase 4's six
+  Activity work routes, transactional outbox, leases/retries, dead letters, and
+  audited redrive pass isolated qualification.
+- Production remains on the old Activity DB-polling worker. The Activity work
+  stream is not provisioned and the old claim index remains; read-only evidence
+  found no selected work backlog. The ordered drain, backfill, worker rollout,
+  and temporary repair removal remain the next gates.
+- The shared `MYOTA_EVENTS` stream remains file-backed with Interest retention;
+  four Geodata work durables are unchanged. Off-node recovery remains deferred
+  for the single-node scope.
 
 See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 completion evidence](docs/operations/messaging/evidence/phase1-completion-2026-10-10.md),
 [Phase 2 relay evidence](docs/operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
 [Phase 3 consumer evidence](docs/operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
+[Phase 4 evidence](docs/operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
 [Activity notification runbook](docs/operations/messaging/activity-notification-consumer.md),
+[Activity work queue runbook](docs/operations/messaging/activity-work-queues.md),
 and [current/target diagrams](docs/architecture/diagrams/nats-event-migration.md).
 
 ## Source project

@@ -1,5 +1,26 @@
 # MyOTA changes
 
+## 10 October 2026 — NATS Phase 4 Activity work implementation
+
+- Implemented all six selected Activity work commands using atomic job/outbox
+  writes, bounded per-kind pull durables, explicit ACK, retry/backoff,
+  token-fenced leases, terminal database DLQ records, and audited redrive.
+  `NOTIFICATION_SEND` remains excluded and its synthetic rows are removed by
+  migration after in-app notification state is corrected.
+- Added the guarded, repeatable schema/backfill migration. It preserves the
+  `activity_job` status/history table, removes the obsolete DB poller claim
+  index, adds lease/DLQ/audit schema, and creates the replacement status index.
+- Activity/Contracts/Deploy focused checks passed. Disposable K3s,
+  PostgreSQL, and JetStream checks qualified all six subjects/durables,
+  backfill gate/rerun, duplicate-safe ACK, stale lease rejection, DLQ/redrive,
+  and cleanup. See [Phase 4 evidence](docs/operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
+  and [Activity work runbook](docs/operations/messaging/activity-work-queues.md).
+- Production remains on the old DB-polling worker: read-only inspection found
+  no selected job backlog but the old claim index remains and the Activity work
+  stream is absent. The staged worker drain, production migration/image rollout,
+  live metric/durable verification, and compatibility-repair removal remain
+  Phase 4 exit gates. No production job or broker data was changed.
+
 ## 10 October 2026 — NATS Phase 3 Activity notification consumer
 
 - Completed the selected committed-fact consumer group: Activity now handles

@@ -13,6 +13,48 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 10 October 2026 — NATS migration Phase 4 Activity work implementation
+
+- **Prompt used for this phase:**
+
+  ```text
+  Iteratively implement phase 4, take decisions based on own best criteria and general best practices, be sure to retire/delete/purge/prune DB schema objects that are no longer needed when the exit criteria are met, follow same rigurous documentation criteria as before.
+  ```
+
+- Added six Activity work routes to the transactional job/outbox path, with
+  ID-only JetStream envelopes, per-kind pull durables, explicit ACK after
+  committed status, retry/backoff, renewable UUID-fenced leases, persisted
+  terminal work dead letters, and audited database-authoritative redrive.
+- Added migration 007 to backfill queued selected work, gate first execution on
+  no selected `RUNNING` legacy jobs, mark in-app notifications delivered, and
+  remove synthetic `NOTIFICATION_SEND` jobs. Removed recreation of the legacy
+  `activity_job_claim_idx`, dropped it during cutover, and added the status/kind
+  index needed by status and compatibility recovery. Retained `activity_job`
+  and all domain/resource history.
+- Synchronized Activity and deployment/runtime catalogs into `myota-deploy` and
+  `myota-platform`; updated contracts, diagrams, work-queue runbook, phase plan,
+  evidence, README links, To do, Work in progress, and prioritized backlog.
+- **Verification:** 37 Activity tests passed (one optional broker test skipped);
+  Contracts tests passed 7/7 and source audit found 68 registered facts, 16
+  legacy work types, and no unclassified event-like literals; Deploy relay,
+  retention, and topology tests passed 25/25; Ruff/format checks and Helm lint
+  passed. Disposable K3s/PostgreSQL/NATS checks covered migration guard/rerun,
+  six durable filters, duplicate-safe ACK, lease fencing, DLQ, redrive, and
+  cleanup. Temporary namespace and port forwards were deleted.
+- **Production evidence:** read-only inspection found no selected Activity job
+  backlog, 154 succeeded synthetic notification jobs, no queued notifications,
+  and the still-present old claim index. The live broker has only the mixed
+  Interest-retained `MYOTA_EVENTS`; `MYOTA_ACTIVITY_WORK` is absent. Helm 173 is
+  deployed and Fleet reports the MyOTA bundle Ready. No production jobs,
+  schemas, messages, or consumers were changed in this evidence pass. The
+  staged production worker drain, guarded migration, image rollout, durable and
+  metric verification, and compatibility-repair removal remain open; Phase 4
+  exit criteria are not marked complete.
+- **Files/evidence:** see [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+  [Activity work queues runbook](../operations/messaging/activity-work-queues.md),
+  [migration plan](../operations/messaging/nats-event-migration-plan.md), and
+  [current/target diagram](../architecture/diagrams/nats-event-migration.md).
+
 ## 10 October 2026 — NATS migration Phase 3 domain-event consumers
 
 - **Prompt used:** “Continue with the implementation of phase 3, decide any

@@ -18,24 +18,18 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  Phases 0–3 are complete within their evidence bounds. Phase 3 deployed the
-  exact-filter Activity notifications durable, transactional idempotency,
-  audited poison-event recovery, and bounded consumer metrics. The four
-  Geodata work durables and mixed Interest-retained stream remain unchanged.
-  Helm revision 170 is deployed on chart 0.2.14; Fleet reports 60/60 resources
-  ready but its bundle condition remains `WaitApplied` after recovery, so
-  reconcile Fleet before the next runtime phase. Payload/privacy enforcement,
-  Activity and Geodata work migration, and controlled stream cutover remain
-  open. See
-  the [Phase 3 consumer evidence](operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
-  [Activity notification runbook](operations/messaging/activity-notification-consumer.md),
-  the [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
-  [joint review](operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
-  [recovery runbook](operations/messaging/jetstream-recovery.md),
-  [Phase 1 completion evidence](operations/messaging/evidence/phase1-completion-2026-10-10.md),
-  [Phase 2 relay evidence](operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
+  Phases 0–3 are complete within their evidence bounds. Phase 4 source changes
+  and isolated PostgreSQL/JetStream qualification are complete, including the
+  guarded job backfill and retirement of the obsolete database-claim index.
+  Production still runs the database-polled Activity worker; its staged drain,
+  migration, and rollout remain open. See the [Phase 4 evidence](operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+  [Activity work queues runbook](operations/messaging/activity-work-queues.md),
+  [Phase 3 evidence](operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
+  [migration inventory](operations/messaging/nats-event-migration-inventory.md),
   [current/target diagrams](architecture/diagrams/nats-event-migration.md), and
-  [selected topology decision](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+  [ADR-0008](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+  The live `MYOTA_EVENTS` stream remains Interest-retained; Geodata work is
+  unchanged.
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, prompts, and recent verification.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA

@@ -5,49 +5,39 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
-  — **Status:** Phases 0–3 are complete within their evidence bounds. Phase 3
-  deployed the registered Activity domain-event subscriber.
-  - **Phase 1 evidence:** 68 facts and ten work commands are registered with
-    bounded per-command payload schemas. Source and contract checks passed.
-    The optional Helm pre-upgrade readiness hook fails closed.
-  - **Local qualification:** Isolated K3s checks covered provisioner
-    idempotency and drift, local PVC restore, replay, and capacity rejection.
-    The 30-day database sample is short; accepted initial caps and that evidence
-    limitation are recorded. Off-node recovery is deferred at the project
-    owner's direction.
-  - **Phase 2 evidence:** Contract-backed dotted fact subjects, stable-ID
-    publish/ack, bounded serialized messages, retries, audited redrive, metrics,
-    alerts, and read-only legacy topology validation passed focused tests and an
-    isolated K3s drill. Unresolved Geodata dead letters now survive import
-    retention cleanup. The three relay Deployments are live with healthy
-    database/NATS connections and zero pending rows. Six Geodata dead letters
-    remain unresolved and were not redriven. Migration schema is present in all
-    three databases.
-  - **Phase 3 evidence:** Activity's stable `activity-notifications-v1` pull
-    durable now has the exact 21 registered fact filters, explicit ACK,
-    bounded delivery/retry settings, transactionally coupled projection and
-    deduplication, redacted dead letters, audited redrive, and bounded outcome
-    metrics. Disposable K3s/PostgreSQL/NATS checks covered duplicate delivery,
-    commit-success/ack-loss, poison recovery, and shutdown. Production shows the
-    exact filter set, zero pending/ack-pending, one waiting pull, and no broad
-    Activity durable. The four Geodata work durables remain unchanged.
-  - **Remaining gates:** payload privacy/schema enforcement, Geodata
-    preprocessed-payload minimization, Activity work migration, Geodata
-    work-stream migration, production watermark review, and controlled
-    Interest-to-Limits topology cutover remain open.
-  - **Current boundary:** NATS remains cluster-internal without auth/TLS. The
-    live shared stream remains file-backed with Interest retention. Relay source
-    validates legacy topology read-only and all three relay Deployments are
-    Ready. Activity's domain-event consumer is live, while producer publication
-    and all work-command paths remain as before. Helm revision 170 is deployed
-    on chart 0.2.14 and Fleet reports 60/60 resources ready, but its bundle
-    condition remains `WaitApplied` after recovery; reconcile this status before
-    starting another runtime phase. No event or domain data was changed by
-    production verification.
-  - **References:** [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
+  — **Status:** Phases 0–3 are complete within their evidence bounds. Phase 4
+  source implementation and isolated qualification are complete; production
+  cutover remains active.
+  - **Phase 4 implementation:** Six Activity commands use ID-only work
+    envelopes, transactional job/outbox writes, exact per-kind pull durables,
+    post-commit ACK, retry/backoff, renewable token-fenced leases, persisted
+    work dead letters, and audited database redrive. The first migration run
+    rejects old poll-claimed jobs still `RUNNING`; it backfills queued work and
+    drops the obsolete poller index while preserving `activity_job` status and
+    history. `NOTIFICATION_SEND` rows are corrected to delivered and its
+    synthetic jobs are removed.
+  - **Isolated evidence:** 37 Activity tests passed (one optional broker test
+    skipped); contract tests passed 7/7; the source audit covered 68 facts and
+    16 legacy work types; deploy tests passed 25/25; Helm lint passed. A
+    disposable host-K3s PostgreSQL/NATS namespace verified migration guard and
+    rerun, lease fencing, terminal DLQ/redrive, all six durables, ACK state,
+    and an empty WorkQueue after processing. The namespace and port forwards
+    were removed.
+  - **Production baseline:** Read-only checks found 154 synthetic
+    `NOTIFICATION_SEND` jobs, all succeeded; no selected Activity work jobs or
+    queued notifications; the old claim index remains; `MYOTA_ACTIVITY_WORK`
+    and `MYOTA_GEODATA_WORK` are absent; mixed `MYOTA_EVENTS` is unchanged.
+    Helm 173 is deployed and Fleet reports myota-deploy Ready at `81c2f321`.
+  - **Remaining gates:** staged stream provisioning; Activity worker scale to
+    zero and pod drain; guarded production migration; new image rollout and
+    per-kind durable/metric verification; then disable the transitional
+    missing-outbox repair after all old API pods are gone. Preserve Geodata
+    queues and mixed-stream retention during this phase.
+  - **References:** [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+    [Activity work queue runbook](../operations/messaging/activity-work-queues.md),
+    [Phase 3 evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
+    [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
     [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
-    [Phase 3 consumer evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
-    [Activity notification runbook](../operations/messaging/activity-notification-consumer.md),
     [recovery runbook](../operations/messaging/jetstream-recovery.md), and
     [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —

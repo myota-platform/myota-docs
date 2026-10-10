@@ -52,6 +52,16 @@ flowchart LR
   O[Operations] -. metadata only .-> E
 ```
 
+## Phase 4 Activity work qualification — isolated, not yet live
+
+The Activity command source, six durable filters, migration/backfill, retries,
+lease fencing, dead-letter persistence, and redrive were exercised in a
+separate disposable K3s namespace. The production Activity worker remains the
+DB-polling path until the ordered drain and migration gate passes. The old
+claim index and synthetic notification-job rows are retired only by migration
+007 after that gate. See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
+and [work queue runbook](../../operations/messaging/activity-work-queues.md).
+
 ## Selected target — ADR-0008, not yet live
 
 ```mermaid
@@ -76,22 +86,17 @@ flowchart LR
 ```
 
 **Status (10 October 2026):** Phases 0–3 are complete within their evidence
-bounds. Phase 3 replaced the broad Activity notification durables with the
-registered `activity-notifications-v1` durable; four Geodata work durables
-remain unchanged.
-The 68 fact schemas and ten selected work commands are registered; contract CI
-checks their schema/disposition coverage and exact work-to-durable mapping. The
-create-only provisioner and its drift checks passed focused and isolated tests.
-The workspace owner accepted a cluster-internal NATS trust boundary without
-authentication or TLS. The live NATS service is ClusterIP-only on port 4222;
-the `myota` namespace has no NetworkPolicy, so any pod with network reachability
-is trusted. Do not expose NATS outside the cluster. Provisional capacity,
-restore/replay policy, and provisioner ownership are decisions, not production
-qualification. The source relay now enforces registry routing, size bounds,
-stable IDs, retries, dead-letter recovery, and metrics while validating legacy
-topology read-only. The registered Activity notification group is deployed;
-the target streams and work paths have not been cut over. Geodata payload
-minimization, schema/privacy enforcement, representative
-full-window sizing, off-node/PVC-loss restore qualification, and production
-compatibility transition remain open. See the recovery runbook and
-[Phase 2 evidence](../../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).
+bounds. Phase 4 Activity code, schema retirement, and disposable PostgreSQL and
+JetStream checks are complete. Production still uses the DB-polling Activity
+worker; the target `MYOTA_ACTIVITY_WORK` stream is absent, the Activity claim
+index is present, and the guarded production backfill/worker rollout remain
+open. A read-only production query found no selected Activity work jobs, no
+running jobs, and 154 already-succeeded synthetic notification jobs. Helm
+revision 173 is deployed and the MyOTA Fleet bundle is Ready. The mixed
+Interest-retained fact stream, its Activity notification durable, and four
+Geodata work durables remain unchanged. Phase 5 Geodata work migration, payload
+privacy/schema enforcement, and the final mixed-stream cutover remain separate
+gates. The accepted cluster-internal trust boundary and deferred off-node
+recovery remain as recorded in ADR-0008. See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+[Activity work queues runbook](../../operations/messaging/activity-work-queues.md),
+and [Phase 3 evidence](../../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md).

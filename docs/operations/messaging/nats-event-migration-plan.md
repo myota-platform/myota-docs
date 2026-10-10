@@ -1,10 +1,11 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phases 0–3 are complete within their evidence bounds. Phase 3
-standardized and deployed the registered Activity notification consumer, its
-reviewed redrive path, and operational metrics. The shared mixed
-Interest-retained stream remains in place; work-queue migration, payload/schema
-enforcement, and final production topology cutover remain open.
+**Status:** Phases 0–3 are complete within their evidence bounds. Phase 4
+source changes, disposable PostgreSQL/JetStream qualification, and schema
+retirement checks are implemented locally. Production still runs the Activity
+database-polled worker; the guarded schema migration and staged worker cutover
+remain open. The shared mixed Interest-retained stream and Geodata work paths
+are unchanged.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -608,84 +609,137 @@ broad durable still influences retention. Commit and push changes directly to
 
 ### Phase 4 — Move Activity database-polled accepted work to JetStream
 
+**Status:** source implementation and isolated qualification are complete;
+production cutover is pending. See the [per-kind migration evidence](evidence/phase4-activity-work-2026-10-10.md)
+and [Activity work queue runbook](activity-work-queues.md). The live Activity
+worker and database schema were inspected read-only and still show the legacy
+polling index and no target work stream.
+
 **Work**
 
-- [ ] For each selected migratable `activity_worker.py` job kind
-      (`QSO_INGESTION`, `ADIF_IMPORT`, `AWARD_RECALCULATE`, `AWARD_EVALUATION`,
-      `PDF_RENDER`, `STATISTICS_REBUILD`), trace the producer, job row, side effects, retry
-      semantics, payload size, idempotency key and completion state. Include
-      `activity.adif.queued.v1` and related outbox writes.
-- [x] Record the decision to exclude `NOTIFICATION_SEND` from JetStream migration:
-      its current handler
-      only changes notification state and has no external provider call. Correct or
-      remove the synthetic job in the Activity implementation phase; if external
-      delivery is introduced, define a separate provider-backed work command.
-- [ ] Move accepted jobs to transactional outbox + dedicated command subjects and
-      durable pull queues on `MYOTA_ACTIVITY_WORK` using the selected
-      `myota.work.activity.*` namespace, keeping the job/resource row as domain
-      status and recovery evidence. Large payloads should remain in owned storage
-      and the work event should carry identifiers, not copied content.
-- [ ] Use per-kind or compatible worker-group durables and bounded concurrency; do
-      not put unrelated long PDF/ADIF jobs behind a single serial queue unless
-      ordering is explicitly required. Preserve leases for long-running work and
-      heartbeat/visibility where appropriate.
-- [ ] Use one publish path during migration; do not dual-publish work to both
-      systems. Define stable work IDs and database idempotency. Stop new DB-queue
-      claims before translating or draining pending rows, and switch producers
-      only after the durable is provisioned. Provide rollback without re-enqueueing
-      completed jobs.
-- [ ] Keep necessary periodic maintenance/reconciliation tasks in schedulers when
-      they are timer-triggered rather than event-driven; record why they are not
-      JetStream messages.
+- [x] Trace each selected job kind to its producer, owning-row transaction,
+      source payload, side effects, idempotency boundary, completion state, and
+      retry behavior. The six command routes and exact source paths are recorded
+      in the Phase 4 evidence table. ADIF upload bytes and PDF objects remain in
+      object storage; command payloads contain only `jobId`.
+- [x] Keep `NOTIFICATION_SEND` out of JetStream. Activity inserts an in-app
+      notification as `DELIVERED` in its owner transaction. The migration
+      corrects any legacy queued notification state and deletes only synthetic
+      `NOTIFICATION_SEND` job rows.
+- [x] Add atomic job/outbox writes and route the six accepted job kinds to
+      registered `myota.work.activity.*` subjects. The registry carries strict
+      `{jobId}` payload schemas, a stable job UUID work ID, `activity_job`
+      aggregate identity, and the `activity-service` producer.
+- [x] Implement six independent pull durables with explicit ACK, exact filters,
+      bounded pending/concurrency, ack progress, retry/backoff, lease heartbeat
+      and UUID fencing, terminal work-DLQ persistence, and audited DB redrive.
+      The worker fails closed on missing or drifted pre-provisioned durables.
+- [x] Add migration `007_activity_jetstream_work.sql` to backfill queued work,
+      preserve `available_at`, guard against first-run cutover with legacy
+      `RUNNING` jobs, and add lease/DLQ/audit schema. Isolated PostgreSQL checks
+      passed both the first-run gate and repeated migration while a JetStream
+      job was running.
+- [x] Retire the obsolete DB-poller index in schema source and migration:
+      remove its recreation from `001_activity_relational.sql`, drop
+      `activity_job_claim_idx`, and add `activity_job_status_kind_idx`. Preserve
+      `activity_job` for API status/history/idempotency and preserve import,
+      issuance, and domain history. No unrelated domain table is deleted.
+- [x] Provision and validate only `MYOTA_ACTIVITY_WORK` and its six exact
+      durables in a disposable host-K3s namespace. A second provision was
+      idempotent; real JetStream/PostgreSQL duplicate-safe ACK checks returned
+      pending and stream message counts to zero. The namespace was deleted.
+- [x] Keep the ADIF retention CronJob and other timer/reconciliation paths on
+      their owning scheduled/database recovery boundary. They are not normal
+      accepted-work dispatch.
+- [ ] Execute the ordered production cutover: provision the disjoint target,
+      scale the old Activity worker to zero and verify its pods stopped, run the
+      guarded backfill, then roll out the new Activity API/worker images. Do not
+      change the mixed `MYOTA_EVENTS` stream or Geodata work durables.
+- [ ] After all old Activity API pods are gone, confirm the compatibility
+      outbox-repair loop reports zero repairs and disable that transitional
+      database scan. Verify no worker job-claim polling code or obsolete
+      database claim index remains in the deployed system.
+- [ ] Verify live per-kind job status/age/latency/retry/DLQ metrics and the
+      Operations dashboard after rollout; record exact durable pending,
+      ack-pending, and redelivery state.
 
 **Exit criteria**
 
-- [ ] Each of the six selected Activity jobs is JetStream-backed; the excluded
-      `NOTIFICATION_SEND` state-only job is corrected or removed. No job is
-      acknowledged/completed before durable side effects.
-- [ ] Cutover and rollback preserve business invariants and prevent duplicate
-      effects under at-least-once delivery.
-- [ ] Activity job latency, queue age, failure, retry, and dead-letter states are
-      visible in service and operations dashboards.
+- [ ] All six selected Activity job kinds are being published to
+      `MYOTA_ACTIVITY_WORK` and processed by their matching durables in the live
+      cluster. `NOTIFICATION_SEND` remains a delivered in-app state, with no
+      synthetic job rows.
+- [ ] No accepted job is completed or ACKed before its committed side effects
+      and job state. At-least-once redelivery, stale lease fencing, bounded
+      retries, terminal DLQ, and audited redrive preserve idempotency.
+- [ ] The old DB claim index and DB polling worker are retired after the
+      successful cutover; API job status/history and the Activity database remain
+      authoritative. Scheduled retention/reconciliation remains on its recorded
+      scheduler/recovery path.
+- [ ] Activity job latency, queued age, failures, retries, and unresolved
+      dead-letter state are visible and actionable in Activity and Operations.
+- [ ] The staged production rollout, job/outbox reconciliation, and rollback
+      procedure pass without changing Geodata routes or mixed-stream retention.
 
 **ChatGPT prompt — Phase 4**
 
 ```text
-Implement Phase 4: migrate the six selected Activity asynchronous jobs from
-PostgreSQL polling to the `MYOTA_ACTIVITY_WORK` JetStream WorkQueue stream,
-following ADR-0008 and the Phase 1 contracts. Do not migrate the synthetic
-`NOTIFICATION_SEND` job: correct/remove its state-only transition in Activity; if
-external delivery is introduced, model it as a separate provider-backed command.
-Inspect activity_repository.py, activity_worker.py,
-outbox writes, job migrations/schema, Activity API job producers, deployment
-manifests, and all recovery/retention paths before editing.
+Implement Phase 4 only: move Activity's six accepted database-polled jobs to
+`MYOTA_ACTIVITY_WORK`, then complete and verify the production cutover. Read
+ADR-0008, the Phase 0 inventory, Phase 1/2/3 evidence, this plan, and AGENTS.md
+first. Authoritative sources are `myota-activity-service` for Activity job,
+consumer, and migration code; `myota-contracts` for registered schemas and work
+routes; `myota-deploy` for relay, topology, Helm, and operations wiring; and
+`myota-docs` for evidence and decisions. Keep `myota-platform` service,
+migration, deployment, registry, and observability copies synchronized. Keep
+`.github` links to the current docs valid.
 
-Inventory and handle these selected job kinds individually: QSO_INGESTION,
-ADIF_IMPORT, AWARD_RECALCULATE, AWARD_EVALUATION, PDF_RENDER, and
-STATISTICS_REBUILD. Map each to a versioned `myota.work.activity.*` subject and
-one durable consumer group shared by its worker replicas. Do not include
-`NOTIFICATION_SEND` in the work stream because it has no external delivery side
-effect today. Preserve resource/job status in `myota_activity`. Persist work
-request/outbox atomically with the accepted state transition; publish identifiers
-and bounded metadata rather than large content. Keep blob data in the configured
-object store. Ensure long-running tasks use suitable ack wait/progress/lease
-strategy and independent concurrency so unrelated heavy work does not block other
-kinds.
+Migrate only `QSO_INGESTION`, `ADIF_IMPORT`, `AWARD_RECALCULATE`,
+`AWARD_EVALUATION`, `PDF_RENDER`, and `STATISTICS_REBUILD`. Read each API
+producer, job-row transaction, side-effect handler, idempotency key, retry path,
+status endpoint, retention path, and source-specific payload before editing.
+Use one atomic owner-database write for accepted state/job/outbox. Use stable
+UUID job/work identity; send only bounded row identifiers through JetStream.
+Keep ADIF files and rendered PDFs in their configured object storage. Preserve
+Activity API job status/history and database authority. Keep at-least-once
+processing, idempotent side effects, explicit ACK after committed completion
+or terminal state, bounded concurrency/backoff, renewable leases with stale
+worker fencing, persisted terminal failures, and authorized/audited database
+redrive. Do not claim exactly-once delivery or publish directly from a worker.
 
-Implement at-least-once-safe processing: stable job/event ID, domain idempotency,
-explicit ack after committed completion/failure state, bounded redelivery/backoff,
-visible poison/dead-letter handling, graceful drain, and startup recovery. Design a
-controlled cutover from DB polling, with one publish path, stable work IDs,
-old-job drain or translation, database idempotency, metrics, and rollback. Do not
-dual-publish, delete job history, or claim exactly-once broker delivery. Keep
-scheduled retention/reconciliation tasks on their scheduler/recovery paths as
-selected in ADR-0008.
+Do not migrate state-only `NOTIFICATION_SEND`; its in-app notification is
+already delivered and has no external provider side effect. Preserve existing
+scheduled ADIF retention and other timer/reconciliation recovery paths. Keep
+Geodata work, Operations' read-only broker inspection, the shared mixed
+Interest-retained `MYOTA_EVENTS` stream, and all Geodata legacy durables
+unchanged. Provision only the disjoint Activity WorkQueue stream and its six
+registered pull durables; require exact drift validation and fail closed if
+any required durable is absent.
 
-Update Activity source, contract/subject registry, deployment and synchronized
-myota-deploy/myota-platform copies, tests, Activity README and central MyOTA docs.
-Validate each job kind with focused unit/integration evidence and report
-cutover/rollback instructions, remaining DB polling, job age/backlog visibility, and
-any blocked handler. Do not move Geodata work into Activity ownership.
+Use an ordered rollout so the old database poller cannot race the backfill:
+provision and validate the target; scale the old Activity worker Deployment to
+zero and wait until its pods are gone; verify no selected job is still RUNNING;
+run the idempotent migration/backfill; roll out the new Activity API and worker
+images; verify every selected queued job has an outbox row; and retain the
+compatibility repair only until old API replicas are gone, then disable it.
+Rollback may stop new workers and return them to zero, but must not re-enqueue
+completed work or restore the obsolete polling index. Preserve all job/domain
+history; remove only schema objects and synthetic rows that exist solely for
+the retired polling/state-only command after their replacement is verified.
+
+Test focused producer, route, ACK/lost-ACK, duplicate, retry, crash/lease,
+DLQ/redrive, idempotency, migration rerun, and cleanup behavior. Run broker and
+database integration checks only in a disposable namespace on this host and
+remove test data/resources afterward. Deploy through Helm/Fleet on the local
+K3s cluster and verify the actual migration, six live filters/durables, job
+metrics/dashboard, zero legacy job claims, and unchanged Geodata/shared fact
+stream. Update the plan, evidence, work queue runbook, diagram, history with
+this exact prompt, changes, README links, To do, Work in progress, prioritized
+backlog, and synchronized mirrors. Check boxes only when evidence verifies
+them. Commit and push all affected repository work directly to `main` with
+explicit messages. Report changed paths/repositories, exact checks and live
+results, remaining risk, schema objects retired, namespace cleanup, and each
+Phase 4 exit criterion.
 ```
 
 ### Phase 5 — Reconcile Geodata queues and cross-service recovery

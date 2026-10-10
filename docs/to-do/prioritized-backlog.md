@@ -60,43 +60,37 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Continue the NATS migration after Phase 3 consumer reliability
+### 2. Complete the NATS migration rollout after Phase 4 implementation
 
 **Current evidence:** Phases 0–3 are complete within their evidence bounds.
-Phase 2 relay hardening and Phase 3 Activity consumer reliability are deployed.
-The 68-fact/ten-command registry remains the contract source. Activity now
-uses the exact 21-subject `activity-notifications-v1` durable with transactional
-deduplication, audited poison-event redrive, and bounded metrics. The two broad
-Activity durables are retired; the four Geodata work durables are unchanged.
-The full Phase 3 evidence is in
-the [consumer record](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md)
-and [runbook](../operations/messaging/activity-notification-consumer.md).
-The live stream remains file-backed with Interest retention. Helm revision 170
-is deployed on chart 0.2.14; all 60 resources are reported ready, but Fleet's
-bundle condition remains `WaitApplied` after recovery and must be reconciled
-before another runtime phase. Six pre-existing Geodata outbox dead letters
-remain unresolved.
+Phase 4's six Activity work routes, transactional outbox integration, lease
+fencing, retry/DLQ/redrive, schema cleanup, contracts, and dashboard are
+implemented and passed isolated qualification. The current live cluster still
+runs the old Activity poller: the old claim index is present and
+`MYOTA_ACTIVITY_WORK` is absent. A read-only query found no selected job
+backlog or running rows; 154 synthetic notification jobs were already
+succeeded and no notifications remained queued. Helm 173 is deployed and Fleet
+reports the MyOTA bundle Ready. The [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
+records the exact tests and production baseline.
 
-The live shared stream remains mixed under Interest retention; producer and
-consumer work paths have not been cut over. Unresolved Geodata dead letters are
-now protected from import-retention cleanup. The project owner accepts the
-conservative 1/1/3 GiB starting caps and shorter-than-30-day sample risk for the
-single-node scope. Off-node recovery is deferred; PostgreSQL remains the
-authority for reconciliation and redrive. NATS remains cluster-internal without
-authentication or TLS.
+The live shared stream remains Interest-retained; the four Geodata work
+consumers remain on their legacy subjects. Payload privacy/schema enforcement,
+Geodata work migration, and the mixed-stream topology cutover remain separate
+gates. Off-node recovery is deferred for the single-node scope.
 
 **Why second:** Accepted work paths still include database polling and legacy
 Geodata subjects, and the shared stream still mixes facts and work under
 Interest retention. The Phase 3 subscriber is reliable within its local
 projection boundary, but it does not close those separate transport risks.
 
-**Next:** Reconcile Fleet's pending `WaitApplied` status first. Then close
-payload privacy/schema and Geodata minimization gates; migrate the six accepted
-Activity jobs and four Geodata commands with database idempotency; qualify
-capacity and replay within accepted single-node limits; and plan the mixed
-Interest-stream compatibility barrier before changing retention. Preserve
-PostgreSQL authority, keep scheduled/reconciliation work on its existing paths,
-and defer off-node recovery as recorded by the owner.
+**Next:** Stage Phase 4 production safely: provision only the Activity stream;
+scale the old Activity worker to zero and wait for its pods to stop; run the
+first-run-guarded schema backfill; roll out the new API/worker images; verify
+job/outbox completeness, per-kind durable state, and metrics; then disable the
+rollout-only repair scan. Preserve PostgreSQL authority, leave scheduled work
+and Geodata unchanged, and defer off-node recovery as recorded by the owner.
+After that, address payload privacy/schema and Geodata minimization, migrate
+Geodata work with its own gate, and plan the mixed Interest-stream transition.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),

@@ -12,20 +12,13 @@ documentation evidence and does not set delivery dates.
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phases 0–3 are complete within their recorded evidence bounds. Phase 3
-  deployed Activity's exact 21-subject `activity-notifications-v1` durable,
-  idempotent transactional handling, audited poison-event redrive, and bounded
-  metrics. The four Geodata work durables and shared file-backed Interest stream
-  remain unchanged; the two broad Activity durables were retired after successor
-  validation. Phase 4 Activity work migration, Phase 5 Geodata work migration,
-  and the final stream-retention cutover remain open. Fleet's bundle is reporting
-  `WaitApplied` after a recovery rollback even though Helm revision 170 and all
-  60 resources are deployed/ready; clear this status divergence before the next
-  runtime phase. See the [Phase 3 evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
-  [Activity notification runbook](../operations/messaging/activity-notification-consumer.md),
-  [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
-  [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
-  [recovery runbook](../operations/messaging/jetstream-recovery.md), and
+  — Phases 0–3 are complete within their recorded evidence bounds. Phase 4
+  Activity work source changes and disposable database/broker qualification
+  are complete, but production still uses the DB-polled worker and lacks
+  `MYOTA_ACTIVITY_WORK`. The guarded migration, worker rollout, and removal of
+  the compatibility repair remain active gates. Phase 5 Geodata work and the
+  shared stream-retention cutover remain planned. See the [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+  [work queue runbook](../operations/messaging/activity-work-queues.md), and
   [Work in progress](../work-in-progress/README.md).
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
   Phase 5 remains planned until usage is measured and clients migrate.
