@@ -248,5 +248,5 @@ See [Charter delivery gaps](../governance/charter-gap-analysis.md) and
   or reliability dependency; record the evidence and date in the source plan.
 - Keep rollout gates attached to the capability they qualify. For example,
   geodata recovery evidence blocks scale expansion even if other work proceeds.
-- The priority here ranks the eight entries in the To do index. Active evidence
+- The priority here ranks the nine entries in the To do index. Active evidence
   and gates remain discoverable in the [Work in progress index](../work-in-progress/README.md).
