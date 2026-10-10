@@ -1,5 +1,19 @@
 # MyOTA changes
 
+## 10 October 2026 — NATS Geodata payload contract source pass
+
+- Added additive, source-derived payload schemas for all 27 Geodata facts, with
+  classifications for geospatial/reviewer, imported source, and operational
+  data. Local contracts tests, audit, schema generation, Ruff, and platform
+  mirror comparisons pass. GitHub combined statuses for the new contract and
+  mirror commits were unavailable; CI and owner/privacy review remain pending.
+- The preprocessed event currently includes internal `_records` and `_status`,
+  with `_records` potentially carrying imported source features. Minimize the
+  event payload before producer enforcement. No runtime path or deployed
+  topology changed; Operations payload schemas remain open.
+- The existing Phase 1 prompt remains in use. See the [Phase 1 evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
+  and [plan](docs/operations/messaging/nats-event-migration-plan.md).
+
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
