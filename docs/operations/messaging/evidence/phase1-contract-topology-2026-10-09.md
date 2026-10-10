@@ -73,8 +73,11 @@ commands reference stored data instead of copying import content.
 
 ## Remaining Phase 1 gates
 
-- Owning services must review and complete payload schemas, compatibility
-  policy, event dispositions, and trusted correlation/causation propagation.
+- Owning services must review the source-derived payload schemas for privacy,
+  minimization, compatibility, event dispositions, and trusted
+  correlation/causation propagation. The Phase 0 source audit found no Operations
+  event producer, so an Operations payload schema is not applicable unless it
+  begins publishing facts.
 - Measure a representative operating window, classify normal versus test
   traffic, and choose finite stream limits against the 8 GiB single-node PVC,
   recovery objectives, and operational reserve.
@@ -247,14 +250,18 @@ Local verification passed: contracts registry/schema tests 2/2; generation of al
 68 event schemas; source audit (68 facts, six legacy work types mapped, no
 undispositioned Python event-like literals); and exact platform mirror checks for
 the registry, event documentation, and generated schemas. Ruff lint/format checks
-passed for the changed Python files. GitHub connector checks returned no combined
-CI status for contracts commit `e34de821` or platform mirror commit `63cec55e`,
-so CI is not verified.
+passed for the changed Python files. Contracts CI passed for Geodata commit
+`e34de821` in [run 38042564323](https://github.com/myota-platform/myota-contracts/actions/runs/38042564323);
+Activity contract CI passed for `2b8bddaf` in
+[run 38040217352](https://github.com/myota-platform/myota-contracts/actions/runs/38040217352).
+Platform mirror CI passed for `63cec55e` in
+[run 38042622987](https://github.com/myota-platform/myota-platform/actions/runs/38042622987).
 Joint Geodata owner/privacy review remains open. No producer/consumer runtime path,
 stream, or deploy input changed. A read-only 10 October cluster check reported the
 default K3s context, the `spainip-k3s` node Ready, Fleet `myota-deploy` Ready at
 commit `042a45b01ec8b94ed4f64bbc1b854744b9f96ed1`, and Helm release `myota`
 deployed at revision 157. The deploy runbook sends chart changes through Fleet;
 these contracts/docs changes do not change the deployed stack, so no rollout was
-triggered. The same Phase 1 prompt remains in use; the Phase 1 checklist stays
-open.
+triggered. The same Phase 1 prompt remains in use. The Activity and Geodata source-schema
+checklist items are complete; owner/privacy review and the Phase 1 exit criteria
+remain open.
