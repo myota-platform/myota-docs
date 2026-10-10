@@ -19,7 +19,7 @@ indexes organize open work by delivery status.
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
   Phase 0 complete; Phase 1 source-derived payload schemas now cover Identity,
-  Programme, Activity, and Geodata, with CI/owner review and safety gates open; see the
+  Programme, Activity, and Geodata, with owner/privacy review and safety gates open; see the
   [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
   [Phase 1 evidence](operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
   [current/target diagrams](architecture/diagrams/nats-event-migration.md), and
