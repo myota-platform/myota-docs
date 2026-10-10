@@ -296,10 +296,13 @@ implementation complete. Report missing evidence and Phase 0 exit criteria.
 
 **Current status (10 October 2026):** the first registry/schema and create-only
 provisioner artifacts are implemented and their focused local checks pass. No
-live topology or producer/consumer path changed. Source-derived Identity, Programme, Activity, and Geodata payload schemas are
-pending joint owner/privacy review; Operations payload schemas, least-privilege
-credentials, measured capacity limits, restore/replay qualification, and removal
-of legacy relay provisioning remain open. Source-derived schema passes now cover
+live topology or producer/consumer path changed. Source-derived Identity,
+Programme, Activity, and Geodata payload schemas pass contracts CI and remain
+pending joint owner/privacy review. Operations has no event-producing call sites
+in the Phase 0 source audit, so an Operations payload schema is not applicable
+unless that service begins publishing facts. Least-privilege credentials,
+measured capacity limits, restore/replay qualification, and removal of legacy
+relay provisioning remain open. Source-derived schema passes now cover
 all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts. An isolated host-cluster broker test
 created all target streams/durables, passed an idempotent second run, and rejected
 configuration drift; its temporary namespace was removed. The 10 October follow-up
@@ -335,17 +338,17 @@ container build, and publish ([deploy checks](https://github.com/myota-platform/
       authoritative Programme producer callsites, record data classification,
       and verify generated schemas in contracts CI. Joint owner review and
       producer enforcement remain gated.
-- [ ] Derive additive payload schemas for all 10 Activity facts from the
+- [x] Derive additive payload schemas for all 10 Activity facts from the
       authoritative Activity producer callsites; classify personal, import,
       award-configuration, and certificate metadata; verify in contracts CI.
-      Local checks pass; CI and owner/privacy review remain pending. Producer
-      enforcement remains gated.
-- [ ] Derive additive payload schemas for all 27 Geodata facts from the
+      Local checks pass and Contracts CI passed on commit `2b8bddaf`. Joint
+      owner/privacy review and producer enforcement remain gated.
+- [x] Derive additive payload schemas for all 27 Geodata facts from the
       authoritative Geodata producer callsites; classify geometry, location,
       imported source, and reviewer data; verify in contracts CI. Local checks
-      pass. CI and joint owner/privacy review remain pending. The preprocessed
-      import result currently includes internal `_records`/`_status` data and
-      requires minimization review before producer enforcement.
+      and Contracts CI passed on commit `e34de821`. Joint owner/privacy review
+      remains open. The preprocessed import result currently includes internal
+      `_records`/`_status` data and requires minimization before producer enforcement.
 
 **Work**
 
@@ -387,11 +390,12 @@ type; the 10 October audit found no unclassified Python literals across the five
 service repositories; the contracts CI audit passed on main. Payload shapes for
 all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts now have
 source-derived payload schemas generated from their authoritative producer files.
-Identity and Programme schema checks passed in CI; Activity and Geodata checks
-pass locally, while their GitHub CI status and all joint owner/privacy reviews
-remain unverified. Geodata preprocessing currently emits the full result object,
+Identity, Programme, Activity, and Geodata schema checks passed in Contracts CI
+(run 38042564323 for Geodata; run 38040217352 for Activity). Joint owner/privacy
+reviews remain open. Geodata preprocessing currently emits the full result object,
 including internal `_records` and `_status`; minimize this event before schema
-enforcement. Operations payload schemas remain open. These additive schemas do
+enforcement. The Phase 0 audit found no Operations event-producing call sites; a payload
+schema is not applicable unless Operations becomes a producer. These additive schemas do
 not certify purpose limitation or retention, so the registry is not complete
 enforcement.
 The deploy-owned provisioner now fixes and validates pull delivery mode, explicit
