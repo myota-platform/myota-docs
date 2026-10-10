@@ -77,22 +77,21 @@ reports Ready=True with 60/60 resources. The two-database Activity/Geodata
 partial-failure chain passed in the disposable host-K3s environment and emitted
 exactly one Activity cascade fact after retry. The Activity idempotency source
 fix is committed and mirrored, but its image deployment remains open.
-Cancellation racing with acknowledged work, expiry-to-completion, final durable
-retirement, and the rollback window remain open. `MYOTA_EVENTS` is still
+Cancellation during acknowledged preprocessing and the expiry → owner-row/outbox
+reconstruction → completion chains passed in disposable K3s. Final durable
+retirement and the rollback window remain open. `MYOTA_EVENTS` is still
 Interest-retained; Phase 6 will address its governed fact-stream transition.
 Off-node recovery remains deferred for the current single-node scope.
 
-**Why second:** routing is cut over, but rollback retirement must wait for
-verified source-row recovery and the observation window. The cross-service
-deletion and replay chains need direct evidence before declaring the work path
-complete. Phase 6 remains separately gated and must not turn a work stream into
-an unbounded event archive.
+**Why second:** routing is cut over and isolated recovery chains are verified,
+but rollback retirement must wait for the observation window. The Activity
+idempotency source fix must reach production before this phase can close.
+Phase 6 remains separately gated and must not turn a work stream into an
+unbounded event archive.
 
 **Next:** verify the Activity idempotency image build, immutable digest pin,
-and production rollout; qualify cancellation racing with acknowledged work;
-connect message expiry to owner-row reconstruction and successful processing;
-wait through the recorded rollback window; then recheck and remove only the
-four legacy Geodata durables. The observation ends no earlier than 20:58:36 UTC
+and production rollout; wait through the recorded rollback window; then
+recheck and remove only the four legacy Geodata durables. The observation ends no earlier than 20:58:36 UTC
 on 11 October 2026. Keep migration 021, work rows, outbox history, checkpoints
 and dead letters because they remain the recovery/source boundary. Continue to
 Phase 6 only after Phase 5 exit evidence is complete.
