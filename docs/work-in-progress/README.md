@@ -13,13 +13,14 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   isolated JetStream provisioning and its idempotent rerun pass. The registry maps
   all 68 fact types to source files, and its workspace audit found no
   undispositioned Python event-like source literals across five service
-  repositories; the contracts main-branch source-audit workflow passed. Earlier platform
-  image-build attempts timed out at Docker Hub; the latest deploy and platform
-  main-branch image build/publish checks now pass. Joint owner/privacy approval, Geodata preprocessed-payload minimization,
-  authenticated least-privilege NATS roles, measured capacity limits, restore/replay
-  testing, and removal of relay-side provisioning remain open. The
-  deployed shared `MYOTA_EVENTS` stream still uses Interest retention; no
-  producer/consumer path or live stream has changed. See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
+  repositories; the contracts main-branch source-audit workflow passed. Latest deploy and platform image checks pass. The delegated review dispositioned
+  all 68 schemas and selected credential, capacity, recovery, and provisioning
+  policies. Runtime gates remain: Geodata payload minimization, credential/TLS
+  implementation, representative capacity evidence, restore/replay, chart
+  provisioner readiness, and relay mutation removal. The deployed shared stream
+  retains Interest policy; no producer/consumer path changed. See the
+  [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
+  [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
   and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
   Payload schemas for all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts are now
   derived from producer callsites and classified for sensitive/internal content.
