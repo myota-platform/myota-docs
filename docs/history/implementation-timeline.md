@@ -74,7 +74,7 @@ describe current ownership and are authoritative for the present-day system.
   `myota-activity-service/activity_repository.py`, and
   `myota-activity-service/awards.py`. Flexible rule/configuration and nested asset
   shapes remain open; joint owner/privacy review is still required. Contracts
-  commit `95eae9a` and platform mirror commit `3ac5653` are on `main`. Local
+  commit `2b8bddaf` and platform mirror commit `bf6f2727` are on `main`. Local
   contract checks pass; the GitHub connector exposed no combined CI statuses. The
   existing Phase 1 prompt was reused. No producer/consumer runtime path changed.
   Direct-main commits `1076584` (deploy) and `b047a00` (platform) passed Ruff,
