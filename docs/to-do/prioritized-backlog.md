@@ -72,10 +72,13 @@ same-node NATS PVC restart, and focused deletion retry coverage. No Geodata
 production work was available for processing. See the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
 The four prior Geodata durable definitions remain empty and inactive while the
-24-hour rollback observation runs. Fleet readiness was still `WaitApplied`
-during rollout reconciliation. Two-database partial-failure qualification,
-cancellation race, expiry-to-completion, final durable retirement, and the
-rollback window remain open. The shared `MYOTA_EVENTS` stream is still
+24-hour rollback observation runs. Helm revision 189 is deployed and Fleet
+reports Ready=True with 60/60 resources. The two-database Activity/Geodata
+partial-failure chain passed in the disposable host-K3s environment and emitted
+exactly one Activity cascade fact after retry. The Activity idempotency source
+fix is committed and mirrored, but its image deployment remains open.
+Cancellation racing with acknowledged work, expiry-to-completion, final durable
+retirement, and the rollback window remain open. `MYOTA_EVENTS` is still
 Interest-retained; Phase 6 will address its governed fact-stream transition.
 Off-node recovery remains deferred for the current single-node scope.
 
@@ -85,13 +88,14 @@ deletion and replay chains need direct evidence before declaring the work path
 complete. Phase 6 remains separately gated and must not turn a work stream into
 an unbounded event archive.
 
-**Next:** confirm Fleet Ready and the live image/schema/topology; run the
-disposable two-database Activity/Geodata cascade failure and cancellation-race
-scenarios; connect message expiry to owner-row reconstruction and successful
-processing; wait through the recorded rollback window; then recheck and remove
-only the four legacy Geodata durables. Keep migration 021, work rows, outbox
-history, checkpoints and dead letters because they remain the recovery/source
-boundary. Continue to Phase 6 only after Phase 5 exit evidence is complete.
+**Next:** verify the Activity idempotency image build, immutable digest pin,
+and production rollout; qualify cancellation racing with acknowledged work;
+connect message expiry to owner-row reconstruction and successful processing;
+wait through the recorded rollback window; then recheck and remove only the
+four legacy Geodata durables. The observation ends no earlier than 20:58:36 UTC
+on 11 October 2026. Keep migration 021, work rows, outbox history, checkpoints
+and dead letters because they remain the recovery/source boundary. Continue to
+Phase 6 only after Phase 5 exit evidence is complete.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
