@@ -16,8 +16,13 @@ documentation evidence and does not set delivery dates.
   Activity work stream, six durables, guarded migration, old claim-index
   retirement, and compatibility-repair shutdown are deployed. Production had
   no selected jobs at cutover; the six handler paths passed isolated
-  PostgreSQL/JetStream qualification. Phase 5 Geodata work and Phase 6 shared
-  stream-retention transition remain planned. See the [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+  PostgreSQL/JetStream qualification. Phase 5's four Geodata work routes and
+  migration 021 are live; the retry-safe partial-cascade fix is deployed. The
+  old Geodata durables remain empty for the 24-hour rollback observation.
+  Cross-service failure-chain qualification and final safe durable retirement
+  remain open. Phase 6's shared fact-stream transition is still planned. See
+  the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+  [migration plan](../operations/messaging/nats-event-migration-plan.md),
   [work queue runbook](../operations/messaging/activity-work-queues.md), and
   [Work in progress](../work-in-progress/README.md).
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
