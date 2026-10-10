@@ -94,13 +94,15 @@ flowchart LR
 
 **Status (10 October 2026):** Phases 0–4 are complete within their evidence
 bounds. Phase 5 has deployed the Geodata WorkQueue, four exact durables,
-migration 021 and retry-safe partial-deletion handling. The four old Geodata
-durables are inactive and empty during the rollback observation; remove them
-only after the 24-hour window and database recovery check. Helm revision 187
-pods and migration jobs were ready, while Fleet still reported `WaitApplied`
-during reconciliation. The production Geodata queues had no work to process.
-`MYOTA_EVENTS` remains file-backed with Interest retention and its Activity
-notification durable remains active. The target bounded Limits fact stream and
+migration 021 and retry-safe partial-deletion handling. Helm revision 189 is
+deployed and Fleet reports Ready=True with 60/60 resources. The four old
+Geodata durables are inactive and empty during the rollback observation; remove
+them only after the 24-hour window and database recovery check. A disposable
+two-database retry test completed after NAK/redelivery with one Activity
+cascade fact. The corrected Activity idempotency source is committed and
+mirrored, but its new image is not yet deployed. Production Geodata queues had
+no work to process. `MYOTA_EVENTS` remains file-backed with Interest retention
+and its Activity notification durable remains active. The target bounded Limits fact stream and
 Phase 6 lifecycle transition are not live. The accepted cluster-internal trust
 boundary and deferred off-node recovery remain as recorded in ADR-0008. See the
 [Phase 5 evidence](../../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
