@@ -12,12 +12,12 @@ documentation evidence and does not set delivery dates.
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phases 0–3 are complete within their recorded evidence bounds. Phase 4
-  Activity work source changes and disposable database/broker qualification
-  are complete, but production still uses the DB-polled worker and lacks
-  `MYOTA_ACTIVITY_WORK`. The guarded migration, worker rollout, and removal of
-  the compatibility repair remain active gates. Phase 5 Geodata work and the
-  shared stream-retention cutover remain planned. See the [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+  — Phases 0–4 are complete within their recorded evidence bounds. Phase 4's
+  Activity work stream, six durables, guarded migration, old claim-index
+  retirement, and compatibility-repair shutdown are deployed. Production had
+  no selected jobs at cutover; the six handler paths passed isolated
+  PostgreSQL/JetStream qualification. Phase 5 Geodata work and Phase 6 shared
+  stream-retention transition remain planned. See the [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
   [work queue runbook](../operations/messaging/activity-work-queues.md), and
   [Work in progress](../work-in-progress/README.md).
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —

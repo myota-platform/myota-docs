@@ -18,11 +18,11 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  Phases 0–3 are complete within their evidence bounds. Phase 4 source changes
-  and isolated PostgreSQL/JetStream qualification are complete, including the
-  guarded job backfill and retirement of the obsolete database-claim index.
-  Production still runs the database-polled Activity worker; its staged drain,
-  migration, and rollout remain open. See the [Phase 4 evidence](operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+  Phases 0–4 are complete within their recorded evidence bounds. Phase 4
+  deployed the Activity WorkQueue, six exact durables, migrated queued work,
+  retired database polling and its claim index, and disabled compatibility
+  repair. Production had no selected jobs at cutover; all six work types passed
+  isolated PostgreSQL/JetStream processing qualification. See the [Phase 4 evidence](operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
   [Activity work queues runbook](operations/messaging/activity-work-queues.md),
   [Phase 3 evidence](operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
   [migration inventory](operations/messaging/nats-event-migration-inventory.md),

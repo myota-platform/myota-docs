@@ -5,9 +5,9 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
-  — **Status:** Phases 0–3 are complete within their evidence bounds. Phase 4
-  source implementation and isolated qualification are complete; production
-  cutover remains active.
+  — **Status:** Phases 0–4 are complete within their evidence bounds. Phase 4
+  production cutover and cleanup are complete. Phase 5 Geodata work migration
+  and Phase 6 fact-stream retention transition remain active roadmap items.
   - **Phase 4 implementation:** Six Activity commands use ID-only work
     envelopes, transactional job/outbox writes, exact per-kind pull durables,
     post-commit ACK, retry/backoff, renewable token-fenced leases, persisted
@@ -16,23 +16,25 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     drops the obsolete poller index while preserving `activity_job` status and
     history. `NOTIFICATION_SEND` rows are corrected to delivered and its
     synthetic jobs are removed.
-  - **Isolated evidence:** 37 Activity tests passed (one optional broker test
+  - **Isolated evidence:** 38 Activity tests passed (one optional broker test
     skipped); contract tests passed 7/7; the source audit covered 68 facts and
     16 legacy work types; deploy tests passed 25/25; Helm lint passed. A
     disposable host-K3s PostgreSQL/NATS namespace verified migration guard and
     rerun, lease fencing, terminal DLQ/redrive, all six durables, ACK state,
     and an empty WorkQueue after processing. The namespace and port forwards
     were removed.
-  - **Production baseline:** Read-only checks found 154 synthetic
-    `NOTIFICATION_SEND` jobs, all succeeded; no selected Activity work jobs or
-    queued notifications; the old claim index remains; `MYOTA_ACTIVITY_WORK`
-    and `MYOTA_GEODATA_WORK` are absent; mixed `MYOTA_EVENTS` is unchanged.
-    Helm 173 is deployed and Fleet reports myota-deploy Ready at `81c2f321`.
-  - **Remaining gates:** staged stream provisioning; Activity worker scale to
-    zero and pod drain; guarded production migration; new image rollout and
-    per-kind durable/metric verification; then disable the transitional
-    missing-outbox repair after all old API pods are gone. Preserve Geodata
-    queues and mixed-stream retention during this phase.
+  - **Production verification:** deploy commit `480c2031589e4947ecef6ba8940b54e60af77ed1`
+    provisioned `MYOTA_ACTIVITY_WORK`; the six durables report zero pending,
+    ack-pending, and redeliveries with active pull waiters. Migration 007 removed
+    `activity_job_claim_idx`, created the status/kind index and lease/DLQ/audit
+    schema, delivered 154 in-app notification rows, and purged their synthetic
+    jobs. Two workers and three APIs run the pinned Activity image; the
+    compatibility repair is disabled. Prometheus returns per-kind zero series.
+    No production Activity work was queued or executed during cutover.
+  - **Remaining gates:** Phase 5 Geodata work migration, Phase 6 fact-stream
+    retention transition, broader payload privacy/schema enforcement, and the
+    accepted off-node recovery deferral. The mixed fact stream and Geodata
+    work routes were unchanged in Phase 4.
   - **References:** [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
     [Activity work queue runbook](../operations/messaging/activity-work-queues.md),
     [Phase 3 evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),

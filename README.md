@@ -75,13 +75,14 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   [Phase 2 relay evidence](docs/operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
   and [recovery runbook](docs/operations/messaging/jetstream-recovery.md), with the
   selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-  Phases 0–3 are complete within their evidence bounds. Phase 4 source code,
-  disposable database/broker tests, and obsolete poll-index migration are
-  complete, but production still runs the DB-polled Activity worker. The
-  staged worker drain, guarded migration, new image rollout, and compatibility
-  reconciler retirement remain open. Helm revision 173 is deployed; Fleet
-  reports the MyOTA bundle Ready. The live `MYOTA_EVENTS` stream remains
-  Interest-retained and Geodata work remains on the legacy topology. See the
+  Phases 0–4 are complete within their recorded evidence bounds. Phase 4
+  deployed the Activity WorkQueue, six exact durables, guarded database
+  migration, new image, and disabled compatibility repair. The obsolete claim
+  index and synthetic notification jobs were removed; `activity_job` history
+  remains authoritative. Production had no selected jobs at cutover, so live
+  processing is not claimed; all six kinds passed isolated PostgreSQL/JetStream
+  processing qualification. The live `MYOTA_EVENTS` stream remains
+  Interest-retained and Geodata work remains on its Phase 5 path. See the
   [Phase 4 evidence](docs/operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
   [Activity work runbook](docs/operations/messaging/activity-work-queues.md),
   and [current/target diagrams](docs/architecture/diagrams/nats-event-migration.md).
@@ -96,13 +97,14 @@ imply scale qualification or production readiness.
 
 NATS migration status on 10 October 2026:
 
-- Phases 0–3 are complete within the recorded evidence bounds. Phase 4's six
-  Activity work routes, transactional outbox, leases/retries, dead letters, and
-  audited redrive pass isolated qualification.
-- Production remains on the old Activity DB-polling worker. The Activity work
-  stream is not provisioned and the old claim index remains; read-only evidence
-  found no selected work backlog. The ordered drain, backfill, worker rollout,
-  and temporary repair removal remain the next gates.
+- Phases 0–4 are complete within the recorded evidence bounds. Phase 4's six
+  Activity work routes, transactional outbox, leases/retries, dead letters,
+  audited redrive, and production cutover are complete.
+- The production Activity WorkQueue and six durables are live. The retired
+  claim index is absent, the synthetic notification jobs are purged, and the
+  compatibility repair is disabled. The production backlog was zero at
+  cutover, so no real Activity job execution is claimed; all six types passed
+  isolated PostgreSQL/JetStream processing qualification.
 - The shared `MYOTA_EVENTS` stream remains file-backed with Interest retention;
   four Geodata work durables are unchanged. Off-node recovery remains deferred
   for the single-node scope.

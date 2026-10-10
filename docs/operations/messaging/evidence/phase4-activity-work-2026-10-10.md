@@ -1,9 +1,12 @@
 # Phase 4 Activity work migration evidence
 
 **Date:** 10 October 2026  
-**Status:** implementation and isolated qualification complete; production
-cutover is pending the staged worker drain and image rollout. This is not a
-claim that the six job kinds are already JetStream-backed in production.
+**Status:** Phase 4 production cutover and cleanup are complete within the
+observed workload bounds. The Activity work stream, six exact durables, new
+worker/API image, schema migration, and disabled compatibility repair are
+live. No selected production job was available at cutover; production
+processing of a real job is therefore not claimed. Isolated PostgreSQL and
+JetStream qualification processed all six registered work kinds.
 
 ## Decision and boundaries
 
@@ -17,20 +20,20 @@ recovery record. Activity's domain facts continue through its existing outbox
 path. `NOTIFICATION_SEND` is excluded because notification rows are already
 in-app delivered facts and the old job had no external provider side effect.
 
-The current live cluster is deliberately distinguished from the target:
+The production cutover began from this verified baseline and was completed in
+stages:
 
-- Read-only production inspection found 154 `NOTIFICATION_SEND` rows, all
-  `SUCCEEDED`; no selected Phase 4 job kinds, `RUNNING` jobs, or queued
-  Activity notifications were present at inspection time.
+- Baseline inspection found 154 `NOTIFICATION_SEND` rows, all `SUCCEEDED`; no
+  selected Phase 4 job kinds, `RUNNING` jobs, or queued Activity notifications
+  were present.
 - The live `MYOTA_EVENTS` stream is file-backed with Interest retention and
   contains `myota.events.>` and `myota.geodata.>`; it had zero retained
   messages. `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` do not yet exist.
-- The Activity database still had the legacy `activity_job_claim_idx`, no
+- At baseline the Activity database still had the legacy `activity_job_claim_idx`, no
   `activity_job_status_kind_idx`, and no `lease_token` column. Helm revision
   173 was Ready; Fleet tracked deploy commit `81c2f3217b67a91a104c1b4797cfd9fa4c0e83ca`.
-- Therefore production still runs the old Activity database-polled worker.
-  No production job, stream, consumer, or database row was changed during
-  this evidence pass.
+- These observations justified starting the staged cutover, with the old
+  workers drained before the first schema migration.
 
 ## Per-kind source and behavior inventory
 
@@ -83,7 +86,7 @@ The implementation changes:
 
 Local checks on 10 October 2026:
 
-- Activity Ruff check and format check passed; 37 Activity tests passed and one
+- Activity Ruff check and format check passed; 38 Activity tests passed and one
   optional isolated-notification-broker test was skipped because its test URL
   was not configured.
 - Contracts tests passed 7/7; the five-service source audit verified 68 facts,
@@ -110,29 +113,63 @@ Local checks on 10 October 2026:
   ConfigMap, Secret, and port forwards were deleted. A follow-up query found
   the namespace absent.
 
-## Remaining production gate
+## Production cutover verification
 
-Production rollout is staged to avoid the previous poller claiming work while
-the database backfill runs:
+The production change was applied through deploy-owned Fleet/Helm values in
+`myota-deploy/deploy/helm/myota`; the platform copies are synchronized
+mirrors. The Activity image is pinned by digest
+`sha256:f46c10c286ed82c15bed37dc84f9152a782403198ae0332c8cf04bf75067b023`.
+The chart provisions only `MYOTA_ACTIVITY_WORK` for this phase. Its observed
+configuration is WorkQueue retention, subject `myota.work.activity.>`, and
+zero messages/bytes at verification. `MYOTA_EVENTS` remains Interest-retained
+and empty; the Geodata paths were not changed.
 
-1. Provision and validate the disjoint target stream/durables; this does not
-   change the mixed legacy `MYOTA_EVENTS` stream or Geodata queues.
-2. Scale the Activity DB-polling worker Deployment to zero and verify the old
-   worker pods are gone. Activity APIs remain available and continue storing
-   accepted job rows/outbox rows.
-3. Run the guarded Activity schema/backfill migration while no old worker can
-   claim. Verify no selected `RUNNING` job remains and all queued selected jobs
-   have a matching outbox row.
-4. Roll out the new Activity API/worker images. The startup/periodic legacy
-   outbox repair covers any old API pod that wrote a queued job during the
-   rolling update. Verify every selected job has an outbox event and no
-   database claim loop remains.
-5. After old API pods are gone and the repair reports zero rows, turn off the
-   temporary legacy repair loop in a follow-up cleanup; retain the work-row
-   source of truth, durable status endpoint, metrics, and audited redrive.
+Cutover order and live evidence:
 
-At the production read-only inspection, all six selected work kinds had zero
-jobs, so the backfill had no existing selected backlog. Actual production
-provisioning, migration, rollout, durable pending/ACK state, metrics scrape,
-HPA/termination behavior, and removal of the compatibility repair loop are not
-yet verified. Phase 4 exit criteria remain open until those checks pass.
+1. Scaled the Activity DB-polling worker to zero and confirmed old worker pods
+   were gone before running migration 007.
+2. Provisioned and validated the target stream and all six durables. The
+   provisioner Job completed; a subsequent provision was idempotent.
+3. Ran the guarded migration with the new platform image at Helm revision 176,
+   with the Activity worker still at zero. The obsolete
+   `activity_job_claim_idx` is absent; `activity_job_status_kind_idx`, lease
+   columns, `activity_work_dead_letter`, and `activity_work_redrive_audit`
+   exist. All 154 notification rows are `DELIVERED`, all synthetic
+   `NOTIFICATION_SEND` job rows are purged, and the `activity_job` table remains.
+4. Started two Activity JetStream workers and three Activity API replicas.
+   All six durables report zero pending, zero ack-pending, and zero
+   redeliveries; each has one or more active waiting pull requests. Production
+   had zero selected job rows and zero unresolved dead letters.
+5. Deployed the Activity image with the zero-series metrics fix and set
+   `legacyReconciliationEnabled: false` after all old API pods were gone.
+   Database checks show no selected queued/running jobs. The compatibility
+   repair is disabled, and workers are using JetStream subscriptions.
+6. Activity `/metrics` exports all six kinds with zero queued/running/failed/
+   succeeded counts, zero queue age and zero retry counters, plus zero
+   unresolved dead letters. The Prometheus API returns
+   `myota_activity_jobs_total`; the Operations dashboard and alerts use these
+   names. No latency sample exists because no production job ran.
+
+Fleet tracks deploy commit
+`480c2031589e4947ecef6ba8940b54e60af77ed1`. All current Activity API and
+worker pods run the pinned digest above. Helm revisions 176–181 applied the
+migration and final values; revision 181 is `deployed` (with a rollback/retry
+description from Fleet). The late Helm rollback/retry changed chart revision
+metadata only; the migration is idempotent, and live schema/topology checks
+passed again. No Geodata routes or `MYOTA_EVENTS` retention settings changed.
+
+Rollback decision: migration 007 is forward-only because the only destructive
+actions purge synthetic notification-job rows and remove an unused polling
+index. A code rollback must keep the new schema, stop JetStream workers before
+restarting the old DB poller, and leave queued outbox commands unacknowledged;
+this keeps database job status authoritative and avoids dual execution. Do not
+attempt a schema down-migration. No production rollback was invoked because
+the new workers and API were healthy and the production queue was empty.
+
+The read-only baseline found zero selected work rows, so the migration had no
+selected backlog to dispatch. Deployed workers are ready and polling all six
+exact durables. Production handler execution remains unobserved because no
+accepted Activity job was queued during the cutover window; this is an
+evidence limit, not an inferred successful production execution. The isolated
+test processed each registered type against PostgreSQL and JetStream and is the
+processing, ACK, and idempotency evidence for this phase.

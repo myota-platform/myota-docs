@@ -34,22 +34,34 @@ describe current ownership and are authoritative for the present-day system.
 - Synchronized Activity and deployment/runtime catalogs into `myota-deploy` and
   `myota-platform`; updated contracts, diagrams, work-queue runbook, phase plan,
   evidence, README links, To do, Work in progress, and prioritized backlog.
-- **Verification:** 37 Activity tests passed (one optional broker test skipped);
+- **Verification:** 38 Activity tests passed (one optional broker test skipped);
   Contracts tests passed 7/7 and source audit found 68 registered facts, 16
   legacy work types, and no unclassified event-like literals; Deploy relay,
   retention, and topology tests passed 25/25; Ruff/format checks and Helm lint
   passed. Disposable K3s/PostgreSQL/NATS checks covered migration guard/rerun,
   six durable filters, duplicate-safe ACK, lease fencing, DLQ, redrive, and
   cleanup. Temporary namespace and port forwards were deleted.
-- **Production evidence:** read-only inspection found no selected Activity job
-  backlog, 154 succeeded synthetic notification jobs, no queued notifications,
-  and the still-present old claim index. The live broker has only the mixed
-  Interest-retained `MYOTA_EVENTS`; `MYOTA_ACTIVITY_WORK` is absent. Helm 173 is
-  deployed and Fleet reports the MyOTA bundle Ready. No production jobs,
-  schemas, messages, or consumers were changed in this evidence pass. The
-  staged production worker drain, guarded migration, image rollout, durable and
-  metric verification, and compatibility-repair removal remain open; Phase 4
-  exit criteria are not marked complete.
+- **Production cutover:** the Activity DB-polling workers were drained before
+  migration 007. `MYOTA_ACTIVITY_WORK` was provisioned as WorkQueue with six
+  exact durables; two workers and three API replicas now run the pinned
+  Activity image. The old claim index was dropped, the status/kind index and
+  lease/DLQ/audit schema were added, all 154 in-app notifications were marked
+  delivered, and synthetic `NOTIFICATION_SEND` jobs were purged. `activity_job`
+  and domain history remain intact. After old API pods left, the compatibility
+  repair was disabled.
+- **Live checks and limits:** all six durables report zero pending,
+  ack-pending, and redeliveries with active pull waiters; `MYOTA_ACTIVITY_WORK`
+  has zero messages and bytes. The zero-valued per-kind job, queue-age, retry,
+  and dead-letter metrics are visible in Activity and Prometheus. Production
+  had no selected job at cutover, so no live handler execution or latency sample
+  is claimed. Isolated PostgreSQL/JetStream checks processed all six registered
+  command types. The mixed Interest-retained fact stream and Geodata work
+  routes were left unchanged. Fleet tracks deploy commit
+  `480c2031589e4947ecef6ba8940b54e60af77ed1`; Helm's latest deployed revision is
+  181 after its reconciliation rollback/retry.
+- **Status:** Phase 4 exit criteria are complete within the explicitly recorded
+  no-production-workload evidence bound. Phase 5 Geodata work and Phase 6
+  shared fact-stream retention transition remain open.
 - **Files/evidence:** see [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
   [Activity work queues runbook](../operations/messaging/activity-work-queues.md),
   [migration plan](../operations/messaging/nats-event-migration-plan.md), and

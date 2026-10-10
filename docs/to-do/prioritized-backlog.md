@@ -60,37 +60,31 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Complete the NATS migration rollout after Phase 4 implementation
+### 2. Continue the NATS migration with Geodata work and fact-stream lifecycle
 
-**Current evidence:** Phases 0–3 are complete within their evidence bounds.
-Phase 4's six Activity work routes, transactional outbox integration, lease
-fencing, retry/DLQ/redrive, schema cleanup, contracts, and dashboard are
-implemented and passed isolated qualification. The current live cluster still
-runs the old Activity poller: the old claim index is present and
-`MYOTA_ACTIVITY_WORK` is absent. A read-only query found no selected job
-backlog or running rows; 154 synthetic notification jobs were already
-succeeded and no notifications remained queued. Helm 173 is deployed and Fleet
-reports the MyOTA bundle Ready. The [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
-records the exact tests and production baseline.
+**Current evidence:** Phases 0–4 are complete within their recorded evidence
+bounds. Phase 4 production cutover deployed `MYOTA_ACTIVITY_WORK` and six exact
+durables, migrated the Activity schema, removed the obsolete claim index and
+synthetic notification jobs, and disabled the transitional repair scan. The
+production selected-job backlog was zero at cutover; isolated qualification
+processed all six registered command types. See the [Phase 4 evidence](../operations/messaging/evidence/phase4-activity-work-2026-10-10.md).
 
-The live shared stream remains Interest-retained; the four Geodata work
-consumers remain on their legacy subjects. Payload privacy/schema enforcement,
-Geodata work migration, and the mixed-stream topology cutover remain separate
-gates. Off-node recovery is deferred for the single-node scope.
+The four Geodata work consumers still use their legacy routes. The shared
+`MYOTA_EVENTS` stream remains Interest-retained, and payload privacy/schema
+enforcement and its controlled retention transition remain open. Off-node
+recovery is deferred for the current single-node scope.
 
-**Why second:** Accepted work paths still include database polling and legacy
-Geodata subjects, and the shared stream still mixes facts and work under
-Interest retention. The Phase 3 subscriber is reliable within its local
-projection boundary, but it does not close those separate transport risks.
+**Why second:** these are the remaining accepted-work and fact-retention paths
+in the migration plan. Their recovery, payload purpose limitation, and
+stream lifecycle need their own gates; Activity's successful cutover does not
+qualify them.
 
-**Next:** Stage Phase 4 production safely: provision only the Activity stream;
-scale the old Activity worker to zero and wait for its pods to stop; run the
-first-run-guarded schema backfill; roll out the new API/worker images; verify
-job/outbox completeness, per-kind durable state, and metrics; then disable the
-rollout-only repair scan. Preserve PostgreSQL authority, leave scheduled work
-and Geodata unchanged, and defer off-node recovery as recorded by the owner.
-After that, address payload privacy/schema and Geodata minimization, migrate
-Geodata work with its own gate, and plan the mixed Interest-stream transition.
+**Next:** follow Phase 5 to migrate Geodata work with source-owned IDs,
+idempotent handlers, bounded retries, and database-authoritative recovery.
+Then follow Phase 6 for shadow/canary validation and the controlled fact-stream
+retention transition. Preserve PostgreSQL authority, keep scheduled work on
+its owning scheduler/recovery path, and retain the accepted off-node recovery
+deferral unless that scope changes.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),

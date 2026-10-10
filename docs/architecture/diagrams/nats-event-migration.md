@@ -52,14 +52,15 @@ flowchart LR
   O[Operations] -. metadata only .-> E
 ```
 
-## Phase 4 Activity work qualification — isolated, not yet live
+## Phase 4 Activity work — live in production
 
-The Activity command source, six durable filters, migration/backfill, retries,
-lease fencing, dead-letter persistence, and redrive were exercised in a
-separate disposable K3s namespace. The production Activity worker remains the
-DB-polling path until the ordered drain and migration gate passes. The old
-claim index and synthetic notification-job rows are retired only by migration
-007 after that gate. See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
+The production `MYOTA_ACTIVITY_WORK` stream uses WorkQueue retention and the
+six exact pull durables. Two Activity workers subscribe to them; the obsolete
+`activity_job_claim_idx` and synthetic `NOTIFICATION_SEND` jobs were retired by
+migration 007. `activity_job` remains the status, history, and recovery source
+of truth. The production backlog was zero at cutover, so live handler execution
+is not claimed; isolated PostgreSQL/JetStream qualification processed all six
+registered command types. See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
 and [work queue runbook](../../operations/messaging/activity-work-queues.md).
 
 ## Selected target — ADR-0008, not yet live
@@ -85,18 +86,17 @@ flowchart LR
   ES -. inspect only .-> O[Operations observer]
 ```
 
-**Status (10 October 2026):** Phases 0–3 are complete within their evidence
-bounds. Phase 4 Activity code, schema retirement, and disposable PostgreSQL and
-JetStream checks are complete. Production still uses the DB-polling Activity
-worker; the target `MYOTA_ACTIVITY_WORK` stream is absent, the Activity claim
-index is present, and the guarded production backfill/worker rollout remain
-open. A read-only production query found no selected Activity work jobs, no
-running jobs, and 154 already-succeeded synthetic notification jobs. Helm
-revision 173 is deployed and the MyOTA Fleet bundle is Ready. The mixed
-Interest-retained fact stream, its Activity notification durable, and four
-Geodata work durables remain unchanged. Phase 5 Geodata work migration, payload
-privacy/schema enforcement, and the final mixed-stream cutover remain separate
-gates. The accepted cluster-internal trust boundary and deferred off-node
-recovery remain as recorded in ADR-0008. See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+**Status (10 October 2026):** Phases 0–4 are complete within their evidence
+bounds. Activity work is deployed with two JetStream workers and six exact
+durables. Migration 007 removed the claim index and synthetic notification
+jobs while preserving Activity job history. Prometheus returns zero-valued
+per-kind job metrics. Production had no selected work at cutover, so live
+processing of a real Activity job is not claimed; isolated qualification
+processed all six types. The mixed Interest-retained fact stream, the exact
+Activity notification durable, and four Geodata work durables are unchanged.
+Phase 5 Geodata work migration, payload privacy/schema enforcement, and the
+final mixed-stream cutover remain separate gates. The accepted cluster-internal
+trust boundary and deferred off-node recovery remain as recorded in ADR-0008.
+See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
 [Activity work queues runbook](../../operations/messaging/activity-work-queues.md),
 and [Phase 3 evidence](../../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md).

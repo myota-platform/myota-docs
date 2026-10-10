@@ -9,22 +9,22 @@
 - [JetStream administration and status](jetstream-admin-status.md) — read-only
   broker state and sampled history.
 - [NATS event migration plan](nats-event-migration-plan.md)
-  - **Complete:** Phases 0–3 within their recorded evidence bounds. Phase 4
-    code and isolated PostgreSQL/JetStream qualification are complete. Its
-    production cutover is not complete: the live Activity worker still polls
-    PostgreSQL, the live target Activity stream is absent, and the current
-    Activity schema still has its old claim index. The exact staged gate and
-    results are in the [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md)
-    and [work queue runbook](activity-work-queues.md).
+  - **Complete:** Phases 0–4 within their recorded evidence bounds. Phase 4
+    production cutover provisioned `MYOTA_ACTIVITY_WORK`, deployed six exact
+    durables and JetStream workers, ran migration 007, retired the old claim
+    index, purged synthetic notification jobs, and disabled compatibility
+    repair. No selected production jobs existed at cutover; isolated
+    PostgreSQL/JetStream qualification processed all six kinds. See the
+    [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md) and
+    [work queue runbook](activity-work-queues.md).
   - **Selected:** Cluster-internal trust boundary without NATS auth/TLS, bounded
     work schemas, create-only provisioner, and accepted capacity limits.
   - **Verified:** Fail-closed Helm pre-upgrade gate, local restore/replay, and
     Phase 4 disposable broker/database migration and duplicate-safe ACK checks.
-  - **Still open:** Activity production worker drain/migration/rollout, Activity
-    compatibility-repair removal, payload/privacy enforcement, Geodata work
-    migration, and controlled stream-retention cutover. The live shared stream
-    remains Interest-retained. Helm revision 173 is deployed and Fleet reports
-    the MyOTA bundle Ready; see live state in the Phase 4 evidence.
+  - **Still open:** payload/privacy enforcement, Geodata work migration, and
+    controlled stream-retention cutover. The live shared stream remains
+    Interest-retained. The Phase 4 evidence records the deployed state and its
+    no-production-workload limitation.
 - [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.

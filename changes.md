@@ -15,11 +15,16 @@
   backfill gate/rerun, duplicate-safe ACK, stale lease rejection, DLQ/redrive,
   and cleanup. See [Phase 4 evidence](docs/operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
   and [Activity work runbook](docs/operations/messaging/activity-work-queues.md).
-- Production remains on the old DB-polling worker: read-only inspection found
-  no selected job backlog but the old claim index remains and the Activity work
-  stream is absent. The staged worker drain, production migration/image rollout,
-  live metric/durable verification, and compatibility-repair removal remain
-  Phase 4 exit gates. No production job or broker data was changed.
+- Production cutover completed: `MYOTA_ACTIVITY_WORK` and its six durables are
+  live, two workers and three API replicas use the pinned Activity image, and
+  compatibility repair is disabled. Migration 007 removed the old claim index
+  and synthetic notification jobs while preserving `activity_job` history.
+  Prometheus exposes per-kind zero series; the stream and durables have no
+  pending or redelivered work. Production had zero selected jobs at cutover, so
+  no live handler execution is claimed; all six paths passed isolated
+  PostgreSQL/JetStream qualification. Geodata routes and the mixed
+  Interest-retained fact stream were not changed. See the [Phase 4 evidence](docs/operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
+  and [Activity work runbook](docs/operations/messaging/activity-work-queues.md).
 
 ## 10 October 2026 — NATS Phase 3 Activity notification consumer
 

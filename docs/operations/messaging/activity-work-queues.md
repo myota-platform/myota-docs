@@ -1,9 +1,11 @@
 # Activity JetStream work queues
 
-**Status:** target behavior and isolated qualification are documented; the
-production worker is not yet cut over. Follow the staged deployment in the
-[Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md) and migration
-[plan](nats-event-migration-plan.md).
+**Status:** deployed in production through the Phase 4 cutover. Two Activity
+workers consume the six exact durables; the database poller and transitional
+repair are retired. The production selected-work backlog was zero at cutover,
+so production handler execution was not observed. Isolated PostgreSQL/JetStream
+qualification processed each work type. See the [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md)
+and migration [plan](nats-event-migration-plan.md).
 
 ## Ownership and command routes
 
@@ -32,9 +34,9 @@ create default consumers.
 
 ## Processing and recovery
 
-- The database claim updates `QUEUED` to `RUNNING`, increments attempts, and
-  assigns a 120-second lease plus a random UUID lease token. Long handlers
-  renew the lease and send JetStream progress ACKs every 30 seconds.
+- The database lease acquisition updates `QUEUED` to `RUNNING`, increments
+  attempts, and assigns a 120-second lease plus a random UUID lease token. Long
+  handlers renew the lease and send JetStream progress ACKs every 30 seconds.
 - Completion or terminal failure must match the lease token. A stale worker
   cannot overwrite another worker's result. Business side effects are
   idempotent: QSO keys and snapshots are unique/upserted, notifications use
@@ -76,7 +78,7 @@ ADIF object retention stays on the Activity CronJob and remains restricted to
 terminal old imports. It is scheduled cleanup, not accepted-work dispatch.
 Any separately scheduled reconciliation remains an owning database recovery
 mechanism; it does not claim or execute JetStream work. The rollout-only legacy
-outbox repair must be disabled after all old API replicas are gone and it has
+outbox repair was disabled after all old API replicas were gone and it had
 repaired zero rows.
 
 ## Metrics and rollout checks
@@ -86,10 +88,12 @@ queued age, completed latency, retry total, failed jobs, and unresolved work-DLQ
 count. Operations' Grafana dashboard adds job status/kind, age, latency/retries,
 and unresolved-DLQ panels. Do not add job IDs or other unbounded labels.
 
-Before marking Phase 4 complete, verify the provisioned stream and six exact
-durables, all selected queued jobs have outbox rows, no selected job remains
-`RUNNING` under the old worker, the new worker pods are ready, ACK-pending and
-queue age behave normally, the temporary compatibility reconciler reports no
-repair and is then disabled, and the obsolete DB claim index is absent. Preserve
+Phase 4 production verification found the WorkQueue stream and six exact
+durables ready, no selected queued/running job rows, no pending or ack-pending
+messages, and active worker pull waiters. The compatibility repair is disabled
+and `activity_job_claim_idx` is absent. The Activity API exports per-kind job
+status, queue age, retries, latency observations when jobs complete, and
+unresolved DLQ counts; Prometheus and Operations dashboards use these bounded
+metrics. No latency sample exists until real jobs execute. Preserve
 `MYOTA_EVENTS` Interest retention and all Geodata work durables until their
 separate planned phases.

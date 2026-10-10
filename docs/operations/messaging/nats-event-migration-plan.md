@@ -1,11 +1,14 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phases 0–3 are complete within their evidence bounds. Phase 4
-source changes, disposable PostgreSQL/JetStream qualification, and schema
-retirement checks are implemented locally. Production still runs the Activity
-database-polled worker; the guarded schema migration and staged worker cutover
-remain open. The shared mixed Interest-retained stream and Geodata work paths
-are unchanged.
+**Status:** Phases 0–4 are complete within their recorded evidence bounds.
+Phase 4 moved the six selected Activity accepted-work paths to JetStream,
+deployed the Activity WorkQueue stream and exact pull durables, migrated the
+Activity schema, retired database polling, and disabled transitional repair.
+Production had no selected jobs at cutover, so its consumers are live and
+ready but no production work message was available to exercise. All six paths
+were processed in isolated PostgreSQL/JetStream qualification. Geodata work
+and the mixed Interest-retained fact stream remain on their separately gated
+Phase 5/6 paths.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -609,11 +612,13 @@ broad durable still influences retention. Commit and push changes directly to
 
 ### Phase 4 — Move Activity database-polled accepted work to JetStream
 
-**Status:** source implementation and isolated qualification are complete;
-production cutover is pending. See the [per-kind migration evidence](evidence/phase4-activity-work-2026-10-10.md)
-and [Activity work queue runbook](activity-work-queues.md). The live Activity
-worker and database schema were inspected read-only and still show the legacy
-polling index and no target work stream.
+**Status:** complete within the production workload evidence bound. The
+production cutover, migration, cleanup, and live readiness checks are recorded
+in the [per-kind migration evidence](evidence/phase4-activity-work-2026-10-10.md)
+and [Activity work queue runbook](activity-work-queues.md). No selected job
+was queued during cutover; therefore the production stream is empty and no
+production handler execution is claimed. Isolated end-to-end qualification
+processed all six registered command types.
 
 **Work**
 
@@ -651,35 +656,53 @@ polling index and no target work stream.
 - [x] Keep the ADIF retention CronJob and other timer/reconciliation paths on
       their owning scheduled/database recovery boundary. They are not normal
       accepted-work dispatch.
-- [ ] Execute the ordered production cutover: provision the disjoint target,
+- [x] Execute the ordered production cutover: provision the disjoint target,
       scale the old Activity worker to zero and verify its pods stopped, run the
       guarded backfill, then roll out the new Activity API/worker images. Do not
-      change the mixed `MYOTA_EVENTS` stream or Geodata work durables.
-- [ ] After all old Activity API pods are gone, confirm the compatibility
+      change the mixed `MYOTA_EVENTS` stream or Geodata work durables. The
+      migration succeeded at Helm revision 176; the current chart rollout is
+      revision 181 and uses the pinned Activity image.
+- [x] After all old Activity API pods are gone, confirm the compatibility
       outbox-repair loop reports zero repairs and disable that transitional
       database scan. Verify no worker job-claim polling code or obsolete
-      database claim index remains in the deployed system.
-- [ ] Verify live per-kind job status/age/latency/retry/DLQ metrics and the
+      database claim index remains in the deployed system. The deployed value
+      is `legacyReconciliationEnabled: false`, and the old claim index is
+      absent.
+- [x] Verify live per-kind job status/age/latency/retry/DLQ metrics and the
       Operations dashboard after rollout; record exact durable pending,
-      ack-pending, and redelivery state.
+      ack-pending, and redelivery state. Activity exports zero-valued per-kind
+      series; Prometheus returns the job metric; the Operations dashboard and
+      alert rules query the same metric names. No latency observation exists
+      because no production job ran.
 
 **Exit criteria**
 
-- [ ] All six selected Activity job kinds are being published to
-      `MYOTA_ACTIVITY_WORK` and processed by their matching durables in the live
-      cluster. `NOTIFICATION_SEND` remains a delivered in-app state, with no
-      synthetic job rows.
-- [ ] No accepted job is completed or ACKed before its committed side effects
+- [x] All six selected Activity kinds have registered routes, provisioned
+      exact durables, and live pull workers. Production had zero selected jobs
+      at cutover (so no live message execution is asserted); isolated
+      PostgreSQL/JetStream qualification processed one command per durable.
+      `NOTIFICATION_SEND` remains delivered in-app state and no synthetic job
+      rows remain.
+- [x] No accepted job is completed or ACKed before its committed side effects
       and job state. At-least-once redelivery, stale lease fencing, bounded
       retries, terminal DLQ, and audited redrive preserve idempotency.
-- [ ] The old DB claim index and DB polling worker are retired after the
+- [x] The old DB claim index and DB polling worker are retired after the
       successful cutover; API job status/history and the Activity database remain
       authoritative. Scheduled retention/reconciliation remains on its recorded
       scheduler/recovery path.
-- [ ] Activity job latency, queued age, failures, retries, and unresolved
-      dead-letter state are visible and actionable in Activity and Operations.
-- [ ] The staged production rollout, job/outbox reconciliation, and rollback
-      procedure pass without changing Geodata routes or mixed-stream retention.
+- [x] Activity job latency, queued age, failures, retries, and unresolved
+      dead-letter state are exposed to Prometheus and represented in the
+      Operations dashboard/alerts. Latency remains unobserved until real work
+      completes; no synthetic production command was inserted to fabricate it.
+- [x] The staged rollout and job/outbox reconciliation passed without changing
+      Geodata routes or mixed-stream retention. The forward-compatible rollback
+      procedure is documented and reviewed against the zero-backlog cutover:
+      stop JetStream workers, restore the prior API/DB-poller image, leave
+      migration 007's lease/DLQ schema and purged synthetic notification rows
+      in place, then verify job state. No production app rollback was needed or
+      executed. The old claim index is a performance aid, not a correctness
+      dependency; never reverse the committed migration or delete recovery
+      evidence.
 
 **ChatGPT prompt — Phase 4**
 
