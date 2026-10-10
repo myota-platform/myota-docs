@@ -385,12 +385,15 @@ producer source paths for all 68 facts. Its workspace audit checks those referen
 and classifies Python event-like source literals as a fact or mapped legacy work
 type; the 10 October audit found no unclassified Python literals across the five
 service repositories; the contracts CI audit passed on main. Payload shapes for
-all 19 Identity and 12 Programme facts are now derived from their authoritative
-producer files, included in generated schemas, and checked by contracts CI. These
-schemas keep additive fields open and classify sensitive or internal data; they
-do not certify purpose limitation, retention, or joint owner approval. Payload
-schemas for Activity, Geodata, and Operations and joint review of Identity and
-Programme fields remain open, so the registry is not complete enforcement.
+all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts now have
+source-derived payload schemas generated from their authoritative producer files.
+Identity and Programme schema checks passed in CI; Activity and Geodata checks
+pass locally, while their GitHub CI status and all joint owner/privacy reviews
+remain unverified. Geodata preprocessing currently emits the full result object,
+including internal `_records` and `_status`; minimize this event before schema
+enforcement. Operations payload schemas remain open. These additive schemas do
+not certify purpose limitation or retention, so the registry is not complete
+enforcement.
 The deploy-owned provisioner now fixes and validates pull delivery mode, explicit
 ACK, replay policy, retry limits, pending and waiting-pull bounds, consumer replicas,
 and full-payload delivery. The same source is synchronized to the platform mirror and has passed the
