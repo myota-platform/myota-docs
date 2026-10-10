@@ -22,7 +22,8 @@ describe current ownership and are authoritative for the present-day system.
   no new phase prompt was introduced.
 - **Contract checks:** Added fixtures requiring every event to declare a
   consumer disposition and every selected work command to match its registered
-  subject, stream, schema, and deploy-owned durable filter. The immutable event\nand work envelopes also require UUID IDs and UTC timestamps ending in Z. The Contracts CI
+  subject, stream, schema, and deploy-owned durable filter. The immutable event
+  and work envelopes also require UUID IDs and UTC timestamps ending in Z. The Contracts CI
   workflow passed on commit
   [d57f6b5](https://github.com/myota-platform/myota-contracts/commit/d57f6b5a8f8206639daac0426d08b81d10ba8b0f)
   ([run 38046041494](https://github.com/myota-platform/myota-contracts/actions/runs/38046041494)).
