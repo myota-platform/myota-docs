@@ -18,18 +18,19 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  Phases 0–4 are complete within their recorded evidence bounds. Phase 4
-  deployed the Activity WorkQueue, six exact durables, migrated queued work,
-  retired database polling and its claim index, and disabled compatibility
-  repair. Production had no selected jobs at cutover; all six work types passed
-  isolated PostgreSQL/JetStream processing qualification. See the [Phase 4 evidence](operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+  Phases 0–4 are complete within their recorded evidence bounds. Phase 5 has
+  moved all four Geodata work consumers to `MYOTA_GEODATA_WORK`, installed
+  migration 021, and deployed the retry-safe cross-service deletion fix.
+  Production had no accepted Geodata work at cutover. The four old Geodata
+  durable definitions remain empty during the 24-hour rollback observation;
+  Activity's notification durable and the Interest-retained `MYOTA_EVENTS`
+  stream remain live. Phase 5 stays open for the cross-service failure chain,
+  final Fleet readiness, and safe legacy durable retirement. See the [Phase 5
+  evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+  [migration plan](operations/messaging/nats-event-migration-plan.md),
   [Activity work queues runbook](operations/messaging/activity-work-queues.md),
-  [Phase 3 evidence](operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
-  [migration inventory](operations/messaging/nats-event-migration-inventory.md),
-  [current/target diagrams](architecture/diagrams/nats-event-migration.md), and
-  [ADR-0008](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-  The live `MYOTA_EVENTS` stream remains Interest-retained; Geodata work is
-  unchanged.
+  [current/target diagrams](architecture/diagrams/nats-event-migration.md),
+  and [ADR-0008](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, prompts, and recent verification.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA
