@@ -36,7 +36,6 @@ flowchart TB
   GR --> T
   N -. system monitoring requests .-> S
   S -. internal /metrics scrape .-> PR
-  S -. replaces duplicate broker polling after cutover .-> O
 ```
 
 The collector is the operational collection boundary for service telemetry.
