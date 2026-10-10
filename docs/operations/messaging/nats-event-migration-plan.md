@@ -296,12 +296,11 @@ implementation complete. Report missing evidence and Phase 0 exit criteria.
 
 **Current status (10 October 2026):** the first registry/schema and create-only
 provisioner artifacts are implemented and their focused local checks pass. No
-live topology or producer/consumer path changed. Source-derived Identity and
-Programme and Activity payloads are pending joint owner review; Geodata and
-Operations payload schemas, least-privilege credentials, measured capacity
-limits, restore/replay qualification, and removal of legacy relay provisioning
-remain open. Source-derived schema passes now cover all 19 Identity, 12
-Programme, and 10 Activity facts. An isolated host-cluster broker test
+live topology or producer/consumer path changed. Source-derived Identity, Programme, Activity, and Geodata payload schemas are
+pending joint owner/privacy review; Operations payload schemas, least-privilege
+credentials, measured capacity limits, restore/replay qualification, and removal
+of legacy relay provisioning remain open. Source-derived schema passes now cover
+all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts. An isolated host-cluster broker test
 created all target streams/durables, passed an idempotent second run, and rejected
 configuration drift; its temporary namespace was removed. The 10 October follow-up
 also validates the expanded durable consumer configuration on a disposable broker.
@@ -341,6 +340,12 @@ container build, and publish ([deploy checks](https://github.com/myota-platform/
       award-configuration, and certificate metadata; verify in contracts CI.
       Local checks pass; CI and owner/privacy review remain pending. Producer
       enforcement remains gated.
+- [ ] Derive additive payload schemas for all 27 Geodata facts from the
+      authoritative Geodata producer callsites; classify geometry, location,
+      imported source, and reviewer data; verify in contracts CI. Local checks
+      pass. CI and joint owner/privacy review remain pending. The preprocessed
+      import result currently includes internal `_records`/`_status` data and
+      requires minimization review before producer enforcement.
 
 **Work**
 
