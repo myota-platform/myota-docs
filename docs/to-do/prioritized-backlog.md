@@ -75,7 +75,7 @@ available for processing. See the [Phase 5 evidence](../operations/messaging/evi
 
 All four target durables are empty with active workers. Four old Geodata
 durables in `MYOTA_EVENTS` remain inactive and empty. The 24-hour observation
-began at latest completed rollout revision 192, 22:03:29 UTC on
+began at latest completed rollout revision 193, 22:03:29 UTC on
 10 October, and ends no earlier than 22:03:29 UTC on 11 October 2026. After that gate, recheck
 Fleet, stream filters/backlogs, migration markers and owner-row recovery age,
 then retire only the four old durables. A 22:05 UTC read-only sample after revision 193 found zero work
