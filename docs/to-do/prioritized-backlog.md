@@ -156,19 +156,22 @@ NATS Surveyor is not deployed yet.
 
 **Why here:** broker state is observed through duplicate service-owned polling
 paths and a custom history table. A single Prometheus exporter and source-managed
-Grafana dashboard can centralize broker metrics, while application outbox and
-worker metrics remain service-owned. The upstream dashboard 16256 is written
-for the NATS built-in Prometheus exporter, so its queries must be validated
-against Surveyor before cutover. The current NATS deployment also does not
+Grafana dashboards can centralize broker metrics, while application outbox and
+worker metrics remain service-owned. The target `NATS` folder is proposed to
+contain dashboard 16256 and all ten JSON dashboards from Surveyor's Grafana
+provisioning folder. Dashboard 16256 is written for the NATS built-in
+Prometheus exporter, so its queries must be validated against Surveyor before
+cutover; validate every upstream dashboard panel as well. The current NATS deployment also does not
 configure a system account; monitoring access needs a compatibility review
 before deployment.
 
 **Next:** qualify pinned Surveyor metrics, least-privilege system monitoring
-access, dashboard query compatibility, and PostGIS panel relocation. Deploy
-internally, compare against the existing observer for seven days, and only then
-remove the Admin page, duplicate broker pollers, old NATS dashboard and
-history table/index through a forward migration. Preserve the Operations
-SeaweedFS functionality and app-level outbox/worker telemetry.
+access, compatibility of the complete dashboard set, and PostGIS panel
+relocation. Deploy internally, compare against the existing observer for seven
+days, and then retire the Admin page, duplicate broker pollers, combined MyOTA
+JetStream backlog/PostGIS dashboard, and history table/index through a forward
+migration. Preserve Operations SeaweedFS functionality and app-level
+outbox/worker telemetry.
 
 See [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md),
 [observability overview](../observability/overview.md), and the
