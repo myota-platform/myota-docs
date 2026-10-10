@@ -24,7 +24,7 @@ describe current ownership and are authoritative for the present-day system.
   consumer disposition and every selected work command to match its registered
   subject, stream, schema, and deploy-owned durable filter. The Contracts CI
   workflow passed on commit
-  [88c6b36](https://github.com/myota-platform/myota-contracts/commit/047ba75c70623fbda4e9a5a59bd59b6b527c0534)
+  [88c6b36](https://github.com/myota-platform/myota-contracts/commit/d57f6b5a8f8206639daac0426d08b81d10ba8b0f)
   ([run 38045951777](https://github.com/myota-platform/myota-contracts/actions/runs/38045951777)).
   Three focused contract tests passed, and the five-service source audit
   verified 68 fact types and six legacy work types with no undispositioned
