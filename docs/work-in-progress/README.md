@@ -15,7 +15,7 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   undispositioned Python event-like source literals across five service
   repositories; the contracts main-branch source-audit workflow passed. Earlier platform
   image-build attempts timed out at Docker Hub; the latest deploy and platform
-  main-branch image build/publish checks now pass. CI confirmation and owner/privacy approval for source-derived payloads,
+  main-branch image build/publish checks now pass. Joint owner/privacy approval, Geodata preprocessed-payload minimization,
   authenticated least-privilege NATS roles, measured capacity limits, restore/replay
   testing, and removal of relay-side provisioning remain open. The
   deployed shared `MYOTA_EVENTS` stream still uses Interest retention; no
@@ -23,13 +23,13 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
   Payload schemas for all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts are now
   derived from producer callsites and classified for sensitive/internal content.
-  Identity and Programme schemas pass CI assertions; Activity and Geodata assertions pass
-  locally with main CI pending. Joint owner/privacy review remains open. Geodata
+  Identity, Programme, Activity, and Geodata schemas pass Contracts CI; the
+  platform mirror CI also passes. Joint owner/privacy review remains open. Geodata
   preprocessing currently includes internal `_records` and `_status` in the
-  preprocessed event payload and needs minimization review. Operations payload schemas,
-  authenticated credentials, capacity limits, recovery qualification, and relay-side
+  preprocessed event payload and needs minimization review. Operations has no event-producing call sites in the source audit; an Operations
+  payload schema is not applicable unless it becomes a producer. Authenticated credentials, capacity limits, recovery qualification, and relay-side
   topology mutation remain open. The contracts, deploy, platform mirror, and organization profile PRs (#2, #4, #1,
-  and #1) are merged. Phase 1 remains in progress: remaining payload evidence, authenticated
+  and #1) are merged. Phase 1 remains in progress: owner/privacy review, Geodata payload minimization, authenticated
   least-privilege roles, capacity limits, recovery qualification, and relay-side
   topology mutation are still open.
   Volker Kerkhoff (`@kerk1v`) is assigned, with Codex pairing support. Evidence
