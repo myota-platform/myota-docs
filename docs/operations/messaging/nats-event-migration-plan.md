@@ -182,7 +182,7 @@ rollback and database recovery checks pass.
       and strict outer-envelope fields; keep relay attempts outside the
       envelope and the envelope version independent from event type version.
       See `myota-contracts/contracts/schemas/event-envelope.schema.json`,
-      `schemas/work-command.schema.json`, and `contracts/events.md`.
+      `myota-contracts/contracts/schemas/work-command.schema.json`, and\n      `myota-contracts/contracts/events.md`.
 - [ ] Enforce envelope version, payload projection, serialized message size,
       trusted correlation/causation propagation, and unknown-version handling
       in the active relay before marking an outbox row published. The
