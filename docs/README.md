@@ -27,7 +27,7 @@ indexes organize open work by delivery status.
 - [NATS Surveyor monitoring consolidation](observability/nats-surveyor-migration.md) —
   proposed Surveyor deployment and Grafana folder `NATS` containing dashboard
   16256 plus ten pinned upstream Surveyor dashboards, with panel compatibility
-  and seven-day overlap gates before removing the current Admin page, broker
+  and direct cutover validation before removing the current Admin page, broker
   pollers, combined MyOTA dashboard and NATS snapshot table.
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, Surveyor migration plan, prompts, and recent verification.
