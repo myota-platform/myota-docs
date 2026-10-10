@@ -176,6 +176,30 @@ rollback and database recovery checks pass.
 
 ### Phase 0 — Complete inventory and decision record
 
+**Status: complete.** The authoritative repository inventory, selected target
+topology, decision record, and evidence ownership are recorded in the
+[Phase 0 inventory](nats-event-migration-inventory.md) and
+[ADR-0008](../../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+Deploy and platform copies are identified as synchronized mirrors.
+
+- [x] Inventory authoritative producer, relay, consumer, worker, recovery, test,
+      and deployment sources across all repositories named in the inventory.
+- [x] Distinguish committed facts, competing work, scheduled/reconciliation paths,
+      and synchronous operations; record source owners and current boundaries.
+- [x] Select the proposed target stream/retention/subject design and record its
+      tradeoffs without treating JetStream as an archive.
+- [x] Record unresolved evidence, responsible repositories, current constraints,
+      and gates for producer/consumer changes.
+
+**Exit criteria**
+
+- [x] The evidence-backed inventory covers the Phase 0 scope and cites exact paths.
+- [x] The selected target design and operational boundaries are recorded in ADR-0008.
+- [x] Remaining evidence gaps and their owners/gates are recorded; Phase 1 contract
+      and topology work may proceed while runtime paths remain gated.
+
+### Phase 1 — Contracts, topology, provisioning, and operational safety
+
 **Work**
 
 - [x] Define the immutable event envelope v1 and work-command envelope v1 in
