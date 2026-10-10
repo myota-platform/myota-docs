@@ -141,3 +141,27 @@ live stream changed.
 
 The exact Phase 1 prompt used remains the copyable
 [Phase 1 prompt in the migration plan](../nats-event-migration-plan.md#chatgpt-prompt--phase-1).
+
+## 10 October 2026 — Identity payload contract source pass
+
+The next contract step adds payload schemas for all 19 registered Identity
+facts, derived from the event callsites in
+`myota-identity-service/identity.py` and the common envelope construction in
+`myota-identity-service/common.py`. The registry marks each schema
+`source-derived-identity-callsite` and records a data classification. Schemas
+allow additive properties so current payloads can be documented without
+rejecting compatible extensions. Account/callsign details, login email and
+remote address, and authorization events are classified as personal or
+security-sensitive. The service-token-issued schema includes service and scopes
+only; it excludes the returned access token.
+
+Contracts CI now runs the registry/schema unit tests. Local verification passed:
+two unit tests, Ruff lint and format check, generation of all 68 event schemas,
+JSON parsing and required payload-shape assertions for all 19 Identity schemas,
+the workspace audit (68 facts verified, six legacy work types mapped, zero
+unclassified Python literals), and byte-for-byte registry/schema/doc mirror
+comparison with `myota-platform`. No producer, consumer, broker, or deployed
+service behavior changed. The Identity team review of data minimization and
+retention remains open, as do source-derived payload schemas for Programme,
+Activity, Geodata, and Operations. The existing Phase 1 prompt remains the sole
+phase prompt; this is a contract-only continuation.

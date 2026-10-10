@@ -296,9 +296,13 @@ implementation complete. Report missing evidence and Phase 0 exit criteria.
 
 **Current status (10 October 2026):** the first registry/schema and create-only
 provisioner artifacts are implemented and their focused local checks pass. No
-live topology or producer/consumer path changed. Payload schemas, least-privilege
+live topology or producer/consumer path changed. Source-derived Identity payloads
+are pending owner/privacy review; other producer payload schemas, least-privilege
 credentials, measured capacity limits, restore/replay qualification, and removal
-of legacy relay provisioning remain open. An isolated host-cluster broker test
+of legacy relay provisioning remain open. A source-derived Identity payload
+schema pass now covers all 19 registered Identity facts; the schemas record
+personal or security-sensitive fields and remain subject to owner/privacy review.
+Other service payload schemas remain open. An isolated host-cluster broker test
 created all target streams/durables, passed an idempotent second run, and rejected
 configuration drift; its temporary namespace was removed. The 10 October follow-up
 also validates the expanded durable consumer configuration on a disposable broker.
@@ -325,6 +329,10 @@ container build, and publish ([deploy checks](https://github.com/myota-platform/
       durables; verify initial creation, idempotent repeat, and drift rejection
       on an isolated broker. Capacity values used in that test are not
       production limits.
+- [x] Derive additive payload schemas for all 19 Identity facts from the
+      authoritative Identity producer callsites, record data classification,
+      and add schema assertions to contracts CI. Owner/privacy review and
+      producer enforcement remain gated.
 
 **Work**
 
@@ -363,9 +371,13 @@ target commands. `myota-contracts/contracts/event-registry.json` now records exa
 producer source paths for all 68 facts. Its workspace audit checks those references
 and classifies Python event-like source literals as a fact or mapped legacy work
 type; the 10 October audit found no unclassified Python literals across the five
-service repositories; the contracts CI audit passed on main. Envelope wrappers exist, but
-event payload fields remain pending
-source-payload review; do not treat this draft registry as complete enforcement.
+service repositories; the contracts CI audit passed on main. The 19 Identity fact
+payload shapes are now derived from `myota-identity-service/identity.py`, included
+in generated schemas, and checked by contracts CI. These schemas keep additive
+fields open and classify personal/security-sensitive data; they do not certify
+purpose limitation, retention, or privacy approval. Payload schemas for the other
+four producers and owner review of Identity fields remain open, so the registry is
+not complete enforcement.
 The deploy-owned provisioner now fixes and validates pull delivery mode, explicit
 ACK, replay policy, retry limits, pending and waiting-pull bounds, consumer replicas,
 and full-payload delivery. The same source is synchronized to the platform mirror and has passed the

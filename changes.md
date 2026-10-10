@@ -3,6 +3,18 @@
 Newest deliveries first. Earlier reconstructed service-by-service milestones
 remain in the [implementation timeline](docs/history/implementation-timeline.md).
 
+## 10 October 2026 — NATS Identity payload contract source pass
+
+- Added source-derived, additive payload schemas for all 19 Identity facts and
+  recorded their data classifications in the registry and generated schemas.
+  Authentication events include current email/address fields; the service-token
+  event contract excludes the returned token. Contracts CI now runs the schema
+  and registry tests. Two tests, Ruff, schema generation, source audit, and
+  platform mirror equality checks pass locally. Identity owner/privacy review
+  and payload schemas for four other producer services remain open. No runtime
+  or deployed topology changed. See the [Phase 1 evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
+  and [plan](docs/operations/messaging/nats-event-migration-plan.md).
+
 ## 10 October 2026 — NATS Phase 1 producer source audit
 
 - Added exact producer source references for all 68 fact types to the

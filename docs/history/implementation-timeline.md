@@ -53,6 +53,12 @@ describe current ownership and are authoritative for the present-day system.
   build and publish results are recorded below. On 10 October, the deploy-owned
   provisioner was hardened to pin and verify consumer replay, pull-wait, delivery,
   storage, and payload settings; four focused topology/provisioner tests passed.
+  The next contract step derives payload shapes for all 19 Identity facts from
+  `myota-identity-service/identity.py`, keeps additive fields accepted, marks
+  data classification, and adds contracts CI assertions. This is source-derived
+  evidence pending Identity owner/privacy review; payloads for the four other
+  producer services remain open. The existing Phase 1 prompt was used; no new
+  phase prompt or runtime migration was introduced.
   Direct-main commits `1076584` (deploy) and `b047a00` (platform) passed Ruff,
   deploy gateway/service image builds, platform tests, container build, and publish.
   See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)

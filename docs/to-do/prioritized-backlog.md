@@ -73,6 +73,9 @@ a workspace audit found no undispositioned Python event-like literals across
 five service repositories. The contracts source-audit workflow passed; platform unit tests and
 Ruff format/lint CI pass. The expanded consumer configuration also passes four
 focused tests and an isolated create/idempotency run against a disposable broker.
+The 19 Identity event payloads now have additive, source-derived schemas and data
+classification metadata; owner/privacy review remains open, as do payload schemas
+for Programme, Activity, Geodata, and Operations.
 Earlier platform image-build attempts timed out at Docker Hub; the latest deploy
 and platform main-branch image build/publish checks now pass. The payload schemas are still incomplete. The deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
 and no live migration or runtime change has occurred. Read-only sampling found
