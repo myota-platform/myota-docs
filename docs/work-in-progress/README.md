@@ -30,12 +30,14 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
 - [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md)
   — **Status: planned; implementation not started.** The current Admin UI page,
   Operations broker sampler and seven-day snapshot table, Geodata broker-metric
-  poller, and MyOTA Grafana NATS dashboard remain in place. The roadmap calls
-  for a pinned Surveyor deployment and dashboard compatibility proof first,
-  followed by a seven-day overlap and controlled retirement of duplicate
-  broker inspection. Phase 5 event/work migration is complete under its
-  documented early-close waiver; Phase 6 fact-stream retention is a separate
-  track. No runtime components have been removed for this item.
+  poller, and combined MyOTA JetStream backlog/PostGIS dashboard remain in
+  place. The roadmap proposes Grafana folder `NATS` containing dashboard 16256
+  plus all ten dashboards from a pinned Surveyor provisioning revision, after
+  per-panel compatibility checks. A seven-day overlap gates removal of duplicate
+  broker inspection. The combined dashboard retires only after its PostGIS
+  panels move to Geodata. Phase 5 event/work migration is complete under its
+  documented early-close waiver; Phase 6 fact-stream retention is separate.
+  No runtime components have been removed for this item.
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates
