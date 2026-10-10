@@ -10,6 +10,8 @@
   Prometheus exporter.
 - Retire the existing `MyOTA JetStream backlog and PostGIS query performance`
   dashboard after migrating and verifying its two PostGIS panels in Geodata.
+  The timed seven-day overlap was removed: direct broker/dashboard checks,
+  rollback readiness, and a verified pre-migration backup gate retirement.
   No dashboard has been deployed or removed; this is a plan correction only.
   See the [NATS monitoring roadmap](docs/observability/nats-surveyor-migration.md).
 
