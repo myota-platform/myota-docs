@@ -66,6 +66,19 @@ stream migration.
 - Ruff lint and format checks passed for the changed relay, routing, admin CLI,
   and tests. Helm lint and render passed. Compose, Collector configs, alert
   rules, rendered Helm YAML, and the dashboard JSON parsed successfully.
+- After the source push, the live Helm release exposed a value-typing issue:
+  YAML parsed `outbox.maxMessageBytes: 1048576` as a floating-point number and
+  rendered `OUTBOX_MAX_MESSAGE_BYTES` as `1.048576e+06`, which the relay's
+  integer parser rejects. The deploy-owned value is now the quoted string
+  `"1048576"` (commit `ca70e32`) and its platform mirror is synchronized
+  (commit `50d3ad3`). Helm lint/render confirms the environment value is
+  `"1048576"`; both repository CI checks passed. During the active Fleet
+  upgrade, the three outbox Deployments were temporarily set to that same
+  intended integer value and returned Ready. This operational correction is
+  not evidence that Fleet completed the chart reconciliation: the release was
+  still `pending-upgrade` and Fleet was still applying commit `c92f1f3` at the
+  time of this record. Follow up with read-only rollout verification after the
+  corrected chart is fetched and applied.
 - All three redrive migration files applied idempotently against disposable
   PostgreSQL in the test namespace. The real relay published a registered fact
   to its dotted subject, used the event UUID as `Nats-Msg-Id`, and recovered
@@ -77,8 +90,9 @@ stream migration.
   retry. Test rows were deleted afterward.
 - The isolated release `myota-phase2-test` ran in namespace
   `myota-phase2-test` with disposable NATS/PostgreSQL resources. The namespace
-  was removed after verification. No production stream, durable, database, or
-  Helm resource was modified during these checks.
+  was removed after verification. No production stream, durable, or database
+  object was modified during these checks. The later GitOps rollout and its
+  value correction are recorded separately above.
 
 ## Live legacy topology inspection
 
