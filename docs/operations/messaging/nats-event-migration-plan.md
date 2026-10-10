@@ -1,8 +1,9 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phase 0 inventory and decision record complete. Phases 1–6 cover
-runtime implementation and qualification. Phase 1 contract/provisioning
-preparation is in progress; no phase after Phase 0 is claimed complete.
+**Status:** Phase 0 inventory and decision record complete. Phase 1 contract,
+topology, and safety work is in progress; delegated joint review decisions are
+recorded, while implementation and production qualification remain open. No
+phase after Phase 1 is claimed complete.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -294,20 +295,17 @@ implementation complete. Report missing evidence and Phase 0 exit criteria.
 
 ### Phase 1 — Contracts, topology, provisioning, and operational safety
 
-**Current status (10 October 2026):** the first registry/schema and create-only
-provisioner artifacts are implemented and their focused local checks pass. No
-live topology or producer/consumer path changed. Source-derived Identity,
-Programme, Activity, and Geodata payload schemas pass contracts CI and remain
-pending joint owner/privacy review. Operations has no event-producing call sites
-in the Phase 0 source audit, so an Operations payload schema is not applicable
-unless that service begins publishing facts. Least-privilege credentials,
-measured capacity limits, restore/replay qualification, and removal of legacy
-relay provisioning remain open. Source-derived schema passes now cover
-all 19 Identity, 12 Programme, 10 Activity, and 27 Geodata facts. An isolated host-cluster broker test
-created all target streams/durables, passed an idempotent second run, and rejected
-configuration drift; its temporary namespace was removed. The 10 October follow-up
-also validates the expanded durable consumer configuration on a disposable broker.
-See the [Phase 1 evidence record](evidence/phase1-contract-topology-2026-10-09.md)
+**Current status (10 October 2026):** the registry/schema and create-only
+provisioner foundations are implemented and focused checks pass. No live stream
+or producer/consumer behavior changed. The delegated joint review records
+decisions for all 68 fact schemas, role credentials, initial finite capacity
+budgets, recovery policy, and relay-side provisioning ownership. Those decisions
+do not complete implementation or production qualification. The Geodata
+preprocessed v1 payload still includes internal _records and _status; use a
+compact versioned projection before enforcement. Credentials are not configured,
+limits are not justified by a representative 30-day window, restore/replay is
+unqualified, and the Helm chart does not yet run the provisioner. See the
+[joint review](evidence/phase1-joint-review-2026-10-10.md), [Phase 1 evidence](evidence/phase1-contract-topology-2026-10-09.md),
 and [current/target topology diagrams](../../architecture/diagrams/nats-event-migration.md).
 
 **Verified preparation (does not satisfy the phase exit criteria):**
@@ -403,6 +401,32 @@ ACK, replay policy, retry limits, pending and waiting-pull bounds, consumer repl
 and full-payload delivery. The same source is synchronized to the platform mirror and has passed the
 disposable-broker idempotency check. Contract CI now checks out the five service
 repositories and runs the workspace event-source audit.
+
+### Delegated joint review decisions (10 October 2026)
+
+The workspace owner delegated the joint review to Volker Kerkhoff and Codex as
+the only project team. Decisions are recorded in the
+[joint review evidence](evidence/phase1-joint-review-2026-10-10.md).
+
+- [x] Review and disposition all 68 source-derived fact schemas, including
+      classification, intended subscriber groups, and field handling. Source
+      approval is conditional; producer enforcement waits for minimized
+      projections, prohibited-field/size checks, compatibility fixtures, and
+      the Geodata preprocessing projection.
+- [x] Select per-role NKey credentials mounted from operator-managed Secrets,
+      NATS authentication and TLS, and a separate provisioner identity.
+      Secret provisioning and allow/deny qualification remain open.
+- [x] Record finite byte/message/age/payload caps totaling 5 GiB of the
+      existing 8 GiB PVC, with 3 GiB reserved. Values remain provisional until
+      a representative 30-day sample and pressure/recovery test justify them.
+- [x] Select off-node stream snapshots plus declarative consumer recreation,
+      isolated restore/replay, and database-authoritative redrive. Restore
+      qualification remains open; Interest retention may have deleted
+      acknowledged records.
+- [x] Select one deployment-owned create-only provisioner and prohibit relay
+      topology mutation at the safe compatibility cutover. Chart integration
+      and relay change remain open; do not apply the target provisioner to the
+      mixed legacy stream.
 
 **Exit criteria**
 
