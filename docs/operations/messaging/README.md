@@ -6,23 +6,21 @@
 - [Activity JetStream work queues](activity-work-queues.md) — six job kinds,
   registered subjects/durables, lease and retry behavior, dead-letter recovery,
   schema retirement, and staged rollout checks.
-- [JetStream administration and status](jetstream-admin-status.md) — read-only
-  broker state and sampled history.
+- [NATS Surveyor monitoring consolidation](../../observability/nats-surveyor-migration.md) — proposed central broker metrics and Grafana dashboard; includes staged removal of the current Admin page, pollers and DB history.
+- [Current legacy JetStream administration page](jetstream-admin-status.md) — read-only broker state and sampled history, pending the planned Surveyor cutover.
 - [NATS event migration plan](nats-event-migration-plan.md)
-  - **Complete:** Phases 0–4 within their recorded evidence bounds.
-  - **Phase 5 live:** Four Geodata work kinds route to the bounded
-    `MYOTA_GEODATA_WORK` stream; migration 021 and Activity idempotency fix
-    are deployed. Helm 192 is deployed and Fleet is Ready=True at
-    `6443473828305ab9d02a918bbe990d01abe97f6a`, 60/60 resources. Configured digest refs match pod image IDs.
-    The target durables are empty with active workers.
-  - **Rollback:** Four legacy Geodata durables remain inactive and empty until
-    the observation ends no earlier than 21:39:22 UTC on 11 October 2026. Do not remove Activity's
-    notification durable or `MYOTA_EVENTS`.
-  - **Still open:** The 24-hour observation and safe retirement of those four
-    durables, then the separate Phase 6 fact-stream retention transition. See
-    [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md),
-    [Phase 5 plan](nats-event-migration-plan.md), and
-    [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md).
+  - **Complete:** Phases 0–5 within their documented evidence bounds. Helm
+    revision 193 is deployed; Fleet Ready=True at Deploy commit
+    cfecd655d9c0eee9d19db26725fb11c99366815a.
+  - **Phase 5:** The four legacy Geodata durables were retired after the final
+    filter, backlog, migration, owner-row recovery-age and Fleet checks. The
+    user waived the 24-hour elapsed-time requirement; closure was early and
+    is not reported as a full 24-hour observation. Activity and target
+    durables, migration 021, work/outbox state and the Interest-retained
+    MYOTA_EVENTS stream remain.
+  - **Next:** Phase 6 fact-stream retention work. NATS monitoring consolidation
+    is a separate planned observability item. See [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md)
+    and [the monitoring plan](../../observability/nats-surveyor-migration.md).
 - [JetStream recovery and replay runbook]- [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.
