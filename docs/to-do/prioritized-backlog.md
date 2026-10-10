@@ -60,39 +60,52 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Implement NATS contracts and close delivery gates before migration
+### 2. Complete Phase 1 NATS contracts and close delivery gates
 
-**Current evidence:** Phase 0 inventory and ADR-0008 are complete. Phase 1
-registry/schema and create-only provisioner foundations pass their recorded
-checks. The delegated review dispositioned all 68 fact schemas and selected
+**Current evidence:** The 68-fact and ten-work-command registry, checked-in
+schemas, source audit, and create-only provisioner foundations are in place.
+The delegated review has completed the schema dispositions and selected
 per-role NKey/TLS credentials, provisional caps against the 8 GiB NATS PVC,
-off-node snapshots with database-authoritative redrive, and one deployment-owned
-provisioner. The live sample spans under eight days and includes Geodata
-load-test traffic, so numeric values remain unqualified. A basic isolated
-snapshot/restore and replay drill passed; off-node, PVC-loss, and database
-reconciliation remain unqualified.
-Geodata preprocessing v1 still includes internal _records and _status;
-credentials are not configured, the chart does not run the target provisioner,
-and relays still mutate the mixed Interest-retained stream. See the
-[joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md)
-and [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+PostgreSQL-authoritative recovery, and one deploy-owned provisioner. Contracts
+CI now checks event dispositions and schemas plus exact work-to-stream,
+subject, and durable alignment ([run 38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38045763460)).
+The isolated broker drill passed creation, idempotent rerun, drift rejection,
+and a synthetic stream/durable-state restore/replay.
 
-**Why second:** accepted asynchronous work must survive relay/worker restarts
-without losing or duplicating domain effects. The selected topology is now
-recorded, so the remaining priority is to establish the contract and safe
-provisioning, close the evidence gate for each affected flow, and verify relay,
-consumer, and recovery behavior before cutover.
+Production readiness remains open. The sample spans fewer than ten days and
+includes Geodata load-test traffic, so proposed 1/1/3 GiB caps are not final.
+The deployed NATS has no authentication or TLS; the production secret source
+has not supplied role credentials. The target chart does not run a readiness
+preflight, and the active relays still mutate the mixed Interest-retained
+stream. Off-node backup, PVC-loss restore, and comparison to database
+watermarks remain unqualified. Geodata preprocessing v1 includes internal
+_records and _status fields and must be minimized before enforcement. See the
+[joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
+[Phase 1 plan](../operations/messaging/nats-event-migration-plan.md), and
+[recovery runbook](../operations/messaging/jetstream-recovery.md).
 
-**Next:** implement the reviewed Phase 1 decisions: versioned and minimized
-payload enforcement, authenticated broker roles and TLS, full-window sizing and
-capacity alerts, isolated backup/restore/replay, and chart-run provisioner
-readiness with a safe relay mutation cutover. Keep the mixed legacy stream
-untouched until a reviewed snapshot and consumer-state barrier is ready. Do not
-begin Phase 2 behavior changes until Phase 1 exit criteria pass.
+**Why second:** Accepted asynchronous work must survive relay and worker
+restarts without losing or duplicating domain effects. Contract and topology
+foundations are verified; the remaining work closes the evidence and security
+gates before any producer or consumer path changes.
+
+**Next:** Supply an operator-managed source for distinct NKey credentials and
+TLS files, implement role-scoped server/client configuration, and prove allowed
+and denied operations against the actual NATS Python client. Complete bounded
+payload projections and contract compatibility checks, including the Geodata
+preprocessed event. Collect a representative 30-day serialized-traffic profile,
+size against outage backlog and the 3 GiB PVC reserve, and add pressure alerts.
+Implement a deployment-owned provisioning/readiness barrier and rehearse the
+legacy stream compatibility cutover without changing production until a
+stopped-relay snapshot and consumer-state barrier is verified. Complete
+off-node, PVC-loss, database reconciliation, duplicate-delivery, capacity,
+retry/dead-letter, and replay qualification. Keep all producer/consumer changes
+behind their plan gates.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [JetStream operations status](../operations/messaging/jetstream-admin-status.md),
-and [award designer delivery evidence](../domain/awards/evidence/programme-awards-2026-10-09.md).
+[recovery runbook](../operations/messaging/jetstream-recovery.md), and
+[award designer delivery evidence](../domain/awards/evidence/programme-awards-2026-10-09.md).
 
 ### 3. Establish programme governance, jurisdiction, and eligibility controls
 
