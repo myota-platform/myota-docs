@@ -74,15 +74,15 @@ five service repositories. The contracts source-audit workflow passed; platform 
 Ruff format/lint CI pass. The expanded consumer configuration also passes four
 focused tests and an isolated create/idempotency run against a disposable broker.
 The 19 Identity, 12 Programme, 10 Activity, and 27 Geodata event payloads now
-have additive, source-derived schemas and data-classification metadata. Activity
-and Geodata local schema assertions pass; their GitHub Actions status is not
-available from the connector. Joint owner/privacy review remains open. Geodata
+have additive, source-derived schemas and data-classification metadata. Activity and Geodata schema assertions pass in local checks and Contracts CI;
+the platform mirror CI passes as well. Joint owner/privacy review remains open. Geodata
 preprocessing currently includes internal `_records` and `_status` data in its
-event payload; minimization review is required before enforcement. Operations
-payload schemas remain open.
+event payload; minimization review is required before enforcement. The Phase 0 source audit found no Operations event-producing call sites; an
+Operations payload schema is not applicable unless that service becomes a producer.
 Earlier platform image-build attempts timed out at Docker Hub; the latest deploy
 and platform main-branch image build/publish checks now pass. The payload review
-is incomplete: Operations schemas and joint owner/privacy approval remain open.
+is incomplete because joint owner/privacy approval remains open; the Phase 0
+audit found no Operations event producer, so its payload schema is not applicable.
 The deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
 and no live migration or runtime change has occurred. Read-only sampling found
 19,103 outbox rows spanning only
