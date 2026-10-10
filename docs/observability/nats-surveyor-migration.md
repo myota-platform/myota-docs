@@ -106,9 +106,9 @@ that work does not remove these observability components.
   `myota-deploy/services/outbox_worker.py`, outbox publish-failure/backlog
   signals, and worker outcome/retry metrics:
   these are application delivery signals, not substitutes for broker metrics.
-- Retire the database history only after the new metrics and dashboard have
-  been stable for at least the existing seven-day snapshot-retention period.
-  The current snapshots are operational samples, not an audit log. There is no
+- Retire the database history after the new metrics and requested dashboards
+  pass direct comparison and the cutover acceptance checks. The current
+  snapshots are operational samples, not an audit log. There is no
   stated requirement to preserve them as business history. Before the
   Operations-owned forward migration, take and verify a bounded database backup
   for rollback; then drop the table and index and synchronize deployment
