@@ -16,11 +16,12 @@
     Four replacement durables have exact filters and zero backlog. No accepted
     production Geodata work was available at cutover.
   - **Rollback:** Four legacy Geodata durable definitions remain empty and
-    inactive until the 24-hour observation expires at 20:55:08 UTC on 11 October
-    2026. Do not remove Activity's notification durable or `MYOTA_EVENTS`.
-  - **Still open:** Fleet Ready reconciliation, two-database cross-service
-    failure qualification, cancellation/expiry replay chains, final legacy
-    durable retirement, and Phase 6 fact-stream retention transition. See the
+    inactive until the 24-hour observation expires no earlier than 20:58:36 UTC
+    on 11 October 2026. Do not remove Activity's notification durable or
+    `MYOTA_EVENTS`.
+  - **Still open:** Activity idempotency image build/deployment, cancellation
+    racing with acknowledged work, expiry/reconstruction-to-completion, final
+    legacy durable retirement, and Phase 6 fact-stream retention transition. See the
     [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md), [Phase 5
     plan](nats-event-migration-plan.md), and [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md).
 - [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
