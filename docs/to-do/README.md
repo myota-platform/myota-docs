@@ -14,9 +14,10 @@ documentation evidence and does not set delivery dates.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
   — Phase 0 is complete. Phase 1's contract registry and provisioner foundations
   are verified; the delegated 68-schema decision review is complete. The
-  remaining work is payload minimization and relay enforcement, authenticated
-  NATS roles/TLS, representative capacity sizing, safe Helm/Fleet readiness
-  before relay cutover, and off-node restore/replay qualification. The recovery
+  remaining work is payload minimization and relay enforcement, representative
+  capacity sizing, safe Helm/Fleet readiness before relay cutover, and off-node
+  restore/replay qualification. The accepted cluster-internal trust boundary does
+  not require NATS auth/TLS. The recovery
   runbook records the selected procedure and open evidence. See the
   [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [recovery runbook](../operations/messaging/jetstream-recovery.md), and
