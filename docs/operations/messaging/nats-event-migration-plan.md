@@ -1,14 +1,14 @@
 # NATS JetStream event and work-queue migration plan
 
 **Status:** Phases 0–4 are complete within their recorded evidence bounds.
-Phase 4 moved the six selected Activity accepted-work paths to JetStream,
-deployed the Activity WorkQueue stream and exact pull durables, migrated the
-Activity schema, retired database polling, and disabled transitional repair.
-Production had no selected jobs at cutover, so its consumers are live and
-ready but no production work message was available to exercise. All six paths
-were processed in isolated PostgreSQL/JetStream qualification. Geodata work
-and the mixed Interest-retained fact stream remain on their separately gated
-Phase 5/6 paths.
+Phase 5 has moved the four Geodata work consumers to the dedicated
+`MYOTA_GEODATA_WORK` WorkQueue in production, installed migration 021, and
+verified the target durables and worker subscriptions. The latest Helm rollout
+also deployed the retry-safe partial-deletion recovery fix. No accepted
+production Geodata work was available for processing qualification. The four
+legacy Geodata durables remain empty and provisioned during the 24-hour rollback
+observation; cross-service retry and final durable retirement remain open.
+Phase 6 will handle the separate shared fact-stream retention transition.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -767,75 +767,105 @@ Phase 4 exit criterion.
 
 ### Phase 5 — Reconcile Geodata queues and cross-service recovery
 
+**Status (10 October 2026):** Production now routes all four Geodata work kinds
+to `MYOTA_GEODATA_WORK`, and all four Geodata worker subscriptions use their
+registered `myota.work.geodata.*` subjects. Helm revision 187 installed
+migration 021 and deployed the recovery-safe cross-service deletion handler.
+The target stream is file-backed WorkQueue with finite limits; the exact
+durables are provisioned and empty. `MYOTA_EVENTS` remains file-backed with
+Interest retention and zero messages. The four former Geodata durable
+definitions remain empty but inactive during the rollback window; do not remove
+them before the recorded 24-hour window ends at 20:55:08 UTC on 11 October
+2026. Fleet was still reporting `WaitApplied` at the last inspection although
+the charted application pods and migration jobs were ready. No accepted
+production Geodata work was available to exercise. See the [Phase 5
+evidence](evidence/phase5-geodata-work-2026-10-10.md).
+
 **Work**
 
-- [ ] Move the four Geodata work kinds from their current `myota.geodata.*`
-      subjects in `MYOTA_EVENTS` to disjoint `myota.work.geodata.*` subjects in
-      `MYOTA_GEODATA_WORK`. Provision the new WorkQueue durables before switching
-      routing; move pending rows through one publish path, without dual-publishing.
-      Drain legacy messages and consumers only after rollback and database recovery
-      checks pass.
-- [ ] Validate each replacement Geodata durable against the registered work
-      contract, shared provisioning, deployment replicas and Operations view.
-- [ ] Confirm consumer side effects and processed-event/checkpoint state are atomic
-      where possible; inspect `_consume` behavior for transient errors, max
-      delivery, ack/nak/term and DLQ compatibility. Ensure long import jobs use
-      heartbeat, leases, bounded inflight, and result recovery.
-- [ ] Keep stale cancellation and pending deletion reconcilers as repair loops that
-      can restore work if a message is missing/expired; ensure they do not create
-      duplicate side effects. Verify location enrichment's request ID/geometry hash
-      protects against stale provider responses.
-- [ ] Verify current activity cascade-deletion cross-service sequencing,
-      compensation and partial-failure recovery remain correct after Activity work
-      migration.
-- [ ] Prove all accepted Geodata work is recoverable from either outbox/JetStream or
-      durable domain job state within documented age bounds. Run outage and restore
-      scenarios with Operations status/read-only observability.
+- [x] Move preprocessing, promotion, confirmed deletion, and location enrichment
+      from their legacy `MYOTA_EVENTS` subjects to the four disjoint
+      `myota.work.geodata.*` subjects in `MYOTA_GEODATA_WORK`. Provisioned the
+      target before cutover. Production workers now subscribe only to the new
+      subjects; the old durable definitions are retained inactive for rollback.
+- [x] Validate the four replacement pull durables against the registered work
+      contracts, exact filters, explicit ACK, max-delivery, pending bounds,
+      stream limits and deployment-owned provisioner in the isolated and live
+      K3s environments.
+- [x] Verify the committed work source, stable owner-row `workId`, duplicate
+      boundary, heartbeat, lease and ACK/NAK behavior. A refused database
+      connection caused NAK/redelivery and settled after reconnect without a
+      false ACK. A partial Activity/Geodata deletion failure now remains
+      retryable rather than being marked terminal and ACKed.
+- [x] Keep stale cancellation and pending-deletion reconcilers as age-bounded,
+      batch-limited repair paths. Database-backed tests recreated each of the
+      four work kinds once through the outbox; the next scan emitted none.
+      Location enrichment rechecks request ID and geometry hash before applying
+      provider results.
+- [ ] Verify Activity cascade sequencing and compensation/recovery across two
+      disposable service databases, including Activity success followed by a
+      Geodata failure, cancellation racing with acknowledged work, and eventual
+      completion. Focused handler tests pass, but the two-service failure chain
+      is not yet qualified.
+- [x] Prove accepted work can be reconstructed from the owner row/outbox within
+      the recorded age bound. Same-node NATS Pod restart with its persistent PVC
+      retained an unacked message and durable state; expiry and stale-row repair
+      pass in separate isolated checks. Off-node restore remains deferred.
+- [ ] Recheck Fleet Ready state and all production topology/schema gates after
+      the current rollout finishes reconciling. Keep Operations read-only.
 
 **Exit criteria**
 
-- [ ] Each Geodata queue has documented scaling, retry, DLQ, recovery and retention
-      behavior; all four replacement durables on `MYOTA_GEODATA_WORK` are validated
-      in each environment and the legacy route is retired safely.
-- [ ] Broker loss, worker restart, delayed ack and duplicate delivery do not lose or
-      repeat domain effects.
-- [ ] Recovery loops are bounded, observable, and do not become a second primary
-      dispatch path.
+- [ ] All four Geodata queues have documented scaling, retry, DLQ, recovery and
+      retention behavior, and the replacement durables are validated in the
+      live and disposable environments. Retire the old durable definitions only
+      after the 24-hour rollback observation and the final database recovery
+      check. No Phase 5 database object is obsolete: migration 021's dispatch
+      columns/indexes and the domain/outbox rows remain required recovery state.
+- [ ] Broker Pod restart, worker restart, delayed ACK, duplicate delivery,
+      expiry/reconstruction, database failure and the cross-service partial
+      deletion path preserve durable effects. The cross-service end-to-end
+      scenario and expiry-to-recompletion chain remain open.
+- [x] Recovery loops are observable, age-bounded and limited to batches of 50;
+      they enqueue repair through the transactional outbox and do not run as a
+      second primary dispatcher.
 
 **ChatGPT prompt — Phase 5**
 
 ```text
-Implement Phase 5: move the four Geodata work kinds onto the selected
-`MYOTA_GEODATA_WORK` WorkQueue stream and qualify all cross-service recovery paths.
-The current durable pull consumers are preprocessing, import promotion, entity
-deletion, and location enrichment. Their current `myota.geodata.*` subjects are
-captured by `MYOTA_EVENTS`; use disjoint `myota.work.geodata.*` subjects for the
-new stream. Read the event contract, Geodata architecture/runbooks, Phase 0
-inventory, and ADR-0008 first.
+Continue work implementing phase 5 iteratively,, same criteria and instructions as last phase.
 
-Verify the producer transaction, new work subject, provisioned durable/filter/config,
-worker replica model, explicit ack policy, ack wait/max-deliver/max-ack-pending,
-database idempotency/checkpoint/lease, long-work heartbeat, failure/dead-letter
-behavior, and recovery source for each queue. Inspect transient failures and ensure
-retryable lease contention is deferred rather than irreversibly terminated. Confirm
-acknowledgement follows durable side effects. Preserve location request ID and
-geometry-hash recheck, deletion authorization and Activity impact sequencing, import
-cancellation semantics, and database reconciliation loops as repair mechanisms
-rather than competing primary queues.
+Use the Phase 5 tasks and exit criteria in this plan as scope. Read ADR-0008,
+the Phase 0 inventory, relevant Geodata and Activity runbooks, and the Phase 5
+evidence before changing code. Treat myota-geodata-service as authoritative for
+Geodata domain handlers and migrations; myota-deploy owns Helm, relays and
+deployment migrations; myota-platform mirrors deployment/runtime files;
+myota-contracts owns registered schemas. Keep PostgreSQL as the source of truth
+and Operations read-only.
 
-Provision replacement durables before changing routes. Do not dual-publish. Drain
-or translate pending legacy work through one path, then remove the old filters only
-after rollback and database recovery checks pass. Keep Operations read-only.
+Do not dual-publish. Keep scheduled maintenance on its scheduler and stale-row
+scans as bounded recovery only. Preserve confirmed-deletion authorization,
+Activity impact/cascade semantics, cancellation, location request/geometry
+checks, idempotent work IDs, explicit ACK after durable effects, and bounded
+retry/dead-letter behavior. Keep the legacy durable definitions until the
+recorded rollback observation expires and database recovery is rechecked.
+Do not purge authoritative rows, outbox history, dead letters, or migration
+021 objects that remain in use.
 
-Exercise failure scenarios: publish acknowledgement lost before outbox mark; worker
-crash before/after database commit; database outage; delayed import beyond ack wait;
-duplicate message; stream age expiry; durable recreation; broker restore;
-cancellation racing with processing; and Activity/geodata partial deletion failure.
-Fix issues within the repositories that own them, update synchronized deployment
-mirrors, add focused tests/evidence, and refresh operations metrics/alerts and
-recovery instructions. Operations remains read-only. Report each queue and failure
-scenario as pass/fail/open with evidence and avoid claiming production qualification
-without production-like results.
+Qualify database failure, duplicate/lost ACK, delayed handler, worker/broker
+restart, message expiry/reconstruction, cancellation race, and partial
+Activity/Geodata deletion using disposable data in a separate host-K3s
+namespace; clean up all test resources afterward. Never inject test data into
+production. Commit and push each owning repository directly to main, keep
+deployment mirrors synchronized, and update the phase evidence, timeline
+(prompt used), diagrams, README links, todo, work-in-progress, prioritized
+backlog, changes, and .github links.
+
+Mark checkboxes only after exact evidence verifies them. Continue until each
+exit criterion is met; if a safe time-based rollback gate remains, record its
+earliest completion time and keep Phase 5 open. Report repositories and commit
+SHAs, checks/results, live route and image/schema evidence, objects retained or
+retired, cleanup, and any remaining evidence gap.
 ```
 
 ### Phase 6 — Shadow, canary, cutover, and retirement
