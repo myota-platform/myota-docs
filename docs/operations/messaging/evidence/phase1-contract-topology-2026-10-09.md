@@ -248,7 +248,8 @@ Local verification passed: contracts registry/schema tests 2/2; generation of al
 undispositioned Python event-like literals); and exact platform mirror checks for
 the registry, event documentation, and generated schemas. Ruff lint/format checks
 passed for the changed Python files. GitHub connector checks returned no combined
-CI status for the contracts or platform mirror commits, so CI is not verified.
+CI status for contracts commit `e34de821` or platform mirror commit `63cec55e`,
+so CI is not verified.
 Joint Geodata owner/privacy review remains open. No producer/consumer runtime path,
 stream, or deployed workload changed. The same Phase 1 prompt remains in use; the
 Phase 1 checklist stays open.
