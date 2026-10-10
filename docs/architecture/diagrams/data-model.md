@@ -287,3 +287,9 @@ erDiagram
 - Audit, idempotency, outbox, consumer checkpoint, job, notification, asset,
   and object-storage metadata tables are omitted from the diagram for
   readability but remain part of the implementation boundary.
+
+
+The NATS monitoring roadmap proposes dropping OPERATIONS_JETSTREAM_SNAPSHOT
+and its history index after Surveyor/Grafana cutover and the verified overlap.
+This remains current schema until the owner migration is implemented. See the
+[NATS monitoring consolidation plan](../../observability/nats-surveyor-migration.md).
