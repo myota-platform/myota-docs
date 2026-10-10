@@ -20,12 +20,12 @@ indexes organize open work by delivery status.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
   Phases 0–4 are complete within their recorded evidence bounds. Phase 5
   routes four Geodata work kinds to `MYOTA_GEODATA_WORK`, applies migration
-  021 and deploys transactional Activity idempotency. Helm revision 191 is
-  deployed; Fleet reports Ready=True at `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources.
+  021 and deploys transactional Activity idempotency. Helm revision 192 is
+  deployed; Fleet reports Ready=True at `6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources.
   Configured immutable image refs and live Activity/Geodata/shared-runtime
   ImageIDs match. Four target durables are empty with active workers; four
   legacy durables remain empty through the observation ending no earlier than
-  21:28:41 UTC on 11 October 2026. No accepted production Geodata work was available. Isolated
+  21:39:22 UTC on 11 October 2026. No accepted production Geodata work was available. Isolated
   retry/cancellation/expiry qualification passed and the temporary namespace
   was removed. See [Phase 5 evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
   [migration plan](operations/messaging/nats-event-migration-plan.md),
