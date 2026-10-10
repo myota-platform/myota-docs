@@ -69,11 +69,13 @@ or NATS ports are needed. Its schema migration is synchronized to core deploymen
 migration `002_operations.sql`. The image is
 `ghcr.io/myota-platform/myota-operations-service:latest`.
 
-Use a broker account with metadata/read inspection permissions, not publish,
-acknowledgement, purge or delete permissions. Timestamp lookup currently uses the
-stream-message inspection API: any returned content is discarded, never retained
-or returned. Keep broker credentials server-side. The service's database pool is
-bounded to four connections per process.
+Under the accepted cluster-internal trust decision, Operations connects to
+NATS without broker credentials and enforces inspection-only behavior in its
+application code. The unauthenticated broker does not enforce a read-only role;
+all pods that can reach the ClusterIP are trusted. Timestamp lookup currently
+uses the stream-message inspection API: any returned content is discarded,
+never retained or returned. The service's database pool is bounded to four
+connections per process.
 
 ```mermaid
 flowchart LR
