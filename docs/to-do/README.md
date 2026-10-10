@@ -13,8 +13,9 @@ documentation evidence and does not set delivery dates.
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
   — Phase 0 is complete; Phase 1 contract/schema and create-only provisioner
-  preparation is underway. Its payload, security, capacity, restore, and live
-  topology gates remain open. No producer/consumer migration has started. See
+  preparation is underway. Source-derived payload schemas cover four services;
+  CI/owner review, Geodata payload minimization, security, capacity, restore, and
+  live topology gates remain open. No producer/consumer migration has started. See
   [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [Work in progress](../work-in-progress/README.md).
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
