@@ -25,7 +25,7 @@ describe current ownership and are authoritative for the present-day system.
   subject, stream, schema, and deploy-owned durable filter. The Contracts CI
   workflow passed on commit
   [88c6b36](https://github.com/myota-platform/myota-contracts/commit/d57f6b5a8f8206639daac0426d08b81d10ba8b0f)
-  ([run 38045951777](https://github.com/myota-platform/myota-contracts/actions/runs/38045951777)).
+  ([run 38046041494](https://github.com/myota-platform/myota-contracts/actions/runs/38046041494)).
   Three focused contract tests passed, and the five-service source audit
   verified 68 fact types and six legacy work types with no undispositioned
   event-like literals.
