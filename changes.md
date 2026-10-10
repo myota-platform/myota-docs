@@ -1,5 +1,29 @@
 # MyOTA changes
 
+## 11 October 2026 — Phase 5 synthetic validation and observation reset
+
+- Automatic immutable-image digest update produced Helm revision 193. It
+  completed successfully at 22:00:02 UTC on 10 October; Fleet became
+  Ready=True at Deploy commit
+  `cfecd655d9c0eee9d19db26725fb11c99366815a` at 22:03:29 UTC. All MyOTA
+  Deployments are ready and the migration Job completed.
+- A read-only production snapshot at about 22:05 UTC found zero messages/bytes
+  in `MYOTA_EVENTS` and `MYOTA_GEODATA_WORK`; all four target work durables
+  had exact filters, zero pending/ack-pending/redelivery and one waiting pull.
+  The four legacy Geodata durables remained present with zero counters and no
+  waiters. No production data or messages were written.
+- Injected synthetic stale owner rows into a disposable namespace. Geodata
+  recovery recreated four outbox commands once and a second scan emitted none.
+  The delivery suite exercised retry, competing consumers, ACK handling,
+  redelivery, expiry, shutdown and durable recreation. Two full-suite runs each
+  hit one timing-sensitive immediate ACK-counter assertion; focused ACK
+  verification passed and all 21 private streams subsequently settled at zero.
+  Treat this as isolated behavior evidence, not a clean suite pass.
+- Deleted and verified absent the namespace, temporary databases, private
+  streams, test fixtures and temporary virtual environment. Revision 193 resets
+  the 24-hour observation; it remains open until at least 22:03:29 UTC on
+  11 October 2026. Preserve the old durables until the final read-only checks.
+
 ## 10 October 2026 — NATS Phase 5 Geodata work cutover and recovery
 
 - Routed all four Geodata work kinds to immutable-image-backed consumers on
