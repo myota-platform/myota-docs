@@ -49,10 +49,14 @@ describe current ownership and are authoritative for the present-day system.
   handler now forwards `Idempotency-Key`; the repository persists its response
   with the cascade fact under a transaction advisory lock. The Activity
   40-test suite passed (one optional broker test skipped), and Ruff/format
-  checks passed. The new Activity image is not yet deployed; CI/build status
-  remains to be verified. Cancellation race, expiry-to-completion, 24-hour
-  legacy durable retirement, and final cleanup remain open. The observation
-  ends no earlier than 20:58:36 UTC on 11 October 2026.
+  checks passed. Five rounds of eight concurrent same-key cascades each wrote
+  one outbox fact. A real acknowledged preprocessing delivery finalized a
+  concurrent cancellation before ACK; the connected expiry → owner-row/outbox
+  reconstruction → redelivery → completion chain also passed. The Activity
+  source fix is not yet deployed; CI/build status, the 24-hour rollback
+  observation, legacy durable retirement, and production test namespace cleanup
+  remain/open were tracked. The namespace is now deleted. The observation ends
+  no earlier than 20:58:36 UTC on 11 October 2026.
 - **Additional source commits:** Activity handler
   [`cdea2ba`](https://github.com/myota-platform/myota-activity-service/commit/cdea2baaf76cd33415225863d3843b7ff1707930),
   repository idempotency
