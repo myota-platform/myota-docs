@@ -2,7 +2,8 @@
 
 The diagrams distinguish observed live behavior from the selected target.
 They describe ownership and delivery class; they are not evidence that the
-target is deployed. See the [migration plan](../../operations/messaging/nats-event-migration-plan.md)
+target is deployed. See the [migration plan](../../operations/messaging/nats-event-migration-plan.md),
+[joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 and [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
 
 ## Current deployed topology — observed 9 October 2026
@@ -50,10 +51,9 @@ flowchart LR
   ES -. inspect only .-> O[Operations observer]
 ```
 
-**Status:** Phase 0 is complete. Phase 1 contract and create-only provisioning
-preparation is in progress and the contracts, deploy, platform mirror, and
-organization profile PRs have merged. Ruff formatting/lint and application test
-jobs pass; earlier image builds timed out at Docker Hub, while the latest deploy
-and platform main-branch image build/publish checks pass. The provisioner now
-validates additional durable safety settings. No target stream
-or producer/consumer runtime path has changed.
+**Status (10 October 2026):** Phase 0 is complete and Phase 1 is in progress.
+The delegated review decided the 68-schema disposition, per-role auth/TLS,
+provisional capacity, restore/replay policy, and provisioner ownership. These
+are decisions, not qualification. No target stream or producer/consumer path
+changed. Geodata payload minimization, credentials, full-window sizing,
+restore/replay tests, chart readiness, and safe relay transition remain open.
