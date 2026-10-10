@@ -46,7 +46,7 @@ the target design:
 | Per-Geodata-replica broker metric poller | Authoritative `myota-geodata-service/jetstream_observability.py`, `myota-geodata-service/run_geodata.py`, and `myota-geodata-service/tests/test_jetstream_metrics.py`; runtime copies `myota-deploy/services/jetstream_observability.py`, `myota-deploy/services/run_geodata.py`, `myota-platform/services/jetstream_observability.py`, and `myota-platform/services/run_geodata.py`. | Remove the broker polling helper and its startup hook after Surveyor covers the broker metrics. Preserve Geodata business, worker, outbox and import metrics. |
 | MyOTA broker backlog dashboard | Compose: `myota-deploy/observability/grafana/dashboards/myota-jetstream-backlog.json` and `myota-platform/observability/grafana/dashboards/myota-jetstream-backlog.json`; Helm: `myota-deploy/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json` and `myota-platform/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json`. Helm provisions it from `myota-deploy/deploy/helm/myota/templates/observability.yaml`. | Remove after the Surveyor dashboard is validated. First move its two PostGIS panels to the Geodata capacity dashboard; do not lose query-performance visibility. |
 | Broker availability and stale-sampler alerts | `myota-deploy/deploy/helm/myota/observability/rules.yml` and `myota-platform/deploy/helm/myota/observability/rules.yml` | Replace NATS-specific sampler alerts with Surveyor target/exporter health and useful broker/JetStream alerts. Keep unrelated service, worker and storage alerts. |
-| NATS service and scrape configuration | `myota-deploy/deploy/helm/myota/templates/messaging.yaml`, `values.yaml`, and Compose configuration; Platform mirror | Add the Surveyor Deployment/Service and Prometheus scrape through Deploy, then synchronize the mirror. Current NATS container starts with JetStream and a data directory; the Helm template does not configure a system account or authentication. |
+| NATS service and scrape configuration | `myota-deploy/deploy/helm/myota/templates/messaging.yaml`, `myota-deploy/deploy/helm/myota/values.yaml`, and `myota-deploy/compose.yaml`; synchronized copies in `myota-platform/deploy/helm/myota/` and `myota-platform/compose.yaml` | Add the Surveyor Deployment/Service and Prometheus scrape through Deploy, then synchronize the mirror. Current NATS container starts with JetStream and a data directory; the Helm template does not configure a system account or authentication. |
 
 Do not remove the shared `observability.view` permission or Grafana role
 mapping while retiring the NATS route; retain them wherever SeaweedFS or Grafana
@@ -88,8 +88,9 @@ that work does not remove these observability components.
 - Configure alerts for exporter scrape/connectivity failure and actionable
   broker/JetStream conditions. Missing or stale series must remain distinguishable
   from zero backlog.
-- Remove only duplicate broker sampling. Preserve `myota_outbox_nats_up`,
-  outbox publish-failure/backlog signals, and worker outcome/retry metrics:
+- Remove only duplicate broker sampling. Preserve `myota_outbox_nats_up` from
+  `myota-deploy/services/outbox_worker.py`, outbox publish-failure/backlog
+  signals, and worker outcome/retry metrics:
   these are application delivery signals, not substitutes for broker metrics.
 - Retire the database history only after the new metrics and dashboard have
   been stable for at least the existing seven-day snapshot-retention period.
