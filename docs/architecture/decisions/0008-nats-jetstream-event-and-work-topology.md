@@ -3,9 +3,9 @@
 ## Status
 
 Accepted for the target design by the workspace owner. Phase 0 inventory,
-decision, and evidence-owner assignments are complete. Delegated Phase 1 review
-decisions cover schemas, per-role credentials, provisional capacity,
-restore/replay policy, and relay-side provisioning ownership. Runtime
+decision, and evidence-owner assignments are complete. Phase 1 decisions
+cover schema disposition, the cluster-internal NATS trust boundary, provisional
+capacity, restore/replay policy, and relay-side provisioning ownership. Runtime
 implementation and production qualification remain open; the live topology has
 not changed. See the [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md)
 and [Phase 1 evidence record](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
@@ -84,6 +84,10 @@ among replicas of the same worker group.
   business events, consume/ack messages, or mutate stream/consumer
   configuration.
 
+### Cluster network boundary
+
+Keep the NATS client service as a Kubernetes ClusterIP and do not require NATS authentication or TLS while the broker remains cluster-internal. This is an accepted trust decision: any pod able to reach the service is trusted to connect. Do not expose the NATS client port through an Ingress, NodePort, LoadBalancer, host port, or external service. Revisit this decision before changing service exposure or admitting workloads that are not trusted at the cluster boundary. Operations remains read-only by application behavior; without NATS authentication/ACLs, that boundary is not enforced by the broker.
+
 ### Envelope, delivery, and recovery
 
 Use an immutable versioned envelope with `envelopeVersion: 1`, event/work
@@ -150,6 +154,9 @@ checks pass.
   recovery evidence add implementation work and are Phase 1+ gates.
 - Current single-node deployment remains a single point of failure until the
   NATS cluster is deployed and qualified.
+- Cluster-internal access trusts all pods that can reach the ClusterIP. This
+  avoids managing NATS credentials and TLS for the current deployment, while
+  making the trusted-cluster boundary an explicit deployment invariant.
 
 ## Evidence and references
 
