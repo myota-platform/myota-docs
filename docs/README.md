@@ -19,7 +19,7 @@ indexes organize open work by delivery status.
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
   Phase 0 complete; Phase 1 review decisions cover all 68 fact schemas, credentials,
-  provisional capacity, recovery, and relay provisioning; implementation gates remain open. See the
+  provisional capacity, recovery, and relay provisioning; implementation gates remain open. A basic isolated snapshot/restore and replay drill passed. See the
   [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
   [joint review](operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [Phase 1 evidence](operations/messaging/evidence/phase1-contract-topology-2026-10-09.md),
