@@ -28,7 +28,10 @@ broker-specific alerts, old Grafana dashboard, and database-backed NATS history.
 Keep the Operations service for its SeaweedFS inspection and Grafana identity
 functions. Keep application-level outbox and worker metrics: Surveyor reports
 broker/server state and cannot tell whether a particular application relay
-published its row or whether a worker committed its business effect.
+published its row or whether a worker committed its business effect. Retire
+only the Operations broker-snapshot table and index; preserve transactional
+outboxes, domain/work rows, idempotency/checkpoint state, dead-letter records,
+and migration 021 recovery markers.
 
 ## Current state and authoritative evidence
 
@@ -44,6 +47,11 @@ the target design:
 | MyOTA broker backlog dashboard | Compose source: `myota-deploy/observability/grafana/dashboards/myota-jetstream-backlog.json` and Platform copy; Helm source: `myota-deploy/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json` and Platform mirror. Helm provisions it from `myota-deploy/deploy/helm/myota/templates/observability.yaml`. | Remove after the Surveyor dashboard is validated. First move its two PostGIS panels to the Geodata capacity dashboard; do not lose query-performance visibility. |
 | Broker availability and stale-sampler alerts | `myota-deploy/deploy/helm/myota/observability/rules.yml` and its synchronized Platform copy | Replace NATS-specific sampler alerts with Surveyor target/exporter health and useful broker/JetStream alerts. Keep unrelated service, worker and storage alerts. |
 | NATS service and scrape configuration | `myota-deploy/deploy/helm/myota/templates/messaging.yaml`, `values.yaml`, and Compose configuration; Platform mirror | Add the Surveyor Deployment/Service and Prometheus scrape through Deploy, then synchronize the mirror. Current NATS container starts with JetStream and a data directory; the Helm template does not configure a system account or authentication. |
+
+Do not remove the shared `observability.view` permission or Grafana role
+mapping while retiring the NATS route; retain them wherever SeaweedFS or Grafana
+still depends on them. Do not drop service outbox, work, checkpoint, dead-letter,
+or Geodata migration 021 objects as part of removing broker telemetry.
 
 The current Admin page and persisted snapshot are documented in the legacy
 [JetStream status page](../operations/messaging/jetstream-admin-status.md).
@@ -193,7 +201,9 @@ gaps and rollback evidence; mark only verified checkboxes.
 
 - [ ] Remove the Admin UI `/jetstream` page, navigation, client code, styles
   and tests; remove NATS-specific Operations API endpoints, sampler, polling
-  thread and NATS metrics. Keep the Operations service and SeaweedFS paths.
+  thread and NATS metrics. Keep the Operations service and SeaweedFS paths,
+  Grafana identity integration, and shared permissions still needed by those
+  features; remove only NATS-only permission usage.
 - [ ] Remove the Geodata broker metadata polling helper and startup hook from
   its authoritative service source and synchronized runtime mirrors. Retain
   Geodata domain and worker metrics.
