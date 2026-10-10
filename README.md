@@ -10,7 +10,7 @@ This repository is the organization’s documentation hub. It does not own
 service runtime code. See the [repository map](docs/architecture/repository-map.md) for
 service ownership, deployment boundaries, and migration synchronization.
 
-## Project status — 9 October 2026
+## Project status — current through 10 October 2026
 
 The organization has a working multi-service vertical slice: radio-aware
 identity, programme configuration, relational PostgreSQL/PostGIS geodata,
@@ -68,9 +68,13 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
 - Browse all subjects in the [documentation index](docs/README.md):
   architecture, domain/API, geodata, operations, observability, governance,
   history, platform policy, security, and development.
-- NATS work: [migration plan](docs/operations/messaging/nats-event-migration-plan.md)
-  and [Phase 0 evidence inventory](docs/operations/messaging/nats-event-migration-inventory.md),
-  with the selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+- NATS work: [migration plan](docs/operations/messaging/nats-event-migration-plan.md),
+  [Phase 0 evidence inventory](docs/operations/messaging/nats-event-migration-inventory.md),
+  [Phase 1 joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
+  and [recovery runbook](docs/operations/messaging/jetstream-recovery.md), with the
+  selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+  Contract and create-only topology foundations are verified; authentication,
+  capacity, deployment readiness, and restore qualification remain open.
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
