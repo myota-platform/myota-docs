@@ -816,13 +816,20 @@ evidence](evidence/phase5-geodata-work-2026-10-10.md).
       transactionally and serializes concurrent requests with a database
       advisory lock. The API/repository source fix is committed; deployment of
       its new image remains a gate.
-- [ ] Qualify cancellation racing with a real acknowledged deletion delivery,
-      and the full message-expiry → owner-row reconstruction → successful
-      completion chain.
+- [x] Qualify cancellation racing with an acknowledged Geodata preprocessing
+      delivery. The worker claimed the run, the cancellation API committed
+      CANCELLING, and the same delivery finalized CANCELLED before ACK; the
+      durable settled with zero messages/pending/ack-pending. This matches the
+      current boundary: imports are cancellable; confirmed deletion jobs are not.
+- [x] Connect message expiry to owner-row recovery and completion. An original
+      disposable deletion message expired, the age-bounded scanner reconstructed
+      a command through the Geodata outbox, and JetStream redelivery completed
+      the job with one Activity cascade fact and no remaining message.
 - [x] Prove accepted work can be reconstructed from the owner row/outbox within
       the recorded age bound. Same-node NATS Pod restart with its persistent PVC
-      retained an unacked message and durable state; expiry and stale-row repair
-      pass in separate isolated checks. Off-node restore remains deferred.
+      retained an unacked message and durable state. A connected expiry →
+      owner-row/outbox reconstruction → JetStream redelivery → completion check
+      also passed. Off-node restore remains deferred.
 - [x] Recheck Fleet Ready state and production topology/schema gates after
       the Geodata rollout: Fleet reports Ready=True with 60/60 resources at
       deploy commit bbb3276296c8fa86941315b582caa76e178bd94f; Helm revision 189
@@ -837,11 +844,13 @@ evidence](evidence/phase5-geodata-work-2026-10-10.md).
       after the 24-hour rollback observation and the final database recovery
       check. No Phase 5 database object is obsolete: migration 021's dispatch
       columns/indexes and the domain/outbox rows remain required recovery state.
-- [ ] Broker Pod restart, worker restart, delayed ACK, duplicate/lost ACK,
-      database failure, and the Activity-success/Geodata-failure retry path
-      preserve durable effects in isolated tests. Still qualify cancellation
-      racing with acknowledged work and the complete expiry → reconstruction →
-      completion chain; verify the Activity idempotency image is deployed.
+- [x] Broker Pod restart, worker restart, delayed ACK, duplicate/lost ACK,
+      expiry/reconstruction/completion, database failure, the Activity-success/
+      Geodata-failure retry, and cancellation racing with an acknowledged
+      preprocessing delivery preserve durable effects in isolated tests.
+- [ ] Build and publish the committed Activity cascade idempotency change, pin
+      its immutable digest, deploy it through Fleet, and recheck live health and
+      topology.
 - [x] Recovery loops are observable, age-bounded and limited to batches of 50;
       they enqueue repair through the transactional outbox and do not run as a
       second primary dispatcher.
