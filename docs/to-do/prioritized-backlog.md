@@ -62,49 +62,31 @@ and the active [Work in progress index](../work-in-progress/README.md).
 
 ### 2. Implement NATS contracts and close delivery gates before migration
 
-**Current evidence:** Phase 0's exhaustive inventory and decision record are
-complete. [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md)
-selects `MYOTA_EVENTS` with bounded Limits retention for domain facts, plus
-separate `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` WorkQueue streams. Phase
-1 has started: the contracts repo lists 68 facts and ten work commands and has
-outer-envelope schemas; a create-only provisioner validates finite limits and
-configuration drift. The registry now maps all 68 facts to producer source files;
-a workspace audit found no undispositioned Python event-like literals across
-five service repositories. The contracts source-audit workflow passed; platform unit tests and
-Ruff format/lint CI pass. The expanded consumer configuration also passes four
-focused tests and an isolated create/idempotency run against a disposable broker.
-The 19 Identity, 12 Programme, 10 Activity, and 27 Geodata event payloads now
-have additive, source-derived schemas and data-classification metadata. Activity and Geodata schema assertions pass in local checks and Contracts CI;
-the platform mirror CI passes as well. Joint owner/privacy review remains open. Geodata
-preprocessing currently includes internal `_records` and `_status` data in its
-event payload; minimization review is required before enforcement. The Phase 0 source audit found no Operations event-producing call sites; an
-Operations payload schema is not applicable unless that service becomes a producer.
-Earlier platform image-build attempts timed out at Docker Hub; the latest deploy
-and platform main-branch image build/publish checks now pass. The payload review
-is incomplete because joint owner/privacy approval remains open; the Phase 0
-audit found no Operations event producer, so its payload schema is not applicable.
-The deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
-and no live migration or runtime change has occurred. Read-only sampling found
-19,103 outbox rows spanning only
-2–9 October and an unusually large Geodata payload; that is not a full-window
-capacity forecast. Credentials, numeric limits, broker restore/replay evidence,
-and relay-side provisioning behavior remain open. The contracts #2, deploy #4,
-platform mirror #1, and organization profile #1 PRs are merged; merge SHAs and CI
-outcomes are recorded in the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+**Current evidence:** Phase 0 inventory and ADR-0008 are complete. Phase 1
+registry/schema and create-only provisioner foundations pass their recorded
+checks. The delegated review dispositioned all 68 fact schemas and selected
+per-role NKey/TLS credentials, provisional caps against the 8 GiB NATS PVC,
+off-node snapshots with database-authoritative redrive, and one deployment-owned
+provisioner. The live sample spans under eight days and includes Geodata
+load-test traffic, so numeric values and restore/replay remain unqualified.
+Geodata preprocessing v1 still includes internal _records and _status;
+credentials are not configured, the chart does not run the target provisioner,
+and relays still mutate the mixed Interest-retained stream. See the
+[joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md)
+and [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+
 **Why second:** accepted asynchronous work must survive relay/worker restarts
 without losing or duplicating domain effects. The selected topology is now
 recorded, so the remaining priority is to establish the contract and safe
 provisioning, close the evidence gate for each affected flow, and verify relay,
 consumer, and recovery behavior before cutover.
 
-**Next:** close Phase 1 owner/privacy review of the source-derived payloads and
-subscriber contracts, minimize the Geodata preprocessing event, establish secure
-per-role broker access, derive limits from representative traffic and the
-allocated volume, and run restore/replay tests on an isolated broker. Remove
-relay-side topology mutation before provisioning can be used. Do not begin
-Phase 2 behavior changes until Phase 1 exit criteria pass, and do not change a
-producer/consumer path until its evidence gate is met or explicitly accepted
-with a time-bounded recovery plan.
+**Next:** implement the reviewed Phase 1 decisions: versioned and minimized
+payload enforcement, authenticated broker roles and TLS, full-window sizing and
+capacity alerts, isolated backup/restore/replay, and chart-run provisioner
+readiness with a safe relay mutation cutover. Keep the mixed legacy stream
+untouched until a reviewed snapshot and consumer-state barrier is ready. Do not
+begin Phase 2 behavior changes until Phase 1 exit criteria pass.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [JetStream operations status](../operations/messaging/jetstream-admin-status.md),
