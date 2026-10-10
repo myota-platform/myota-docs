@@ -13,31 +13,44 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
-## 11 October 2026 — Phase 5 synthetic validation and observation reset
+## 11 October 2026 — Phase 5 early observation closure and retirement
 
-- **Prompt used:** “Inject some data to test the premises you are observing. If
-  after this data everything is correct, close the observation window and finish
-  phase 4 work. Clean up the test data afterwards.”
-- Helm history records revision 193 at 22:00:02 UTC on 10 October with
-  status deployed; Fleet reported Ready=True at Deploy commit
-  `cfecd655d9c0eee9d19db26725fb11c99366815a` at 22:03:29 UTC. This later
-  immutable-image rollout supersedes the previous revision 192 observation
-  anchor.
-- In isolated PostGIS and JetStream services, stale owner rows for preprocessing,
-  promotion, deletion and location work each produced exactly one outbox command;
-  a second recovery scan produced none. The existing delivery suite exercised
-  ACK/retry/redelivery, competing consumers, expiry, shutdown and recreation.
-  Two full-suite attempts each exposed one timing-sensitive immediate
-  ACK-counter assertion; a focused ACK rerun passed, and later broker metadata
-  showed all private streams empty with zero pending/ack-pending/redelivery.
-- Production received no test data. Its read-only 22:05 UTC sample showed both
-  streams at zero messages/bytes and all target/legacy counters at zero. The
-  disposable namespace, data, streams and temporary virtual environment were
-  removed. Keep the observation open through 22:03:29 UTC on 11 October, then
-  recheck production and retire only the four legacy Geodata durables if every
-  gate passes.
-- **Phase 5 status:** observation remains open; Phase 6 remains gated. See the
-  [updated Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+- **Prompt used:** “Ok, complete the following phase 5 item now: Complete the
+  24-hour rollback observation after immutable-image Helm revision 193, then
+  recheck replacement/legacy filters, backlog counters, migration markers,
+  owner-row recovery age and Fleet readiness. Retire only the four legacy
+  Geodata durable definitions after this check. The earliest time is
+  22:03:29 UTC on 11 October 2026. Ignore the earliest possible time, but
+  conduct any additional tests needed to ensure this is safe, cleaning up
+  test data afterwards.”
+- **Timing boundary:** Fleet was Ready=True at Deploy commit
+  cfecd655d9c0eee9d19db26725fb11c99366815a at 22:03:29 UTC on 10 October.
+  At the user's explicit instruction, the 24-hour elapsed-time requirement was
+  waived and checks closed at approximately 22:13:48 UTC on 10 October,
+  about 10 minutes 19 seconds after the anchor. This is not a claim that a
+  full 24-hour observation elapsed.
+- **Final check and retirement:** Helm revision 193 remained deployed and
+  Fleet and all MyOTA Deployments were Ready. Both streams were present and
+  empty; the four old Geodata filters were exact with zero pending,
+  ack-pending and redelivery; all four replacement durables retained exact
+  filters, zero counters and one waiting pull. Activity notification
+  remained. Migration 021 columns/indexes were present and the four
+  age-bounded recovery queries had zero due rows. Deleted the four exact
+  legacy Geodata consumers sequentially, verifying absence after each.
+- **Post-check:** The shared event stream, Activity notification durable,
+  Geodata work stream and all four target durables remained intact. A
+  disposable in-memory broker test verified deletion semantics without
+  publishing messages. Both Phase 5 disposable namespaces were deleted and
+  verified absent; no production test data or broker messages were created.
+- **Test limitation:** Two full delivery-suite attempts each exposed one
+  timing-sensitive immediate ACK-counter assertion. Focused ACK verification
+  passed and later private-stream counters settled at zero; the full suite is
+  not claimed as a clean pass.
+- **Status:** Phase 5 is complete within this evidence boundary and the
+  explicit user waiver. Phase 6 fact-stream retention work is separate. See
+  the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md)
+  and [migration plan](../operations/messaging/nats-event-migration-plan.md).
+
 
 ## 10 October 2026 — NATS migration Phase 5 Geodata cutover and recovery work
 
