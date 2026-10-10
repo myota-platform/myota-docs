@@ -99,14 +99,14 @@ NATS migration status on 10 October 2026:
 
 - Phases 0–4 are complete within their recorded evidence bounds. Phase 5
   routes all four Geodata work kinds to `MYOTA_GEODATA_WORK`, applied
-  migration 021 and deployed the Activity idempotency fix. Helm 191 is deployed;
-  Fleet reports Ready=True at commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources.
+  migration 021 and deployed the Activity idempotency fix. Helm 192 is deployed;
+  Fleet reports Ready=True at commit `6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources.
 - First-party runtime/workers use immutable digest references; live pod refs
   and ImageIDs match configured pins. A mutable-tag gap discovered in Phase 5
   was fixed and verified.
 - Target Geodata durables are empty with live waiting workers. Four old
   Geodata durables remain inactive and empty during the rollback observation,
-  ending no earlier than 21:28:41 UTC on 11 October 2026. No accepted production work was available.
+  ending no earlier than 21:39:22 UTC on 11 October 2026. No accepted production work was available.
 - Isolated Geodata, Activity, and relay/topology suites passed (154, 40 and 25
   tests; one optional skip in each service suite). Two-database retry,
   cancellation and expiry/recompletion passed; the isolated namespace and
