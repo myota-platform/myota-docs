@@ -126,8 +126,10 @@ distinction:
    failures/dead letters, consumer pending/ack-pending/redeliveries/oldest age,
    handler outcomes, and end-to-end event age. Do not label metrics with event
    IDs, aggregate IDs, or other unbounded values.
-10. Keep the consumer APIs/web clients out of direct NATS access. Services and
-    workers alone hold the narrow credentials they require.
+10. Keep the consumer APIs/web clients out of direct NATS access. NATS is
+    cluster-internal through a ClusterIP service; the accepted trust boundary
+    assumes any pod able to reach that service is trusted. Do not expose NATS
+    outside the cluster. Operations remains read-only for broker inspection.
 
 ### Selected topology — ADR-0008
 
@@ -212,11 +214,12 @@ rollback and database recovery checks pass.
       compatibility with the shared legacy stream and its consumers is proven.
       The target provisioner must not be run against the current mixed
       `MYOTA_EVENTS` configuration.
-- [ ] Configure NATS authentication, TLS, and the selected distinct NKey role
-      credentials for relays, workers, provisioner, and the Operations
-      metadata-only observer. Secret material must come from the external
-      operator-managed source; no such production material is available in
-      this workspace, and the deployed broker currently has no auth.
+- [x] Record the accepted NATS network boundary: keep the broker ClusterIP-only
+      inside the cluster and rely on the trusted-cluster boundary without NATS
+      authentication or TLS. The live `myota` namespace has no NetworkPolicy, so
+      all pods with network reachability are trusted to connect. Revisit this
+      decision before exposing NATS outside the cluster or admitting untrusted
+      workloads.
 - [x] Encode the selected target retention/storage policy in the declarative
       topology: finite Limits retention for facts, WorkQueue retention for
       Activity and Geodata work, file storage, one replica on the single-server
@@ -276,9 +279,10 @@ the only project team. Decisions are recorded in the
       are not approved for enforcement until minimized projections,
       prohibited-field/size checks, idempotency/recovery evidence, and the
       Geodata preprocessing projection are in place.
-- [x] Select per-role NKey credentials mounted from operator-managed Secrets,
-      NATS authentication and TLS, and a separate provisioner identity.
-      Secret provisioning and allow/deny qualification remain open.
+- [x] Accept the cluster-internal NATS trust boundary without NATS authentication
+      or TLS. The broker remains ClusterIP-only; any pod with network reachability
+      is trusted. Do not expose NATS outside the cluster; revisit if that boundary
+      or the workload trust model changes.
 - [x] Record finite byte/message/age/payload caps totaling 5 GiB of the
       existing 8 GiB PVC, with 3 GiB reserved. Values remain provisional until
       a representative 30-day sample and pressure/recovery test justify them.
@@ -298,11 +302,11 @@ the only project team. Decisions are recorded in the
       ADR-0008's fact/work classification and subject namespaces. Contracts
       tests and the five-service source audit pass; provisioned work filters
       match all ten registered work commands.
-- [ ] Provisioning is deterministic, least-privilege, observable, and safe before
-      first publish; incompatible drift fails deployment/readiness clearly.
-      Create-only provisioning and drift checks pass in isolation, but the
-      authenticated Helm preflight, production credentials/TLS, and relay
-      compatibility barrier are not implemented or qualified.
+- [ ] Provisioning is deterministic, observable, and safe before first publish;
+      incompatible drift fails deployment/readiness clearly. Create-only
+      provisioning and drift checks pass in isolation. The controlled Helm
+      preflight and relay compatibility barrier remain open. NATS authentication
+      and TLS are not required under the accepted cluster-internal boundary.
 - [ ] Retention and restore/replay policies have an operator runbook and
       qualification evidence. The
       [runbook](jetstream-recovery.md) is written, but off-node backup and
@@ -331,6 +335,10 @@ keep work subjects in the disjoint myota.work.activity.* and
 myota.work.geodata.* namespaces. Keep PostgreSQL authoritative. JetStream is a
 bounded delivery/replay window, not an archive. Do not add no-op fact durables.
 The single-server deployment uses one replica and file storage with DiscardNew.
+Keep NATS reachable only through its cluster-internal ClusterIP service. The
+accepted design does not require NATS authentication or TLS; any pod able to
+reach the service is within the trusted boundary. Never expose NATS outside the
+cluster without revisiting this decision.
 The 30-day fact window and 1/1/3 GiB byte budgets, message counts, and 1 MiB
 message limit are proposals until a representative 30-day serialized-traffic
 profile, outage backlog, storage reserve, and recovery objective validate them.
@@ -340,11 +348,10 @@ Implement and verify the contract envelope, schema/subject registry, exact
 fact/work classifications and dispositions, checked-in schemas, work durable
 mapping, create-only provisioning, drift checks, consumer correctness settings,
 and recovery documentation. Contract and topology work may proceed while
-evidence is being closed. Keep secret values out of Git and Helm values. Use
-distinct operator-managed NKey credentials with TLS for the relay, worker,
-provisioner, and metadata-only Operations roles; do not create or activate
-production credentials in the absence of the external secret source and a
-successful isolated allow/deny test.
+evidence is being closed. Keep NATS on the cluster-internal ClusterIP service;
+the accepted decision does not require NATS authentication, TLS, or runtime
+credentials. Record the trusted-cluster assumption and do not expose the broker
+outside the cluster.
 
 The current production relay still emits its legacy envelope/subjects and
 mutates the mixed Interest-retained MYOTA_EVENTS stream. Do not run the target
@@ -754,9 +761,11 @@ do not treat unit-only coverage as broker/recovery proof.
   consumer completion; restore broker and consumer state; demonstrate bounded fact
   replay through an isolated durable and work recovery/redrive from database
   records and reconcilers.
-- **Security:** validate service-specific NATS credentials, TLS/auth policy,
-  subject permissions, secret rotation, and no browser or web-client NATS
-  access. Prevent event payload/log exposure of credentials or unnecessary PII.
+- **Cluster boundary:** keep NATS behind its cluster-internal ClusterIP service.
+  Under the accepted decision, NATS authentication and TLS are not required while
+  all pods with network reachability are trusted. Revisit before external exposure
+  or a change to the workload trust model. Prevent unnecessary sensitive payload
+  and log exposure; keep Operations read-only in its application behavior.
 - **Observability:** verify outbox depth/age and publish/dead-letter metrics for
   core/activity/geo; per-stream/durable pending, ack-pending, redelivery and
   oldest age; handler success/failure/latency; and business job completion.
@@ -791,7 +800,7 @@ do not treat unit-only coverage as broker/recovery proof.
 - `myota-contracts`: event/work schemas, version and compatibility contracts.
 - Each service repository: its outbox writes, worker handlers, local consumer
   idempotency and domain recovery.
-- `myota-deploy`: broker configuration, credentials, relay/worker deployment,
+- `myota-deploy`: broker service exposure, relay/worker deployment,
   rollout and operational controls.
 - `myota-platform`: synchronized integration bootstrap mirrors and end-to-end
   wiring, not an independent domain source.
