@@ -12,9 +12,10 @@
   changed rollout annotations while containers still pulled mutable tags.
   Deploy commit [`a68eedd`](https://github.com/myota-platform/myota-deploy/commit/a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109)
   and Platform mirror [`a184baa`](https://github.com/myota-platform/myota-platform/commit/a184baac3f36e0272cbc79107f4b362139de7515)
-  now render configured first-party image digests as immutable refs. Fleet
-  applied Helm revision 191 and reports Ready=True, 60/60 resources; Activity,
-  Geodata and shared runtime refs/ImageIDs match the configured digests.
+  now render configured first-party image digests as immutable refs. Fleet first applied Helm revision 191; the latest rollout, revision 192,
+  completed at 21:39:22 UTC with Ready=True at Deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a` and
+  60/60 resources. Activity, Geodata and shared runtime refs/ImageIDs match the
+  configured digests.
 - The 154-test Geodata suite, 40-test Activity suite (each with one optional
   skip), 25 relay/topology tests, database refusal/reconnect, same-node NATS
   PVC restart, two-database retry, concurrent idempotency, cancellation race
@@ -22,7 +23,8 @@
   PVC, streams, fixtures, local API and port-forwards were cleaned up.
 - No accepted production Geodata work was available; production data and
   messages were not modified. Keep the four legacy Geodata durables empty
-  through the 24-hour observation, ending no earlier than 21:28:41 UTC on 11 October 2026. Then
+  through the 24-hour observation anchored at revision 192, ending no earlier
+  than 21:39:22 UTC on 11 October 2026. Then
   recheck recovery and remove only those four. Activity's notification durable,
   `MYOTA_EVENTS`, migration 021 and authoritative DB rows remain. See the
   [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
