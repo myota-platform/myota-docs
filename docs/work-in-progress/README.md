@@ -9,8 +9,10 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   bounds. Phase 5 Geodata cutover and migration 021 are live; the new image
   keeps partial Activity/Geodata deletion retryable. The four old Geodata
   durables are empty and retained through the 24-hour rollback observation.
-  Final Fleet readiness, the two-database failure chain and old durable
-  retirement remain open. Phase 6 fact-stream retention remains planned.
+  The Fleet check and two-database failure/replay chains are verified. The
+  committed Activity idempotency fix still needs image deployment; the rollback
+  observation and old durable retirement remain open. Phase 6 fact-stream
+  retention remains planned.
   - **Phase 5 production:** `MYOTA_GEODATA_WORK` is a finite file-backed
     WorkQueue with four exact pull durables. Migration 021's recovery
     columns/indexes are present, and the live un-dispatched work count is zero.
@@ -28,9 +30,10 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     image build/publish and production rollout remain open.
   - **Phase 5 remaining gates:** Keep the four legacy durables through
     20:58:36 UTC on 11 October 2026, then recheck topology/recovery and retire
-    only those four. Cancellation racing with acknowledged work, expiry-to-
-    completion, Activity image deployment, and final cleanup remain open.
-    Preserve migration 021 and authoritative job/outbox/history rows.
+    only those four. The connected cancellation and expiry/recompletion checks
+    passed. Activity image deployment and final production recheck remain open.
+    The isolated namespace is deleted. Preserve migration 021 and authoritative
+    job/outbox/history rows.
   - **References:** [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
     [Phase 5 plan](../operations/messaging/nats-event-migration-plan.md), and
     [migration diagram](../architecture/diagrams/nats-event-migration.md).
