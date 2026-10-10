@@ -107,10 +107,12 @@ NATS migration status on 11 October 2026:
 - MYOTA_EVENTS remains file-backed with Interest retention; Phase 6 owns its
   separate fact-stream retention transition. Off-node recovery remains
   deferred.
-- NATS Surveyor and dashboard 16256 are proposed, not deployed. See the
-  [monitoring consolidation plan](docs/observability/nats-surveyor-migration.md)
-  for the seven-day overlap and retirement gates for the Admin page, broker
-  pollers, Grafana dashboard and NATS snapshot table.
+- NATS Surveyor and Grafana monitoring are proposed, not deployed. The plan
+  provisions dashboard 16256 and ten dashboards from a pinned Surveyor source
+  revision in a Grafana folder named `NATS`; it gates compatibility checks,
+  seven-day overlap, and retirement of the Admin page, broker pollers, combined
+  MyOTA NATS/PostGIS dashboard, and NATS snapshot table. See the
+  [monitoring consolidation plan](docs/observability/nats-surveyor-migration.md).
 
 See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
