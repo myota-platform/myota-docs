@@ -75,8 +75,9 @@ describe current ownership and are authoritative for the present-day system.
   `myota-activity-service/awards.py`. Flexible rule/configuration and nested asset
   shapes remain open; joint owner/privacy review is still required. Contracts
   commit `2b8bddaf` and platform mirror commit `bf6f2727` are on `main`. Local
-  contract checks pass; the GitHub connector exposed no combined CI statuses. The
-  existing Phase 1 prompt was reused. No producer/consumer runtime path changed.
+  contract checks pass; Activity Contracts CI passed in
+  [run 38040217352](https://github.com/myota-platform/myota-contracts/actions/runs/38040217352).
+  The existing Phase 1 prompt was reused. No producer/consumer runtime path changed.
   Direct-main commits `1076584` (deploy) and `b047a00` (platform) passed Ruff,
   deploy gateway/service image builds, platform tests, container build, and publish.
   See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)
@@ -822,9 +823,13 @@ later phases complete.
   enforcement. No runtime event path changed.
 - Local checks passed: contracts tests 2/2, all 68 schema generation, workspace
   source audit, Ruff lint/format, and byte-identical contracts/platform mirror
-  comparison. The GitHub connector returned no combined statuses for the new
-  contracts/platform commits; CI remains unverified. Owner/privacy review and
-  Operations payload contracts remain open. The existing Phase 1 prompt was
+  comparison. Contracts CI passed for commit `e34de821` in
+  [run 38042564323](https://github.com/myota-platform/myota-contracts/actions/runs/38042564323);
+  platform mirror CI passed for `63cec55e` in
+  [run 38042622987](https://github.com/myota-platform/myota-platform/actions/runs/38042622987).
+  Joint owner/privacy review remains open. The Phase 0 audit found no Operations
+  event-producing call sites, so Operations payload schemas are not applicable
+  unless that service becomes a producer. The existing Phase 1 prompt was
   reused; no new phase prompt or live topology change was introduced. See the
   [evidence record](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [Phase 1 plan](../operations/messaging/nats-event-migration-plan.md).
