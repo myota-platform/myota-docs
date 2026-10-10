@@ -165,3 +165,11 @@ Current `myota-deploy/services/outbox_worker.py` still creates/updates `MYOTA_EV
 - Deployed evidence: K3s `default` context, node `spainip-k3s` Ready, Helm release `myota` revision 157, NATS single replica and 8 GiB PVC. All cluster queries and database aggregates in this record were read-only.
 
 Phase 1 is not complete. The remaining exit criteria are checked implementation of the versioned envelope/subject registry, least-privilege authenticated provisioning, measured final limits, production-like backup/restore/replay evidence, and deterministic readiness before publishing. No phase after Phase 1 is claimed complete.
+
+
+## Primary NATS references
+
+- [NATS authorization](https://docs.nats.io/learn/security/authorization) describes publish/subscribe permissions as subject allow-lists and notes that JetStream API requests also require suitable permissions. This is why each client role needs an isolated allow/deny test against its actual APIs.
+- [JetStream concepts](https://docs.nats.io/concepts/jetstream) describes stream and consumer persistence and replay. Replay is per consumer, so validation uses an isolated durable.
+- [NATS TLS and authentication](https://docs.nats.io/learn/resilient-clients/tls-and-auth) covers client connection security and supported credentials.
+- [JetStream stream API](https://docs.nats.io/reference/jetstream-api/stream) documents snapshot and restore operations. The planned drill includes consumer state verification and application database comparison because a broker snapshot does not make PostgreSQL state or the whole service system recoverable.
