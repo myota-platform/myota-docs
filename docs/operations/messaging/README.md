@@ -19,9 +19,9 @@
     inactive until the 24-hour observation expires no earlier than 20:58:36 UTC
     on 11 October 2026. Do not remove Activity's notification durable or
     `MYOTA_EVENTS`.
-  - **Still open:** Activity idempotency image build/deployment, cancellation
-    racing with acknowledged work, expiry/reconstruction-to-completion, final
-    legacy durable retirement, and Phase 6 fact-stream retention transition. See the
+  - **Still open:** Activity idempotency image build/deployment, the 24-hour
+    rollback observation and final legacy durable retirement, plus the separate
+    Phase 6 fact-stream retention transition. See the
     [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md), [Phase 5
     plan](nats-event-migration-plan.md), and [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md).
 - [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
