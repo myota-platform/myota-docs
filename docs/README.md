@@ -28,7 +28,9 @@ indexes organize open work by delivery status.
   proposed Surveyor deployment and Grafana folder `NATS` containing dashboard
   16256 plus ten pinned upstream Surveyor dashboards, with panel compatibility
   and direct cutover validation before removing the current Admin page, broker
-  pollers, combined MyOTA dashboard and NATS snapshot table.
+  pollers, combined MyOTA dashboard and NATS snapshot table. The combined
+  dashboard's two obsolete PostGIS panels were removed from source assets and
+  will not be migrated or recreated.
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, Surveyor migration plan, prompts, and recent verification.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA
