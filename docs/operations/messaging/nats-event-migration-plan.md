@@ -313,46 +313,71 @@ the only project team. Decisions are recorded in the
 **ChatGPT prompt — Phase 1**
 
 ```text
-Implement the selected Phase 1 NATS contract and topology decisions recorded in
-myota-docs/docs/operations/messaging/nats-event-migration-plan.md and ADR-0008. First read
-the Phase 0 inventory and repository ownership map. Do not expand scope beyond the
-approved topology.
+Work in the MyOTA multi-repository workspace on Phase 1 only. Before editing,
+read ADR-0008, the Phase 0 event/work inventory, the Phase 0 ownership and
+evidence gates, this plan, and the
+Phase 1 joint review
+(myota-docs/docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md).
+Read the recovery runbook as well. Treat myota-contracts and each owning service
+repository as authoritative for their contracts and runtime; myota-deploy owns
+the deployment and provisioner; myota-platform contains synchronized mirrors.
+Update mirrors only through their documented synchronization process.
 
-Review the Phase 0 evidence ownership and gates table. Contract, schema, registry,
-and isolated provisioning work may proceed, but do not apply live stream changes
-or change producer/consumer behavior until the relevant gap is closed or the
-specified owners record the required time-bounded risk acceptance and recovery
-plan.
+The selected target has a bounded Limits-retained MYOTA_EVENTS fact stream and
+separate WorkQueue-retained MYOTA_ACTIVITY_WORK and MYOTA_GEODATA_WORK command
+streams. Use dotted event types unchanged under myota.events.<eventType> and
+keep work subjects in the disjoint myota.work.activity.* and
+myota.work.geodata.* namespaces. Keep PostgreSQL authoritative. JetStream is a
+bounded delivery/replay window, not an archive. Do not add no-op fact durables.
+The single-server deployment uses one replica and file storage with DiscardNew.
+The 30-day fact window and 1/1/3 GiB byte budgets, message counts, and 1 MiB
+message limit are proposals until a representative 30-day serialized-traffic
+profile, outage backlog, storage reserve, and recovery objective validate them.
+Do not apply them to the live broker yet.
 
-Update the authoritative myota-contracts event documentation/schema and any required
-owning-service helpers. Define the versioned envelope, stable message ID, subject
-naming/registry, event versus work-command classification, consumer-group naming,
-unknown-version behavior, payload bounds, correlation/causation fields, and backward
-compatibility rules. Update synchronized myota-platform/myota-deploy contract copies
-only through their documented sync process.
+Implement and verify the contract envelope, schema/subject registry, exact
+fact/work classifications and dispositions, checked-in schemas, work durable
+mapping, create-only provisioning, drift checks, consumer correctness settings,
+and recovery documentation. Contract and topology work may proceed while
+evidence is being closed. Keep secret values out of Git and Helm values. Use
+distinct operator-managed NKey credentials with TLS for the relay, worker,
+provisioner, and metadata-only Operations roles; do not create or activate
+production credentials in the absence of the external secret source and a
+successful isolated allow/deny test.
 
-Make JetStream stream and durable-consumer provisioning deterministic and
-drift-checked. Register every producer subject, but provision durables only for
-independent consumer groups with an intended business use; do not create broad
-no-op consumers for Limits-retained facts. Provision required consumers before
-relying on their processing. Implement the single controlled provisioner specified
-in ADR-0008; relay replicas must not concurrently mutate stream configuration.
-Validate all correctness-sensitive consumer settings.
-Add least-privilege credentials and deployment configuration for each relay/worker
-role. Add registry/contract checks that fail when a producer subject lacks schema,
-owner, consumer disposition, provisioning and documentation.
+The current production relay still emits its legacy envelope/subjects and
+mutates the mixed Interest-retained MYOTA_EVENTS stream. Do not run the target
+provisioner against that stream, remove relay mutation, or change any producer
+or consumer path until the plan's relevant evidence gate is met and a
+migration-safe Helm/Fleet readiness barrier has been verified. Do not enable
+payload enforcement until minimized payload projections, compatibility fixtures,
+size checks, and consumer needs are verified. In particular, keep Geodata
+preprocessed v1 source-accurate but do not enforce its current _records/_status
+payload; propose a compact versioned projection for the owning service. Treat
+the ten work payloads as pending until their transaction coupling, stable
+idempotency identity, database recovery source, and maximum serialized size are
+evidenced.
 
-Document retention limits, restore/replay and recovery procedures; preserve
-PostgreSQL as system of record and Operations as read-only broker inspection. Update
-myota-docs and operator docs. Add focused tests for routing, schema compatibility,
-provisioning drift, and unknown subjects only where the repository's existing test
-conventions support them. Keep mirrors synchronized and list every changed
-repo/file.
+Keep Operations read-only: metadata inspection only, with no payload reads,
+consumer delivery, ACK, purge, or topology mutation. Document off-node backup,
+isolated restore/replay, database comparison, and same-ID work redrive. A
+synthetic isolated restore does not qualify off-node backup or production
+recovery.
 
-Before editing, state the approved topology you found. If the ADR and plan conflict
-or the Phase 0 decision is absent, stop runtime changes and report the conflict with
-file references. At completion report evidence and remaining gates; do not claim
-later phases complete.
+Do not invent credentials, final capacity values, source evidence, or approvals.
+If an evidence gate cannot be closed from the repositories and safe isolated
+checks, leave that checkbox open, name the missing evidence, and state the
+smallest next action. Do not claim Phase 1 or later phases complete unless every
+Phase 1 exit criterion has verified evidence.
+
+Run focused contract, audit, provisioning, drift, formatting, and link checks
+supported by repository conventions. On the deployed host, use only
+non-destructive read-only checks unless a separately gated isolated test is
+required; clean up any test resources. Report exact commands/results,
+repositories and files changed, commits, mirror status, remaining evidence, and
+exit criteria. Commit and push completed work to main using the GitHub
+connector, with explicit commit messages. Update the docs status pages, history
+prompt record, diagrams, and relevant repository README links.
 ```
 
 ### Phase 2 — Relay hardening and domain-event coverage
