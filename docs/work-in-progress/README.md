@@ -35,8 +35,9 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   plus all ten dashboards from a pinned Surveyor provisioning revision, after
   per-panel compatibility checks. Direct broker comparison and the recorded
   cutover/rollback checks gate removal of duplicate broker inspection; there is
-  no timed overlap. The combined dashboard retires only after its PostGIS
-  panels move to Geodata. Phase 5 event/work migration is complete under its
+  no timed overlap. The two obsolete PostGIS panels are removed from Compose
+  and Helm assets and will not be recreated. Retire the combined dashboard
+  after Surveyor acceptance. Phase 5 event/work migration is complete under its
   documented early-close waiver; Phase 6 fact-stream retention is separate.
   No runtime components have been removed for this item.
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
