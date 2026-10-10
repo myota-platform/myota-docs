@@ -3,9 +3,12 @@
 - [JetStream administration and status](jetstream-admin-status.md) — read-only
   broker state and sampled history.
 - [NATS event migration plan](nats-event-migration-plan.md) — Phase 0 complete;
-  Phase 1 contract/provisioning preparation in progress. The delegated review has
-  decided dispositions for all 68 fact schemas and selected credential, capacity,
-  recovery, and provisioning policies; implementation and qualification gates remain open.
+  Phase 1 contract and topology implementation in progress. The delegated review
+  decided dispositions for all 68 fact schemas and selected credential,
+  capacity, recovery, and provisioning policies; production gates remain open.
+- [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
+  PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
+  qualification evidence.
 - [Phase 0 event and work inventory](nats-event-migration-inventory.md) —
   repository evidence, current queues, replay limits, mirror status, and
   selected topology. The decision is recorded in
