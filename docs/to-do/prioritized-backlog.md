@@ -68,7 +68,7 @@ The delegated review has completed the schema dispositions and selected
 per-role NKey/TLS credentials, provisional caps against the 8 GiB NATS PVC,
 PostgreSQL-authoritative recovery, and one deploy-owned provisioner. Contracts
 CI now checks event dispositions and schemas plus exact work-to-stream,
-subject, and durable alignment ([run 38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38045763460)).
+subject, and durable alignment ([run 38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38045951777)).
 The isolated broker drill passed creation, idempotent rerun, drift rejection,
 and a synthetic stream/durable-state restore/replay.
 
