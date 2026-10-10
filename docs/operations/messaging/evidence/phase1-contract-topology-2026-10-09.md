@@ -300,3 +300,24 @@ full-window sizing and pressure recovery; off-node backup and isolated
 restore/replay; Helm/Fleet provisioner readiness; safe relay mutation removal;
 and a compact versioned Geodata preprocessing fact before enforcement. Phase 1
 remains in progress.
+
+
+## 10 October 2026 — isolated JetStream restore and replay qualification
+
+A disposable K3s namespace ran two NATS 2.10 JetStream servers. Using the
+temporary NATS CLI v0.2.3, the test created a finite Limits stream, published
+three synthetic messages, and created a durable pull consumer. It acknowledged
+sequence 1 and left sequences 2–3 pending, then used stream backup and restored
+to the second clean broker. Restore returned the stream with all three messages
+and the original durable state (acknowledgement floor 1, two unprocessed).
+The restored durable fetched and acknowledged the remaining two. A new
+DeliverPolicy.ALL durable replayed all three messages; direct retrieval of
+sequence 1 also succeeded. This validates basic stream data and durable-state
+snapshot/restore plus independent replay in isolation.
+
+The temporary namespace was deleted and verified absent, and the temporary CLI
+and backup files were removed. No production NATS or application database was
+used. This same-host test does not qualify off-node backup retention, PVC loss,
+database-to-stream reconciliation, authenticated client permissions, or
+production recovery objectives. Phase 1 restore/replay exit evidence remains
+open for those controls.
