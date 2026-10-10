@@ -55,10 +55,13 @@ flowchart LR
 The 68 fact schemas and ten selected work commands are registered; contract CI
 checks their schema/disposition coverage and exact work-to-durable mapping. The
 create-only provisioner and its drift checks passed focused and isolated tests.
-The delegated review selected per-role auth/TLS, provisional capacity,
-restore/replay policy, and provisioner ownership. These are decisions, not
-production qualification. No target stream or producer/consumer path changed.
-Geodata payload minimization, credentials and ACL proof, representative
-full-window sizing, off-node/PVC-loss restore qualification, chart readiness,
-unknown-route enforcement, and safe relay transition remain open. Basic
-isolated restore/replay passed; see the recovery runbook for the remaining evidence.
+The workspace owner accepted a cluster-internal NATS trust boundary without
+authentication or TLS. The live NATS service is ClusterIP-only on port 4222;
+the `myota` namespace has no NetworkPolicy, so any pod with network reachability
+is trusted. Do not expose NATS outside the cluster. Provisional capacity,
+restore/replay policy, and provisioner ownership are decisions, not production
+qualification. No target stream or producer/consumer path changed. Geodata
+payload minimization, representative full-window sizing, off-node/PVC-loss
+restore qualification, chart readiness, unknown-route enforcement, and safe
+relay transition remain open. Basic isolated restore/replay passed; see the
+recovery runbook for remaining evidence.
