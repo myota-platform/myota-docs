@@ -347,4 +347,4 @@ The Grafana dashboard **MyOTA JetStream backlog and PostGIS query performance**
 contains consumer pending, ack-pending, redeliveries, oldest age and age
 availability, poller health, and dedicated PostGIS latency/slow-query panels.
 It is provisioned in both local Compose and Helm. These broker metrics
-complement—not replace—the database outbox and import-run measurements. The current broker poller and dashboard are planned to be replaced by Surveyor; the PostGIS panels remain. See the [consolidation roadmap](../../observability/nats-surveyor-migration.md).
+complement—not replace—the database outbox and import-run measurements. The current broker poller and remaining broker dashboard are planned to be replaced by Surveyor. The two PostGIS panels have been removed from the Compose and Helm dashboard assets and will not be recreated or migrated. The underlying Geodata query metrics remain available to other approved consumers. See the [consolidation roadmap](../../observability/nats-surveyor-migration.md).
