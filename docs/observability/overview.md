@@ -220,7 +220,7 @@ are current components, not the target design. The proposed
 broker/server metrics in Prometheus and Grafana. Its planned `NATS` folder
 contains dashboard 16256 plus the ten dashboards from Surveyor's provisioning
 folder, after compatibility checks. After direct cutover checks, retire
- duplicate broker-inspection code, history, the Admin page, and the combined
+duplicate broker-inspection code, history, the Admin page, and the combined
 MyOTA JetStream backlog/PostGIS dashboard.
 The app-level outbox and worker metrics remain because they describe delivery
 and domain processing, which Surveyor cannot observe.
