@@ -5,9 +5,28 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
-  — **Status:** Phases 0–4 are complete within their evidence bounds. Phase 4
-  production cutover and cleanup are complete. Phase 5 Geodata work migration
-  and Phase 6 fact-stream retention transition remain active roadmap items.
+  — **Status:** Phases 0–4 are complete within their recorded evidence
+  bounds. Phase 5 Geodata cutover and migration 021 are live; the new image
+  keeps partial Activity/Geodata deletion retryable. The four old Geodata
+  durables are empty and retained through the 24-hour rollback observation.
+  Final Fleet readiness, the two-database failure chain and old durable
+  retirement remain open. Phase 6 fact-stream retention remains planned.
+  - **Phase 5 production:** `MYOTA_GEODATA_WORK` is a finite file-backed
+    WorkQueue with four exact pull durables. All four Geodata workers subscribe
+    to the target subjects; migration 021's recovery columns/indexes are
+    present, and the live un-dispatched accepted-work count is zero. New
+    Geodata/runtime images are digest-pinned. A disposable PostGIS/JetStream
+    suite passed 154 tests (one optional setup skipped), including real socket
+    refusal/reconnect and the focused partial-cascade retry test. The latter
+    still needs two real service databases for end-to-end qualification.
+  - **Phase 5 remaining gates:** Fleet was still `WaitApplied` during rollout
+    reconciliation. Keep the four legacy durables until 20:55:08 UTC on
+    11 October 2026, then recheck topology/recovery and retire those four only.
+    Expiry-to-completion and cancellation-race chains also remain open. Preserve
+    migration 021 and all authoritative job/outbox/history rows.
+  - **References:** [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+    [Phase 5 plan](../operations/messaging/nats-event-migration-plan.md), and
+    [migration diagram](../architecture/diagrams/nats-event-migration.md).
   - **Phase 4 implementation:** Six Activity commands use ID-only work
     envelopes, transactional job/outbox writes, exact per-kind pull durables,
     post-commit ACK, retry/backoff, renewable token-fenced leases, persisted
