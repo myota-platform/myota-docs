@@ -1,6 +1,6 @@
 # Prioritized backlog
 
-**Reviewed:** 2026-10-09
+**Reviewed:** 2026-10-10
 
 This page orders the currently listed open work using evidence in the linked
 plans. It is a documentation-based recommendation, not a committed delivery
@@ -81,7 +81,9 @@ preprocessing currently includes internal `_records` and `_status` data in its
 event payload; minimization review is required before enforcement. Operations
 payload schemas remain open.
 Earlier platform image-build attempts timed out at Docker Hub; the latest deploy
-and platform main-branch image build/publish checks now pass. The payload schemas are still incomplete. The deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
+and platform main-branch image build/publish checks now pass. The payload review
+is incomplete: Operations schemas and joint owner/privacy approval remain open.
+The deployed broker remains a single Interest-retained stream with an 8 GiB PVC,
 and no live migration or runtime change has occurred. Read-only sampling found
 19,103 outbox rows spanning only
 2–9 October and an unusually large Geodata payload; that is not a full-window
