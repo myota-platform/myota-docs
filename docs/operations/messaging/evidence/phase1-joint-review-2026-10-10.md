@@ -116,19 +116,43 @@ external delivery command.
 | `geodata.entity-delete.v1` | `MYOTA_GEODATA_WORK` | `geodata-entity-deletion-v1` | `pending-geodata-recovery-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
 | `geodata.location-enrichment.v1` | `MYOTA_GEODATA_WORK` | `geodata-location-enrichment-v1` | `pending-geodata-recovery-and-payload-review` | Not approved for producer enforcement: confirm transaction coupling, idempotency/checkpoint, retry source, exact identifiers, and payload bound. |
 
-**Open schema implementation gate:** add schema validation and focused fixtures for the exact producer projection, reject prohibited fields and oversized payloads, and cover all accepted consumer needs. In particular, complete the Geodata preprocessed projection before schema enforcement. Operations has no event-producing call site in the Phase 0 source audit; no Operations fact schema is required unless it becomes a producer.
+**Open schema implementation gate:** before schema enforcement:
+
+- Add validation and focused fixtures for each exact producer projection.
+- Reject prohibited fields and oversized payloads.
+- Cover all accepted consumer needs.
+- Complete the Geodata preprocessed projection.
+
+The Phase 0 source audit found no Operations event-producing call site. No
+Operations fact schema is needed unless Operations becomes a producer.
 
 ### Cluster network boundary and Operations permissions
 
-**Decision — keep NATS cluster-internal and do not require NATS authentication or TLS while it is exposed only through the Kubernetes ClusterIP service.** The workspace owner explicitly supersedes the earlier NKey/TLS proposal. This accepts all pods with network reachability to the service as trusted clients. Do not expose the NATS client port through an Ingress, NodePort, LoadBalancer, host port, or external service. Revisit the decision before any such exposure or before admitting workloads that are not trusted at the cluster boundary.
+**Decision — keep NATS cluster-internal without authentication or TLS while it is
+exposed only through the Kubernetes ClusterIP service.** The workspace owner
+superseded the earlier NKey/TLS proposal. This decision means:
 
-**Observed state:** the deployed `myota-nats` service is `ClusterIP` on port 4222. The `myota` namespace currently has no NetworkPolicy, so the cluster-internal service boundary does not restrict access to selected pods. The running broker has no authentication configuration or credentials, consistent with this decision. No runtime change is needed to apply the decision.
+- Any pod that can reach the service is trusted as a NATS client.
+- Do not expose the NATS client port through Ingress, NodePort, LoadBalancer,
+  host port, or an external service.
+- Revisit the decision before external exposure or admitting workloads that are
+  not trusted at the cluster boundary.
+
+**Observed state:** the deployed `myota-nats` service is `ClusterIP` on port
+4222. The `myota` namespace has no NetworkPolicy, so the internal service is not
+restricted to selected pods. The broker has no authentication configuration or
+credentials, consistent with this decision. No runtime change is needed to
+apply it.
 
 Operations remains read-only by application behavior: inspect stream and consumer metadata only; do not publish, consume, acknowledge, purge, or change topology. This is an application boundary, not a NATS credential/ACL guarantee under the accepted unauthenticated cluster trust model.
 
 ### Production capacity limits
 
-**Decision — use a 5 GiB aggregate stream-byte budget on the current 8 GiB NATS PVC and reserve at least 3 GiB for filesystem headroom, metadata, compaction, and maintenance.** This is an initial proposal for controlled rollout, not a validated full-month capacity commitment. Do not set it as a live value until a representative 30-day profile and recovery test exist.
+**Decision — use an initial 5 GiB aggregate stream-byte budget on the current
+8 GiB NATS PVC, reserving at least 3 GiB for filesystem headroom, metadata,
+compaction, and maintenance.** This is a controlled-rollout proposal, not a
+validated full-month capacity commitment. Do not apply it live until a
+representative 30-day profile and recovery test exist.
 
 | Target stream | Initial `MaxBytes` proposal | `MaxMsgs` guard | `MaxAge` | `MaxMsgSize` |
 |---|---:|---:|---:|---:|
@@ -136,13 +160,42 @@ Operations remains read-only by application behavior: inspect stream and consume
 | `MYOTA_ACTIVITY_WORK` | 1 GiB | 250,000 | 30 days | 1 MiB |
 | `MYOTA_GEODATA_WORK` | 3 GiB | 500,000 | 30 days | 1 MiB |
 
-All streams use file storage, one replica on the current one-node cluster, `DiscardNew`, and finite byte, message, age, and per-message limits. A publish rejected at capacity remains pending in the owning outbox and follows its bounded retry/dead-letter path; no oldest message is silently discarded. Work past the 30-day window must be reconciled/redriven from its database using the same stable work ID before expiry; this recovery path must be qualified before activation.
+All streams use file storage, one replica on the current one-node cluster,
+`DiscardNew`, and finite byte, message, age, and per-message limits.
 
-**Evidence and limit:** a read-only query in the deployed outbox pods on 10 October 2026 found no unpublished rows. Across the 30-day query predicate, source rows actually span only 2–9 October in core (162 rows, max 387 bytes), 6–8 October in Activity (3,016 rows, max 150 bytes), and 6–9 October in Geodata (15,925 rows, max 373,607 bytes). The NATS PVC requests 8 GiB. This is less than an eight-day sample, includes load-test traffic in Geodata, and measures PostgreSQL outbox JSON rather than serialized NATS envelopes or the future command mix. The caps therefore remain a cautious starting budget. Recompute from a complete representative window, normalize test traffic, include envelope/index overhead and outage backlog, and lower/increase only while preserving the 3 GiB reserve.
+- A capacity-rejected publish remains pending in its owning outbox and follows
+  its bounded retry/dead-letter path. The broker does not silently discard the
+  oldest message.
+- Reconcile or redrive work from its database with the same stable work ID
+  before the 30-day window expires. Qualify this recovery path before activation.
+
+**Evidence and limit:** a read-only query in the deployed outbox pods on
+10 October 2026 found no unpublished rows. Although the query covered 30 days,
+the available source rows span less than eight days:
+
+- Core: 2–9 October, 162 rows, maximum 387 bytes.
+- Activity: 6–8 October, 3,016 rows, maximum 150 bytes.
+- Geodata: 6–9 October, 15,925 rows, maximum 373,607 bytes.
+
+The NATS PVC requests 8 GiB. The sample includes Geodata load-test traffic and
+measures PostgreSQL outbox JSON, not serialized NATS envelopes or the future
+command mix. Treat the caps as a cautious starting budget. Recompute from a
+complete representative window, normalize test traffic, include envelope/index
+overhead and outage backlog, and adjust only while preserving the 3 GiB reserve.
 
 ### Restore, replay, and redrive
 
-**Decision — PostgreSQL is the recovery authority; JetStream snapshots provide bounded transport recovery.** Back up each stream and its durable state to storage outside the NATS node, and retain the declarative topology/credential configuration separately. A recovery must restore into an isolated broker, recreate/validate durables from the checked-in provisioner, compare stream sequence and message IDs with source outboxes, verify consumer checkpoints and application idempotency, then authorize any production cutover. A PVC snapshot alone is not a qualified off-node backup.
+**Decision — PostgreSQL is the recovery authority; JetStream snapshots provide
+bounded transport recovery.** Keep declarative topology and credential
+configuration separately from stream data. A qualified restore must:
+
+1. Restore stream data and durable state into an isolated broker.
+2. Recreate or validate durables with the checked-in provisioner.
+3. Compare stream sequences and message IDs with source outboxes.
+4. Verify consumer checkpoints and application idempotency.
+5. Require explicit authorization before any production cutover.
+
+A PVC snapshot alone is not a qualified off-node backup.
 
 - Replay a domain fact through a new isolated durable from an explicit sequence/time, validate it without production side effects, then discard that test durable. Do not rewind a production side-effecting consumer.
 - Re-drive work from the owning database using the original work ID after checking its durable status and idempotency checkpoint. Never reconstruct work from stream contents alone.
@@ -151,9 +204,27 @@ All streams use file storage, one replica on the current one-node cluster, `Disc
 
 ### Relay-side provisioning ownership
 
-**Decision — `myota-deploy` owns one declarative, create-only provisioner; the three database-specific relays must not create streams/durables or alter retention.** It validates the complete topology and fails closed on drift. Provisioning uses a separate credential and runs before any relay can publish to new subjects. A relay may verify readiness but has no provisioning permissions.
+**Decision — `myota-deploy` owns one declarative, create-only provisioner.** The
+three database-specific relays must not create streams or durables, or alter
+retention. The provisioner validates the complete topology and fails closed on
+drift. It runs before any relay can publish to new subjects, using a separate
+credential. A relay may verify readiness but has no provisioning permissions.
 
-Current `myota-deploy/services/outbox_worker.py` still creates/updates `MYOTA_EVENTS`, creates the legacy Activity/Geodata durables, and changes retention from Limits to Interest. The target provisioner in `myota-deploy/services/provision_jetstream.py` is create-only and validates drift, but the selected target limits are unset and the Kubernetes chart does not yet run it. Keep both facts explicit: do not run the target provisioner against the mixed legacy stream, and do not remove relay mutation until a migration-safe, deployment-owned preflight has created/validated the legacy compatibility topology and the current consumers can connect. The production transition must then use a stopped-relay inspection/snapshot barrier, provision the disjoint work streams, and switch one owner at a time without dual-publishing.
+**Current implementation:** `myota-deploy/services/outbox_worker.py` still
+creates or updates `MYOTA_EVENTS`, creates the legacy Activity/Geodata durables,
+and changes retention from Limits to Interest. The create-only
+`myota-deploy/services/provision_jetstream.py` validates drift, but selected
+target limits are unset and the Kubernetes chart does not yet run it.
+
+**Migration gate:** do not run the target provisioner against the mixed legacy
+stream. Do not remove relay mutation until a migration-safe,
+deployment-owned preflight has created and validated the legacy compatibility
+topology and current consumers can connect. The production transition must use
+this order:
+
+1. Stop relays and inspect/snapshot the existing stream.
+2. Provision the disjoint work streams.
+3. Switch one owner at a time without dual-publishing.
 
 ## Evidence and Phase 1 gates
 
