@@ -15,12 +15,12 @@ Programme
 shared runtime
 `56709d36f8e9ab6d39a4da56b4dc9f28269e34a3973238deb955a0ac78e82555`.
 
-The latest read-only production broker sample, about 22:05 UTC, found
+The pre-retirement read-only production broker sample, about 22:05 UTC, found
 `MYOTA_EVENTS` file-backed with Interest retention, zero messages/bytes, and
 Activity plus all four legacy Geodata durables at zero pending, ack-pending and
 redelivered. `MYOTA_GEODATA_WORK` remains file-backed WorkQueue with zero
 messages/bytes; all four target filters are exact, counters are zero, and each
-target durable has one waiting pull. No production message or data was written.
+target durable has one waiting pull. No production message or data was written at that sample.
 
 A new disposable validation namespace exercised synthetic stale-owner recovery
 and JetStream delivery against isolated PostGIS databases and an isolated
