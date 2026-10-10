@@ -10,7 +10,7 @@ This repository is the organization’s documentation hub. It does not own
 service runtime code. See the [repository map](docs/architecture/repository-map.md) for
 service ownership, deployment boundaries, and migration synchronization.
 
-## Project status — current through 10 October 2026
+## Project status — current through 11 October 2026
 
 The organization has a working multi-service vertical slice: radio-aware
 identity, programme configuration, relational PostgreSQL/PostGIS geodata,
@@ -68,24 +68,19 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
 - Browse all subjects in the [documentation index](docs/README.md):
   architecture, domain/API, geodata, operations, observability, governance,
   history, platform policy, security, and development.
-- NATS work: [migration plan](docs/operations/messaging/nats-event-migration-plan.md),
+- NATS work: [event migration plan](docs/operations/messaging/nats-event-migration-plan.md),
   [Phase 0 evidence inventory](docs/operations/messaging/nats-event-migration-inventory.md),
-  [Phase 1 joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
-  [Phase 1 completion evidence](docs/operations/messaging/evidence/phase1-completion-2026-10-10.md),
-  [Phase 2 relay evidence](docs/operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
-  and [recovery runbook](docs/operations/messaging/jetstream-recovery.md), with the
-  selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-  Phases 0–4 are complete within their recorded evidence bounds. Phase 4
-  deployed the Activity WorkQueue, six exact durables, guarded database
-  migration, new image, and disabled compatibility repair. The obsolete claim
-  index and synthetic notification jobs were removed; `activity_job` history
-  remains authoritative. Production had no selected jobs at cutover, so live
-  processing is not claimed; all six kinds passed isolated PostgreSQL/JetStream
-  processing qualification. The live `MYOTA_EVENTS` stream remains
-  Interest-retained and Geodata work remains on its Phase 5 path. See the
-  [Phase 4 evidence](docs/operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
-  [Activity work runbook](docs/operations/messaging/activity-work-queues.md),
-  and [current/target diagrams](docs/architecture/diagrams/nats-event-migration.md).
+  [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+  and the selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
+  Phases 0–5 are complete within the recorded evidence bounds. Helm revision
+  193 is deployed and Fleet is Ready=True at Deploy commit
+  cfecd655d9c0eee9d19db26725fb11c99366815a. The four legacy Geodata durables
+  were retired after final checks; the 24-hour observation was explicitly
+  waived and closed early, not reported as a full 24-hour period. Activity and
+  replacement Geodata durables, migration 021, and the Interest-retained
+  MYOTA_EVENTS stream remain. Phase 6 fact-stream retention is separate.
+  The planned NATS broker-monitoring replacement is described in the
+  [Surveyor/Grafana roadmap](docs/observability/nats-surveyor-migration.md).
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
@@ -95,26 +90,27 @@ work is implemented or verified as stated. Open checkboxes identify work still
 in progress or evidence gates not yet met; implementation completion does not
 imply scale qualification or production readiness.
 
-NATS migration status on 10 October 2026:
+NATS migration status on 11 October 2026:
 
-- Phases 0–4 are complete within their recorded evidence bounds. Phase 5
-  routes all four Geodata work kinds to `MYOTA_GEODATA_WORK`, applied
-  migration 021 and deployed the Activity idempotency fix. Helm 192 is deployed;
-  Fleet reports Ready=True at commit `6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources.
-- First-party runtime/workers use immutable digest references; live pod refs
-  and ImageIDs match configured pins. A mutable-tag gap discovered in Phase 5
-  was fixed and verified.
-- Target Geodata durables are empty with live waiting workers. Four old
-  Geodata durables remain inactive and empty during the rollback observation,
-  ending no earlier than 21:39:22 UTC on 11 October 2026. No accepted production work was available.
-- Isolated Geodata, Activity, and relay/topology suites passed (154, 40 and 25
-  tests; one optional skip in each service suite). Two-database retry,
-  cancellation and expiry/recompletion passed; the isolated namespace and
-  test data were removed.
-- Keep migration 021, work rows, outbox, dead letters and recovery indexes.
-  No Phase 5 database object is obsolete. `MYOTA_EVENTS` remains file-backed
-  with Interest retention; Phase 6 will address its retention transition.
-  Off-node recovery remains deferred.
+- Phases 0–5 are complete within their documented evidence bounds. Phase 5
+  moved all four Geodata work kinds to MYOTA_GEODATA_WORK, applied migration
+  021, deployed the Activity idempotency fix, and retired only the four old
+  Geodata durables after final checks. The 24-hour wait was explicitly waived;
+  this early close is not claimed as a completed 24-hour observation.
+- Helm revision 193 remains deployed. Fleet is Ready=True at Deploy commit
+  cfecd655d9c0eee9d19db26725fb11c99366815a; all MyOTA Deployments were ready
+  at the final check. Activity notification and four target Geodata durables,
+  migration markers and recovery data remain.
+- The isolated delivery suite had a timing-sensitive immediate ACK-counter
+  assertion in each of two runs; focused ACK verification passed, but no clean
+  full-suite pass is claimed. Disposable test namespaces were removed.
+- MYOTA_EVENTS remains file-backed with Interest retention; Phase 6 owns its
+  separate fact-stream retention transition. Off-node recovery remains
+  deferred.
+- NATS Surveyor and dashboard 16256 are proposed, not deployed. See the
+  [monitoring consolidation plan](docs/observability/nats-surveyor-migration.md)
+  for the seven-day overlap and retirement gates for the Admin page, broker
+  pollers, Grafana dashboard and NATS snapshot table.
 
 See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
@@ -122,9 +118,11 @@ See the
 [Phase 2 relay evidence](docs/operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
 [Phase 3 consumer evidence](docs/operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
 [Phase 4 evidence](docs/operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
+[Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
 [Activity notification runbook](docs/operations/messaging/activity-notification-consumer.md),
 [Activity work queue runbook](docs/operations/messaging/activity-work-queues.md),
 and [current/target diagrams](docs/architecture/diagrams/nats-event-migration.md).
+
 
 ## Source project
 
