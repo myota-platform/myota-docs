@@ -20,13 +20,14 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   deployed shared `MYOTA_EVENTS` stream still uses Interest retention; no
   producer/consumer path or live stream has changed. See the [Phase 1 evidence](../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
-  Payload schemas for all 19 Identity and 12 Programme facts are now derived from
-  producer callsites, classified for sensitive/internal content, and covered by
-  CI assertions; joint owner review remains open. Activity, Geodata, and Operations
-  payload schemas,
+  Payload schemas for all 19 Identity, 12 Programme, and 10 Activity facts are now
+  derived from producer callsites and classified for sensitive/internal content.
+  Identity and Programme schemas pass CI assertions; Activity assertions pass
+  locally with main CI pending. Joint owner/privacy review remains open. Geodata and
+  Operations payload schemas,
   authenticated credentials, capacity limits, recovery qualification, and relay-side
   topology mutation remain open. The contracts, deploy, platform mirror, and organization profile PRs (#2, #4, #1,
-  and #1) are merged. Phase 1 remains in progress: payload evidence, authenticated
+  and #1) are merged. Phase 1 remains in progress: remaining payload evidence, authenticated
   least-privilege roles, capacity limits, recovery qualification, and relay-side
   topology mutation are still open.
   Volker Kerkhoff (`@kerk1v`) is assigned, with Codex pairing support. Evidence
