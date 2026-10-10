@@ -711,14 +711,15 @@ Other evidence gaps assigned to closure owners/phases:
 
 ### Phase 5 production and immutable-image update — 10 October 2026
 
-- **Current deployment:** Helm revision 191 is deployed. Fleet is Ready=True at
-  Deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109`, 60/60 resources. The four Geodata commands use
+- **Current deployment:** Helm revision 192 completed at 21:39:22 UTC on 10
+  October. Fleet is Ready=True at Deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a`, 60/60 resources. The four Geodata commands use
   the file-backed, finite `MYOTA_GEODATA_WORK` WorkQueue; all target durables
   have exact work filters, zero pending/ack-pending/redelivery counts, and
   active pull workers.
 - **Rollback:** The four prior Geodata durables remain in `MYOTA_EVENTS`,
   inactive and empty. The observation restarted after immutable-image rollout
-  revision 191 and ends no earlier than 21:28:41 UTC on 11 October 2026. Activity's notification durable
+  revision 192 at 21:39:22 UTC and ends no earlier than 21:39:22 UTC on
+  11 October 2026. Activity's notification durable
   and the shared Interest-retained `MYOTA_EVENTS` remain live.
 - **Image evidence:** The digest audit found container references still used
   mutable `:latest` tags while digest values only changed rollout annotations.
