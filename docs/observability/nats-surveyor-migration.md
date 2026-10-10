@@ -16,8 +16,8 @@ Deploy one NATS Surveyor instance in the `myota` namespace. Prometheus scrapes
 its internal metrics endpoint, and Grafana presents the NATS server and
 JetStream metrics. Use the [NATS Surveyor project](https://github.com/nats-io/nats-surveyor) and
 [Grafana NATS Server dashboard 16256](https://grafana.com/grafana/dashboards/16256-nats-server-dashboard/)
-as the upstream components. Validate dashboard compatibility, but
-validate and adapt its PromQL before using it: Grafana describes that dashboard
+as the upstream components. Validate and adapt the dashboard's PromQL before
+using it: Grafana describes that dashboard
 as designed for the NATS built-in Prometheus exporter, while Surveyor exposes
 its own metric families. The dashboard ID is not evidence of Surveyor
 compatibility.
