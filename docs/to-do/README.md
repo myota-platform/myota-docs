@@ -14,11 +14,11 @@ documentation evidence and does not set delivery dates.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
   — Phases 0–4 are complete within their recorded evidence bounds. Phase 5's
   four Geodata work routes, migration 021, partial-cascade recovery and
-  Activity idempotency fix are live. Helm revision 191 is deployed; Fleet is
-  Ready=True at `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109`, with 60/60 resources. Configured immutable image
+  Activity idempotency fix are live. Helm revision 192 is deployed; Fleet is
+  Ready=True at `6443473828305ab9d02a918bbe990d01abe97f6a`, with 60/60 resources. Configured immutable image
   references match live pod IDs. Target durables are empty with active workers;
   four legacy Geodata durables remain empty through the rollback observation,
-  ending no earlier than 21:28:41 UTC on 11 October 2026. Isolated retry, cancellation and
+  ending no earlier than 21:39:22 UTC on 11 October 2026. Isolated retry, cancellation and
   expiry-to-completion checks passed; the test namespace is deleted. The only
   Phase 5 gate is the remaining observation and safe retirement of those four
   durables. Phase 6's fact-stream transition remains planned. See the
