@@ -303,8 +303,10 @@ budgets, recovery policy, and relay-side provisioning ownership. Those decisions
 do not complete implementation or production qualification. The Geodata
 preprocessed v1 payload still includes internal _records and _status; use a
 compact versioned projection before enforcement. Credentials are not configured,
-limits are not justified by a representative 30-day window, restore/replay is
-unqualified, and the Helm chart does not yet run the provisioner. See the
+limits are not justified by a representative 30-day window. A basic isolated
+snapshot/restore and replay drill passed; off-node backup, PVC-loss recovery,
+database reconciliation, and production restore/replay remain unqualified. The
+Helm chart does not yet run the provisioner. See the
 [joint review](evidence/phase1-joint-review-2026-10-10.md), [Phase 1 evidence](evidence/phase1-contract-topology-2026-10-09.md),
 and [current/target topology diagrams](../../architecture/diagrams/nats-event-migration.md).
 
@@ -420,9 +422,10 @@ the only project team. Decisions are recorded in the
       existing 8 GiB PVC, with 3 GiB reserved. Values remain provisional until
       a representative 30-day sample and pressure/recovery test justify them.
 - [x] Select off-node stream snapshots plus declarative consumer recreation,
-      isolated restore/replay, and database-authoritative redrive. Restore
-      qualification remains open; Interest retention may have deleted
-      acknowledged records.
+      isolated restore/replay, and database-authoritative redrive. Basic isolated
+      stream and durable-state restore/replay passed; off-node and production
+      qualification remain open. Interest retention may have deleted acknowledged
+      records.
 - [x] Select one deployment-owned create-only provisioner and prohibit relay
       topology mutation at the safe compatibility cutover. Chart integration
       and relay change remain open; do not apply the target provisioner to the
