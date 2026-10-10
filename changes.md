@@ -29,10 +29,12 @@
 - Isolated checks passed: 154 Geodata tests (one optional setup skipped), 40
   Activity tests (one optional broker test skipped), 25 relay/topology tests,
   real database socket refusal/reconnect, same-node NATS PVC restart, and the
-  two-database cascade-failure/redelivery chain. Activity's new image,
-  cancellation-race and expiry-to-completion chains, the rollback observation
-  through 20:58:36 UTC on 11 October, and safe removal of the four old durables
-  remain open. See the [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+  two-database cascade-failure/redelivery chain, five rounds of concurrent
+  Activity cascade idempotency, cancellation during acknowledged preprocessing,
+  and the connected expiry/reconstruction/completion chain. Activity's new
+  image, the rollback observation through 20:58:36 UTC on 11 October, and safe
+  removal of the four old durables remain open. The isolated namespace and its
+  PVC were deleted. See the [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
 
 ## 10 October 2026 — NATS Phase 4 Activity work implementation
