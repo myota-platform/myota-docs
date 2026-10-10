@@ -25,10 +25,11 @@ documentation evidence and does not set delivery dates.
   `NATS` with dashboard 16256 plus all ten dashboards from Surveyor's pinned
   Grafana provisioning folder. Validate every panel and the complete set
   against read-only broker data, then retire the existing Admin NATS page,
-  duplicate broker pollers, and combined `MyOTA JetStream backlog and PostGIS
-  query performance` dashboard after moving its PostGIS panels to Geodata;
-  retire sampler alerts, Operations snapshot API/history, and its database
-  table/index. Preserve outbox/worker signals and SeaweedFS operations. See the
+  duplicate broker pollers, and the combined `MyOTA JetStream backlog and
+  PostGIS query performance` dashboard. Its two obsolete PostGIS panels have
+  been removed from Compose and Helm assets and will not be replaced. Retire
+  sampler alerts, Operations snapshot API/history, and its database table/index.
+  Preserve outbox/worker signals and SeaweedFS operations. See the
   roadmap for owners and gates.
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
   Phase 5 remains planned until usage is measured and clients migrate.
