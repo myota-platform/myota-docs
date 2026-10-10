@@ -7,13 +7,13 @@ reports `Ready=True` at Deploy commit
 `cfecd655d9c0eee9d19db26725fb11c99366815a` as of 22:03:29 UTC, and Helm reports
 revision 193 deployed. Migration Job 193 completed; all MyOTA Deployments are
 ready. Live first-party image references are digest-pinned: Activity
-`f764bfe7193ba8166c84f3d6b063547f94fcc17b6c819aa597c617ed6c835261), Geodata
-`215942e8f728fd7fcb5a1f9630045eba96ca51a66f2ac20cc5db7dfd6c879243), Identity
-`bd8b6b507614c4924a12061051b456690ca68bc66740dbc0f7a4e907ca1175c7),
+`f764bfe7193ba8166c84f3d6b063547f94fcc17b6c819aa597c617ed6c835261`, Geodata
+`215942e8f728fd7fcb5a1f9630045eba96ca51a66f2ac20cc5db7dfd6c879243`, Identity
+`bd8b6b507614c4924a12061051b456690ca68bc66740dbc0f7a4e907ca1175c7`,
 Programme
-`891c02d3a94ce751a52fdeda90e356d2319639e419642d0ce44686489bd7a765), and
+`891c02d3a94ce751a52fdeda90e356d2319639e419642d0ce44686489bd7a765`, and
 shared runtime
-`56709d36f8e9ab6d39a4da56b4dc9f28269e34a3973238deb955a0ac78e82555).
+`56709d36f8e9ab6d39a4da56b4dc9f28269e34a3973238deb955a0ac78e82555`.
 
 The latest read-only production broker sample, about 22:05 UTC, found
 `MYOTA_EVENTS` file-backed with Interest retention, zero messages/bytes, and
@@ -140,9 +140,9 @@ rollout. It does not complete or shorten the required 24-hour observation.
   zero pending/ack-pending/redelivered, with no waiting workers. The disposable
   validation namespace remains absent.
 
-The observation remains open until at least 21:39:22 UTC on 11 October 2026.
-A later Helm rollout/restart resets the observation anchor to that rollout's
-completion time.
+At that sample, the observation was expected to remain open until at least
+21:39:22 UTC on 11 October 2026. The later revision 193 rollout superseded
+that anchor; see the current status below.
 
 ## Synthetic validation and revised production sample — 11 October 2026
 
