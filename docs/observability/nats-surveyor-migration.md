@@ -55,7 +55,7 @@ the target design:
 | Read-only broker inspection, periodic sample API and snapshot persistence | Sources: `myota-operations-service/operations.py` and `myota-operations-service/jetstream_observability.py`; runtime copies: `myota-deploy/services/operations.py`, `myota-deploy/services/jetstream_observability.py`, `myota-platform/services/operations.py`, and `myota-platform/services/jetstream_observability.py`. | Remove only NATS-specific sampler, endpoints, metrics and routes. Keep Operations storage inspection, authentication/session integration and generic health/metrics. |
 | NATS snapshot history | `myota-operations-service/migrations/001_operations.sql`; deployment mirror `myota-deploy/db/migrations/core/002_operations.sql`; bootstrap mirror `myota-platform/db/migrations/core/002_operations.sql`. | Retire the table and index through a forward migration after replacement metrics are verified and a pre-migration backup is confirmed. No broker payload or business-event archive is involved. |
 | Per-Geodata-replica broker metric poller | Authoritative `myota-geodata-service/jetstream_observability.py`, `myota-geodata-service/run_geodata.py`, and `myota-geodata-service/tests/test_jetstream_metrics.py`; runtime copies `myota-deploy/services/jetstream_observability.py`, `myota-deploy/services/run_geodata.py`, `myota-platform/services/jetstream_observability.py`, and `myota-platform/services/run_geodata.py`. | Remove the broker polling helper and its startup hook after Surveyor covers the broker metrics. Preserve Geodata business, worker, outbox and import metrics. |
-| MyOTA broker backlog dashboard | Compose: `myota-deploy/observability/grafana/dashboards/myota-jetstream-backlog.json` and `myota-platform/observability/grafana/dashboards/myota-jetstream-backlog.json`; Helm: `myota-deploy/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json` and `myota-platform/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json`. Helm provisions it from `myota-deploy/deploy/helm/myota/templates/observability.yaml`. | Retire after the requested `NATS` folder dashboards are validated. First move its two PostGIS panels to the Geodata capacity dashboard; do not lose query-performance visibility. |
+| MyOTA broker backlog dashboard | Compose: `myota-deploy/observability/grafana/dashboards/myota-jetstream-backlog.json` and `myota-platform/observability/grafana/dashboards/myota-jetstream-backlog.json`; Helm: `myota-deploy/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json` and `myota-platform/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json`. Helm provisions it from `myota-deploy/deploy/helm/myota/templates/observability.yaml`. | Its two PostGIS query panels have been removed from the source-managed Compose and Helm dashboard copies. Retire the remaining broker dashboard after the requested `NATS` folder dashboards are validated. |
 | Broker availability and stale-sampler alerts | `myota-deploy/deploy/helm/myota/observability/rules.yml` and `myota-platform/deploy/helm/myota/observability/rules.yml` | Replace NATS-specific sampler alerts with Surveyor target/exporter health and useful broker/JetStream alerts. Keep unrelated service, worker and storage alerts. |
 | NATS service and scrape configuration | `myota-deploy/deploy/helm/myota/templates/messaging.yaml`, `myota-deploy/deploy/helm/myota/values.yaml`, and `myota-deploy/compose.yaml`; synchronized copies in `myota-platform/deploy/helm/myota/` and `myota-platform/compose.yaml` | Add the Surveyor Deployment/Service and Prometheus scrape through Deploy, then synchronize the mirror. Current NATS container starts with JetStream and a data directory; the Helm template does not configure a system account or authentication. |
 
@@ -133,8 +133,8 @@ item.**
   metrics, datasource assumptions and panel-to-metric compatibility. Specify
   the MyOTA-owned provider configuration for Grafana folder `NATS`; do not
   import upstream datasource provisioning.
-- [ ] Identify where the two PostGIS panels from the existing combined
-  dashboard will live after NATS dashboard retirement.
+- [ ] Confirm the two PostGIS panels are absent from Compose and Helm dashboard
+  assets. They are no longer needed and will not be migrated or recreated.
 - [ ] Define exporter scrape interval, resource requests/limits, retention and
   alert thresholds from the current single-server capacity. Do not infer
   thresholds from an empty broker.
@@ -232,8 +232,9 @@ rollback acceptance checks. No seven-day overlap is required.**
   Geodata domain and worker metrics.
 - [ ] Inventory provisioned and manually imported NATS dashboards by UID.
   Retire the combined `MyOTA JetStream backlog and PostGIS query performance`
-  dashboard only after moving and verifying its two PostGIS panels in the
-  Geodata capacity dashboard. Remove its Compose/Helm provisioning references
+  dashboard after Surveyor acceptance. Its two PostGIS panels have already
+  been removed from Compose and Helm assets; do not migrate or recreate them.
+  Remove the dashboard's remaining Compose/Helm provisioning references
   and JSON copies from Deploy and Platform. Remove stale duplicate/manual NATS
   dashboards outside the managed folder. Provision dashboard 16256 and all ten
   pinned Surveyor-source dashboards together in Grafana folder `NATS`; retain
@@ -254,8 +255,8 @@ rollback acceptance checks. No seven-day overlap is required.**
 **Exit:** no NATS broker-inspection UI/API/sampler or duplicate broker poller
 remains; Grafana folder `NATS` contains dashboard 16256 and the approved,
 source-managed Surveyor dashboard set, with no retired combined MyOTA NATS
-backlog dashboard; the PostGIS dashboard remains and its two migrated panels
-are verified; Operations still serves its non-NATS features; Prometheus
+backlog dashboard; Geodata dashboards and underlying service metrics remain,
+with no replacement for the two retired PostGIS panels; Operations still serves its non-NATS features; Prometheus
 captures the replacement metrics; the old snapshot table/index are removed
 through a verified migration; Deploy/Platform mirrors agree; and Fleet,
 alerts, permissions and application NATS clients are healthy.
@@ -275,9 +276,10 @@ Remove duplicate broker inspection only after Surveyor and the complete Grafana
 dashboard set pass the recorded gates. Provision dashboard 16256 and every
 JSON dashboard from the pinned Surveyor provisioning folder into Grafana folder
 `NATS`, keeping datasource/provider configuration MyOTA-owned. Preserve
-outbox/worker metrics and both SeaweedFS Operations inspection and
-Geodata/PostGIS metrics. Move and verify the two PostGIS panels before retiring
-the existing `MyOTA JetStream backlog and PostGIS query performance` dashboard. Retire the Operations
+outbox/worker metrics, SeaweedFS Operations inspection, and Geodata service
+metrics. Do not migrate or recreate the two PostGIS query panels. Remove the
+existing `MyOTA JetStream backlog and PostGIS query performance` dashboard
+after the Surveyor acceptance gate. Retire the Operations
 snapshot table with a forward-only owner migration and synchronized mirrors
 after the sampler is disabled; do not hand-edit production schema or discard
 history before the verified-backup gate. Verify no stale navigation, routes,
