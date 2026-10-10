@@ -6,12 +6,12 @@ target is deployed. See the [migration plan](../../operations/messaging/nats-eve
 [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md), and the [recovery runbook](../../operations/messaging/jetstream-recovery.md).
 
-## Current deployed topology — observed after immutable Phase 5 rollout, Helm 191, 10 October 2026
+## Current deployed topology — observed after immutable Phase 5 rollout, Helm 192, 10 October 2026
 
-Fleet is Ready=True at deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources ready.
+Fleet is Ready=True at deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources ready.
 First-party workload references and live Activity, Geodata and shared-runtime
 pod ImageIDs match configured immutable digests. The 24-hour Geodata rollback
-observation ends no earlier than 21:28:41 UTC on 11 October 2026; the four old durables remain visible
+observation ends no earlier than 21:39:22 UTC on 11 October 2026; the four old durables remain visible
 below, inactive and empty.
 
 ```mermaid
@@ -21,7 +21,7 @@ flowchart LR
     A[Activity outbox and activity_job]
     G[Geodata outbox and recovery rows]
   end
-  subgraph DEPLOY[Deploy owner: Helm 191]
+  subgraph DEPLOY[Deploy owner: Helm 192]
     IMG[First-party images pinned by digest]
   end
   C --> RC[Core relay]
@@ -104,14 +104,14 @@ flowchart LR
   ES -. inspect only .-> O[Operations observer]
 ```
 
-**Status after Helm revision 191 (10 October 2026):** Phases 0–4 are complete
+**Status after Helm revision 192 (10 October 2026):** Phases 0–4 are complete
 within their evidence bounds. Phase 5 routes Geodata work to the four exact
 `MYOTA_GEODATA_WORK` durables and has deployed migration 021, retry-safe
 partial-deletion recovery, Activity idempotency and immutable image refs.
 Fleet reports Ready=True with 60/60 resources; pod image references/IDs match
 their configured digests. The four legacy Geodata durables remain inactive and
 empty until the rollback observation ends no earlier than
-21:28:41 UTC on 11 October; retire them only after database recovery and
+21:39:22 UTC on 11 October; retire them only after database recovery and
 backlog checks. No production work was available to process. `MYOTA_EVENTS`
 remains file-backed with Interest retention and Activity's notification
 durable remains active. Phase 6's bounded fact-stream transition is not live. The accepted cluster-internal trust
