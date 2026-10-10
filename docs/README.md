@@ -18,25 +18,20 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  Phases 0–4 are complete within their recorded evidence bounds. Phase 5 has
-  moved all four Geodata work consumers to `MYOTA_GEODATA_WORK`, installed
-  migration 021, and deployed the retry-safe cross-service deletion fix.
-  Production had no accepted Geodata work at cutover. Helm revision 189 is
-  deployed and Fleet is Ready=True with 60/60 resources. The old Geodata
-  durables remain empty during the 24-hour rollback observation, ending no
-  earlier than 20:58:36 UTC on 11 October. The disposable two-database failure
-  chain passes with one Activity cascade fact after retry; the committed
-  Activity idempotency fix still needs its image deployment. Cancellation and
-  expiry-to-completion chains passed in isolation; only the rollback gate and
-  safe legacy durable retirement remain open.
-  Activity's notification durable and the Interest-retained `MYOTA_EVENTS`
-  stream remain live. See the [Phase 5
-  evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+  Phases 0–4 are complete within their recorded evidence bounds. Phase 5
+  routes four Geodata work kinds to `MYOTA_GEODATA_WORK`, applies migration
+  021 and deploys transactional Activity idempotency. Helm revision 191 is
+  deployed; Fleet reports Ready=True at `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources.
+  Configured immutable image refs and live Activity/Geodata/shared-runtime
+  ImageIDs match. Four target durables are empty with active workers; four
+  legacy durables remain empty through the observation ending no earlier than
+  21:28:41 UTC on 11 October 2026. No accepted production Geodata work was available. Isolated
+  retry/cancellation/expiry qualification passed and the temporary namespace
+  was removed. See [Phase 5 evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
   [migration plan](operations/messaging/nats-event-migration-plan.md),
-  [Activity work queues runbook](operations/messaging/activity-work-queues.md),
   [current/target diagrams](architecture/diagrams/nats-event-migration.md),
   and [ADR-0008](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-- [Observability](observability/README.md) — telemetry architecture, logging
+- [Observability](observability/README.md)- [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, prompts, and recent verification.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA
   migration context.
