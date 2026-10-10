@@ -767,18 +767,24 @@ Phase 4 exit criterion.
 
 ### Phase 5 — Reconcile Geodata queues and cross-service recovery
 
-**Status (10 October 2026):** Production now routes all four Geodata work kinds
-to `MYOTA_GEODATA_WORK`, and all four Geodata worker subscriptions use their
-registered `myota.work.geodata.*` subjects. Helm revision 187 installed
-migration 021 and deployed the recovery-safe cross-service deletion handler.
-The target stream is file-backed WorkQueue with finite limits; the exact
-durables are provisioned and empty. `MYOTA_EVENTS` remains file-backed with
-Interest retention and zero messages. The four former Geodata durable
-definitions remain empty but inactive during the rollback window; do not remove
-them before the recorded 24-hour window ends at 20:55:08 UTC on 11 October
-2026. Fleet was still reporting `WaitApplied` at the last inspection although
-the charted application pods and migration jobs were ready. No accepted
-production Geodata work was available to exercise. See the [Phase 5
+**Status (10 October 2026):** Production routes all four Geodata work kinds
+to `MYOTA_GEODATA_WORK`; the four workers subscribe to their registered
+`myota.work.geodata.*` subjects. Helm revision 189 is deployed, and Fleet is
+`Ready=True` at deploy commit `bbb3276296c8fa86941315b582caa76e178bd94f`
+with 60/60 resources ready. Migration 021 is installed. The target stream is
+file-backed WorkQueue with finite limits and zero messages; `MYOTA_EVENTS`
+remains file-backed with Interest retention and zero messages. The four former
+Geodata durable definitions remain empty and inactive through the rollback
+window, ending no earlier than 20:58:36 UTC on 11 October 2026. No accepted
+production Geodata work was available to exercise.
+
+A disposable two-database test now drives the real Geodata worker handler and
+Activity API through a private JetStream stream. An injected Geodata failure
+after Activity commits NAKs and redelivers; retry completes the deletion with
+one Activity cascade outbox fact and no pending message. That test exposed and
+fixed missing Activity request idempotency. The source change is committed to
+the Activity owner and synchronized mirrors, but its new image digest and
+production rollout are still pending. See the [Phase 5
 evidence](evidence/phase5-geodata-work-2026-10-10.md).
 
 **Work**
@@ -802,17 +808,26 @@ evidence](evidence/phase5-geodata-work-2026-10-10.md).
       four work kinds once through the outbox; the next scan emitted none.
       Location enrichment rechecks request ID and geometry hash before applying
       provider results.
-- [ ] Verify Activity cascade sequencing and compensation/recovery across two
-      disposable service databases, including Activity success followed by a
-      Geodata failure, cancellation racing with acknowledged work, and eventual
-      completion. Focused handler tests pass, but the two-service failure chain
-      is not yet qualified.
+- [x] Verify Activity cascade sequencing across two disposable service
+      databases: Activity success followed by an injected Geodata-side failure
+      NAKed the JetStream delivery; the retry completed the job, deleted the
+      Geodata entity, emitted exactly one Activity cascade outbox fact, and
+      drained the private stream. Activity persists the request idempotency key
+      transactionally and serializes concurrent requests with a database
+      advisory lock. The API/repository source fix is committed; deployment of
+      its new image remains a gate.
+- [ ] Qualify cancellation racing with a real acknowledged deletion delivery,
+      and the full message-expiry → owner-row reconstruction → successful
+      completion chain.
 - [x] Prove accepted work can be reconstructed from the owner row/outbox within
       the recorded age bound. Same-node NATS Pod restart with its persistent PVC
       retained an unacked message and durable state; expiry and stale-row repair
       pass in separate isolated checks. Off-node restore remains deferred.
-- [ ] Recheck Fleet Ready state and all production topology/schema gates after
-      the current rollout finishes reconciling. Keep Operations read-only.
+- [x] Recheck Fleet Ready state and production topology/schema gates after
+      the Geodata rollout: Fleet reports Ready=True with 60/60 resources at
+      deploy commit bbb3276296c8fa86941315b582caa76e178bd94f; Helm revision 189
+      is deployed. Keep Operations read-only. Recheck after the pending Activity
+      image and deployment change.
 
 **Exit criteria**
 
@@ -822,10 +837,11 @@ evidence](evidence/phase5-geodata-work-2026-10-10.md).
       after the 24-hour rollback observation and the final database recovery
       check. No Phase 5 database object is obsolete: migration 021's dispatch
       columns/indexes and the domain/outbox rows remain required recovery state.
-- [ ] Broker Pod restart, worker restart, delayed ACK, duplicate delivery,
-      expiry/reconstruction, database failure and the cross-service partial
-      deletion path preserve durable effects. The cross-service end-to-end
-      scenario and expiry-to-recompletion chain remain open.
+- [ ] Broker Pod restart, worker restart, delayed ACK, duplicate/lost ACK,
+      database failure, and the Activity-success/Geodata-failure retry path
+      preserve durable effects in isolated tests. Still qualify cancellation
+      racing with acknowledged work and the complete expiry → reconstruction →
+      completion chain; verify the Activity idempotency image is deployed.
 - [x] Recovery loops are observable, age-bounded and limited to batches of 50;
       they enqueue repair through the transactional outbox and do not run as a
       second primary dispatcher.
