@@ -41,7 +41,7 @@ the target design:
 | Read-only broker inspection, periodic sample API and snapshot persistence | `myota-operations-service/operations.py` and `jetstream_observability.py`; copies in `myota-deploy/services/` and `myota-platform/services/` | Remove only NATS-specific sampler, endpoints, metrics and routes. Keep Operations storage inspection, authentication/session integration and generic health/metrics. |
 | NATS snapshot history | `myota-operations-service/migrations/001_operations.sql`; deployment mirror `myota-deploy/db/migrations/core/002_operations.sql`; bootstrap mirror `myota-platform/db/migrations/core/002_operations.sql` | Retire table and index through a forward migration after a verified overlap period. No broker payload or business-event archive is involved. |
 | Per-Geodata-replica broker metric poller | Authoritative `myota-geodata-service/jetstream_observability.py` and `run_geodata.py`; runtime copies in Deploy and Platform. Tests: `myota-geodata-service/tests/test_jetstream_metrics.py`. | Remove the broker polling helper and its startup hook after Surveyor covers the broker metrics. Preserve Geodata business, worker, outbox and import metrics. |
-| MyOTA broker backlog dashboard | `myota-deploy/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json`; synchronized copy under `myota-platform/deploy/helm/myota/observability/grafana/dashboards/`. Helm provisions it from `myota-deploy/deploy/helm/myota/templates/observability.yaml`. | Remove after the Surveyor dashboard is validated. First move its two PostGIS panels to the Geodata capacity dashboard; do not lose query-performance visibility. |
+| MyOTA broker backlog dashboard | Compose source: `myota-deploy/observability/grafana/dashboards/myota-jetstream-backlog.json` and Platform copy; Helm source: `myota-deploy/deploy/helm/myota/observability/grafana/dashboards/myota-jetstream-backlog.json` and Platform mirror. Helm provisions it from `myota-deploy/deploy/helm/myota/templates/observability.yaml`. | Remove after the Surveyor dashboard is validated. First move its two PostGIS panels to the Geodata capacity dashboard; do not lose query-performance visibility. |
 | Broker availability and stale-sampler alerts | `myota-deploy/deploy/helm/myota/observability/rules.yml` and its synchronized Platform copy | Replace NATS-specific sampler alerts with Surveyor target/exporter health and useful broker/JetStream alerts. Keep unrelated service, worker and storage alerts. |
 | NATS service and scrape configuration | `myota-deploy/deploy/helm/myota/templates/messaging.yaml`, `values.yaml`, and Compose configuration; Platform mirror | Add the Surveyor Deployment/Service and Prometheus scrape through Deploy, then synchronize the mirror. Current NATS container starts with JetStream and a data directory; the Helm template does not configure a system account or authentication. |
 
@@ -145,7 +145,8 @@ when verified and commit documentation directly to main.
 **Status: planned; gated on Phase 0.**
 
 - [ ] Deploy one immutable-image Surveyor replica and internal metrics Service
-  through Deploy Helm; sync the source to Platform.
+  through Deploy Helm; add it to the local Compose observability profile and
+  sync authoritative templates/configuration to Platform.
 - [ ] Provision the required observer access without exposing credentials in
   source, image, pod logs or ordinary values. Verify all existing NATS
   producers and consumers still connect.
