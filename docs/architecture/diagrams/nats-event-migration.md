@@ -4,9 +4,9 @@ The diagrams distinguish observed live behavior from the selected target.
 They describe ownership and delivery class; they are not evidence that the
 target is deployed. See the [migration plan](../../operations/messaging/nats-event-migration-plan.md),
 [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
-and [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+[Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md), and the [recovery runbook](../../operations/messaging/jetstream-recovery.md).
 
-## Current deployed topology — observed 9 October 2026
+## Current deployed topology — observed 10 October 2026
 
 ```mermaid
 flowchart LR
@@ -52,9 +52,13 @@ flowchart LR
 ```
 
 **Status (10 October 2026):** Phase 0 is complete and Phase 1 is in progress.
-The delegated review decided the 68-schema disposition, per-role auth/TLS,
-provisional capacity, restore/replay policy, and provisioner ownership. These
-are decisions, not qualification. No target stream or producer/consumer path
-changed. Geodata payload minimization, credentials, full-window sizing,
-off-node/PVC-loss restore qualification, chart readiness, and safe relay transition
-remain open. Basic isolated restore/replay passed.
+The 68 fact schemas and ten selected work commands are registered; contract CI
+checks their schema/disposition coverage and exact work-to-durable mapping. The
+create-only provisioner and its drift checks passed focused and isolated tests.
+The delegated review selected per-role auth/TLS, provisional capacity,
+restore/replay policy, and provisioner ownership. These are decisions, not
+production qualification. No target stream or producer/consumer path changed.
+Geodata payload minimization, credentials and ACL proof, representative
+full-window sizing, off-node/PVC-loss restore qualification, chart readiness,
+unknown-route enforcement, and safe relay transition remain open. Basic
+isolated restore/replay passed; see the recovery runbook for the remaining evidence.
