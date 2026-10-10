@@ -1,43 +1,33 @@
 # MyOTA changes
 
-## 10 October 2026 — NATS Phase 5 Geodata work cutover
+## 10 October 2026 — NATS Phase 5 Geodata work cutover and recovery
 
-- Routed the four Geodata work kinds to the dedicated file-backed
-  `MYOTA_GEODATA_WORK` WorkQueue, with exact pull durables and bounded capacity.
-  Production workers subscribe to the new subjects; the previous Geodata
-  durable definitions remain empty and inactive during the 24-hour rollback
-  observation. Helm revision 189 is deployed and Fleet is Ready=True with 60/60
-  resources. No production Geodata work was available for processing.
-- Applied migration 021 and deployed dispatch timestamps/recovery indexes.
-  PostgreSQL owner rows and outbox remain authoritative; no source rows,
-  checkpoints, dead letters, or schema objects still needed for recovery were
-  pruned.
-- Fixed partial cross-service deletion recovery: when Activity has completed
-  its cascade but the Geodata step fails, the handler leaves an expired
-  processing lease and NAKs the work instead of marking it terminal and ACKing
-  it. A disposable two-database test confirmed JetStream redelivery completes
-  the job and emits one Activity cascade fact.
-- The test exposed missing Activity idempotency-key handling. The Activity API
-  and repository now persist the request key and result transactionally under a
-  PostgreSQL advisory lock. The source is committed to `myota-activity-service`
-  and synchronized to deploy/platform mirrors; image build and production
-  rollout remain open.
-- Pinned Geodata image
-  `sha256:c6f5dee746579469ba827a4af78741acbe5d25e825471c84c95ec5574e6e2aee`
-  and shared runtime image
-  `sha256:1f4002619cee64d9d05f06b96c93d348df5ae725806d08da383d74e0c84c91e8`.
-- Isolated checks passed: 154 Geodata tests (one optional setup skipped), 40
-  Activity tests (one optional broker test skipped), 25 relay/topology tests,
-  real database socket refusal/reconnect, same-node NATS PVC restart, and the
-  two-database cascade-failure/redelivery chain, five rounds of concurrent
-  Activity cascade idempotency, cancellation during acknowledged preprocessing,
-  and the connected expiry/reconstruction/completion chain. Activity's new
-  image, the rollback observation through 20:58:36 UTC on 11 October, and safe
-  removal of the four old durables remain open. The isolated namespace and its
-  PVC were deleted. See the [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+- Routed all four Geodata work kinds to immutable-image-backed consumers on
+  file-backed `MYOTA_GEODATA_WORK`; applied migration 021. PostgreSQL owner
+  rows, outbox and recovery indexes remain authoritative. No source rows,
+  checkpoints, dead letters or schema needed for recovery were pruned.
+- Fixed retry-safe partial Activity/Geodata deletion and transactional Activity
+  idempotency. Isolated tests confirmed retry emits exactly one Activity fact.
+- Corrected a deployment gap found in live verification: digest values had
+  changed rollout annotations while containers still pulled mutable tags.
+  Deploy commit [`a68eedd`](https://github.com/myota-platform/myota-deploy/commit/a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109)
+  and Platform mirror [`a184baa`](https://github.com/myota-platform/myota-platform/commit/a184baac3f36e0272cbc79107f4b362139de7515)
+  now render configured first-party image digests as immutable refs. Fleet
+  applied Helm revision 191 and reports Ready=True, 60/60 resources; Activity,
+  Geodata and shared runtime refs/ImageIDs match the configured digests.
+- The 154-test Geodata suite, 40-test Activity suite (each with one optional
+  skip), 25 relay/topology tests, database refusal/reconnect, same-node NATS
+  PVC restart, two-database retry, concurrent idempotency, cancellation race
+  and connected expiry/recompletion passed in isolation. The test namespace,
+  PVC, streams, fixtures, local API and port-forwards were cleaned up.
+- No accepted production Geodata work was available; production data and
+  messages were not modified. Keep the four legacy Geodata durables empty
+  through the 24-hour observation, ending no earlier than 21:28:41 UTC on 11 October 2026. Then
+  recheck recovery and remove only those four. Activity's notification durable,
+  `MYOTA_EVENTS`, migration 021 and authoritative DB rows remain. See the
+  [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
-
-## 10 October 2026 — NATS Phase 4 Activity work implementation
+## 10 October 2026 — NATS Phase 4 Activity work implementation## 10 October 2026 — NATS Phase 4 Activity work implementation
 
 - Implemented all six selected Activity work commands using atomic job/outbox
   writes, bounded per-kind pull durables, explicit ACK, retry/backoff,
