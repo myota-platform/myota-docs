@@ -58,7 +58,9 @@ describe current ownership and are authoritative for the present-day system.
   data classification, and adds contracts CI assertions. This is source-derived
   evidence pending Identity owner/privacy review; payloads for the four other
   producer services remain open. The existing Phase 1 prompt was used; no new
-  phase prompt or runtime migration was introduced.
+  phase prompt or runtime migration was introduced. Contract CI passed on
+  commit `99547de`; the synchronized platform mirror passed unit, Ruff, and
+  container checks on `529631c`.
   Direct-main commits `1076584` (deploy) and `b047a00` (platform) passed Ruff,
   deploy gateway/service image builds, platform tests, container build, and publish.
   See the [deploy checks](https://github.com/myota-platform/myota-deploy/commit/107658467eb708981322649e448832e272daccbb/checks)

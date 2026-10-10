@@ -10,7 +10,9 @@ remain in the [implementation timeline](docs/history/implementation-timeline.md)
   Authentication events include current email/address fields; the service-token
   event contract excludes the returned token. Contracts CI now runs the schema
   and registry tests. Two tests, Ruff, schema generation, source audit, and
-  platform mirror equality checks pass locally. Identity owner/privacy review
+  platform mirror equality checks pass locally. Contracts CI passed on
+  `99547de`, and the platform mirror passed unit, Ruff, and container checks on
+  `529631c`. Identity owner/privacy review
   and payload schemas for four other producer services remain open. No runtime
   or deployed topology changed. See the [Phase 1 evidence](docs/operations/messaging/evidence/phase1-contract-topology-2026-10-09.md)
   and [plan](docs/operations/messaging/nats-event-migration-plan.md).

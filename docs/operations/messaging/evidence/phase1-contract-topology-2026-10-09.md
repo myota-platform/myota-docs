@@ -160,7 +160,12 @@ two unit tests, Ruff lint and format check, generation of all 68 event schemas,
 JSON parsing and required payload-shape assertions for all 19 Identity schemas,
 the workspace audit (68 facts verified, six legacy work types mapped, zero
 unclassified Python literals), and byte-for-byte registry/schema/doc mirror
-comparison with `myota-platform`. No producer, consumer, broker, or deployed
+comparison with `myota-platform`. Contracts CI run
+[38033723013](https://github.com/myota-platform/myota-contracts/actions/runs/38033723013)
+passed, including the new schema test step and Ruff. Platform mirror commit
+`529631c` passed its unit tests, Ruff, and container workflow
+([run 38033742782](https://github.com/myota-platform/myota-platform/actions/runs/38033742782)).
+No producer, consumer, broker, or deployed
 service behavior changed. The Identity team review of data minimization and
 retention remains open, as do source-derived payload schemas for Programme,
 Activity, Geodata, and Operations. The existing Phase 1 prompt remains the sole
