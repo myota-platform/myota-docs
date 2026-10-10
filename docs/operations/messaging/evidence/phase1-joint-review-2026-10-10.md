@@ -188,7 +188,7 @@ Current `myota-deploy/services/outbox_worker.py` still creates/updates `MYOTA_EV
 Phase 1 is not complete. The contracts-owned v1 envelope schemas and registry
 for 68 facts and ten selected work commands are now verified by focused tests
 and Contracts CI run
-[38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38045951777).
+[38045763460](https://github.com/myota-platform/myota-contracts/actions/runs/38046041494).
 The deploy-owned create-only topology definition and drift checks also pass
 focused and isolated broker checks. This completes the contract/subject-registry
 exit criterion; it does not mean that the current relay enforces the new
