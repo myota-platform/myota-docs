@@ -100,7 +100,7 @@ are met.
 See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
 [Phase 6 plan](../operations/messaging/nats-event-migration-plan.md#phase-6),
 and [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-### 3. Establish programme governance### 3. Establish programme governance, jurisdiction, and eligibility controls
+### 3. Establish programme governance, jurisdiction, and eligibility controls
 
 **Current evidence:** the programme configuration gap analysis labels
 programme identity/ownership, locale/content policy, jurisdiction/approver
@@ -144,9 +144,39 @@ coverage from the running cluster.
 See [Observability live verification and known gap](../observability/overview.md#live-k3s-verification-and-known-gap)
 and the [observability evidence](../observability/evidence/2026-10-09.md).
 
+### 5. Consolidate broker monitoring with NATS Surveyor
+
+**Current evidence:** the current Admin UI/Operations path samples broker
+metadata into seven-day PostgreSQL history; Geodata has a separate broker
+metrics poller; and Grafana provisions a MyOTA dashboard that combines NATS
+backlog with two PostGIS query panels. These current paths and exact owning
+repositories are inventoried in the
+[NATS Surveyor monitoring plan](../observability/nats-surveyor-migration.md).
+NATS Surveyor is not deployed yet.
+
+**Why here:** broker state is observed through duplicate service-owned polling
+paths and a custom history table. A single Prometheus exporter and source-managed
+Grafana dashboard can centralize broker metrics, while application outbox and
+worker metrics remain service-owned. The upstream dashboard 16256 is written
+for the NATS built-in Prometheus exporter, so its queries must be validated
+against Surveyor before cutover. The current NATS deployment also does not
+configure a system account; monitoring access needs a compatibility review
+before deployment.
+
+**Next:** qualify pinned Surveyor metrics, least-privilege system monitoring
+access, dashboard query compatibility, and PostGIS panel relocation. Deploy
+internally, compare against the existing observer for seven days, and only then
+remove the Admin page, duplicate broker pollers, old NATS dashboard and
+history table/index through a forward migration. Preserve the Operations
+SeaweedFS functionality and app-level outbox/worker telemetry.
+
+See [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md),
+[observability overview](../observability/overview.md), and the
+[current legacy NATS status page](../operations/messaging/jetstream-admin-status.md).
+
 ## P2 — sequence after the rollout and operational gates
 
-### 5. Define the typed future award-condition model
+### 6. Define the typed future award-condition model
 
 **Current evidence:** the roadmap proposes POTA-like activation, worked-entity,
 Maidenhead, geographic, milestone, and MyOTA-specific diversity conditions.
@@ -163,7 +193,7 @@ data and QSO-resolution work must precede evaluator implementation.
 
 See [Future award-condition model and implementation roadmap](../domain/awards/future-condition-model-roadmap.md).
 
-### 6. Complete the admin UI internationalization foundation and translations
+### 7. Complete the admin UI internationalization foundation and translations
 
 **Current evidence:** the roadmap is proposed and all phases are unchecked. It
 calls for locale policy and inventory before introducing translation catalogs
@@ -179,7 +209,7 @@ supported locales, fallback, persistence, and translation review ownership.
 
 See [Admin UI internationalization roadmap](../domain/administration/i18n-roadmap.md).
 
-### 7. Retire legacy REST aliases after usage-based migration
+### 8. Retire legacy REST aliases after usage-based migration
 
 **Current evidence:** REST consolidation Phases 0–4 are recorded as implemented;
 Phase 5 remains planned. The plan requires usage measurement and client
@@ -195,7 +225,7 @@ plan's criteria.
 
 See [REST API consolidation plan](../domain/api/rest-consolidation-plan.md).
 
-### 8. Address longer-term programme and charter gaps
+### 9. Address longer-term programme and charter gaps
 
 **Current evidence:** the charter gap analysis describes longer-term product,
 governance, interoperability, and production-readiness work. Detailed
