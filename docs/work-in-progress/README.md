@@ -12,11 +12,12 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   provisioner and drift checks pass focused tests and an isolated broker
   idempotency/drift check.
   The 10 October delegated review dispositioned all 68 source-derived schemas
-  and selected credentials, capacity, recovery, and relay ownership. That
+  and selected the cluster-internal trust boundary, capacity, recovery, and relay ownership. That
   decision review is complete; runtime gates remain for payload minimization,
-  NATS auth/TLS and role ACL proof, representative capacity sizing, off-node
-  restore and database reconciliation, and a safe provisioning/readiness
-  barrier before relay mutation is removed. The
+  representative capacity sizing, off-node restore and database reconciliation,
+  payload minimization, unknown-route enforcement, and a safe provisioning/readiness
+  barrier before relay mutation is removed. NATS auth/TLS is not required while
+  the broker remains cluster-internal. The
   [recovery runbook](../operations/messaging/jetstream-recovery.md) records the
   procedure and remaining qualification evidence. The live shared stream still
   uses Interest retention and no producer or consumer path has changed. See the
