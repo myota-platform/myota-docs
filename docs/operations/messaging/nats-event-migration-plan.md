@@ -297,11 +297,11 @@ implementation complete. Report missing evidence and Phase 0 exit criteria.
 **Current status (10 October 2026):** the first registry/schema and create-only
 provisioner artifacts are implemented and their focused local checks pass. No
 live topology or producer/consumer path changed. Source-derived Identity and
-Programme payloads are pending joint owner review; Activity, Geodata, and
+Programme and Activity payloads are pending joint owner review; Geodata and
 Operations payload schemas, least-privilege credentials, measured capacity
 limits, restore/replay qualification, and removal of legacy relay provisioning
-remain open. Source-derived schema passes now cover all 19 Identity and 12
-Programme facts. An isolated host-cluster broker test
+remain open. Source-derived schema passes now cover all 19 Identity, 12
+Programme, and 10 Activity facts. An isolated host-cluster broker test
 created all target streams/durables, passed an idempotent second run, and rejected
 configuration drift; its temporary namespace was removed. The 10 October follow-up
 also validates the expanded durable consumer configuration on a disposable broker.
@@ -336,6 +336,11 @@ container build, and publish ([deploy checks](https://github.com/myota-platform/
       authoritative Programme producer callsites, record data classification,
       and verify generated schemas in contracts CI. Joint owner review and
       producer enforcement remain gated.
+- [ ] Derive additive payload schemas for all 10 Activity facts from the
+      authoritative Activity producer callsites; classify personal, import,
+      award-configuration, and certificate metadata; verify in contracts CI.
+      Local checks pass; CI and owner/privacy review remain pending. Producer
+      enforcement remains gated.
 
 **Work**
 
