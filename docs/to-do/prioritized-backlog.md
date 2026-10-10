@@ -167,8 +167,8 @@ before deployment.
 
 **Next:** qualify pinned Surveyor metrics, least-privilege system monitoring
 access, compatibility of the complete dashboard set, and PostGIS panel
-relocation. Deploy internally, compare against the existing observer for seven
-days, and then retire the Admin page, duplicate broker pollers, combined MyOTA
+relocation. Deploy internally, compare Surveyor and Grafana directly with read-only broker
+metadata, then retire the Admin page, duplicate broker pollers, combined MyOTA
 JetStream backlog/PostGIS dashboard, and history table/index through a forward
 migration. Preserve Operations SeaweedFS functionality and app-level
 outbox/worker telemetry.
