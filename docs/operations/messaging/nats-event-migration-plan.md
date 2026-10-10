@@ -3,7 +3,7 @@
 **Status:** Phases 0–4 are complete within their recorded evidence bounds.
 Phase 5's four Geodata work consumers, migration 021, retry-safe partial
 deletion recovery, and Activity idempotency fix are live. Helm revision 193
-completed successfully; Fleet is Ready=True at Deploy commit
+is deployed; Fleet is Ready=True at Deploy commit
 `cfecd655d9c0eee9d19db26725fb11c99366815a` as of 22:03:29 UTC on 10 October.
 The live MyOTA workloads are ready and use configured immutable image digests.
 The four legacy Geodata durables remain empty and inactive. The revised 24-hour
@@ -771,7 +771,7 @@ Phase 4 exit criterion.
 
 **Status (11 October 2026):** Production routes all four Geodata
 work kinds to the immutable-image-referenced `MYOTA_GEODATA_WORK` WorkQueue.
-Helm revision 193 completed successfully at 22:00:02 UTC on 10 October; Fleet
+Helm history records revision 193 at 22:00:02 UTC on 10 October with status deployed; Fleet
 reports `Ready=True` at Deploy commit
 `cfecd655d9c0eee9d19db26725fb11c99366815a` as of 22:03:29 UTC, with all MyOTA
 workloads ready. Activity, Geodata, Identity, Programme and shared-runtime live
