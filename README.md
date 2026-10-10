@@ -110,8 +110,8 @@ NATS migration status on 11 October 2026:
 - NATS Surveyor and Grafana monitoring are proposed, not deployed. The plan
   provisions dashboard 16256 and ten dashboards from a pinned Surveyor source
   revision in a Grafana folder named `NATS`; it gates compatibility checks,
-  seven-day overlap, and retirement of the Admin page, broker pollers, combined
-  MyOTA NATS/PostGIS dashboard, and NATS snapshot table. See the
+  direct cutover validation, and retirement of the Admin page, broker pollers,
+  combined MyOTA NATS/PostGIS dashboard, and NATS snapshot table. See the
   [monitoring consolidation plan](docs/observability/nats-surveyor-migration.md).
 
 See the
