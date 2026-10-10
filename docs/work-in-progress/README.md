@@ -7,8 +7,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
   — **Status:** Phases 0–4 are complete within their recorded evidence
   bounds. Phase 5's Geodata route, migration 021, Activity idempotency fix,
-  and immutable image rollout are live. Helm revision 191 is deployed; Fleet
-  reports Ready=True at Deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` with 60/60 resources ready.
+  and immutable image rollout are live. Helm revision 192 is deployed; Fleet
+  reports Ready=True at Deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources ready.
   The configured Activity, Geodata and shared runtime digests match live pod
   image references and IDs. All four target Geodata durables are empty with
   waiting workers; four legacy durables remain empty and inactive during the
@@ -22,9 +22,9 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     `:latest` references even though digest values only changed the pod
     annotation. Deploy commit `a68eedd5ba7ee8aa0297d14ed8a38c4fceb9f109` and Platform mirror
     `a184baac3f36e0272cbc79107f4b362139de7515` now render configured image digests as immutable references.
-    Helm 191 is deployed, all 60 resources are ready, and live image IDs match.
+    Helm 192 is deployed, all 60 resources are ready, and live image IDs match.
   - **Phase 5 remaining gates:** Keep the four legacy Geodata durables through
-    21:28:41 UTC on 11 October 2026. Recheck Fleet, stream filters/counters and database recovery;
+    21:39:22 UTC on 11 October 2026. Recheck Fleet, stream filters/counters and database recovery;
     then remove only those four old durables. The observation and retirement
     remain open. The isolated namespace/PVC, API process, port-forwards, test
     fixtures and private streams are deleted. Preserve migration 021 and all
