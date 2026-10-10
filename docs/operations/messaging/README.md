@@ -3,8 +3,9 @@
 - [JetStream administration and status](jetstream-admin-status.md) — read-only
   broker state and sampled history.
 - [NATS event migration plan](nats-event-migration-plan.md) — Phase 0 complete;
-  Phase 1 contract/provisioning preparation in progress, with later migration
-  phases still open.
+  Phase 1 contract/provisioning preparation in progress. Source-derived payload
+  schemas cover Identity, Programme, Activity, and Geodata; CI/owner review,
+  Geodata payload minimization, and later migration phases remain open.
 - [Phase 0 event and work inventory](nats-event-migration-inventory.md) —
   repository evidence, current queues, replay limits, mirror status, and
   selected topology. The decision is recorded in
