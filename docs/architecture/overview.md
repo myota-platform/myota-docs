@@ -62,9 +62,10 @@ Geodata work with Interest retention; the selected bounded fact/work split is
 recorded in [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md)
 and remains unimplemented.
 
-The operations service owns timestamped broker samples in the control-plane
+The operations service currently owns timestamped broker samples in the control-plane
 database; domain workers still consume their own queues. Its
-[authenticated JetStream page/API](../operations/messaging/jetstream-admin-status.md) is read-only.
+[authenticated JetStream page/API](../operations/messaging/jetstream-admin-status.md) is read-only and is planned for retirement after the
+[NATS Surveyor monitoring cutover](../observability/nats-surveyor-migration.md).
 Geodata now uses [database-authoritative, request-scoped row repositories](../geodata/phase1-relational-authority.md),
 with transactionally coupled entity/candidate/audit writes and a write-fenced
 rollout. This closes Phase 1 correctness, not the remaining scalability gates.
