@@ -188,8 +188,11 @@ receive Viewer. Prometheus, Alertmanager and Tempo ports are private. The
 provisioned dashboards default to the last 30 minutes and refresh every
 30 seconds; UI saves are enabled for Editors. Copy a source-managed dashboard
 if its UI edits must survive later provisioning updates. The `MyOTA operations`,
-`MyOTA API performance`, `MyOTA Geodata capacity baseline`, and `MyOTA JetStream
-backlog and PostGIS query performance` dashboards are tagged `real-data`.
+`MyOTA API performance`, `MyOTA Geodata capacity baseline`, and current
+`MyOTA JetStream backlog and PostGIS query performance` dashboards are tagged
+`real-data`. The broker dashboard is planned for replacement by Surveyor; its
+PostGIS panels must first move to the Geodata dashboard. See the
+[NATS monitoring consolidation plan](nats-surveyor-migration.md).
 
 Kubernetes enables the same collector, Prometheus, Alertmanager, Grafana and
 Tempo resources with `observability.enabled=true`, including persistent volumes.
@@ -205,16 +208,15 @@ explicit unavailable/partial/stale status, and persistent paged history. Native
 bucket counts/sizes and filesystem capacity come from the private exporter;
 no object scans or storage credentials are required by the Admin UI.
 
-For authenticated stream/consumer inspection, choose **Platform health →
-NATS / JetStream** (`/jetstream`) in the admin UI. The
-[operations service](../operations/messaging/jetstream-admin-status.md) reads actual broker metadata
-and persists sampled history in its own `myota_core` table every 30 seconds
-by default, retaining seven days. The browser polls visible status every ten
-seconds; it neither connects to NATS nor reads a database. Sampling failures
-remain explicit `PARTIAL`/`UNAVAILABLE` records rather than zero backlog.
-Availability and stalled-history alerts complement the Grafana broker panels.
-The page is an observer, not a queue-redrive or consumer-management console.
-See the [scaling delivery evidence and remaining gates](../geodata/horizontal-scaling-roadmap.md#latest-delivery-and-evidence--8-october-2026).
+**Current NATS monitoring:** the authenticated Admin UI page at `/jetstream`
+and Operations sampler read broker metadata and persist seven days of samples
+in `myota_core`. Geodata also has a separate JetStream metrics poller. These
+are current components, not the target design. The proposed
+[NATS Surveyor consolidation](nats-surveyor-migration.md) will centralize
+broker/server metrics in Prometheus and Grafana, then retire duplicate
+broker-inspection code, history, and the Admin page after a verified overlap.
+The app-level outbox and worker metrics remain because they describe delivery
+and domain processing, which Surveyor cannot observe.
 
 - A missing series is not converted to a made-up value.
 - Scrape and exporter health should be checked before interpreting an empty
