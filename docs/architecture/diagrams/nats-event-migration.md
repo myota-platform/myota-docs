@@ -21,7 +21,7 @@ flowchart LR
   RC --> E[MYOTA_EVENTS<br/>file, Interest retention<br/>myota.events.* and myota.geodata.*]
   RA --> E
   RG --> E
-  E --> N[Activity notifications<br/>broad durable]
+  E --> N[Activity notifications<br/>activity-notifications-v1<br/>21 exact fact subjects]
   E --> GW[Four Geodata work durables]
   A -. DB polling .-> AW[Activity worker]
   G -. reconciliation .-> GR[Geodata recovery loops]
@@ -75,8 +75,10 @@ flowchart LR
   ES -. inspect only .-> O[Operations observer]
 ```
 
-**Status (10 October 2026):** Phases 0 and 1 contract/topology work and Phase 2
-relay hardening/source coverage are complete within their evidence bounds.
+**Status (10 October 2026):** Phases 0–3 are complete within their evidence
+bounds. Phase 3 replaced the broad Activity notification durables with the
+registered `activity-notifications-v1` durable; four Geodata work durables
+remain unchanged.
 The 68 fact schemas and ten selected work commands are registered; contract CI
 checks their schema/disposition coverage and exact work-to-durable mapping. The
 create-only provisioner and its drift checks passed focused and isolated tests.
@@ -87,8 +89,9 @@ is trusted. Do not expose NATS outside the cluster. Provisional capacity,
 restore/replay policy, and provisioner ownership are decisions, not production
 qualification. The source relay now enforces registry routing, size bounds,
 stable IDs, retries, dead-letter recovery, and metrics while validating legacy
-topology read-only. The target streams and consumer/work paths have not been cut
-over. Geodata payload minimization, schema/privacy enforcement, representative
+topology read-only. The registered Activity notification group is deployed;
+the target streams and work paths have not been cut over. Geodata payload
+minimization, schema/privacy enforcement, representative
 full-window sizing, off-node/PVC-loss restore qualification, and production
 compatibility transition remain open. See the recovery runbook and
 [Phase 2 evidence](../../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).

@@ -1,17 +1,24 @@
 # Messaging and NATS
 
+- [Activity domain-event notification consumer](activity-notification-consumer.md)
+  — exact registered filters, durable rollout, retries, metrics, and audited
+  poison-event redrive.
 - [JetStream administration and status](jetstream-admin-status.md) — read-only
   broker state and sampled history.
 - [NATS event migration plan](nats-event-migration-plan.md)
-  - **Complete:** Phase 0 inventory, Phase 1 contract/topology, and Phase 2
-    relay hardening/source coverage. The
-    delegated review dispositioned all 68 fact schemas.
+  - **Complete:** Phases 0–3 within their evidence bounds. Phase 3 deployed
+    Activity's exact 21-subject notification durable, transactional
+    idempotency, audited poison recovery, and bounded metrics. See the
+    [Phase 3 evidence](evidence/phase3-domain-consumers-2026-10-10.md) and
+    [Activity notification runbook](activity-notification-consumer.md).
   - **Selected:** Cluster-internal trust boundary without NATS auth/TLS, bounded
     work schemas, create-only provisioner, and accepted capacity limits.
   - **Verified:** Fail-closed opt-in Helm pre-upgrade gate and local
     restore/replay evidence.
-  - **Still open:** Payload/privacy enforcement, consumer/work migration, and
-    controlled production cutover. The live stream remains Interest-retained.
+  - **Still open:** Payload/privacy enforcement, Activity and Geodata work
+    migration, and controlled production cutover. The live stream remains
+    Interest-retained. Fleet reports 60/60 resources ready, but its bundle is
+    `WaitApplied` after recovery; reconcile before Phase 4 runtime changes.
 - [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.

@@ -1,9 +1,10 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phase 0, Phase 1, and Phase 2 relay hardening and source-coverage
-work are complete. Phase 2 exit criteria passed in focused tests and an isolated
-K3s namespace. The production compatibility rollout and remaining payload/privacy
-gates are still separate; source implementation does not certify deployment.
+**Status:** Phases 0–3 are complete within their evidence bounds. Phase 3
+standardized and deployed the registered Activity notification consumer, its
+reviewed redrive path, and operational metrics. The shared mixed
+Interest-retained stream remains in place; work-queue migration, payload/schema
+enforcement, and final production topology cutover remain open.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -38,9 +39,9 @@ contracts and lifecycle guarantees, and qualify rollout and recovery.
 
 | Owner / database | Current outbox producers | Current broker publishing | Current consumers / remaining path |
 |---|---|---|---|
-| Identity / `myota_core` | Account, callsign, role, authentication/recovery, OIDC mapping, and service-token lifecycle events. Examples: `identity.account.created.v1`, `identity.callsign.verified.v1`, `identity.account.deactivated.v1`. | Published by the shared `core-outbox` relay. | No Identity-owned JetStream consumer found. Activity notifications observe `myota.events.>` and translate supported Identity events into notices. Verify every event is either intentionally consumed or documented as an integration event with no current subscriber. |
+| Identity / `myota_core` | Account, callsign, role, authentication/recovery, OIDC mapping, and service-token lifecycle events. Examples: `identity.account.created.v1`, `identity.callsign.verified.v1`, `identity.account.deactivated.v1`. | Published by the shared `core-outbox` relay. | No Identity-owned JetStream consumer found. Activity's `activity-notifications-v1` durable filters the 19 Identity facts selected in the registry and creates only its local notice projection. Other facts have no selected subscriber. |
 | Programme / `myota_core` | Programme create/update/archive, entity-type catalogue/assignment, content workflow, and policy-draft events. | Shared `core-outbox` relay. | No Programme-owned JetStream consumer found. Verify event subscribers and future ownership. |
-| Activity / `myota_activity` | Activation/QSO lifecycle, ADIF queue, activity cascade deletion, award definition/request/issuance/rendering, and other activity/award events. | `activity-outbox` relay. | Activity notification consumer currently subscribes broadly. The selected target uses scoped filters for Identity facts and the two Geodata review/status facts it handles. Migrate six accepted jobs (QSO ingestion, ADIF import, award recalculation/evaluation, PDF rendering, and statistics rebuild) to Activity work subjects. Exclude the state-only `NOTIFICATION_SEND` job; correct or remove it, and create a separate provider-backed command if external delivery is added later. |
+| Activity / `myota_activity` | Activation/QSO lifecycle, ADIF queue, activity cascade deletion, award definition/request/issuance/rendering, and other activity/award events. | `activity-outbox` relay. | Activity notification group is `activity-notifications-v1` with exact registered filters; it does not subscribe to Activity facts. Migrate six accepted jobs (QSO ingestion, ADIF import, award recalculation/evaluation, PDF rendering, and statistics rebuild) to Activity work subjects. Exclude the state-only `NOTIFICATION_SEND` job; correct or remove it, and create a separate provider-backed command if external delivery is added later. |
 | Geodata / `myota_geo` | Import lifecycle, validation/promotion, entity review/change/deletion, location enrichment, cancellation, recovery, and operational events. | `geo-outbox` relay. Generic events use `myota.events.<event_type with dots replaced by underscores>`; work dispatch uses allowlisted `payload.natsSubject`. | `geodata_import_worker.py` has durable pull consumers: `geodata-preprocessing-v1`, `geodata-import-processing-v2`, `geodata-entity-deletion-v1`, and `geodata-location-enrichment-v1`, plus stale-cancellation and pending-deletion database reconcilers. Keep reconciliation as recovery, not a second normal work queue. |
 | Operations / `myota_core` | The shared state adapter has an outbox/event helper, but the Phase 0 source scan found no Operations event-producing call sites; do not treat helper support as emitted events. | Shared `core-outbox` relay can read the core database outbox; no Operations-specific event stream was identified. | Operations reads JetStream stream/consumer status and stores samples; it is deliberately read-only and is not a business-event consumer. Preserve this boundary. |
 
@@ -522,23 +523,23 @@ them to this phase.
 
 **Work**
 
-- [ ] Standardize Activity notification and all other event consumers around a
+- [x] Standardize Activity notification and all other event consumers around a
       shared service-owned JetStream adapter or an explicitly documented per service
       pattern. Preserve domain ownership: Activity notification filters cover the
       approved Identity facts and the two Geodata review/status facts in the
       inventory. Do not add Programme notices or other subscriptions without an
       owner and registered consumer-group decision.
-- [ ] Separate independent consumers into separate durables. Set explicit filter,
+- [x] Separate independent consumers into separate durables. Set explicit filter,
       ack wait, max deliveries, max ack pending, backoff, delivery policy, and
       concurrency based on measured handler duration and recovery needs.
-- [ ] Commit domain side effect and consumer deduplication/checkpoint in one local
+- [x] Commit domain side effect and consumer deduplication/checkpoint in one local
       database transaction when possible; acknowledge only after commit. Validate
       behavior when the database commit succeeds but ack is lost.
-- [ ] Define poison-message handling that records full diagnostic envelope safely,
+- [x] Define poison-message handling that records a redacted diagnostic envelope safely,
       avoids exposing secrets/PII in logs, notifies operations, and supports
       reviewed replay after remediation. Avoid immediately terminating errors
       without a supported recovery path.
-- [ ] Keep durable consumer names stable across releases; create successor durables
+- [x] Keep durable consumer names stable across releases; create successor durables
       deliberately and remove obsolete durables only after old workers drain and
       backlog disposition is understood. For fact replay, use a separate durable
       with an explicit start position; never rewind a production side-effecting
@@ -547,40 +548,62 @@ them to this phase.
 
 **Exit criteria**
 
-- [ ] Every intended domain-event consumer group is live, documented, independently
+- [x] Every intended domain-event consumer group is live, documented, independently
       deployable, idempotent, observable, and tested against redelivery/restart.
-- [ ] No unsupported broad consumer determines retention accidentally.
+- [x] No unsupported broad consumer determines retention accidentally.
+
+**Phase 3 implementation evidence:** see the
+[domain-consumer evidence record](evidence/phase3-domain-consumers-2026-10-10.md)
+and the [Activity notification runbook](activity-notification-consumer.md).
+The only selected domain-event group is Activity notifications. Its exact-filter
+successor is provisioned before worker rollout; the two known broad Activity
+durables are retired after successor validation. The mixed Interest-retained
+stream and all work-command paths are unchanged by this phase.
 
 **ChatGPT prompt — Phase 3**
 
 ```text
-Implement Phase 3: standardize and complete MyOTA domain-event consumers on NATS
-JetStream using the approved registry and topology. Focus on Activity notifications
-and any additional subscriber groups named in the Phase 0 inventory. Do not migrate
-Geodata work consumers or Activity DB jobs unless a dependency requires a small
-preparatory change; keep work commands distinct from domain events.
+Implement Phase 3 of the MyOTA NATS migration. Read this plan, the Phase 0
+inventory, ADR-0008, and the Phase 1/2 evidence before editing. Work in the
+authoritative repositories `myota-activity-service`, `myota-deploy`,
+`myota-contracts`, and `myota-docs`. Keep `myota-platform` and any deploy-side
+service copies synchronized mirrors; keep `.github` links to current docs valid.
 
-For each durable consumer group, document its owning service, subject filter,
-supported event versions, business side effects, local database, stable idempotency
-key, ack boundary, retry/backoff/max-delivery policy, poison-message procedure,
-shutdown/drain behavior, metrics, replica/scaling model, and durable migration
-procedure. Ensure unrelated handlers never share a durable and same-group replicas
-do. Where possible, commit side effect plus processed-event/checkpoint record
-atomically, then ack. Handle duplicate delivery and database-commit/ack-loss
-explicitly.
+Scope is domain-event subscribers only. The contracts registry defines the
+intended subscriber groups. Currently this is Activity notifications for the
+approved Identity facts and the two Geodata review/status facts. Do not add
+Programme subscriptions, change producer/outbox paths, migrate Geodata work, or
+migrate Activity database-polled jobs. Preserve ownership: Activity may write
+only its local notification projection; Identity and Geodata remain owners of
+their records. Operations remains read-only for broker inspection.
 
-Replace catch-all/no-op behavior with reviewed filters and explicit event-type
-dispositions. Do not make Activity own Identity/Programme/Geodata records; it may
-own the selected notification projections only. Preserve Operations as read-only
-status inspection. Keep stable durable names, and document how to roll to a
-successor durable without dropping retained fact messages.
+For every intended group, set an exact registered filter and a stable durable.
+Use pull delivery, explicit ACK, bounded ack wait/max deliveries/max ack pending,
+bounded retry/backoff, and same-durable replicas. Commit side effects and
+consumer deduplication/checkpoint state before ACK. Where the business side
+effect has a separate transaction, require a stable unique idempotency key and
+prove commit-success/ack-loss does not duplicate it. Avoid storing source payloads
+in projections unless the contract requires them. Redact secrets and personal
+data from diagnostics and logs.
 
-Update owning service code, container/deployment wiring, synchronized mirrors,
-contracts, operations runbooks, and myota-docs. Add focused
-delivery/restart/idempotency tests following existing conventions. Produce a
-consumer-by-consumer matrix with evidence for supported versions, duplicate
-delivery, poison event recovery, backlog metrics, and graceful shutdown. Mark only
-verified rows complete.
+Create successor durables before moving workers. Retire an obsolete durable only
+after validating its successor and establishing the disposition of its matching
+backlog. Do not rewind a production durable. Keep the existing mixed
+Interest-retained `MYOTA_EVENTS` stream unchanged in this phase; do not claim
+that it is the selected Limits-retained target. Provide a reviewed poison-event
+recovery path with a durable application record, operator audit, and stable
+event identity. Keep JetStream backlog and consumer outcome metrics bounded in
+cardinality and visible to Operations.
+
+Update owning service code, deployment hooks/wiring, contracts checks, mirrors,
+runbooks, diagrams, backlog, and the implementation timeline. Add focused
+redelivery, restart, poison/redrive, and shutdown checks; run broker/database
+integration checks in a disposable namespace on this host and remove all test
+resources afterward. Report exact commands/results, live durable filters and
+pending state, changed repos/files, and remaining gates. Mark work and exit
+criteria complete only after the deployed group is verified and no unsupported
+broad durable still influences retention. Commit and push changes directly to
+`main` with explicit messages.
 ```
 
 ### Phase 4 — Move Activity database-polled accepted work to JetStream

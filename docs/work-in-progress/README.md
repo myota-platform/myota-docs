@@ -5,8 +5,8 @@ components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
-  — **Status:** Phase 0 inventory, Phase 1 contracts/topology, and Phase 2
-  relay hardening/source coverage are complete.
+  — **Status:** Phases 0–3 are complete within their evidence bounds. Phase 3
+  deployed the registered Activity domain-event subscriber.
   - **Phase 1 evidence:** 68 facts and ten work commands are registered with
     bounded per-command payload schemas. Source and contract checks passed.
     The optional Helm pre-upgrade readiness hook fails closed.
@@ -23,19 +23,31 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
     database/NATS connections and zero pending rows. Six Geodata dead letters
     remain unresolved and were not redriven. Migration schema is present in all
     three databases.
-  - **Remaining gates:** JSON Schema/prohibited-field enforcement, Geodata
-    preprocessed-payload minimization, the narrow Activity durable transition,
-    Activity work migration, Geodata work-stream migration, production
-    watermark review, and controlled topology cutover remain open.
+  - **Phase 3 evidence:** Activity's stable `activity-notifications-v1` pull
+    durable now has the exact 21 registered fact filters, explicit ACK,
+    bounded delivery/retry settings, transactionally coupled projection and
+    deduplication, redacted dead letters, audited redrive, and bounded outcome
+    metrics. Disposable K3s/PostgreSQL/NATS checks covered duplicate delivery,
+    commit-success/ack-loss, poison recovery, and shutdown. Production shows the
+    exact filter set, zero pending/ack-pending, one waiting pull, and no broad
+    Activity durable. The four Geodata work durables remain unchanged.
+  - **Remaining gates:** payload privacy/schema enforcement, Geodata
+    preprocessed-payload minimization, Activity work migration, Geodata
+    work-stream migration, production watermark review, and controlled
+    Interest-to-Limits topology cutover remain open.
   - **Current boundary:** NATS remains cluster-internal without auth/TLS. The
     live shared stream remains file-backed with Interest retention. Relay source
-    validates its legacy topology without mutation. Producer publication source
-    now uses registered dotted fact subjects; consumer delivery handlers and
-    deployed work paths remain unchanged. Fleet has fetched the current deploy
-    commit and now reports Ready with 59/59 resources. Helm revision 167 is
-    deployed on chart 0.2.14; all three relay Deployments are Ready.
+    validates legacy topology read-only and all three relay Deployments are
+    Ready. Activity's domain-event consumer is live, while producer publication
+    and all work-command paths remain as before. Helm revision 170 is deployed
+    on chart 0.2.14 and Fleet reports 60/60 resources ready, but its bundle
+    condition remains `WaitApplied` after recovery; reconcile this status before
+    starting another runtime phase. No event or domain data was changed by
+    production verification.
   - **References:** [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
     [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
+    [Phase 3 consumer evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
+    [Activity notification runbook](../operations/messaging/activity-notification-consumer.md),
     [recovery runbook](../operations/messaging/jetstream-recovery.md), and
     [current/target diagrams](../architecture/diagrams/nats-event-migration.md).
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —

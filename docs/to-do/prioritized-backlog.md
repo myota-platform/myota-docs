@@ -60,19 +60,22 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Complete Phase 2 NATS runtime migration
+### 2. Continue the NATS migration after Phase 3 consumer reliability
 
-**Current evidence:** Phase 0 inventory, Phase 1 contract/topology work, and
-Phase 2 relay hardening/source-coverage checks are complete. The registry covers
-68 facts and ten selected work commands. Phase 2 added contract-backed dotted
-fact subjects, stable-ID publish/ack behavior, serialized-size bounds, retries,
-database dead-letter inspection/redrive, per-relay metrics, alerts, and
-read-only validation of the existing topology. An isolated K3s/PostgreSQL/NATS
-drill verified the publish/mark crash window and audited redrive. The full
-evidence is in the [Phase 2 record](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).
-The relay Deployments are live with healthy database/NATS connections and zero
-pending rows. Six existing Geodata dead letters remain unresolved. Fleet reports
-Ready with 59/59 resources; Helm revision 167 is deployed on chart 0.2.14.
+**Current evidence:** Phases 0–3 are complete within their evidence bounds.
+Phase 2 relay hardening and Phase 3 Activity consumer reliability are deployed.
+The 68-fact/ten-command registry remains the contract source. Activity now
+uses the exact 21-subject `activity-notifications-v1` durable with transactional
+deduplication, audited poison-event redrive, and bounded metrics. The two broad
+Activity durables are retired; the four Geodata work durables are unchanged.
+The full Phase 3 evidence is in
+the [consumer record](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md)
+and [runbook](../operations/messaging/activity-notification-consumer.md).
+The live stream remains file-backed with Interest retention. Helm revision 170
+is deployed on chart 0.2.14; all 60 resources are reported ready, but Fleet's
+bundle condition remains `WaitApplied` after recovery and must be reconciled
+before another runtime phase. Six pre-existing Geodata outbox dead letters
+remain unresolved.
 
 The live shared stream remains mixed under Interest retention; producer and
 consumer work paths have not been cut over. Unresolved Geodata dead letters are
@@ -82,23 +85,24 @@ single-node scope. Off-node recovery is deferred; PostgreSQL remains the
 authority for reconciliation and redrive. NATS remains cluster-internal without
 authentication or TLS.
 
-**Why second:** Asynchronous work must survive relay and worker restarts without
-losing or duplicating domain effects. Relay failure/recovery behavior is now
-qualified in isolation. The remaining risk is the compatibility transition from
-the mixed legacy stream to bounded fact retention and separate work queues.
+**Why second:** Accepted work paths still include database polling and legacy
+Geodata subjects, and the shared stream still mixes facts and work under
+Interest retention. The Phase 3 subscriber is reliable within its local
+projection boundary, but it does not close those separate transport risks.
 
-**Next:** Close JSON Schema/prohibited-field and Geodata payload-minimization
-gates; introduce a registered-filter Activity durable with a safe legacy drain;
-then implement the accepted Activity and Geodata work commands with durable
-consumer idempotency. Preserve PostgreSQL authority, keep Geodata preprocessed
-v1 source-compatible until a successor is agreed, and rehearse the legacy
-Interest-stream drain and compatibility barrier. Enable the Helm pre-upgrade
-gate only for a reviewed cutover. Keep scheduled and reconciliation jobs on
-their documented scheduler/database paths.
+**Next:** Reconcile Fleet's pending `WaitApplied` status first. Then close
+payload privacy/schema and Geodata minimization gates; migrate the six accepted
+Activity jobs and four Geodata commands with database idempotency; qualify
+capacity and replay within accepted single-node limits; and plan the mixed
+Interest-stream compatibility barrier before changing retention. Preserve
+PostgreSQL authority, keep scheduled/reconciliation work on its existing paths,
+and defer off-node recovery as recorded by the owner.
 
 See [NATS event migration plan](../operations/messaging/nats-event-migration-plan.md),
 [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
 [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
+[Phase 3 consumer evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
+[Activity notification runbook](../operations/messaging/activity-notification-consumer.md),
 [JetStream operations status](../operations/messaging/jetstream-admin-status.md),
 [recovery runbook](../operations/messaging/jetstream-recovery.md), and
 [award designer delivery evidence](../domain/awards/evidence/programme-awards-2026-10-09.md).

@@ -39,6 +39,32 @@ proof that production has deployed it.
   Activity durable's narrower successor filter requires the Phase 3 transition
   because the current Interest-retained durable cannot be edited in place safely.
 
+### Phase 3 consumer update — 10 October 2026
+
+- **Current consumer:** Activity now owns the exact-filter
+  `activity-notifications-v1` durable for the 19 registered Identity facts and
+  two Geodata review/status facts. The subscriber uses explicit ACK, bounded
+  delivery/backoff, and commits the local notification projection with its
+  deduplication/checkpoint rows before acknowledging.
+- **Durable transition:** The deployment-owned Helm hooks created and validated
+  the successor before retiring the two broad Activity durables. A live
+  JetStream metadata query now lists five consumers: the exact Activity
+  notification durable plus the four unchanged Geodata work durables. The
+  Activity durable reports zero pending, ack-pending, and redelivered messages.
+- **Failure recovery and observability:** Activity stores redacted poison-event
+  evidence with stream coordinates, exposes bounded outcome and unresolved-DLQ
+  metrics, and provides an actor/reason audited redrive command. Disposable
+  K3s/PostgreSQL/NATS verification exercised commit-success/ack-loss, poison
+  redrive, duplicate processing, and graceful shutdown. The runbook is
+  `myota-docs/docs/operations/messaging/activity-notification-consumer.md`.
+- **Unchanged boundaries:** `MYOTA_EVENTS` remains file-backed with Interest
+  retention and the same two subject captures. Geodata's four work durables,
+  all producer paths, and all Activity database-polled jobs remain unchanged.
+  Phase 4/5 work migration and the eventual stream-retention cutover remain
+  open. The Fleet bundle currently reports `WaitApplied` after Helm recovery;
+  reconcile Fleet before the next runtime phase even though the deployed Helm
+  release and all reported resources are ready.
+
 ## Evidence model and shared behavior
 
 The profiles below avoid repeating the same transport facts on every event

@@ -18,15 +18,17 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  Phase 0 inventory, Phase 1 contracts/topology, and Phase 2 relay hardening are
-  complete within their evidence bounds. The isolated relay drill verified
-  contract-backed routing, same-ID crash recovery, dead-letter redrive, and
-  backlog metrics. The three relay Deployments are live and report healthy
-  database/NATS connections with zero pending rows; six existing Geodata DLQs
-  remain unresolved. Fleet reports Ready with 59/59 resources and Helm revision
-  167 is deployed on chart 0.2.14.
-  Production remains on the mixed Interest-retained stream; payload/privacy
-  enforcement and consumer/work-stream cutover remain open. See
+  Phases 0–3 are complete within their evidence bounds. Phase 3 deployed the
+  exact-filter Activity notifications durable, transactional idempotency,
+  audited poison-event recovery, and bounded consumer metrics. The four
+  Geodata work durables and mixed Interest-retained stream remain unchanged.
+  Helm revision 170 is deployed on chart 0.2.14; Fleet reports 60/60 resources
+  ready but its bundle condition remains `WaitApplied` after recovery, so
+  reconcile Fleet before the next runtime phase. Payload/privacy enforcement,
+  Activity and Geodata work migration, and controlled stream cutover remain
+  open. See
+  the [Phase 3 consumer evidence](operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
+  [Activity notification runbook](operations/messaging/activity-notification-consumer.md),
   the [Phase 0 inventory](operations/messaging/nats-event-migration-inventory.md),
   [joint review](operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [recovery runbook](operations/messaging/jetstream-recovery.md),

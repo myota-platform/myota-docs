@@ -13,6 +13,43 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 10 October 2026 — NATS migration Phase 3 domain-event consumers
+
+- **Prompt used:** “Continue with the implementation of phase 3, decide any
+  blocker based on your best criteria and established best practices, verify
+  exit conditions.” This is the single self-contained Phase 3 prompt in the
+  [migration plan](../operations/messaging/nats-event-migration-plan.md#chatgpt-prompt--phase-3).
+- **Implementation:** Activity now consumes only the 21 registered Identity
+  and Geodata fact subjects through stable durable `activity-notifications-v1`.
+  The projection and deduplication/checkpoint commit atomically before ACK;
+  diagnostic payloads are redacted; poison records have an audited redrive
+  path; and outcome/DLQ metrics have bounded cardinality. Deployment hooks
+  provisioned the exact successor before retiring the two broad Activity
+  durables. The four Geodata work durables and mixed Interest-retained stream
+  were unchanged.
+- **Checks:** Activity CI and image publication passed. Deploy Python quality
+  and Helm validation passed. Contracts CI initially failed only Ruff
+  formatting on its new registry-filter assertion; the formatting fix passed
+  the rerun. The 29-test Activity suite passed (one broker test skipped without
+  `NATS_TEST_URL`); a separate disposable K3s/PostgreSQL/NATS drill verified
+  duplicate/ACK-loss handling, poison redrive, metrics, and clean shutdown.
+- **Live result and recovery:** On the local K3s cluster, the exact Activity
+  durable is live with zero pending, ack-pending, or redelivered messages; one
+  pull is waiting. Five stream durables remain: Activity plus the four
+  unchanged Geodata consumers. The first migration hook used a stale pinned
+  image digest; an additive idempotent Activity migration was applied by a
+  short-lived repair Job, then reapplied successfully by normal migration Job
+  `myota-migrations-169`. The repair Job was deleted. Helm revision 170 is
+  deployed and Fleet reports 60/60 resources ready, but the Fleet bundle still
+  reports `WaitApplied` after recovery. Phase 3's two documented exit criteria
+  pass; resolve that Fleet status divergence before Phase 4 runtime changes.
+- **Remaining scope:** The mixed `MYOTA_EVENTS` Interest stream, producer paths,
+  Activity DB-polled work, and Geodata work paths remain as before. Payload
+  privacy/schema enforcement, work-command migration, and final topology
+  cutover remain open. See the [Phase 3 evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
+  [consumer runbook](../operations/messaging/activity-notification-consumer.md),
+  and [migration plan](../operations/messaging/nats-event-migration-plan.md).
+
 ## 10 October 2026 — NATS cluster-internal trust boundary decision
 
 - **Prompt used:** “Remove the requirement for secure NATS / Jetstream because

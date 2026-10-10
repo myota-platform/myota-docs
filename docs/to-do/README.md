@@ -12,19 +12,19 @@ documentation evidence and does not set delivery dates.
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phase 0 inventory, Phase 1 contracts/topology, and Phase 2 relay hardening
-  are complete within their recorded evidence bounds. Phase 2 added contract-
-  backed routing, read-only legacy topology validation, retry/DLQ recovery,
-  backlog metrics, alerts, and isolated broker/database qualification. The
-  three relay Deployments are live and report healthy database/NATS connections
-  and zero pending outbox rows. Six Geodata dead letters remain unresolved.
-  Fleet reports Ready with 59/59 resources; Helm revision 167 is deployed on
-  chart 0.2.14. The mixed Interest stream and existing consumer/work paths
-  remain deployed.
-  Payload privacy/schema enforcement and controlled consumer/work-stream
-  cutover remain open. See the [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
+  — Phases 0–3 are complete within their recorded evidence bounds. Phase 3
+  deployed Activity's exact 21-subject `activity-notifications-v1` durable,
+  idempotent transactional handling, audited poison-event redrive, and bounded
+  metrics. The four Geodata work durables and shared file-backed Interest stream
+  remain unchanged; the two broad Activity durables were retired after successor
+  validation. Phase 4 Activity work migration, Phase 5 Geodata work migration,
+  and the final stream-retention cutover remain open. Fleet's bundle is reporting
+  `WaitApplied` after a recovery rollback even though Helm revision 170 and all
+  60 resources are deployed/ready; clear this status divergence before the next
+  runtime phase. See the [Phase 3 evidence](../operations/messaging/evidence/phase3-domain-consumers-2026-10-10.md),
+  [Activity notification runbook](../operations/messaging/activity-notification-consumer.md),
+  [Phase 1 completion evidence](../operations/messaging/evidence/phase1-completion-2026-10-10.md),
   [Phase 2 relay evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md),
-  [joint review](../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
   [recovery runbook](../operations/messaging/jetstream-recovery.md), and
   [Work in progress](../work-in-progress/README.md).
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
