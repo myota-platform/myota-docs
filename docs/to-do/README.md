@@ -20,12 +20,6 @@ documentation evidence and does not set delivery dates.
   observation. Activity and target durables, migration 021, recovery data and
   the Interest-retained MYOTA_EVENTS stream remain. Phase 6 fact-stream
   retention work is next. See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
-- [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md)
-  — runtime cutover, dashboards, bounded capacities, replacement images and
-  Operations history-table retirement are live at Helm revision 206. The
-  verified backup is preserved and storage history is healthy. Remaining work:
-  resolve Fleet `WaitApplied(1)` / stale applied-release metadata and verify
-  Ready for the current Deploy commit. Temporary validation stream/pod removed.
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
   Phase 5 remains planned until usage is measured and clients migrate.
 - [Programme configuration gaps](../domain/programmes/configuration-gap-analysis.md)
