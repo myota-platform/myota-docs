@@ -79,8 +79,9 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   waived and closed early, not reported as a full 24-hour period. Activity and
   replacement Geodata durables, migration 021, and the Interest-retained
   MYOTA_EVENTS stream remain. Phase 6 fact-stream retention is separate.
-  The planned NATS broker-monitoring replacement is described in the
-  [Surveyor/Grafana roadmap](docs/observability/nats-surveyor-migration.md).
+  NATS monitoring is centralized by the live Surveyor exporter and Grafana
+  dashboards. The monitoring rollout and remaining Fleet reconciliation gate
+  are documented in the [Surveyor/Grafana roadmap](docs/observability/nats-surveyor-migration.md).
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
@@ -107,11 +108,12 @@ NATS migration status on 11 October 2026:
 - MYOTA_EVENTS remains file-backed with Interest retention; Phase 6 owns its
   separate fact-stream retention transition. Off-node recovery remains
   deferred.
-- NATS Surveyor and Grafana monitoring are proposed, not deployed. The plan
-  provisions dashboard 16256 and ten dashboards from a pinned Surveyor source
-  revision in a Grafana folder named `NATS`; it gates compatibility checks,
-  direct cutover validation, and retirement of the Admin page, broker pollers,
-  combined MyOTA NATS/PostGIS dashboard, and NATS snapshot table. See the
+- NATS Surveyor 0.9.11 and all eleven dashboards in Grafana folder `NATS`
+  are live. Bounded JetStream capacity is configured; replacement service images
+  are healthy; the Operations snapshot table/index were removed by migration
+  005 after backup verification, while storage history remains. A temporary
+  in-memory validation stream was deleted. Fleet `WaitApplied(1)` and stale
+  applied-release metadata remain the final Phase 2 gate. See the
   [monitoring consolidation plan](docs/observability/nats-surveyor-migration.md).
 
 See the
