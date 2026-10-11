@@ -1,6 +1,6 @@
 # Structured logging implementation plan
 
-Status: in progress; Phase 1–5 source/configuration work is recorded, while production acceptance, Phase 6 hardening, and Phase 7 database observability remain open.
+Status: in progress; Phase 1–5 source/configuration work is recorded and a live Identity log/trace smoke has passed. Dashboard query and trace-link provisioning fixes are committed and awaiting rollout; async acceptance, Phase 6 hardening, and Phase 7 database observability remain open.
 
 Parent: [MyOTA observability](overview.md)
 
@@ -254,7 +254,7 @@ Deliverables:
 - [x] W3C `traceparent` / `tracestate` handling;
 - [x] consistent server spans rather than isolated manual spans;
 - [x] error classification without leaking request bodies;
-- [x] tests for 2xx, 4xx, 5xx and propagated trace context.
+- [x] tests for 2xx, 4xx, 5xx and propagated trace context;\n- [x] live Identity `/healthz` request produced a matching Loki log record and Tempo trace.
 
 Implementation prompt:
 [Phase 3 ChatGPT prompt](prompts/logging-phase-3-http-tracing.md)
@@ -319,8 +319,8 @@ Deliverables:
 - [x] panels for errors by service, recent failures, worker failures/retries and HTTP
   server-error logs;
 - [ ] links from existing operational dashboards where useful;
-- [ ] verify Helm ConfigMap mounting and Grafana provisioning of the dashboard;
-- [ ] execute dashboard queries against live structured logs and verify trace/log links.
+- [x] verify Helm ConfigMap mounting and Grafana provisioning of the dashboard;
+- [x] execute the dashboard LogQL query shapes against live Loki OTLP structured metadata (no JSON parser);\n- [ ] verify provisioned Grafana trace/log links after the metadata-derived-field fix rolls out.
 
 Implementation prompt:
 [Phase 5 ChatGPT prompt](prompts/logging-phase-5-grafana-correlation.md)
