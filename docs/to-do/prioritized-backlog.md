@@ -92,7 +92,9 @@ Loki/Collector workloads are Ready in K3s. Latest Deploy Python quality and imag
 build runs passed. The running service digests still predate the latest worker
 logging changes, and no live request-to-worker trace/log proof is recorded.
 Phase 6 capacity, retention, alert, and runbook gates remain open; Phase 7
-PostgreSQL/PostGIS telemetry has not been implemented. See the
+PostgreSQL/PostGIS telemetry has not been implemented. Geodata's latest image
+build is also blocked by seven worker-delivery timeouts and a row-authoritative
+writer mismatch, so that service cannot yet roll out its logging changes. See the
 [logging implementation plan](../observability/logging-implementation.md) and
 [11 October evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 
