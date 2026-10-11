@@ -55,13 +55,20 @@ Contracts-owned registry; Platform's registry test job passed in run
 
 The latest Contracts freeze workflow,
 [run 38171573878](https://github.com/myota-platform/myota-contracts/actions/runs/38171573878),
-is not green: it fails at the generic source-mirror audit before the registry
-test step, reporting Identity and Programme handler-file drift. The focused
-registry suite and workspace event-source audit were run directly and passed.
-Platform run 38171688089 passed its test job but failed Ruff formatting in
-`services/identity.py`. These are recorded; full cross-repository CI is not
-claimed as green. The NATS issue closeout does not mark the separate Identity
-and Programme metrics work complete.
+started before the Platform contract-registry mirror was synchronized. It
+failed at the generic source-mirror audit before the registry test step,
+reporting four Identity/Programme handler-file differences and the stale
+Platform registry copy. The latter was corrected later in Platform commit
+[deb0d0e](https://github.com/myota-platform/myota-platform/commit/deb0d0e6c22bfd32ce8c8160e5f0d21f332d155d).
+A fresh direct mirror audit after that update still reports only the four
+Identity/Programme handler-file differences; the Contracts workflow has not
+been rerun since the Platform sync. The focused registry suite (7/7) and
+workspace event-source audit were run directly and passed. Platform run
+[38171688089](https://github.com/myota-platform/myota-platform/actions/runs/38171688089)
+passed its test job but failed Ruff formatting in `services/identity.py`.
+These are recorded; full cross-repository CI is not claimed as green. The
+NATS issue closeout does not mark the separate Identity and Programme metrics
+work complete.
 
 The owner explicitly deferred off-node recovery for the current single-node
 scope. The disposable same-node PVC restore/replay drill passed; node-loss,

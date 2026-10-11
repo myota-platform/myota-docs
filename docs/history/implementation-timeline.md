@@ -1169,10 +1169,14 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
   measured 30-day production qualification. No production event traffic is
   inferred from the zero current stream backlog. Six unresolved Geo DLQ
   records remain untouched.
-- **CI caveat:** Contract CI run 38171573878 still stops at the unrelated
-  Identity/Programme runtime-mirror audit. Platform run 38171688089 passed its
-  test job but failed Ruff formatting for `services/identity.py`. These
-  failures are recorded without claiming full repository CI success.
+- **CI caveat:** Contract CI run 38171573878 stopped at the mirror audit and
+  reported Identity/Programme handler drift plus the Platform registry copy.
+  The registry copy was synchronized afterward in Platform commit deb0d0e;
+  a fresh direct audit now reports only the Identity/Programme handler drift,
+  but the Contracts workflow has not been rerun after that sync. Platform run
+  38171688089 passed its test job but failed Ruff formatting for
+  `services/identity.py`. These results are recorded without claiming full
+  repository CI success.
 - Detailed issue mapping and runtime values are in the
   [NATS readiness closeout](../operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md);
   the [current system snapshot](../architecture/current-state.md) carries the
