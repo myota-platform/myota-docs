@@ -58,15 +58,13 @@ proof that production has deployed it.
   K3s/PostgreSQL/NATS verification exercised commit-success/ack-loss, poison
   redrive, duplicate processing, and graceful shutdown. The runbook is
   `myota-docs/docs/operations/messaging/activity-notification-consumer.md`.
-- **Current boundaries after Phase 4:** `MYOTA_EVENTS` remains file-backed
-  with Interest retention and the same two subject captures. Geodata's four
-  work durables and all producer paths remain unchanged. Phase 4 moved the six
-  selected Activity job types to `MYOTA_ACTIVITY_WORK`; no selected production
-  jobs were present at cutover, and no live handler execution is claimed.
-  Phase 5 Geodata work migration and the eventual fact-stream retention
-  cutover remain open. Fleet reports the deploy bundle Ready at
-  `480c2031589e4947ecef6ba8940b54e60af77ed1`, and Helm revision 181 is deployed.
-  See the [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md).
+- **Historical boundary at this snapshot (10 October, before Phases 5–6):**
+  `MYOTA_EVENTS` remained Interest-retained with two subject captures, while
+  Phase 4 had moved the six selected Activity job types to
+  `MYOTA_ACTIVITY_WORK`. No selected production jobs were present at cutover,
+  so live handler execution was not claimed. This dated snapshot's open items
+  were closed in Phases 5–6; see the [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md)
+  and the latest deployment state below.
 
 ### Phase 5 consumer and production snapshot — 10 October 2026 (superseded by the immutable-image update below)
 
@@ -788,11 +786,14 @@ purged or redriven by this retention change.
 The migration ran through the Deploy-owned guarded Helm pre-upgrade hook. It
 changed only the exact empty legacy `MYOTA_EVENTS` configuration after
 validating the single drained Activity notification durable. The four legacy
-Geodata durables had already been retired by Phase 5. The one-time migration
-flag is disabled after cutover; the all-topology drift validation hook remains
-enabled. Operations continues read-only metadata inspection. Existing NATS
-Surveyor dashboards and alerts remain in use; Phase 6 added no metrics,
-shadow traffic, or canary work.
+Geodata durables had already been retired by Phase 5. Helm revision 211 disabled
+the one-time migration flag; current Helm revision 213 is deployed with that
+flag off and all-topology drift validation enabled. MyOTA Fleet is Ready=True
+at Deploy main commit
+`de01650e19b88bc99a11ede1f25694202c8c8d17`; all MyOTA Deployments have their
+desired replicas ready. Operations continues read-only metadata inspection.
+Existing NATS Surveyor dashboards and alerts remain in use; Phase 6 added no
+metrics, shadow traffic, or canary work.
 
 See the [Phase 6 cutover evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md)
 and [migration plan](nats-event-migration-plan.md). Historical inventory
