@@ -26,12 +26,14 @@ describe current ownership and are authoritative for the present-day system.
   [Phase 4](../observability/prompts/logging-phase-4-workers-nats.md),
   and [Phase 5](../observability/prompts/logging-phase-5-grafana-correlation.md)
   prompts; Phase 6 and 7 acceptance requirements were reviewed.
-- **Follow-up prompt used:** “Continue with the implementation of phase 3, decide
-  any blocker based on best criteria and established best practices, verify exit
-  conditions.” Work then proceeded through the remaining prompt chain; the latest
-  execution prompt was “Implement observability as per
-  `logging-implementation.md`, iteratively phase-by-phase, mark verified tasks,
-  document evidence, and update all relevant documentation.”
+- **Follow-up prompts used:** “Continue with the implementation of phase 3,
+  decide any blocker based on best criteria and established best practices,
+  verify exit conditions.” The latest prompt for this work was: “Implement
+  observability as per
+  https://github.com/myota-platform/myota-docs/blob/main/docs/observability/logging-implementation.md.
+  Usual iterative approach, take decisions autonomously, proceed phase-by-phase,
+  check off individual tasks and deliverables (change to checkmarks) and document
+  all evidence. Update all relevant documentation.”
 - **Implementation and decision:** fixed the four service runner entrypoints
   that bypassed shared logging initialization, published and deployed their
   successful CI image digests, and confirmed all application/worker replicas
