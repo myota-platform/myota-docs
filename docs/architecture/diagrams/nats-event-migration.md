@@ -1,6 +1,6 @@
 # NATS event and work topology
 
-The diagrams distinguish the Phase 0–5 historical states from the Phase 6
+The diagrams distinguish historical rollout snapshots from the Phase 6
 live topology. The lower current-state diagrams are grounded in the live
 read-only K3s checks recorded in the
 [Phase 6 evidence](../../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md).
@@ -8,13 +8,14 @@ See the [migration plan](../../operations/messaging/nats-event-migration-plan.md
 [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md), and the [recovery runbook](../../operations/messaging/jetstream-recovery.md).
 
-## Current deployed topology — Phase 6 fact-stream cutover, Helm 210
+## Current deployed topology — Phase 6 cutover, Helm 211
 
 The direct cutover changed `MYOTA_EVENTS` to Limits retention and removed
 the legacy Geodata subject capture after an empty-stream preflight. Helm 211
-disables the one-time migration flag while retaining topology drift validation;
-record its latest Fleet Ready=True result in the Phase 6 evidence. The four
-Phase 5 Geodata legacy durables are already retired.
+disables the one-time migration flag while retaining topology drift validation.
+The MyOTA Fleet bundle is Ready=True on Deploy commit
+`16af2edf6b8e868904f9284e481d971ae7d6d38c`. The four legacy Geodata
+durables retired during Phase 5 remain absent.
 
 ```mermaid
 flowchart LR
@@ -23,7 +24,7 @@ flowchart LR
     A[Activity outbox and activity_job]
     G[Geodata outbox and recovery rows]
   end
-  subgraph DEPLOY[Deploy owner: Helm 210/211]
+  subgraph DEPLOY[Deploy owner: Helm 211]
     IMG[First-party images pinned by digest]
   end
   C --> RC[Core relay]
@@ -36,7 +37,6 @@ flowchart LR
   RA --> E
   RG --> E
   E --> N[Activity notifications<br/>activity-notifications-v1<br/>21 exact fact subjects]
-  E -. four empty rollback durables<br/>inactive until window closes .-> L[Legacy Geodata work filters]
   A --> AS[MYOTA_ACTIVITY_WORK<br/>WorkQueue, six exact durables]
   G --> GS[MYOTA_GEODATA_WORK<br/>WorkQueue, four exact durables]
   AS --> AW[Activity JetStream workers]
@@ -46,12 +46,13 @@ flowchart LR
   E -. read-only metadata .-> O[Operations observer]
 ```
 
-## Phase 2 relay behavior — deployed 10 October 2026## Phase 2 relay behavior — deployed 10 October 2026
+## Historical Phase 2 relay behavior — 10 October 2026
 
-The relay mapping is deployed to the local K3s cluster. Facts still publish to
-the Interest-retained shared stream; mapped Activity and Geodata work commands
-publish once to their disjoint WorkQueue streams. This Phase 2 view documents
-the relay path; consumer cutover status is shown in the current-topology diagram.
+This is a historical snapshot from Phase 2. At that point, facts still
+published to the Interest-retained shared stream while mapped work commands
+published to their disjoint WorkQueue streams. The live Phase 6 topology is
+shown above; do not use the historical Interest-retention annotation as current
+configuration.
 
 ```mermaid
 flowchart LR
@@ -106,17 +107,11 @@ flowchart LR
   ES -. inspect only .-> O[Operations observer]
 ```
 
-**Status after Helm revision 192 (10 October 2026):** Phases 0–4 are complete
-within their evidence bounds. Phase 5 routes Geodata work to the four exact
-`MYOTA_GEODATA_WORK` durables and has deployed migration 021, retry-safe
-partial-deletion recovery, Activity idempotency and immutable image refs.
-Fleet reports Ready=True with 60/60 resources; pod image references/IDs match
-their configured digests. The four legacy Geodata durables remain inactive and
-empty until the rollback observation ends no earlier than
-21:39:22 UTC on 11 October; retire them only after database recovery and
-backlog checks. No production work was available to process. `MYOTA_EVENTS`
-remains file-backed with Interest retention and Activity's notification
-durable remains active. Phase 6's bounded fact-stream transition is not live. The accepted cluster-internal trust
+**Historical Phase 5 snapshot (10 October 2026):** This view records Helm
+revision 192 before the final Phase 5 durable retirement and Phase 6 cutover.
+At that point, the legacy Geodata durables were awaiting retirement and
+`MYOTA_EVENTS` still used Interest retention. Those states are superseded by
+the current Phase 6 topology above. The accepted cluster-internal trust
 boundary and deferred off-node recovery remain as recorded in ADR-0008. See the
 [Phase 5 evidence](../../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
 [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md),
