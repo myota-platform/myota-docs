@@ -6,8 +6,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
 
 - [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
   — **Status:** Phases 0–6 are complete within their recorded evidence bounds.
-  Helm revision 211 is deployed; the MyOTA Fleet bundle is Ready=True on Deploy
-  main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`, and every MyOTA
+  Helm revision 213 is deployed; the MyOTA Fleet bundle is Ready=True on Deploy
+  main commit `de01650e19b88bc99a11ede1f25694202c8c8d17`, and every MyOTA
   Deployment has its desired replicas ready. `MYOTA_EVENTS` is a bounded,
   file-backed Limits fact stream with only `myota.events.>`; Activity and
   Geodata work remain on their separate WorkQueue streams. The one-time
