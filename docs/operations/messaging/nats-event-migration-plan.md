@@ -929,7 +929,7 @@ retired, cleanup, and any remaining evidence gap.
 revision 210. Helm revision 211 disabled the one-time migration flag; the
 current Helm revision 213 is deployed with the flag still disabled and
 all-topology drift validation enabled. The MyOTA Fleet bundle is
-Ready=True at Deploy main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`;
+Ready=True at Deploy main commit `de01650e19b88bc99a11ede1f25694202c8c8d17`;
 all MyOTA Deployments are ready. See the
 [Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md).
 
@@ -970,7 +970,7 @@ dashboards, alerts, runbooks, and recovery controls remain in service.
       published and the namespace was removed.
 - [x] Complete the post-cutover Helm reconciliation with the one-time migration
       flag disabled, all-topology drift validation enabled, every Deployment
-      ready, and Fleet Ready=True at the applied Deploy main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`.
+      ready, and Fleet Ready=True at the applied Deploy main commit `de01650e19b88bc99a11ede1f25694202c8c8d17`.
 
 **Exit criteria**
 
