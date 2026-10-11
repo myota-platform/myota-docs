@@ -212,18 +212,16 @@ explicit unavailable/partial/stale status, and persistent paged history. Native
 bucket counts/sizes and filesystem capacity come from the private exporter;
 no object scans or storage credentials are required by the Admin UI.
 
-**Current NATS monitoring:** the authenticated Admin UI page at `/jetstream`
-and Operations sampler read broker metadata and persist seven days of samples
-in `myota_core`. Geodata also has a separate JetStream metrics poller. These
-are current components, not the target design. The proposed
-[NATS Surveyor consolidation](nats-surveyor-migration.md) will centralize
-broker/server metrics in Prometheus and Grafana. Its planned `NATS` folder
-contains dashboard 16256 plus the ten dashboards from Surveyor's provisioning
-folder, after compatibility checks. After direct cutover checks, retire
-duplicate broker-inspection code, history, the Admin page, and the combined
-MyOTA JetStream backlog/PostGIS dashboard.
-The app-level outbox and worker metrics remain because they describe delivery
-and domain processing, which Surveyor cannot observe.
+**Current NATS monitoring:** the cluster-local NATS Surveyor exporter feeds
+Prometheus and the Grafana `NATS` folder, which contains dashboard 16256 and
+ten pinned Surveyor dashboards. Surveyor exports broker/server metrics; it
+retains no JetStream messages. Its supported metrics were verified against
+live NATS data, while route/gateway, multi-server Raft, and optional latency
+panels remain empty on the current single-server topology. The Admin
+`/jetstream` page, Operations NATS sampler/history table, Geodata broker
+poller, combined MyOTA JetStream backlog dashboard, and its two PostGIS panels
+are retired. Operations storage history, Grafana identity, and app-level outbox
+and worker metrics remain service-owned.
 
 - A missing series is not converted to a made-up value.
 - Scrape and exporter health should be checked before interpreting an empty
