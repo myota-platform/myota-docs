@@ -5,8 +5,8 @@ are live. The corrected broker limits are active, all three retired service
 paths are on replacement images, the Operations JetStream history table and
 index have been dropped by the forward migration, and storage history remains
 healthy. A temporary in-memory validation stream was observed and deleted.
-Helm revision 207 is deployed and Fleet reports Ready for Deploy main commit
-`f43d600380803e86292e7e0010bfc1655b1a5d2a`. Its bundle reports all 64 resources
+Helm revision 208 is deployed and Fleet reports Ready for Deploy main commit
+`d0d2f50846fe2c9e239d46a48809860f4b98d7f5`. Its bundle reports all 64 resources
 ready and the applied deployment ID matches the desired ID. The implementation
 and Phase 2 exit criteria are complete.
 
@@ -60,14 +60,14 @@ deployment and bootstrap mirror. Service changes belong to their owning repos:
 | Operations snapshot migration | `myota-operations-service/migrations/003_retire_jetstream_snapshots.sql` | `db/migrations/core/005_retire_jetstream_snapshots.sql` in Deploy and byte-for-byte Platform mirror |
 
 Current source commits:
-- Operations removal and CI repair: `601b9fc42013e98c8531320185b08f4fb756f940` (CI passed).
+- Operations removal and CI repair: `601b9fc42013e98c8531320185b08f4fb756f940` (CI passed). The current Operations source head is `3b4302e60105e00ebdc13fe14c5de96d8ed12af4`; its README update passed run `38098411907` and published the runtime digest recorded below.
 - Operations-owned snapshot retirement migration: `9dd93091b9abcb74fb5c047bbbd6a592edffd186` (CI passed).
 - Admin removal and stale browser assertion repair:
   `8c63f9ddc2f50091e975c836e5413e2bd6405c26` (CI passed).
 - Geodata poller removal: `2a73101a741b8325afba9cda9176be0d85003e65` (CI passed).
 - Deploy monitoring parity and bounded capacity: `2a5b96a130e6a452118be45777ba93081f4701ec` (Python and Helm checks passed).
-- Deploy migration mirror and runtime-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`; Deploy README/source head is `f43d600380803e86292e7e0010bfc1655b1a5d2a`.
-- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`, `049c6522bb3093a2a74424e9d2777d6cb6659666`, `15fc56f93586c1724cde65f3a8f674ad78aeaba2`, and `f9ba9b0619b89942633fe36b4676c1a71983a187`.
+- Deploy migration mirror and runtime-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`; Deploy main `d0d2f50846fe2c9e239d46a48809860f4b98d7f5` records Operations image digest `sha256:b50b4666919e1f4046067129abd95993d371093088ea5e5f7633fd5ced163af4`.
+- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`, `049c6522bb3093a2a74424e9d2777d6cb6659666`, `15fc56f93586c1724cde65f3a8f674ad78aeaba2`, and current main `c81033e4fe694c1d6a3dab431024d18d39ee85d6`.
 
 The first NATS config rollout rendered byte limits in scientific notation.
 NATS rejected the replacement before starting, and the prior server stayed
@@ -80,7 +80,7 @@ logs reported the configured limits, restored the three existing streams and
 their 11 consumers, and reached Ready. Operations, Admin, and Geodata now run
 the published replacement digests. Fleet initially retained stale applied-release metadata after the direct
 recovery. Restarting the local Fleet agent and requesting one force sync let
-Fleet apply the desired bundle at revision 207; its Ready condition and all
+Fleet apply the desired bundle at revision 208; its Ready condition and all
 64/64 resource counts now agree with Deploy main.
 
 ## Dashboard compatibility
@@ -171,7 +171,7 @@ out above, and missing data is not represented as zero.
   remains outside source control. Database verification shows the table and
   history index absent while `operations_storage_snapshot` retains 6,015 rows.
 - [x] Reconcile Fleet and verify `Ready=True` for Deploy main commit
-  `f43d600380803e86292e7e0010bfc1655b1a5d2a`, Helm revision 207, matching
+  `d0d2f50846fe2c9e239d46a48809860f4b98d7f5`, Helm revision 208, matching
   applied/desired deployment IDs, and 64/64 ready resources.
 - [x] Confirm the Compose/Helm monitoring sources and migration/digest mirrors
   are synchronized between Deploy and Platform.
