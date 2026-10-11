@@ -294,7 +294,8 @@ Deliverables:
 - [x] lifecycle logs for Activity work and notification consumers;
 - [x] lifecycle logs for Geodata import processing;
 - [x] lifecycle logs for Identity maintenance and Deploy outbox relay;
-- [x] NATS consumer/producer spans and W3C header propagation helpers, with focused helper tests;
+- [x] NATS consumer/producer spans and W3C header propagation helpers, with
+  focused helper tests;
 - [x] Activity ADIF retention lifecycle logs;
 - [ ] Geodata import-retention source-owner coverage and validation;
 - [ ] deployed-worker retry/ACK and asynchronous end-to-end correlation acceptance;
@@ -338,12 +339,14 @@ reserved for discrete exceptional events such as:
 
 Deliverables:
 
-- [ ] production retention settings;
-- [ ] storage sizing notes and capacity signals;
+- [x] production 14-day Loki compactor retention configuration;
+- [x] storage sizing/measurement procedure in the [runbook](logging-runbook.md);
+- [ ] measured ingestion, object-store growth, and evidence-based capacity triggers;
 - [ ] log cardinality checks;
 - [ ] redaction/security tests;
 - [ ] exceptional-event alert rules;
-- [x] initial operational queries and troubleshooting runbook in [logging-runbook.md](logging-runbook.md);
+- [x] initial operational queries and troubleshooting runbook in
+  [logging-runbook.md](logging-runbook.md);
 - [ ] live ingestion, capacity, retention, and end-to-end verification;
 - [ ] Compose/Helm parity check;
 - [ ] end-to-end test: request -> trace -> log -> async worker correlation.
