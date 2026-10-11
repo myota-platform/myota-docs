@@ -28,16 +28,13 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   - **Cleanup:** Both disposable Phase 5 namespaces were deleted and verified
     absent. No production test data or broker messages were created.
 - [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md)
-  — active cutover: source retirements passed CI; Deploy/Platform have the
-  Surveyor dashboards, capacity caps, and missing-series alerts. Fleet image
-  rollout, dashboard query recheck, and the Operations history migration after
-  the verified backup gate remain. No timed overlap is required. The retired
-  combined dashboard and its two PostGIS panels will not be recreated.
-  - **Current live evidence:** Surveyor is connected and reports `nats_up=1`;
-    no test stream remains. Eleven dashboards are provisioned in folder NATS.
-  - **Pending:** Fleet must apply corrected integer capacity limits and
-    serialized NATS restart; new Admin/Operations/Geodata image rollout and
-    the Operations forward migration are not yet verified.
+  — monitoring and database retirement are live at Helm revision 206. Surveyor
+  reports the configured capacity; all eleven dashboards are in folder NATS;
+  the Admin, Operations, and Geodata replacement images are ready; migration
+  005 removed only the Operations JetStream history table/index. The backup is
+  preserved and storage history remains healthy. **Open gate:** Fleet reports
+  `WaitApplied(1)` and stale applied-release metadata; reconcile Fleet before
+  closing Phase 2. The temporary in-memory stream and pod have been removed.
 
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
