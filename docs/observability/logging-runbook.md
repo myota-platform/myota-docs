@@ -155,7 +155,7 @@ Before re-enabling the receiver:
    check in Compose before marking parity complete.
 
 The dashboard is
-[`myota-postgresql-postgis.json`](../../../myota-deploy/blob/main/observability/grafana/dashboards/myota-postgresql-postgis.json).
+[`myota-postgresql-postgis.json`](https://github.com/myota-platform/myota-deploy/blob/main/observability/grafana/dashboards/myota-postgresql-postgis.json).
 It includes core connection/size/transaction panels and the existing bounded
 Geodata PostGIS query-duration histogram. Empty database panels are expected
 until the receiver is accepted.
