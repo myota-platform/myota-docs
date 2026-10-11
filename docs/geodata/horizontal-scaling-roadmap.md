@@ -452,8 +452,10 @@ See the [Phase 3 evidence](evidence/phase3-bounded-preprocessing-2026-10-09.md).
 
 The bounded Phase 4 infrastructure gate is complete for the Spainip single-node
 K3s deployment. It permits only the recorded two-to-three API-pod envelope;
-Phase 5 still owns performance, node/storage failure, rollback, and broader
-capacity qualification. The [write-fenced migration/rollout
+Phase 5 covered performance, node/storage failure, rollback, and broader
+capacity qualification. The project owner closed that phase by accepting its
+remaining unverified gates; this acceptance does not qualify capacity beyond
+the tested replica range. The [write-fenced migration/rollout
 procedure](phase1-relational-authority.md#migration-and-rollout) remains
 mandatory for future schema changes.
 

@@ -102,9 +102,11 @@ Geodata persistence no longer writes whole service snapshots. Follow the
 when updating API and worker images; obsolete writers are rejected instead of
 overwriting current rows. The Phase 4 evidence permits only the charted
 geodata API range of two to three replicas on the current cluster; it does not
-authorize broader changes. Keep replica counts unchanged outside an explicitly
-approved rollout until Phase 5 capacity/failure gates pass. See the
-[Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
+authorize broader changes. Keep Geodata API replicas within the evidenced two-to-three range. Phase 5
+was closed by owner acceptance, which did not qualify higher replica counts or
+stateful failure. Reopen the relevant evidence gates before expanding this
+range or changing stateful topology. See the [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md)
+and [Phase 5 closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md).
 
 For broker troubleshooting, the authenticated Admin `/jetstream` page and
 [status/history API](messaging/jetstream-admin-status.md) are the current

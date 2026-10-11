@@ -58,12 +58,12 @@ duplicate/lost processing if upload handoff, worker checkpoints, and recovery
 are not proven. This is the clearest explicitly stated rollout gate in the
 current backlog.
 
-**Next:** keep the Phase 2/3/4/5 bounded evidence linked to the deployed
-components; investigate same-row lock waits and verify independent-row writes;
-complete Phase 5's broader capacity, node/storage-failure, canary and rollback
-gates before expansion beyond the charted two-to-three API range; and rerun
-Phase 2's digest-pinned recovery job when the deployed SeaweedFS image changes.
-Coordinate with the NATS and observability work below.
+**Next:** retain the bounded Phase 2–5 evidence with the deployed components;
+reopen and complete the owner-accepted broad-capacity, independent-write,
+node/storage-failure, canary, and rollback gates before expanding beyond the
+tested two-to-three API range. Rerun Phase 2's digest-pinned recovery job when
+the deployed SeaweedFS image changes. Coordinate with the NATS and observability
+work below.
 
 See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md),
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),

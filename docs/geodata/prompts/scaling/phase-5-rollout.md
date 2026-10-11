@@ -1,5 +1,14 @@
 # Phase 5 prompt — staged rollout and operational proof
 
+**Historical prompt:** Phase 5 was closed on 11 October 2026 by owner
+acceptance of remaining qualification risk. This prompt records the work
+request used for that phase; it is not current authorization to run production
+tests. The [closure decision](../../evidence/phase5-owner-acceptance-2026-10-11.md)
+and [dated evidence](../../evidence/phase5-read-only-follow-up-2026-10-11.md)
+state which criteria were verified and which were accepted without empirical
+verification. Reopen the relevant gates before expanding beyond the tested
+replica range.
+
 Copy the prompt below into a coding task with the MyOTA repositories available.
 
 ---
@@ -22,7 +31,7 @@ instrumentation work while leaving the dependent rollout gate open.
 
 Build and execute a staged qualification plan using the current provisional
 production deployment on `spainip.es` (`https://api.myota.top`) as the required
-load/performance target. The operator has authorized bounded tests on this
+load/performance target. When this historical prompt was issued, the operator authorized bounded tests on this
 cluster and cleanup of their exact tagged data. Run one bounded profile at a
 time, preserve explicit production opt-ins, exact host allowlists, the
 dedicated test account, and successful exact-tag cleanup. These results qualify
