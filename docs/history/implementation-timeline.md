@@ -1299,3 +1299,23 @@ capacity, trust-boundary, recovery, and production-cutover decisions.
   [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md)
   and updated the [monitoring roadmap](../observability/nats-surveyor-migration.md)
   and [observability architecture](../architecture/diagrams/observability-architecture.md).
+
+## 11 October 2026 — Phase 7 database observability increment
+
+- **Prompt used:** “Implement observability as per
+  https://github.com/myota-platform/myota-docs/blob/main/docs/observability/logging-implementation.md.
+  Usual iterative approach, take decisions autonomously, proceed phase-by-phase,
+  check off individual tasks and deliverables (change to checkmarks) and document
+  all evidence. Update all relevant documentation.”
+- Added the external-secret-backed monitor-role path, bounded PostgreSQL
+  receiver configuration, and six-panel database dashboard in Deploy; Platform
+  carries synchronized mirrors. Checked the monitor credentials through
+  read-only queries to `pg_stat_database` across the three databases.
+- The Collector receiver failed authentication with those same Secrets in both
+  the live and disposable diagnostic Collector, while `psql` succeeded.
+  Disabled the receiver pipeline to stop repeated failures. The deployed
+  dashboard file parses, but its database data panels are not accepted.
+- All Deployments report Ready. Helm revision 231 is pending final Fleet
+  reconciliation. Phase 7 remains open; see the
+  [evidence](../observability/evidence/logging-implementation-2026-10-11.md)
+  and [plan](../observability/logging-implementation.md).
