@@ -85,6 +85,23 @@ and the [administration workflows index](../domain/administration/README.md).
 
 ## P1 — close identified operational visibility gaps
 
+### Structured logging and database observability acceptance
+
+**Current evidence:** Phase 1–5 source/configuration changes exist on main and the
+Loki/Collector workloads are Ready in K3s. Latest Deploy Python quality and image
+build runs passed. The running service digests still predate the latest worker
+logging changes, and no live request-to-worker trace/log proof is recorded.
+Phase 6 capacity, retention, alert, and runbook gates remain open; Phase 7
+PostgreSQL/PostGIS telemetry has not been implemented. See the
+[logging implementation plan](../observability/logging-implementation.md) and
+[11 October evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+
+**Recommended next work:** complete safe runtime rollout and Phase 7 with a
+separate `pg_monitor` login before closing Phase 6. Keep this ahead of optional
+observability polish; do not enable a database receiver with app/superuser
+credentials or infer capacity limits from an empty/short observation window.
+
+
 ### 3. Restore Identity and Programme metrics coverage
 
 **Current evidence:** the observability page records HTTP 404 responses from
