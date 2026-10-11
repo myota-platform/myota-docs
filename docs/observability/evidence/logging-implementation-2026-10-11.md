@@ -74,6 +74,11 @@ rolled out.
   Operations logs only. Identity trace-to-log acceptance therefore failed and
   remains open. The temporary port-forwards were stopped; no database/business
   rows or other test data were created.
+- Loki's live `/loki/api/v1/labels` endpoint returned only
+  `deployment_environment`, `service_name`, and
+  `service_namespace`. This confirms a low-cardinality label *name set*;
+  it does not prove that no prohibited identifier exists in log bodies or that
+  future traffic cardinality is bounded.
 - Geodata's latest image publication workflow
   [38103448580](https://github.com/myota-platform/myota-geodata-service/actions/runs/38103448580)
   failed because its relational-boundary job reports seven JetStream worker
@@ -136,6 +141,9 @@ qualified. Existing Geodata PostGIS query-duration metrics remain the direct
 application-owned spatial workload signal. Use the Operations service only for
 bounded PostGIS signals that lack a supported direct integration, preserving
 its read-only adapter boundary.
+
+The receiver assessment follows the pinned [Collector contrib v0.135.0
+PostgreSQL receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.135.0/receiver/postgresqlreceiver/documentation.md).
 
 Required follow-up implementation and evidence:
 
