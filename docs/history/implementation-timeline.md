@@ -31,7 +31,9 @@ describe current ownership and are authoritative for the present-day system.
   single-node stateful failure tests remain unsafe on this host.
 - **Harness verification:** 18/18 local Node tests passed for the new
   independent-edits setup, row assignment, bounds, and exact-run cleanup.
-  No release image was built or redeployed.
+  Geodata Python quality (run 108) and image build/publish (run 126) passed.
+  No runtime image was deployed because the change only touched load-test
+  tooling; the live Deployment remains on its recorded image digest.
 - See the [Phase 5 evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md)
   and [scaling roadmap](../geodata/horizontal-scaling-roadmap.md).
 
