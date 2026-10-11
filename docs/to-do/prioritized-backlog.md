@@ -1,193 +1,132 @@
 # Prioritized backlog
 
-For the latest verified deployment, completed migrations, and open gates, see [Current system state](../architecture/current-state.md). The ordering below is based on the linked roadmaps and does not replace them.
+For the latest verified deployment and workstream status, see [Current system state](../architecture/current-state.md). This page lists unfinished work only; completed milestones remain in their source plans and evidence.
 
 **Reviewed:** 2026-10-11
 
-This page orders the currently listed open work using evidence in the linked
-plans. It is a documentation-based recommendation, not a committed delivery
-schedule: no due dates, staffing, external deadlines, or production incidents
-are recorded here. The linked roadmap remains the source of detailed scope and
-checkbox progress. Revisit this ordering when owners provide delivery dates or
-new operational evidence.
+This is a recommended order, not a delivery schedule. It records no due dates,
+staffing commitments, external deadlines, or production incidents. Roadmaps own
+the detailed tasks and checkboxes. Reorder when scope, evidence, or owner
+priorities change.
 
 ## Priority guide
 
-- **P0 — unblock safe operation or expansion:** correctness, recovery,
-  authorization, or governance gates that should close before the affected
-  production capability is expanded or relied upon.
-- **P1 — near-term operational or product foundation:** close an identified
-  cross-service gap or establish foundations needed by later work.
+- **P0 — before the affected capability is expanded or relied upon:** correctness,
+  recovery, authorization, or governance gates.
+- **P1 — operational visibility or product foundations:** close known service
+  gaps and foundations needed by later work.
 - **P2 — planned capability or cleanup:** valuable work without a documented
-  current production blocker; sequence behind higher-risk gates and its
-  prerequisites.
+  current production blocker.
 
-## P0 — close before the affected rollout or capability expansion
+## P0 — before expansion or dependent implementation
 
-### 1. Qualify geodata upload and worker recovery before scaling
+### 1. Reopen Geodata qualification before expanding capacity
 
-**Current evidence:** Phase 2 API/session recovery across API and SeaweedFS
-container restarts passed in isolated CI against the exact SeaweedFS image ID
-observed in the K3s deployment; see the [Phase 2 evidence record](../geodata/evidence/phase2-upload-recovery-2026-10-09.md).
-Phase 3 is now closed against its documented 16 MiB/250,000-vertex/5,000
-feature and 100-feature/32-MiB checkpoint bounds. XML and OSM area guards,
-all-format/remote-response/snapshot RSS, maximum-vertex geometry, and forced
-worker death/replay at parse, checkpoint, enrichment, and promotion passed in
-an isolated disposable K3s test namespace; JetStream graceful drain and
-redelivery tests also passed. The later Phase 4 boundary test separately
-qualified only the charted API range of two to three replicas. Phase 5 has since
-demonstrated an accepted large import during same-node API replacement and an
-actual CPU-triggered HPA move from two to three, followed by automatic
-scale-down. The ten-entity read comparison showed modest p95 improvement;
-same-row edit contention exposed PostgreSQL lock waits and the two-replica p95
-missed its target. This does not establish broad capacity, multi-node failover,
-independent-row edit consistency, or rollback safety. See the [Phase 3 review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md),
-[Phase 4 report](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md),
-and [Phase 5 report](../geodata/evidence/phase5-staged-rollout-2026-10-09.md).
-Phase 5 was closed by owner acceptance on 11 October, with broad capacity,
-independent writes, node/storage failure, canary, rollback, and scaling above
-three replicas accepted without empirical verification. The 11 October
-2/10/50-VU read-only profile passed on ten entities but did not test writes or
-broad catalogue behavior; see the [closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md)
-and [read-only follow-up](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md).
-Reopen these gates before expanding beyond the currently tested replica range.
-The measured Phase 0 baseline is useful but does not establish broader capacity.
+**Current position:** The tested deployment envelope is two to three Geodata API
+replicas. Phase 5 was closed by owner acceptance, not by passing every
+qualification test. Broad-catalogue and sustained-load performance,
+independent-row write consistency, node/storage failure, a new-image canary,
+end-to-end rollback, and scaling above three replicas remain unverified and
+were accepted for closure. The 11 October 2/10/50-VU read-only run used only ten
+catalogue entities. See the [owner-acceptance decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md),
+[read-only results](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md),
+and [scaling roadmap](../geodata/horizontal-scaling-roadmap.md).
 
-**Why first:** horizontal expansion can multiply a failure mode or create
-duplicate/lost processing if upload handoff, worker checkpoints, and recovery
-are not proven. This is the clearest explicitly stated rollout gate in the
-current backlog.
+**Why P0:** These accepted gaps become release gates again before capacity is
+expanded beyond the tested envelope or the stateful topology changes.
 
-**Next:** retain the bounded Phase 2–5 evidence with the deployed components;
-reopen and complete the owner-accepted broad-capacity, independent-write,
-node/storage-failure, canary, and rollback gates before expanding beyond the
-tested two-to-three API range. Rerun Phase 2's digest-pinned recovery job when
-the deployed SeaweedFS image changes. Coordinate with the NATS and observability
-work below.
-
-See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.md),
-[Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
-and the active [Work in progress index](../work-in-progress/README.md).
+**Next:** If expansion is proposed, reopen the relevant roadmap gates and
+complete the missing measurements and recovery drills before changing the
+replica ceiling. Rerun the digest-pinned Phase 2 recovery qualification when the
+deployed SeaweedFS image changes.
 
 ### 2. Establish programme governance, jurisdiction, and eligibility controls
 
-**Current evidence:** the programme configuration gap analysis labels
-programme identity/ownership, locale/content policy, jurisdiction/approver
-scope, structured eligibility, and identity/privacy areas as P0. These are
-still unchecked in that roadmap.
+**Current position:** The configuration gap analysis remains an audit baseline;
+programme ownership/lifecycle, locale and content policy, jurisdiction and
+approver scope, structured eligibility, and identity/privacy controls remain
+unimplemented roadmap work. See the [gap analysis](../domain/programmes/configuration-gap-analysis.md).
 
-**Why third:** programme policy determines who can administer and review work,
-which entities and activities qualify, and what public rules participants
-rely on. Implementing additional programme self-service without versioned
-ownership, jurisdiction, and eligibility policy risks inconsistent decisions
-across programmes.
+**Why P0:** These policies determine who may administer and review programmes,
+which places and activities qualify, and which published rules participants
+rely on.
 
-**Next:** start with ownership/lifecycle and audit semantics, then stable
-jurisdiction codes and scoped approver decisions, followed by versioned
-eligibility rules and publication snapshots. Confirm authorization boundaries
-with the owning services before exposing controls in Admin UI. Treat programme
-locale/content policy as a separate dependent track; it is distinct from the
-admin interface translation roadmap.
-
-See [Programme configuration gap analysis](../domain/programmes/configuration-gap-analysis.md)
-and the [administration workflows index](../domain/administration/README.md).
+**Next:** Define ownership and audit semantics, stable jurisdiction codes and
+scoped approver decisions, versioned eligibility rules, and publication
+snapshots. Keep locale/content policy as a dependent but separately scoped
+track. Confirm service ownership and authorization boundaries before adding
+Admin UI controls.
 
 ## P1 — close identified operational visibility gaps
 
-### Structured logging and database observability acceptance
+### 3. Complete logging acceptance
 
-**Current evidence:** Helm revision 242 is pending-upgrade while all Deployments are Ready; Fleet still reports revision 241 with 67/67 Fleet resources
-ready. The Operations fallback samples the three databases using a read-only
-non-superuser role; Prometheus shows all three up and bounded connection, size,
-transaction, deadlock, and PostGIS presence metrics. Psycopg spans are live and
-Collector processing removes SQL attributes before Tempo. The dashboard now
-reads these active metrics. Remaining acceptance is a stable Helm/Fleet release state, authenticated
-Grafana navigation, a live request-to-worker correlation check, a Loki
-prohibited-field audit, and full Compose runtime parity. The current Loki growth sample is
-short and does not establish a production rate. See the
-[plan](../observability/logging-implementation.md),
-[evidence](../observability/evidence/logging-implementation-2026-10-11.md),
-and [runbook](../observability/logging-runbook.md).
+**Current position:** Helm revision 246 is deployed, Fleet reports 67/67
+resources Ready, and 23/23 MyOTA Deployments were Ready at the latest read-only
+check. Release-state reconciliation is complete. Four logging acceptance items
+remain: authenticated Grafana log/trace navigation, representative
+request-to-worker correlation, a representative Loki prohibited-field and
+cardinality review, and full Compose runtime parity. See the
+[logging roadmap](../observability/logging-implementation.md) and
+[current evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+The older revision 241/242 discrepancy in that dated evidence is historical;
+use the [current-state snapshot](../architecture/current-state.md) for live
+release status.
 
-**Recommended next work:** close the five remaining acceptance checks against
-the deployed images, then update the implementation roadmap and this backlog
-from the recorded results.
-### 3. Restore Identity and Programme metrics coverage
+**Next:** Close the four remaining acceptance items and update the logging
+roadmap from their recorded evidence. Do not infer full workflow correlation
+where producer outbox rows did not retain the initiating HTTP correlation ID.
 
-**Current evidence:** the observability page records HTTP 404 responses from
-the configured Identity and Programme `/metrics` targets and Prometheus
-`up=0` for both. It explicitly says this is a metrics coverage gap, not proof
-that either service API is down.
+### 4. Restore Identity and Programme metrics coverage
 
-**Why here:** missing service/request series weaken diagnosis and alerting
-during production incidents. This should be fixed and verified before relying
-on fleet-wide service metrics, while keeping the distinction between
-observability and application availability clear.
+**Current position:** Identity and Programme metrics coverage remains an open
+gap in the current-state snapshot and observability roadmap. This describes
+missing telemetry coverage, not proof that either service API is unavailable.
+See [current observability status](../observability/overview.md#live-k3s-verification-and-known-gap)
+and the [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 
-**Next:** align each service's actual metrics endpoint/transport with scrape
-configuration, then verify non-404 responses, live series, and dashboard
+**Next:** Align each service's metrics endpoint with its scrape configuration,
+then verify non-error responses, live service/request series, and dashboard
 coverage from the running cluster.
 
-See [Observability live verification and known gap](../observability/overview.md#live-k3s-verification-and-known-gap)
-and the [observability evidence](../observability/evidence/2026-10-09.md).
+## P2 — planned capability after higher-priority work
 
-## P2 — sequence after the rollout and operational gates
+### 5. Define the typed future award-condition model
 
-### 4. Define the typed future award-condition model
+**Current position:** This is a proposed capability. Its roadmap leaves the
+semantic and evidence decisions open; later implementation depends on reliable
+worked-entity resolution and versioned geodata/reference evidence.
 
-**Current evidence:** the roadmap proposes POTA-like activation, worked-entity,
-Maidenhead, geographic, milestone, and MyOTA-specific diversity conditions.
-Its Phase 0 still needs evidence and semantic decisions; later phases depend
-on reliable worked-entity resolution and versioned geodata/reference evidence.
+**Next:** Complete the roadmap's Phase 0 evidence and definitions, then decide
+which reference-data and QSO-resolution work must precede evaluator
+implementation. See the [award-condition roadmap](../domain/awards/future-condition-model-roadmap.md).
 
-**Why here:** it is a substantial product capability with data-provenance and
-recalculation dependencies. Agree on the condition semantics and evidence
-contracts early, but sequence broad evaluator/UI implementation behind the
-relevant Activity and Geodata prerequisites.
+### 6. Establish Admin UI internationalization
 
-**Next:** complete Phase 0 evidence and definitions, then decide which reference
-data and QSO-resolution work must precede evaluator implementation.
+**Current position:** The proposed roadmap has no completed phases. Locale and
+string inventory should precede translation catalogs or screen migration.
 
-See [Future award-condition model and implementation roadmap](../domain/awards/future-condition-model-roadmap.md).
+**Next:** Choose the source and supported locales, fallback behavior,
+persistence, and translation-review ownership. See the
+[internationalization roadmap](../domain/administration/i18n-roadmap.md).
 
-### 5. Complete the admin UI internationalization foundation and translations
+### 7. Address longer-term programme and charter gaps
 
-**Current evidence:** the roadmap is proposed and all phases are unchecked. It
-calls for locale policy and inventory before introducing translation catalogs
-or migrating screens.
+**Current position:** The charter gap analysis is a baseline, not a set of
+completed deliverables. Product, governance, interoperability, open-data,
+community, and launch gaps remain; programme configuration items classified
+P0 are tracked separately above.
 
-**Why here:** this improves usability and maintainability but no current
-operational or release blocker is documented. Its discovery phase can be
-scheduled independently; bulk UI migration should follow an agreed language
-and review policy.
+**Next:** Split accepted charter findings into deliverable roadmaps with
+dependencies, measurable outcomes, and review dates. See the
+[charter gap analysis](../governance/charter-gap-analysis.md).
 
-**Next:** complete the locale/string inventory and choose the source locale,
-supported locales, fallback, persistence, and translation review ownership.
+## Reprioritization
 
-See [Admin UI internationalization roadmap](../domain/administration/i18n-roadmap.md).
-
-### 6. Address longer-term programme and charter gaps
-
-**Current evidence:** the charter gap analysis describes longer-term product,
-governance, interoperability, and production-readiness work. Detailed
-programme gaps not classified as P0 in their own roadmap also remain.
-
-**Why here:** these items matter to product maturity, but their scope needs
-owner decisions and prioritization against the concrete operational gates
-above. Some programme-configuration subsections already labeled P0 are ranked
-separately at item 3 and should not be deferred with this broader group.
-
-**Next:** assign owners and split accepted charter findings into deliverable
-roadmaps with dependencies, measurable outcomes, and review dates.
-
-See [Charter delivery gaps](../governance/charter-gap-analysis.md) and
-[Programme configuration gap analysis](../domain/programmes/configuration-gap-analysis.md).
-
-## Reprioritization notes
-
-- Move an item up if an owner identifies a dated launch, compliance, security,
-  or reliability dependency; record the evidence and date in the source plan.
-- Keep rollout gates attached to the capability they qualify. For example,
-  geodata recovery evidence blocks scale expansion even if other work proceeds.
-- The priority here ranks the seven remaining entries in the To do index. Active evidence
-  and gates remain discoverable in the [Work in progress index](../work-in-progress/README.md).
+- Raise an item when an owner identifies a dated launch, compliance, security,
+  or reliability dependency, and record the supporting evidence in its source
+  plan.
+- Keep rollout gates tied to the capability they qualify. In particular,
+  reopen Geodata's accepted qualification gaps before capacity expansion.
+- The Work in progress index tracks active delivery; this backlog records
+  unfinished work that is not necessarily in progress.
