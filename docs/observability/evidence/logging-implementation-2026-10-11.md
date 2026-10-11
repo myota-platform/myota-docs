@@ -187,11 +187,11 @@ added, but PostgreSQL receiver metrics are not currently collected.
   existing Geodata application-owned PostGIS query histogram remains a separate
   available signal.
 - After receiver removal, the Collector Deployment was Ready 1/1 and its recent
-  log window had no PostgreSQL receiver errors. All other Deployments were
-  Ready 1/1. Helm revision 231 remained pending in the Helm CLI while Fleet
-  reported its prior release Ready and the current source bundle as
-  `WaitApplied` (67 ready, 0 not ready); final controller reconciliation is
-  not confirmed.
+  log window had no PostgreSQL receiver errors. All Deployments were Ready 1/1.
+  Helm revision 231 is deployed and the last Fleet-applied release reports Ready.
+  A subsequent forced resync is Helm revision 232, still `pending-upgrade`.
+  Fleet reports the current source bundle as `WaitApplied` with 67/67 resources
+  ready and 0 not ready; final controller reconciliation is not confirmed.
 - Temporary diagnostic Jobs were deleted after the checks. The ephemeral
   debug pod was deleted and its Deployment replacement became Ready. No
   database test data was created.
