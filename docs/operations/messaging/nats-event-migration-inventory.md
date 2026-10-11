@@ -763,3 +763,38 @@ These checkboxes record completion of the Phase 0 inventory and decision
 criteria only. Later phase implementation and evidence are tracked in the
 migration plan and phase reports; the baseline inventories and the newer live
 status above are time-qualified, not interchangeable.
+
+
+## Phase 6 live topology update — 11 October 2026
+
+This section supersedes Phase 0/current-state descriptions above for the
+shared fact stream and retired Geodata work durables. The event/producer matrix
+remains the evidence-backed inventory; this dated appendix records the
+post-cutover deployment state.
+
+| Stream | Live capture | Retention/storage | Live capacity | Durables |
+|---|---|---|---|---|
+| `MYOTA_EVENTS` | `myota.events.>` | Limits, file, one replica, `DiscardNew` | 30 days; 1 GiB, 500,000 messages, 1 MiB/message | Activity notifications only; exact 21 registered filters |
+| `MYOTA_ACTIVITY_WORK` | `myota.work.activity.>` | WorkQueue, file, one replica, `DiscardNew` | 30 days; 1 GiB, 250,000 messages, 1 MiB/message | Six registered Activity work durables |
+| `MYOTA_GEODATA_WORK` | `myota.work.geodata.>` | WorkQueue, file, one replica, `DiscardNew` | 30 days; 3 GiB, 500,000 messages, 1 MiB/message | Four registered Geodata work durables |
+
+At the Phase 6 preflight, all three physical-database outboxes had zero
+unpublished rows and the fact stream had zero messages and bytes. All consumer
+pending, ack-pending, and redelivery counts were zero. The Geodata owner
+database retained six unresolved application DLQ records (three each for
+`geodata.import.queued.v1` and `geodata.import.recovered.v1`); they were not
+purged or redriven by this retention change.
+
+The migration ran through the Deploy-owned guarded Helm pre-upgrade hook. It
+changed only the exact empty legacy `MYOTA_EVENTS` configuration after
+validating the single drained Activity notification durable. The four legacy
+Geodata durables had already been retired by Phase 5. The one-time migration
+flag is disabled after cutover; the all-topology drift validation hook remains
+enabled. Operations continues read-only metadata inspection. Existing NATS
+Surveyor dashboards and alerts remain in use; Phase 6 added no metrics,
+shadow traffic, or canary work.
+
+See the [Phase 6 cutover evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md)
+and [migration plan](nats-event-migration-plan.md). Historical inventory
+statements are snapshots of their explicitly dated Phase 0–5 evidence and
+should not be read as the post-Phase-6 live state.
