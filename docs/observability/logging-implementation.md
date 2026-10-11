@@ -249,8 +249,9 @@ Implementation prompt:
 
 ### Phase 3 - HTTP request logging and distributed trace propagation
 
-Instrument the common HTTP path with one completion log per request and proper W3C
-trace-context extraction/injection.
+Instrument the common HTTP path with completion logs for failed requests only
+(4xx and 5xx), alongside proper W3C trace-context extraction/injection. Successful
+requests remain visible in metrics and traces without a completion log.
 
 Deliverables:
 
@@ -260,7 +261,8 @@ Deliverables:
 - [x] W3C `traceparent` / `tracestate` handling;
 - [x] consistent server spans rather than isolated manual spans;
 - [x] error classification without leaking request bodies;
-- [x] tests for 2xx, 4xx, 5xx and propagated trace context;
+- [x] tests confirming no completion log for 2xx, logs for 4xx/5xx, and
+  propagated trace context;
 - [x] live Identity `/healthz` request produced a matching Loki log record and Tempo trace.
 
 Implementation prompt:
@@ -297,7 +299,6 @@ Standard messaging fields should include `messaging.system=nats`, destination,
 message/event ID, operation, and delivery attempt where available.
 
 Deliverables:
-
 - [x] lifecycle logs for Activity work and notification consumers;
 - [x] lifecycle logs for Geodata import processing;
 - [x] lifecycle logs for Identity maintenance and Deploy outbox relay;

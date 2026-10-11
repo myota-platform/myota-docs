@@ -22,7 +22,9 @@ Requirements:
    Trace Context extraction/injection using traceparent and tracestate.
 2. Preserve X-Request-ID and X-Correlation-ID behavior. Generate them when absent
    and return them in responses.
-3. Emit one structured http.request.completed record per handled request.
+3. Emit a structured http.request.completed record only for failed
+   responses (status 400 or higher); successful responses must not emit this log.
+   Keep metrics and traces for all requests.
 4. Include normalized http.route, method, response status, duration_ms,
    request_id, correlation_id, trace_id and span_id.
 5. Do not use raw URL paths containing identifiers as bounded route dimensions.
@@ -35,8 +37,8 @@ Requirements:
 10. Ensure outgoing service-to-service requests propagate trace context and
     correlation ID where applicable.
 11. Add tests for newly generated IDs, preserved incoming IDs, route
-    normalization, traceparent continuation, 2xx/4xx/5xx completion logs and
-    absence of secrets.
+    normalization, traceparent continuation, absence of 2xx completion logs,
+    4xx/5xx completion logs, and absence of secrets.
 12. Run each affected repository's tests/quality checks and document evidence.
 
 Do not implement NATS/JetStream context propagation in this phase; that belongs to
