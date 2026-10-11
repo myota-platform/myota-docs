@@ -343,7 +343,8 @@ Deliverables:
 - [ ] log cardinality checks;
 - [ ] redaction/security tests;
 - [ ] exceptional-event alert rules;
-- [ ] verification/runbook updates;
+- [x] initial operational queries and troubleshooting runbook in [logging-runbook.md](logging-runbook.md);
+- [ ] live ingestion, capacity, retention, and end-to-end verification;
 - [ ] Compose/Helm parity check;
 - [ ] end-to-end test: request -> trace -> log -> async worker correlation.
 
