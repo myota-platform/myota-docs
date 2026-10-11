@@ -8,16 +8,17 @@
   1 GiB memory cap and 15-day Prometheus retention are active.
 - The Admin NATS page, Operations broker sampler/API, and Geodata duplicate
   poller are retired in their owning images. Operations migration 003 is
-  mirrored as Deploy/Platform core migration 005; Helm revision 206 applied it.
+  mirrored as Deploy/Platform core migration 005; Helm revision 207 applied it.
   The snapshot table/index are absent; the storage history table and verified
   external backup remain.
 - A memory-only validation stream received one synthetic message and appeared
   in Surveyor metrics. The stream and temporary pod were removed. Grafana lists
   eleven dashboards in folder `NATS`; the old JetStream backlog and PostGIS
   dashboards are absent, and their two PostGIS panels were not recreated.
-- Fleet still reports `WaitApplied(1)` and stale applied-release metadata even
-  though Helm revision 206 and all MyOTA workloads are healthy. Resolve this
-  GitOps gate before marking Phase 2 complete. See the
+- After restarting the local Fleet agent and issuing one force sync, Fleet
+  reports Ready=True at Deploy main commit
+  `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`, with 64/64 resources ready and
+  applied/desired IDs matching. Phase 2 is complete. See the
   [monitoring roadmap](docs/observability/nats-surveyor-migration.md) and
   [evidence record](docs/observability/evidence/2026-10-11-nats-surveyor-cutover.md).
 
