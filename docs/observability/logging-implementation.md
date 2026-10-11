@@ -1,11 +1,15 @@
-Status: source, configuration, and logging images are implemented. The
-read-only K3s reconciliation on 11 October 2026 found Helm revision 246
-deployed and Fleet Ready with 67/67 resources at Deploy main commit
-`f7d2e65edd5248d70376cf99ccc98c836b7f95e3`; 23/23 MyOTA Deployments were
-Ready. This reconciles older revision numbers in dated evidence below.
-Authenticated Grafana navigation, initiating HTTP-to-worker correlation, Loki
-prohibited-field/cardinality review, full Compose runtime parity, and complete
-Identity/Programme metrics coverage remain open.
+Status: Source and deployment changes for structured logging and bounded
+request correlation are implemented. As of 11 October 2026 21:15 UTC, Helm
+revision 259 is deployed from Deploy main
+`cd13e2ce8396025c84b89eb4e9e3c153ca5a8489`; Fleet reports the GitRepo and
+MyOTA bundle ready, with 23/23 Deployments and 27/27 replicas Ready. The
+Activity notification worker's nats-py header handling was fixed and deployed.
+A sanitized Identity registration request reached the Activity worker with its
+original correlation ID, completed, and was ACKed. Identity issue #3 is closed.
+Authenticated Grafana navigation, Programme/Activity/Geodata producer-specific
+live correlation evidence, Loki privacy/cardinality review, alert/runbook
+acceptance, capacity/retention/recovery evidence, full Compose runtime parity,
+and Identity/Programme metrics coverage remain open.
 
 [Current evidence and remaining gaps](evidence/logging-implementation-2026-10-11.md).
 Parent: [MyOTA observability](overview.md)

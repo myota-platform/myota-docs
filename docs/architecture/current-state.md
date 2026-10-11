@@ -1,6 +1,6 @@
 # Current system state
 
-**Verified:** 11 October 2026  
+**Verified:** 11 October 2026 21:15 UTC  
 **Scope:** GitHub `main` repository heads and a read-only inspection of the
 MyOTA namespace on the local single-node K3s host. This is a snapshot, not a
 production-readiness declaration. Authoritative owner repositories remain the
@@ -12,7 +12,7 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 | Area | Verified state |
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
-| Helm/Fleet | Release `myota`, chart `myota-0.2.14`, revision `257`, status `deployed`. Fleet GitRepo is Ready 1/1 at Deploy commit `f37a1fa8b5f3f5c0eb639c7125fcc9ab0fe323b8`; the MyOTA bundle is deployed and monitored. All 23 Deployments and 27/27 desired replicas are Ready. |
+| Helm/Fleet | Release `myota`, chart `myota-0.2.14`, revision `259`, status `deployed`. Fleet GitRepo is Ready 1/1 at Deploy commit `cd13e2ce8396025c84b89eb4e9e3c153ca5a8489`; the MyOTA BundleDeployment is ready. All 23 Deployments and 27/27 desired replicas are Ready. |
 | MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas). The admin web is deployed; `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
@@ -29,27 +29,27 @@ does not prove that its image is deployed; deployed image digests are separate.
 
 | Repository | `main` commit |
 |---|---|
-| [Identity](https://github.com/myota-platform/myota-identity-service) | `88fe60d7a4e867124d646a381931e7a8172988ce` |
-| [Programme](https://github.com/myota-platform/myota-programme-service) | `079bbea397ed6f35aa307f98c3e2bf1dd2f2c059` |
-| [Activity](https://github.com/myota-platform/myota-activity-service) | `13cdef14b2da78bd55d8ce3c06a202cb9fffcebc` |
-| [Geodata](https://github.com/myota-platform/myota-geodata-service) | `e0e5326376e3c7549113b69f7e5cbdfa3867e7ae` |
+| [Identity](https://github.com/myota-platform/myota-identity-service) | `46c6e51acf5f386143ac1b943a961f24e05b8e1b` |
+| [Programme](https://github.com/myota-platform/myota-programme-service) | `c66aefae442464b096b5e2c97ef2f89018a71856` |
+| [Activity](https://github.com/myota-platform/myota-activity-service) | `fe804ddc0b0b5dca3bb0ad0faa1429fdb6ecec18` |
+| [Geodata](https://github.com/myota-platform/myota-geodata-service) | `08e416ab746863602c2024f1961c6f66aaec2023` |
 | [Operations](https://github.com/myota-platform/myota-operations-service) | `b3851dddc80a2186f29738cafad74532dac64f74` |
-| [Contracts](https://github.com/myota-platform/myota-contracts) | `1e0992c5585f42a675d6d54eeac2925a01612dd0` |
-| [Deploy](https://github.com/myota-platform/myota-deploy) | `f37a1fa8b5f3f5c0eb639c7125fcc9ab0fe323b8` |
-| [Platform](https://github.com/myota-platform/myota-platform) | `b3d77e84db7cc8eb591315b66d70397629ef16e4` |
+| [Contracts](https://github.com/myota-platform/myota-contracts) | `d6445586580a70c155a4797f1122f9b3ddf44eaa` |
+| [Deploy](https://github.com/myota-platform/myota-deploy) | `cd13e2ce8396025c84b89eb4e9e3c153ca5a8489` |
+| [Platform](https://github.com/myota-platform/myota-platform) | `e2ed7a184775652d6cba7f084c7880f7d5a02a0c` |
 | [Participant web](https://github.com/myota-platform/myota-web) | `0e6cb4cb03a1bdfac03c288d90af540fba917279` |
 | [Admin web](https://github.com/myota-platform/myota-admin-web) | `9d54cc635b7d5411fee6b18d963dc6788a92a43c` |
-| [.github](https://github.com/myota-platform/.github) | `7d064aff6f3d01119b75c80af4b5bfcc4d5fd056` |
+| [.github](https://github.com/myota-platform/.github) | `6129d75f06ff9fcba713e5f716d9c46b7de76121` |
 
 ### First-party images observed in K3s
 
 | Workload | Image digest |
 |---|---|
-| Identity | `ghcr.io/myota-platform/myota-identity-service@sha256:aaf698323ffa791f1ea27cec257a88bb5f5183bab7ca247fb96cad26097d9cd2` |
-| Programme | `ghcr.io/myota-platform/myota-programme-service@sha256:a1d5bd214248c82f41524286a41c82aacb778d36d0f75899421cd60ecc3ec7e2` |
-| Activity API and workers | `ghcr.io/myota-platform/myota-activity-service@sha256:557d2a3ad82ecde994cec9793da56ad3cf830e50aaf986a14cfab81f67ccf1b7` |
-| Geodata API and workers | `ghcr.io/myota-platform/myota-geodata-service@sha256:6b8fc171db83883da8cad0fc8739b6188d07777f3f3bb071fd09e443e5c27111` |
-| Operations | `ghcr.io/myota-platform/myota-operations-service@sha256:88078ff3aae873aa820ed40c04916e3b9aa4ac106404c1916179a26aeb07bfc8` |
+| Identity | `ghcr.io/myota-platform/myota-identity-service@sha256:b8529ac66102952b4e9b215b8c51ec78b3da0c21163c761129c248828f759d92` |
+| Programme | `ghcr.io/myota-platform/myota-programme-service@sha256:f4594ebc9c21878989206793e69925bae9d8b4977ad2b2035b63b6b5edca6c8b` |
+| Activity API and workers | `ghcr.io/myota-platform/myota-activity-service@sha256:33e7b42f68544b569d621f93bae8fdeec5f696408f0527bc484be6a648673bbc` |
+| Geodata API and workers | `ghcr.io/myota-platform/myota-geodata-service@sha256:2f88ec1e48657f751b562ff928c8dd2574289217cda50f086806d5420a51a14a` |
+| Operations | `ghcr.io/myota-platform/myota-operations-service@sha256:3649b9977a56ea436b39555fa1b579b619311f11bf6fecfc33b125b302f0c7ca` |
 | Admin web | `ghcr.io/myota-platform/myota-admin-web@sha256:95e8279247d61f8395907c57294d4e1102615554766ecff9768ac41f40388fb5` |
 | Gateway | `ghcr.io/myota-platform/myota-gateway@sha256:cebd69cf7bfde4dbfe65c16dd1d17e9ac25b8f0c9b894797de0dc392f398b6cf` |
 | Shared runtime | `ghcr.io/myota-platform/myota-service@sha256:8050be67423e234c2fad94e5beb6179e34bb692d0b49274d30dc5f7966333f0b` |
@@ -83,9 +83,9 @@ is explicitly deferred; the local file store is not a backup.
 | Cross-repository architecture review | Phases 0–4 complete, including duplicate-YAML-key rejection, handler/mirror check, and route inventory evidence. | [Review](../../REVIEW.md), [Phase 0 evidence](evidence/review-phase-0-2026-10-11.md), [Phases 1–4 evidence](evidence/review-phases-1-4-2026-10-11.md) |
 | NATS event/work migration | Phases 0–6 complete within evidence bounds. Six application DLQ records remain preserved. Seven migration evidence/readiness issues are closed (Operations #1 was superseded); the 24-hour observation was waived and closed early, not completed as a full-day window. Off-node recovery and representative 30-day capacity qualification remain accepted limits. | [Migration plan](../operations/messaging/nats-event-migration-plan.md), [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md), [issue closeout](../operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md) |
 | NATS monitoring consolidation | Surveyor, dashboards, capacity settings, and broker-sampler retirement are implemented; single-host broker and Prometheus limits still apply. | [Surveyor plan](../observability/nats-surveyor-migration.md), [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md) |
-| SeaweedFS monitoring retirement | Admin page, Operations sampler/API, and sampled-history table are retired; Collector scrape and Grafana dashboard remain. All runtime Deployments are Ready; Helm revision 249 is deployed and Fleet is Ready on the desired commit. | [Deploy issue #8](https://github.com/myota-platform/myota-deploy/issues/8), [monitoring guide](../operations/storage/seaweedfs-admin-status.md) |
+| SeaweedFS monitoring retirement | Admin page, Operations sampler/API, and sampled-history table are retired; Collector scrape and Grafana dashboard remain. All runtime Deployments are Ready on Helm revision 259 and Fleet's current bundle. | [Deploy issue #8](https://github.com/myota-platform/myota-deploy/issues/8), [monitoring guide](../operations/storage/seaweedfs-admin-status.md) |
 | Geodata scale qualification | Phase 5 was administratively closed by owner acceptance on 11 October; broad capacity, independent writes, node/storage failure, canary, rollback, and >3 replicas remain unverified and were accepted for closure. | [Scaling roadmap](../geodata/horizontal-scaling-roadmap.md), [closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md), [read-only evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md) |
-| Logging and observability | Implementation has live evidence; acceptance remains open for authenticated Grafana navigation, request-to-worker correlation, Loki prohibited-field/cardinality review, Compose parity, and Identity/Programme metrics coverage. | [Logging roadmap](../observability/logging-implementation.md), [evidence](../observability/evidence/logging-implementation-2026-10-11.md) |
+| Logging and observability | Helm 259 is deployed and Fleet is ready. Identity request-to-worker correlation passed a sanitized live outbox/JetStream/Activity-worker test and issue #3 is closed. Programme/Activity/Geodata producer-specific live correlation, authenticated Grafana navigation, Loki privacy/cardinality review, alert/runbook and retention/recovery evidence, Compose parity, and Identity/Programme metrics coverage remain open. | [Logging roadmap](../observability/logging-implementation.md), [evidence](../observability/evidence/logging-implementation-2026-10-11.md) |
 | Product/domain backlog | Programme configuration, Admin UI internationalization, award-condition modeling, and charter gaps remain planned work. | [To do](../to-do/README.md), [prioritized backlog](../to-do/prioritized-backlog.md) |
 
 ## Evidence and method

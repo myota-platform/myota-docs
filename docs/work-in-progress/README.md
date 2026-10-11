@@ -22,9 +22,11 @@ canonical/root/Platform mirrors are reconciled.
   scaling above three replicas remain unverified; reopen these gates before
   expanding capacity. See the [closure record](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md).
 - [Structured logging acceptance](../observability/logging-implementation.md) —
-  release-state reconciliation, authenticated Grafana navigation,
-  request-to-worker correlation, Loki field privacy, and Compose parity remain
-  open in the evidence record.
+  Helm revision 259 is deployed and Fleet is ready. Identity request-to-worker
+  correlation is verified and issue #3 is closed. Programme/Activity/Geodata
+  producer-specific live correlation, authenticated Grafana navigation, Loki
+  field privacy, alerts/retention/recovery, metrics coverage, and Compose parity
+  remain open in the evidence record.
 - [Observability live status](../observability/overview.md#live-k3s-verification-and-known-gap)
   — Identity and Programme metrics coverage requires remediation and current
   cluster verification.

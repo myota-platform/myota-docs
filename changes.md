@@ -1,3 +1,22 @@
+## 11 October 2026 — Structured logging and request-to-worker correlation
+
+- Fixed the deployed Activity notification consumer crash caused by calling
+  `message.header(...)` instead of reading nats-py's dictionary-backed
+  `Msg.headers`. Added header mapping
+  and end-to-end correlation regression coverage; synchronized Deploy and
+  Platform mirrors.
+- Deployed Activity image
+  `sha256:33e7b42f68544b569d621f93bae8fdeec5f696408f0527bc484be6a648673bbc`
+  in Helm revision 259. Fleet is ready with all 23 Deployments and 27 replicas.
+- Verified a sanitized Identity registration through the outbox relay, JetStream,
+  and Activity notification worker. The original correlation ID appeared in
+  worker lifecycle logs and the durable ACK floor advanced with no pending
+  messages.
+- Removed the synthetic account/event, outbox record, JetStream message,
+  Activity notification, processed marker, and checkpoint after the probe.
+  Identity issue #3 is closed; Programme #4, Activity #3, Geodata #6, and Deploy
+  #6 remain open for the evidence gates recorded in the logging roadmap.
+
 ## 11 October 2026 — Geodata Website and Description fields
 
 - Added nullable entity Website and Description columns with additive migration

@@ -61,21 +61,21 @@ Admin UI controls.
 
 ### 3. Complete logging acceptance
 
-**Current position:** Helm revision 246 is deployed, Fleet reports 67/67
-resources Ready, and 23/23 MyOTA Deployments were Ready at the latest read-only
-check. Release-state reconciliation is complete. Four logging acceptance items
-remain: authenticated Grafana log/trace navigation, representative
-request-to-worker correlation, a representative Loki prohibited-field and
-cardinality review, and full Compose runtime parity. See the
+**Current position:** Helm revision 259 is deployed and Fleet is ready with all
+23 Deployments and 27/27 replicas. Identity request-to-worker correlation has
+passed a sanitized live request, worker completion, and JetStream ACK check;
+Identity issue #3 is closed. Remaining logging acceptance includes
+Programme/Activity/Geodata producer-specific live correlation evidence,
+authenticated Grafana log/trace navigation, a representative Loki
+prohibited-field/cardinality review, alerts and runbooks, retention/capacity/
+recovery evidence, and full Compose runtime parity. Identity/Programme metrics
+coverage remains tracked separately. See the
 [logging roadmap](../observability/logging-implementation.md) and
 [current evidence](../observability/evidence/logging-implementation-2026-10-11.md).
-The older revision 241/242 discrepancy in that dated evidence is historical;
-use the [current-state snapshot](../architecture/current-state.md) for live
-release status.
 
-**Next:** Close the four remaining acceptance items and update the logging
-roadmap from their recorded evidence. Do not infer full workflow correlation
-where producer outbox rows did not retain the initiating HTTP correlation ID.
+**Next:** Close the remaining producer-specific and platform acceptance gates
+from their recorded evidence. Do not infer successful workflow correlation for
+service paths that have not been verified end to end.
 
 ### 4. Restore Identity and Programme metrics coverage
 

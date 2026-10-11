@@ -2,13 +2,14 @@
 
 ## Overall status
 
-**In progress.** The bounded Operations PostgreSQL/PostGIS telemetry path and
-SQL-scrubbed Psycopg traces are active. Async NATS correlation now uses stable
-work/event IDs and consumer log context. Remaining gaps include the originating
-HTTP ID on some outbox rows, authenticated Grafana navigation, Loki field
-privacy audit, full Compose runtime parity, and stable Helm release state.
-Evidence below distinguishes the earlier receiver failure from the current
-Operations fallback.
+**In progress.** The shared structured logging, bounded correlation metadata,
+outbox relay context, NATS worker logs, Collector, Tempo, Loki, and Grafana
+source configuration are implemented. A sanitized deployed Identity request
+has now traversed HTTP → transactional outbox → relay → JetStream →
+Activity notification worker with the same correlation ID and a successful
+ACK. Identity correlation issue #3 is closed. The other producer-specific
+Programme, Activity, and Geodata live paths and the remaining dashboard,
+privacy, alert, retention/recovery, and Compose acceptance gates remain open.
 
 Authoritative application code is owned by the five service repositories:
 Identity, Programme, Activity, Geodata, and Operations. Deployment behavior is
@@ -22,15 +23,58 @@ Documentation and phase evidence are owned by `myota-docs`.
 | 1 — shared logging | Shared structured logging, redaction helpers, resource identity, and focused tests are in all five service repositories; current images are live. | Complete within the documented scope. |
 | 2 — Loki platform | Loki uses SeaweedFS object storage and 14-day compactor retention; Collector, datasource, and dashboards are live. | Full Compose runtime execution is unavailable on this host; no retention waiting period is required before launch. |
 | 3 — HTTP tracing | HTTP completion logs and W3C trace propagation are implemented; live Identity request matched Loki and Tempo. | Authenticated Grafana navigation remains open. |
-| 4 — workers and NATS | Worker lifecycle logging and W3C headers are implemented. Relay correlation fallback is correlationId → workId → eventId, and consumer logs inherit the header. | Live request-to-worker acceptance remains open because some outbox rows do not retain the originating HTTP correlation ID; live retry/ACK acceptance remains open. |
+| 4 — workers and NATS | Worker lifecycle logging and W3C headers are implemented. Relay correlation fallback is correlationId → workId → eventId, and consumer logs inherit bounded request correlation. The Activity header-access crash was fixed and deployed. | Identity HTTP-to-worker correlation and ACK are verified live; the lost-ACK/idempotency regression is covered by the consumer test suite. Programme, Activity, and Geodata producer-specific live paths remain open. |
 | 5 — Grafana correlation | Seven dashboard LogQL queries pass against live Loki; Grafana assets are provisioned. | Authenticated trace/log navigation has not been exercised. |
 | 6 — hardening | Loki labels are low-cardinality; retention is configured; initial ingestion/object size and capacity guardrails are documented. | Representative Loki prohibited-field audit and alert-rule decision remain open; short sample is not a production growth rate. |
 | 7 — PostgreSQL/PostGIS | Operations read-only sampling exposes bounded PostgreSQL counters and Geo PostGIS presence/version; Psycopg spans are SQL-scrubbed before Tempo; the dashboard reads active metrics. | Dynamic Compose execution parity remains open. Direct Collector receiver is intentionally disabled after repeatable authentication failure. |
 
-Current rollout state: all Deployments are Ready on the updated digests. Helm
-revision 242 reports `pending-upgrade`; Fleet's BundleDeployment still reports
-revision 241 Ready with 67/67 resources. Do not treat that bookkeeping mismatch
-as a stable deployed release.
+Current rollout state: Helm revision 259 is `deployed` from Deploy commit
+`cd13e2ce8396025c84b89eb4e9e3c153ca5a8489`. Fleet's GitRepo and MyOTA
+BundleDeployment are ready. All 23 Deployments and 27/27 desired replicas are
+Ready. The Activity notification worker runs
+`myota-activity-service@sha256:33e7b42f68544b569d621f93bae8fdeec5f696408f0527bc484be6a648673bbc`.
+
+## 11 October 2026 — Activity consumer correction and live Identity path
+
+The first deployed request-to-worker probe exposed a production defect in
+Activity's shared JetStream consumer: it called `message.header(...)`, but
+nats-py exposes `Msg.headers` as a dictionary. The worker raised
+`TypeError: 'dict' object is not callable` before logging or processing the
+delivery. Activity now reads the message ID and correlation header from the
+headers mapping. The source fix and tests are in
+[Activity commit c614437](https://github.com/myota-platform/myota-activity-service/commit/c61443732837e132b5f556520504be81a6ff5ab0)
+and the workflow-gated correlation regression is in
+[Activity commit fe804dd](https://github.com/myota-platform/myota-activity-service/commit/fe804ddc0b0b5dca3bb0ad0faa1429fdb6ecec18).
+The `event_consumer.py` mirror is synchronized in
+[Deploy commit 18c3f4b](https://github.com/myota-platform/myota-deploy/commit/18c3f4b13d3ebb0d73af8727a076c20093440836)
+and
+[Platform commit 143c978](https://github.com/myota-platform/myota-platform/commit/143c978ee072d500f925afc20fcd09bd126736ff).
+
+Deploy pinned the newly published Activity image and Platform was synchronized:
+[Deploy commit cd13e2c](https://github.com/myota-platform/myota-deploy/commit/cd13e2ce8396025c84b89eb4e9e3c153ca5a8489),
+[Platform commit e2ed7a1](https://github.com/myota-platform/myota-platform/commit/e2ed7a184775652d6cba7f084c7880f7d5a02a0c).
+Fleet applied Helm revision 259. The replacement notification pod runs image
+digest `sha256:33e7b42f68544b569d621f93bae8fdeec5f696408f0527bc484be6a648673bbc`.
+
+A sanitized `POST /v1/identity/auth/register` probe with
+`X-Correlation-ID: obs-correlation-probe-20261011` produced an Identity
+`identity.account.created.v1` event. The deployed Activity worker logged
+`job.received`, `job.started`, and `job.completed` with that same
+correlation ID and attempt 1. JetStream then reported ACK floor 22774, zero
+pending, and zero ack-pending messages. The focused test suite also covers
+reading NATS header mappings and lost-ACK redelivery without repeating the
+handler; the live request was ACKed on its first attempt and no production
+failure was injected.
+
+The probe was cleaned up after verification. The Identity in-memory snapshot
+was cleared by restarting the Identity pod after its persisted account/event
+and outbox row were removed. The test JetStream messages, Activity notification,
+processed-event marker, and notification checkpoint were removed. Final checks
+found no test account, event, outbox row, notification, processed marker,
+checkpoint, or retained test message. This closed Identity issue #3. Programme
+#4, Activity #3, Geodata #6, and Deploy #6 remain open for their outstanding
+producer-specific or platform-wide gates.
+
 ## Phase 1–5 implementation references
 
 - Shared logging and tests: `myota-identity-service/myota_logging.py`,
