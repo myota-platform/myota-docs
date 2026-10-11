@@ -1315,6 +1315,8 @@ capacity, trust-boundary, recovery, and production-cutover decisions.
   the live and disposable diagnostic Collector, while `psql` succeeded.
   Disabled the receiver pipeline to stop repeated failures. The deployed
   dashboard file parses, but its database data panels are not accepted.
-- All Deployments report Ready. Helm revision 232 is deployed and is the current Fleet-applied release (Ready=True, sync generation 93). All 67 resources are ready and Deployments meet their requested replica counts. Phase 7 remains open; see the
+- All Deployments report Ready. Helm revision 234 is deployed; Helm history labels it a rollback to revision
+233. The Fleet BundleDeployment is Ready=True at sync generation 93. All 67
+resources are ready, and all Deployments meet their requested replica counts. Phase 7 remains open; see the
   [evidence](../observability/evidence/logging-implementation-2026-10-11.md)
   and [plan](../observability/logging-implementation.md).
