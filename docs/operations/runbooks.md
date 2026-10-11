@@ -318,24 +318,23 @@ broker dashboard after acceptance checks; see the
 [`geodata load and query-evidence runbook`](../geodata/evidence/load-test-and-query-evidence.md)
 documents profile safety, cleanup, metrics, and read-only query-plan capture.
 
-The **MyOTA Object Storage** dashboard uses SeaweedFS's own S3 request
-counters, server-side request-duration histogram, non-2xx status codes, and
-in-flight upload count/bytes. Helm enables the private SeaweedFS metrics
-listener on port 9324; it exposes both master and S3 metrics, and only the
-Collector scrapes it. Do not configure a separate 9327 target: the deployed
-SeaweedFS build does not listen on that port.
-Do not publish either listener through an Ingress. A missing `up` series means
-the scrape is unavailable, not that object storage had zero operations.
+The **SeaweedFS** Grafana dashboard is an adaptation of dashboard 19173 and
+uses SeaweedFS's S3 request counters, server-side request-duration histogram,
+non-2xx status codes, and in-flight upload count/bytes. The supported view and
+metric interpretation are in the [SeaweedFS monitoring guide](storage/seaweedfs-admin-status.md).
+Helm enables the private SeaweedFS metrics listener on port 9324; it exposes
+master and S3 metrics, and only the Collector scrapes it. Do not configure a
+separate 9327 target: the deployed SeaweedFS build does not listen on that
+port. Neither listener is published through an Ingress. A missing `up` series
+means the scrape is unavailable, not that object storage had zero operations.
 
 Grafana dashboard files are mounted from the observability ConfigMap using
 `subPath`. Kubernetes does not refresh those mounted files when the ConfigMap
-changes. The Helm chart therefore hashes all Grafana provisioning and dashboard
-files into the Grafana pod template, causing Fleet/Helm updates to roll Grafana
-and reload the files. If the SeaweedFS dashboard disappears or provisioning
-logs report JSON `EOF`, compare the ConfigMap's `myota-object-storage.json`
-entry with `/etc/grafana/dashboards/myota-object-storage.json` inside the pod;
-a non-empty ConfigMap with a zero-byte mounted file indicates a stale pod that
-needs the updated chart rollout.
+changes. Helm hashes dashboard and provisioning files into the Grafana pod
+template so a release rolls Grafana and reloads them. If the dashboard
+provisioning fails, compare the ConfigMap entry with the mounted file in the
+Grafana pod; a populated ConfigMap and empty mounted file indicate a stale pod
+that needs the updated chart rollout.
 
 ### Permanent entity deletion recovery
 

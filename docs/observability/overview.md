@@ -10,8 +10,7 @@ implementation is active, but acceptance gates remain open; see the
 ## What was confirmed
 
 All five provisioned dashboards explicitly use UTC, and Grafana's Compose/Helm
-default is UTC for new/ad-hoc dashboards. Operational NATS/SeaweedFS history
-displays also identify UTC. The last-30-minutes and 30-second refresh defaults
+default is UTC for new/ad-hoc dashboards. Operational NATS history displays also identify UTC. The last-30-minutes and 30-second refresh defaults
 are unchanged; see the [system-wide UTC policy](../platform/utc-time-policy.md).
 
 The original Grafana panels were not seeded with fabricated business values.
@@ -132,7 +131,7 @@ Prometheus listener (Helm default: 9324). A live check confirmed S3 counters
 and request-duration histograms on this endpoint; the previously configured
 9327 listener is not exposed by the deployed build. The Collector scrapes S3
 operation counts by operation/bucket/status, server-side request-duration
-histograms, active uploads and bytes. The **MyOTA Object Storage** dashboard
+histograms, active uploads and bytes. The **SeaweedFS** dashboard
 displays throughput, p50/p95/p99 service time, non-2xx rates and in-flight
 upload state; alerts cover missing scrape targets, sustained S3 errors and
 high server-side p95 latency.
@@ -223,11 +222,11 @@ appropriate to the cluster.
 
 ## Operational interpretation
 
-The [SeaweedFS storage page](../operations/storage/seaweedfs-admin-status.md) at `/object-storage`
-uses read-only Operations APIs, provider gauges, explicit unavailable,
-partial, and stale status, and persistent paged history. Native bucket
-counts/sizes and filesystem capacity come from the private exporter; no object
-scans or storage credentials are required by the Admin UI.
+The [SeaweedFS Grafana guide](../operations/storage/seaweedfs-admin-status.md)
+documents the supported observability path. The former Admin `/object-storage`
+page redirects to Grafana; Operations storage APIs and sampled-history table
+are retired. The Collector scrapes the private exporter; the Admin UI does not
+need object scans or SeaweedFS credentials.
 
 **Current NATS monitoring:** the cluster-local NATS Surveyor exporter feeds
 Prometheus and the Grafana `NATS` folder, which contains dashboard 16256 and
@@ -235,8 +234,8 @@ ten pinned Surveyor dashboards. Surveyor exports broker/server metrics and
 does not retain JetStream messages. Its supported metrics were verified
 against live NATS data, while route/gateway, multi-server Raft, and optional
 latency panels have no series on the current single-server topology.
-Operations storage history, Grafana identity, and application outbox and worker
-metrics remain service-owned.
+Operations PostgreSQL/PostGIS metrics and Grafana identity remain service-owned;
+SeaweedFS metrics are Collector-owned.
 
 - A missing series is not converted to a made-up value.
 - Scrape and exporter health should be checked before interpreting an empty

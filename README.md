@@ -12,11 +12,17 @@ code. Start with the [documentation index](docs/README.md), the
 
 ## Current state
 
-The latest read-only K3s and repository reconciliation is dated 11 October 2026.
-It records Helm release 246, Fleet readiness for Deploy commit
-`f7d2e65edd5248d70376cf99ccc98c836b7f95e3`, 23/23 MyOTA Deployments Ready,
-service and image revisions, current NATS/observability ownership, open work,
-and evidence limits. Readiness is not production qualification.
+The latest K3s and repository reconciliation is dated 11 October 2026. At the
+last check, Helm revision 249 was pending in Fleet while all 23/23 MyOTA
+Deployments and 67/67 Fleet resources reported ready. The snapshot records the
+Deploy retirement commit `6a87f36`, digest update `12251ff`, repository and image
+revisions, current ownership, remaining work, and evidence limits. Readiness is
+not production qualification.
+
+SeaweedFS monitoring now uses the Collector and provisioned Grafana dashboard;
+the Admin sampling page, Operations polling API, and history table are retired.
+See the [SeaweedFS monitoring guide](docs/operations/storage/seaweedfs-admin-status.md)
+and [retirement issues](https://github.com/myota-platform/myota-deploy/issues/8).
 
 ## Work tracking
 

@@ -31,11 +31,10 @@ URLs remain valid. The green/white MyOTA visual style is retained.
 | Programmes | Rules & policies `/policies`; Content & translations `/content`; Awards & certificates `/awards` |
 | People | Users & access `/identity`; tabs `?tab=users`, `roles`, `security` |
 | Activity | Activations & QSOs `/activity` |
-| Platform health | NATS / JetStream `/jetstream`; SeaweedFS storage `/object-storage`; Metrics & dashboards `/observability/` |
+| Platform health | Metrics & dashboards `/observability/` (includes NATS Surveyor and SeaweedFS); legacy `/object-storage` opens Grafana |
 
-The NATS / JetStream route is the current legacy page and is planned for
-retirement after Surveyor and Grafana pass their cutover gates; see the
-[monitoring consolidation plan](../../observability/nats-surveyor-migration.md).
+NATS broker monitoring is provided by Surveyor dashboards in Grafana, as
+documented in the [monitoring consolidation plan](../../observability/nats-surveyor-migration.md).
 
 Use **Find a workspace** to filter authorized navigation. Overview's **Start a
 task** offers direct workflow entry points. On narrow screens the menu button

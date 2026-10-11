@@ -1,3 +1,11 @@
+> **Historical note (11 October 2026):** This plan records the Surveyor cutover
+> state before the separate SeaweedFS monitoring retirement. The earlier
+> references below to Operations storage history and the old combined dashboard
+> are historical. SeaweedFS monitoring now uses the Collector and provisioned
+> Grafana dashboard; Operations storage sampling/API and its history table are
+> retired. See the [SeaweedFS retirement guide](../operations/storage/seaweedfs-admin-status.md)
+> and the linked [retirement issues](https://github.com/myota-platform/myota-deploy/issues/8).
+
 # NATS Surveyor monitoring consolidation
 
 **Status (11 October 2026):** Surveyor 0.9.11 and all eleven NATS dashboards

@@ -1476,3 +1476,22 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
   snapshot. Compatibility pages remain for published links.
 - **Runtime impact:** none. Checks were read-only; no tests, test data, or
   cluster changes were made.
+
+
+## 11 October 2026 — SeaweedFS monitoring retirement
+
+- **Prompt used:** “Re-read `AGENTS.md`, then work on, implement and close all
+  issues related to SeaweedFS monitoring retirement.”
+- Removed the Operations SeaweedFS sampler/API and Admin monitoring page, retired
+  its sampled-history table with a forward-only migration, and retained only the
+  application object-storage and readiness paths. Replaced the Grafana dashboard
+  with a validated adaptation of dashboard 19173 and synchronized Platform copies.
+- Updated the OpenAPI contract and generated clients, Admin legacy bookmark
+  redirect, runbooks, repository ownership map, current-state summary, diagrams,
+  README indexes and issue cross-links. Deploy remains authoritative for the
+  Collector, Grafana provisioning, dashboard, alerts and Helm configuration.
+- Evidence, release identifiers, live schema and endpoint checks, and any
+  remaining environment limits are recorded in the linked Deploy, Operations,
+  Contracts, Admin and Docs issues. Live workload, endpoint, database, and metric checks confirm the retirement paths.
+  The Fleet/Helm revision status remains explicitly reported as pending while its
+  applied-state metadata catches up; issue notes preserve that discrepancy.

@@ -16,8 +16,8 @@ flowchart LR
   Grafana[Grafana]
 
   UI -->|Grafana role resolution| Ops
-  Ops -->|read-only storage status| SW
-  Ops -->|bounded database sampling| DB
+  SW -->|private S3/master metrics| Collector
+  Ops -->|bounded read-only DB metrics| DB
   NATS -->|internal broker monitoring| Surveyor
   Surveyor -->|15 second scrape| Prom
   Services -->|OTLP telemetry| Collector
@@ -29,12 +29,13 @@ flowchart LR
   Loki --> Grafana
 ```
 
-Surveyor owns NATS broker monitoring. Operations has no NATS connection; it
-retains read-only storage status/history and Grafana role resolution. The
-Operations snapshot table and index were retired by a forward migration;
-storage history remains. Direct Collector PostgreSQL receivers remain disabled
-after authentication failures. The active bounded database telemetry path and
-remaining coverage gaps are documented in the
+Surveyor owns NATS broker monitoring. SeaweedFS telemetry flows through the
+private Collector scrape to Prometheus and Grafana; Operations no longer samples
+SeaweedFS or retains its history. The forward migration drops the retired
+`operations_storage_snapshot` table and owned index. Operations retains bounded
+read-only PostgreSQL/PostGIS metrics and Grafana role resolution. Direct Collector
+PostgreSQL receivers remain disabled after authentication failures. The active
+bounded database telemetry path and remaining coverage gaps are documented in the
 [logging roadmap](../../observability/logging-implementation.md).
 
 Eleven dashboards (Grafana dashboard 16256 plus ten pinned Surveyor dashboards)

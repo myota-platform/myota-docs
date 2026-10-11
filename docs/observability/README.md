@@ -15,7 +15,7 @@ for the latest verified deployment and open acceptance gates.
   capacity, and Operations retirement decisions.
 - [NATS Surveyor cutover evidence](evidence/2026-10-11-nats-surveyor-cutover.md).
 - [Observability architecture diagram](../architecture/diagrams/observability-architecture.md).
-- [SeaweedFS operations](../operations/storage/seaweedfs-admin-status.md).
+- [SeaweedFS monitoring in Grafana](../operations/storage/seaweedfs-admin-status.md).
 - [Phase prompts](prompts/README.md).
 
 The old JetStream status page is retained only for historical links. Current

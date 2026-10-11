@@ -54,14 +54,17 @@ flowchart LR
 
   Surveyor --> Prometheus
   Collector --> Prometheus
-  Operations -. storage status and role resolution .-> Admin
+  Operations -. current Grafana role resolution .-> Admin
+  Operations -. bounded database metrics .-> Collector
   Grafana --> Prometheus
 ```
 
 NATS is cluster-internal. Surveyor is the broker observer; Operations has no
-NATS connection and retains storage status/history and Grafana role resolution.
-PostgreSQL remains authoritative for domain state, job state, outbox delivery,
-and recovery.
+NATS connection. Operations exports bounded PostgreSQL/PostGIS telemetry and
+resolves current Grafana identity/roles. SeaweedFS monitoring flows from its
+private metrics listener through the Collector to Prometheus and Grafana;
+Operations does not sample storage or retain its history. PostgreSQL remains
+authoritative for domain state, job state, outbox delivery, and recovery.
 
 ## Ownership
 
@@ -73,8 +76,9 @@ and recovery.
   progress, issuance, and activity notifications.
 - Geodata owns geometries, entity lifecycle, imports, provenance, conflation,
   review, and geodata audit history.
-- Operations owns read-only storage status/history and Grafana role resolution;
-  it does not inspect or consume JetStream.
+- Operations owns bounded read-only PostgreSQL/PostGIS telemetry and Grafana
+  role resolution. It no longer samples SeaweedFS and does not inspect or
+  consume JetStream.
 - Deploy owns runtime wiring and deployment configuration. Platform copies of
   Deploy assets are synchronized mirrors; service repositories remain
   authoritative for service code and contracts.

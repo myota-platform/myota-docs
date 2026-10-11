@@ -657,3 +657,30 @@ evidence page for commits, workflow links, image digest and verification limits.
   correlation remains open where the source outbox does not store the HTTP ID.
 
 - **Rollout note:** all Deployments are ready on the updated image digests, but Helm revision 242 remains `pending-upgrade`; Fleet still reports revision 241 Ready with 67/67 resources. The release-state discrepancy remains open.
+
+## 11 October 2026 — SeaweedFS monitoring retirement
+
+- Replaced the Admin monitoring page with a legacy-bookmark redirect to the
+  provisioned Grafana dashboard adapted from Grafana Labs dashboard 19173.
+- Removed Operations SeaweedFS sampling, API routes, settings and sampler module;
+  retained read-only PostgreSQL/PostGIS metrics, Grafana role resolution and
+  application storage/readiness behavior. Added an idempotent forward migration
+  that drops only `operations_storage_snapshot` and its owned index.
+- Removed the two Operations monitoring paths/schema from OpenAPI and generated
+  clients. Updated Deploy/Platform Compose, Helm, Operations mirrors, dashboard
+  and alerts, architecture diagrams, runbooks, READMEs and repository map.
+- Verified Admin unit tests (28), browser tests (23), typecheck and production
+  build; Operations Ruff and six unit tests; Contracts seven unit tests, two
+  generated clients, route inventory and Deploy route audit; Helm lint and
+  rendered chart validation; Compose and chart YAML parsing. Deploy and Admin
+  image workflows passed.
+- On local K3s, the revision 249 migration completed and checks confirm the
+  sampled table/index and retired endpoints are absent, `/healthz` returns 200,
+  and all 14 dashboard Prometheus targets return live series. All 23 Deployments
+  and 67 Fleet resources report ready. Helm/Fleet still reports revision 249 as
+  `pending-upgrade` / `WaitApplied(1)`; this release-state reconciliation remains
+  open and is not represented as a clean Fleet cutover.
+- Commits: Operations `1b52897`, Deploy `6a87f36`, Platform `eb79df0`, Contracts
+  `3852666`/`cce166a`, and Admin `9d54cc6`; all pushed to `main`. See the
+  [current state](docs/architecture/current-state.md), [monitoring guide](docs/operations/storage/seaweedfs-admin-status.md),
+  and [cross-repository issues](https://github.com/myota-platform/myota-deploy/issues/8).

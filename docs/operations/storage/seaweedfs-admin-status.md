@@ -1,85 +1,72 @@
-# SeaweedFS Admin UI status and Grafana editing
+# SeaweedFS monitoring in Grafana
 
-Implemented in the operations service, Admin UI, contracts and Compose/Helm.
-Select **Platform health → SeaweedFS storage** (`/object-storage`). The page
-refreshes visible data every 30 seconds, offers manual refresh, and shows
-paged sampled history with a detail modal. Its Grafana link opens the existing
-MyOTA Object Storage dashboard.
+**Current path:** OpenTelemetry Collector → Prometheus → provisioned Grafana
+dashboard. The former Admin UI storage page, Operations sampler/API, and
+sampled `operations_storage_snapshot` history are retired. This does not
+change SeaweedFS object storage, application upload workflows, or application
+health/readiness checks.
 
-## Data and ownership
+## Open the dashboard
 
-The browser reads `GET /v1/operations/object-storage` and
-`GET /v1/operations/object-storage/snapshots?page=1&pageSize=20`. The
-operations service polls the private S3 `/status` and SeaweedFS `/metrics`
-endpoints, records one sample per 30-second slot, and retains seven days in
-its `operations_storage_snapshot` table in `myota_core`. Page size is capped
-at 50. Connection concurrency is bounded to four per process. Native storage
-metrics continue through the existing OpenTelemetry Collector to Prometheus;
-operations also exports sample health and last-sample timestamps.
+Use **Admin → Metrics & dashboards** and open **SeaweedFS** at
+`/observability/d/myota-object-storage`. Grafana is served through the
+authenticated MyOTA gateway; the SeaweedFS metrics listener remains private
+inside the cluster. The provisioned dashboard keeps the existing UID so saved
+links continue to resolve.
 
-The service-owned migration `002_storage_snapshots.sql` is synchronized to
-platform/deploy `db/migrations/core/003_storage_snapshots.sql`; the migration
-runner discovers it automatically. The browser has no storage, database or
-broker credentials and never reads those systems directly.
+The dashboard is a version-controlled adaptation of Grafana Labs dashboard
+[19173, SeaweedFS](https://grafana.com/grafana/dashboards/19173-seaweedfs/).
+Its Prometheus data source is `myota-prometheus`. The adapted panels use the
+SeaweedFS series currently scraped by the Collector: scrape-target reachability,
+S3 request rate/errors/latency, in-flight uploads, reported logical and
+physical bucket size, volume-server filesystem gauges, and filer/volume request
+rates. MyOTA-specific S3 panels remain where they add useful request and upload
+detail. A panel is retained only when its query is backed by a deployed metric.
 
-- Bucket object counts, logical bytes, physical bytes and read-only state
-  are native exporter gauges. Only reported buckets are listed; empty or
-  inactive buckets may be omitted. This page does not enumerate S3 objects.
-  Gauge update cadence is controlled by SeaweedFS; capture time describes
-  the probe, not proof of immediate synchronization after every object write.
-- Filesystem total/used/available bytes come from volume-server resource
-  gauges. With K3s local-path storage these describe a shared host filesystem,
-  not the PVC quota or the size of MyOTA's objects alone.
-- S3 counters are grouped by operation and status, cumulative since exporter
-  startup and may reset. Grafana provides rates and latency distributions.
-- Unknown gauges are null and displayed as **Unavailable**, never fabricated
-  zeros. Failed probes are PARTIAL or UNAVAILABLE; old samples are marked
-  stale after three configured poll intervals. Bucket truncation is explicit.
-- Each HTTP probe times out after five seconds; metrics text is capped at
-  2 MiB and listed buckets at 100 by default. Only sanitized status is saved;
-  no object keys, contents, raw exporter responses or credentials are logged.
+## Interpret the measurements
 
-## Access and Grafana roles
+- `up` reports whether Prometheus can scrape the configured metrics endpoint;
+  it is not an S3 transaction or end-to-end upload health check.
+- Missing series are shown as unavailable or as gaps. They do not mean zero.
+- Bucket gauges report buckets SeaweedFS exposes; they are not an object
+  listing, and may omit empty or inactive buckets. Gauge freshness follows
+  SeaweedFS's exporter update cadence.
+- Volume-server filesystem gauges describe the backing filesystem. With
+  K3s local-path storage this can be shared host capacity, not a PVC quota or
+  MyOTA-only object usage.
+- S3 counters can reset when SeaweedFS restarts. Grafana rates and histogram
+  quantiles are estimates over the selected time window.
+- The dashboard is an operational view, not an event archive or proof that a
+  particular object is present. Use the owning API and object reference to
+  investigate an upload.
 
-Status/history requires GLOBAL_OPERATOR/GLOBAL_ADMIN, `observability.view`,
-`operations.read`, or wildcard permission. Grafana uses a distinct stable
-`myota:<account-id>` identity rather than the former shared Viewer identity.
-`GET /v1/operations/observability-session` validates the access token and
-checks `/v1/identity/me` for current session validity and role assignments.
-GLOBAL_OPERATOR and GLOBAL_ADMIN map to Grafana **Editor** and can add
-dashboards/panels. Other authorized readers map to **Viewer**. Wildcard scopes
-alone do not grant editing.
+## Ownership and configuration
 
-Nginx uses that endpoint as its auth subrequest, forwards only the trusted
-response headers through the gateway, and replaces incoming Grafana identity
-and role headers. Grafana role synchronization runs on every request;
-independent login tokens and anonymous access remain disabled. No public
-Grafana ingress is needed. Access through `/observability/` still uses the
-path-scoped MyOTA session cookie and checks every request.
+`myota-deploy` owns the Collector scrape, Prometheus/Grafana provisioning,
+dashboard JSON, alerts, Compose and Helm configuration. `myota-platform` carries
+synchronized bootstrap mirrors. The private SeaweedFS metrics endpoint remains
+scraped by the existing Collector; no separate Operations polling path or
+database history is used. Operations retains bounded read-only PostgreSQL/PostGIS metrics and
+current-identity Grafana role resolution. It has no NATS connection or
+SeaweedFS monitoring API.
 
-All five provisioned dashboards start at **last 30 minutes** and refresh every
-**30 seconds**. The file provider permits Editor UI saves. Independently
-created dashboards persist in Grafana's database/PVC. Provisioned dashboard
-UI edits can be overwritten by subsequent source provisioning updates; use
-**Save as copy** for a dashboard maintained independently of Git. See
-[Grafana auth proxy](https://grafana.com/docs/grafana/latest/setup-grafana/configure-access/configure-authentication/auth-proxy/)
-and [dashboard provisioning](https://grafana.com/docs/grafana/latest/administration/provisioning/).
+The dashboard source is
+[`observability/grafana/dashboards/myota-object-storage.json`](https://github.com/myota-platform/myota-deploy/blob/main/observability/grafana/dashboards/myota-object-storage.json).
+Deployment and provisioning guidance is in the
+[operations runbook](../runbooks.md#seaweedfs-grafana-dashboard). Application
+SeaweedFS credentials and readiness checks remain configured for the services
+that store or retrieve objects; they are not dashboard credentials.
 
-## Configuration and verification
+## Retirement record
 
-Compose supplies the private endpoints and Identity URL. Helm values
-`services.operations.storageHealthUrl` and `storageMetricsUrl` default to
-the configured SeaweedFS S3 health endpoint and the private metrics listener;
-`services.identity.internalUrl` defaults to `http://myota-identity:8001`.
-Set the storage URLs for an external SeaweedFS installation. Runtime variables
-are `OPERATIONS_STORAGE_HEALTH_URL`, `OPERATIONS_STORAGE_METRICS_URL`,
-`OPERATIONS_MAX_BUCKETS`, `OPERATIONS_POLL_SECONDS`, `OPERATIONS_HISTORY_DAYS`,
-and `MYOTA_IDENTITY_URL`. No new credential Secret is required.
+The Operations storage sampler and API were removed, while the original
+creation migration remains unchanged for migration-history integrity. A later
+forward-only migration drops `operations_storage_snapshot` and its owned index;
+the migration is idempotent. The dedicated Admin page is removed from
+navigation and its former `/object-storage` bookmark redirects to Grafana.
+SeaweedFS object-storage APIs, data, health checks, Collector scrape, and
+Grafana alerts remain in service.
 
-Verification must check authorized latest/history responses, missing-data and
-failure semantics, actual Grafana Editor access, creation/deletion of a test
-dashboard, Viewer denial, all dashboard time/refresh defaults, migration
-success, and Helm/Fleet readiness. Deployment evidence is recorded in
-[changes.md](../../history/implementation-timeline.md) and the [9 October delivery evidence](../../observability/evidence/2026-10-09.md).
-Existing Identity/Programme scrape coverage and the
-broader structured-logging roadmap remain separate open work.
+Implementation evidence and linked repository changes are recorded in
+[myota-docs#5](https://github.com/myota-platform/myota-docs/issues/5) and the
+cross-repository [SeaweedFS retirement issues](https://github.com/myota-platform/myota-deploy/issues/8).
