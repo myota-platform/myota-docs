@@ -58,6 +58,13 @@ Documentation and phase evidence are owned by `myota-docs`.
   in the deployment values. Therefore current source changes cannot yet be
   treated as live. Confirm the digest sync and pod rollout before accepting
   runtime behavior.
+- Geodata's latest image publication workflow
+  [38103448580](https://github.com/myota-platform/myota-geodata-service/actions/runs/38103448580)
+  failed because its relational-boundary job reports seven JetStream worker
+  delivery timeouts. Job output also shows the existing database error
+  `Geodata writer is obsolete; deploy the row-authoritative service image`;
+  the image build/publish job was skipped. Resolve this service test/deployment
+  mismatch before expecting a new Geodata digest.
 - Deploy Python quality passed on main after fixing formatting and two missing
   mirror imports: workflow run
   [38103761084](https://github.com/myota-platform/myota-deploy/actions/runs/38103761084).
