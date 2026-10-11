@@ -342,8 +342,11 @@ Deliverables:
 - [x] production 14-day Loki compactor retention configuration;
 - [x] storage sizing/measurement procedure in the [runbook](logging-runbook.md);
 - [ ] measured ingestion, object-store growth, and evidence-based capacity triggers;
-- [ ] log cardinality checks;
-- [ ] redaction/security tests;
+- [x] live Loki label-name check found only `deployment_environment`,
+  `service_name`, and `service_namespace`;
+- [ ] cardinality under representative production traffic and payload-label audit;
+- [x] source redaction/correlation tests pass in service CI;
+- [ ] live redaction check against Collector-to-Loki records;
 - [ ] exceptional-event alert rules;
 - [x] initial operational queries and troubleshooting runbook in
   [logging-runbook.md](logging-runbook.md);
