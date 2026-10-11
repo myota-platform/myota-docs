@@ -1,3 +1,14 @@
+## 11 October 2026 — Observability dashboard issues
+
+- Created linked Deploy issues for K3s workload health/capacity, application
+  workflow and JetStream delivery, and PostgreSQL/PostGIS health panels. The
+  tasks build on existing dashboards, keep cluster metrics private, avoid
+  event/query payload labels, and distinguish missing measurements from zero.
+- Existing Identity/Programme dashboard coverage and Operations-to-OpenTelemetry
+  migration remain tracked separately. See [Deploy #11](https://github.com/myota-platform/myota-deploy/issues/11),
+  [#12](https://github.com/myota-platform/myota-deploy/issues/12), and
+  [#13](https://github.com/myota-platform/myota-deploy/issues/13).
+
 ## 11 October 2026 — Service metrics scrape repair
 
 - Restored bounded aggregate Prometheus endpoints for Identity and Programme,
