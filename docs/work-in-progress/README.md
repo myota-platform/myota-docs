@@ -4,6 +4,11 @@ This index points to active delivery and verification threads. Completed
 components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
+The cross-repository architecture review is complete. Its mitigation phases are
+proposed and not started; the accepted work is listed in [To do](../to-do/README.md)
+and detailed in [REVIEW.md](../../REVIEW.md). Review checkboxes are not implementation
+evidence.
+
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates

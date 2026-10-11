@@ -13,6 +13,32 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 11 October 2026 — Cross-repository architecture review
+
+- **Prompt used:** “Review the entire architecture. Check the individual
+  repositories. Identify essential flaws, duplicate and redundant code and API
+  endpoints, unnecessary complexity in all repos and services, and create a
+  REVIEW.md document with inconsistencies and a phased mitigation plan, tasks,
+  and exit criteria ready for Codex implementation. Identify unfinished phases
+  in other work in progress and update the To do and other relevant Docs pages.”
+- **Scope:** reviewed current main sources for Identity, Programme, Activity,
+  Geodata, Operations, Contracts, Deploy, Platform, Docs, both web clients, and
+  the shared .github workflow. Service repositories remain authoritative;
+  Deploy and Platform runtime/contract copies are treated as mirrors.
+- **Findings:** recorded a duplicate destructive Geodata cleanup path in the
+  canonical OpenAPI document, Operations source/runtime mirror drift affecting
+  the PostgreSQL sampler, retired NATS paths still advertised by OpenAPI,
+  duplicated shared helpers, a large Geodata API module, and unfinished
+  Geodata scaling, logging, API consolidation, Programme configuration, and
+  metrics-coverage work. Runtime impact of the source/image discrepancy was
+  not independently verified.
+- **Plan and status:** added [REVIEW.md](../../REVIEW.md) with five proposed
+  phases, individual tasks, exit criteria, and a self-contained prompt for each
+  phase. Mitigation work is not started. Updated the repository map, Docs
+  indexes, To do, prioritized backlog, Work in progress, changes log, and the
+  organization profile. No runtime code, API, database, or deployed state was
+  changed; no tests were run as part of this documentation review.
+
 ## 11 October 2026 — Structured logging rollout, Phases 1–5
 
 - **Prompt used:** “Implement observability as per

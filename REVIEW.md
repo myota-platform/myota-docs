@@ -352,6 +352,7 @@ remaining gaps, and do not mark any checkbox complete without evidence.
 
 - Updated docs/architecture/repository-map.md to show NATS Surveyor as the broker monitoring owner and to record that Operations/Admin JetStream inspection has been retired.
 - Added this review to the documentation and architecture indexes, the To do list, and the prioritized backlog.
+- Recorded the review prompt in the implementation timeline and clarified in Work in progress that remediation is accepted but not started.
 - Added a dated entry to changes.md.
 - Updated the organization profile to link this review and to distinguish the active Operations database sampler from the disabled direct Collector PostgreSQL receiver.
 
