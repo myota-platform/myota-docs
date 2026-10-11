@@ -6,6 +6,7 @@ flowchart TD
   Select["Click entity name or map feature"]
   Editor["Focused editor dialog; catalogue position retained"]
   Details["Name and categories"]
+  PublicDetails["Website and description; visible near dialog top"]
   Location["Location and missing-field enrichment"]
   Geometry["Geometry map; explicit draft editing"]
   Evidence["Immutable source comparison and audit"]
@@ -17,8 +18,8 @@ flowchart TD
   Delete["Global-admin impact and deletion confirmation"]
   Jobs["Durable deletion jobs; continuous status polling"]
   Catalogue --> Select --> Editor
-  Editor --> Details & Location & Geometry & Evidence
-  Details & Location & Geometry --> Save --> API --> Refresh --> Editor
+  Editor --> PublicDetails & Details & Location & Geometry & Evidence
+  PublicDetails & Details & Location & Geometry --> Save --> API --> Refresh --> Editor
   Editor --> Leave --> Guard --> Catalogue
   Evidence --> Delete --> Jobs
   Catalogue --> Delete
