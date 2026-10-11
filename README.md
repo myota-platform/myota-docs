@@ -119,8 +119,10 @@ Structured logging implementation status on 11 October 2026:
 
 - Phase 1–5 source/configuration work is recorded; Phase 6 hardening and Phase 7
   PostgreSQL/PostGIS telemetry remain open.
-- Loki and the OpenTelemetry Collector are Ready in K3s, but service image
-  digests still need to advance before live worker logging can be accepted.
+- Loki and the OpenTelemetry Collector are Ready. Identity, Programme, Activity,
+  Operations and Deploy worker images rolled out. Geodata image publication is
+  blocked by its worker-delivery integration tests, and an Identity trace probe
+  did not appear in Loki, so live trace/log acceptance remains open.
 - See the [logging implementation plan](docs/observability/logging-implementation.md),
   [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md),
   and [logging operations runbook](docs/observability/logging-runbook.md).
