@@ -12,36 +12,42 @@ flowchart LR
   Tempo[Tempo]
   Loki[Loki\nOTLP log storage]
   Collector[OpenTelemetry Collector]
-  Services[Identity, Programme, Activity, Geodata, Operations]
+  Services[Identity, Programme, Activity, Geodata]
   Grafana[Grafana]
   UI -->|Grafana auth subrequest| Ops
   Ops -->|read-only storage status| SW
-  Ops -->|storage history only| DB
+  Ops -->|read-only bounded database sampling| DB
+  Ops -->|database and PostGIS metrics| Collector
   NATS -->|cluster-local system monitoring| Surveyor
   Surveyor -->|15 second scrape| Prom
   Services -->|OTLP logs, traces, metrics| Collector
+  Services -->|instrumented client spans| Collector
   Collector -->|metrics| Prom
-  Collector -->|traces| Tempo
+  Collector -->|SQL-scrubbed traces| Tempo
   Collector -->|structured logs| Loki
   Prom --> Grafana
   Tempo --> Grafana
   Loki --> Grafana
-  DB -.->|proposed only: paused pending live auth validation; dedicated read-only role| Collector
 ```
 
-The current structured-logging rollout uses the existing Collector, Tempo, and
-Prometheus plus Loki. The PostgreSQL receiver path in the diagram is proposed
-and paused; no PostgreSQL receiver metrics are currently active. Identity, Programme, Activity, and Geodata logging images
-are live. A safe Identity health request has a matching Loki structured-metadata
-record and Tempo span; dashboard LogQL query shapes pass against live Loki.
-Helm revision 227 is deployed after rollback to 226; the resulting ConfigMap
-retains the corrected datasource/dashboard and Grafana logged provisioning.
-Fleet is Ready=True at Deploy commit `904bef2`. UI link navigation,
-request-to-worker correlation, Phase 6 hardening, and Phase 7 database
-observability remain open. The PostgreSQL-to-Collector edge is **proposed** and
-remains disabled until a dedicated read-only monitoring login and Phase 7
-verification exist. See the [logging implementation plan](../../observability/logging-implementation.md)
-and [evidence](../../observability/evidence/logging-implementation-2026-10-11.md).
+The active database path uses the Operations service's fixed-name, read-only
+monitor adapter for PostgreSQL counters and bounded PostGIS extension
+presence/version. Direct Collector PostgreSQL receivers remain disabled after
+repeated authentication failure. Psycopg instrumentation disables parameter
+capture and SQL commenter; Collector transforms remove SQL-bearing span
+attributes before Tempo export. Raw PostgreSQL statement logs are not
+collected because they can contain SQL literals and user data.
+
+The logging source and images are deployed. Stable NATS correlation uses
+`correlationId`, then `workId`, then `eventId` in the message header; consumer
+logs inherit that context. The originating HTTP ID remains unavailable for
+outbox rows that did not persist it. All Deployments currently report Ready,
+but Helm revision 242 remains `pending-upgrade` while Fleet reports revision
+241 Ready with 67/67 resources. Authenticated Grafana navigation, a live
+request-to-worker correlation check, a Loki prohibited-field audit, and full
+Compose runtime parity remain open. See the
+[logging implementation plan](../../observability/logging-implementation.md)
+and [current evidence](../../observability/evidence/logging-implementation-2026-10-11.md).
 
 Operations no longer needs a NATS connection for broker metrics. Surveyor is
 the central broker observer; its Service and NATS connection stay internal.
