@@ -113,7 +113,7 @@ NATS migration status on 11 October 2026:
   are healthy; the Operations snapshot table/index were removed by migration
   005 after backup verification, while storage history remains. A temporary
   in-memory validation stream was deleted. Fleet is Ready=True on Deploy main
-  commit `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`, with 64/64 resources and
+  commit `f43d600380803e86292e7e0010bfc1655b1a5d2a`, with 64/64 resources and
   matching applied/desired IDs. Phase 2 is complete. See the
   [monitoring consolidation plan](docs/observability/nats-surveyor-migration.md).
 
