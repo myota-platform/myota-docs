@@ -60,13 +60,7 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Complete NATS monitoring cutover
-
-**Current evidence:** Surveyor 0.9.11, the eleven Grafana NATS dashboards, bounded 7 GiB/1 GiB broker capacities, and all three replacement service images are live. The ephemeral memory-stream test was deleted. Operations migration 003 / Deploy migration 005 removed the snapshot table and index after the verified-backup gate; storage history remains healthy. Helm revision 206 is healthy. See the [monitoring migration](../observability/nats-surveyor-migration.md) and [live evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md).
-
-**Next:** reconcile Fleet's stale `status.appliedDeploymentID` and `WaitApplied(1)` state to the current Deploy main commit, then verify Fleet Ready. Do not close Phase 2 until this GitOps gate passes.
-
-### 3. Phase 6 fact-stream lifecycle
+### 2. Phase 6 fact-stream lifecycle
 
 **Current evidence:** Phases 0–5 are complete within their recorded evidence
 bounds. Phase 5 moved all four Geodata work kinds to the bounded
