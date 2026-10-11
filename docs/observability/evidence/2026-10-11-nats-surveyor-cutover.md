@@ -81,16 +81,16 @@ must be updated with final live evidence before any checkbox is marked complete.
   The stream and pod were deleted immediately afterward. No validation stream or pod
   remains. Prometheus's normal 15-day metrics retention is unchanged.
 - Operations migration 003 is mirrored as Deploy/Platform core migration 005.
-  The `myota-migrations-206` Job completed. Database inspection confirmed
+  The `myota-migrations-207` Job completed. Database inspection confirmed
   `operations_jetstream_snapshot` and its history index are absent, while
-  `operations_storage_snapshot` contains 6,015 rows. The pre-migration custom
+  `operations_storage_snapshot` contains 6,031 rows at the final check. The pre-migration custom
   format backup remains outside source control with SHA-256
   `634520fef35d62e647eb34b01d803efa7d77a91bf5e43eba7eda65118e215428`.
-- Fleet still reports `WaitApplied(1)` and an old `status.appliedDeploymentID`
-  although its desired commit is `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`
-  and Helm revision 206 plus the MyOTA workloads are healthy. This is an open
-  GitOps reconciliation gate; it is not represented as Fleet-ready or Phase 2
-  complete.
+- Fleet reports Ready=True for Deploy main commit
+  `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`. Helm revision 207 is deployed,
+  the bundle applied/desired deployment IDs match, and 64/64 resources are
+  ready. The earlier `WaitApplied(1)` state cleared after the local Fleet agent
+  restart and one force sync.
 - Focused CI: Operations migration commit `9dd93091b9abcb74fb5c047bbbd6a592edffd186`
   passed run `38097580535`; Deploy migration commit
   `bada0388a0e684f8fea87b15452f7df87eced170` passed Python quality run
