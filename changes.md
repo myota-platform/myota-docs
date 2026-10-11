@@ -9,9 +9,11 @@
   Deploy Python quality and image-build workflows passed. Corrected LogQL range
   selector spacing in the Compose/Helm dashboard mirrors and parsed dashboard
   JSON successfully.
-- K3s Loki and Collector are Ready. The current service image digests have not
-  yet advanced to the latest worker logging commits, so live end-to-end logging
-  is not accepted. Phase 6 hardening and Phase 7 database observability remain
+- K3s Loki and Collector are Ready. Identity, Programme, Activity, Operations
+  and Deploy worker images rolled out; Geodata remains on its prior digest after
+  a failing worker-delivery integration job. A read-only Identity request was
+  logged by the pod but its trace was not found in Loki. Live end-to-end logging
+  is therefore not accepted. Phase 6 hardening and Phase 7 database observability remain
   open. The Geodata image build remains blocked by the worker-delivery test
   failures documented in the evidence. See the [logging plan](docs/observability/logging-implementation.md),
   [evidence](docs/observability/evidence/logging-implementation-2026-10-11.md),
