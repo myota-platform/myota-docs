@@ -1,24 +1,24 @@
 # MyOTA changes
 
-## 11 October 2026 — Structured logging implementation progress
+## 11 October 2026 — Structured logging rollout and live trace verification
 
-- Phases 1–5 source/configuration changes are recorded in the logging roadmap.
-  Shared structured logging, HTTP trace propagation, worker lifecycle logs,
-  Loki/Collector pipeline, and Grafana correlation assets exist on main.
-- Fixed Deploy Ruff formatting and missing trace-helper imports; the latest
-  Deploy Python quality and image-build workflows passed. Corrected LogQL range
-  selector spacing in the Compose/Helm dashboard mirrors and parsed dashboard
-  JSON successfully.
-- K3s Loki and Collector are Ready. Identity, Programme, Activity, Operations
-  and Deploy worker images rolled out; Geodata remains on its prior digest after
-  a failing worker-delivery integration job. A read-only Identity request was
-  logged by the pod but its trace was not found in Loki. Live end-to-end logging
-  is therefore not accepted. Phase 6 hardening and Phase 7 database observability remain
-  open. The Geodata image build remains blocked by the worker-delivery test
-  failures documented in the evidence. See the [logging plan](docs/observability/logging-implementation.md),
+- CI-published logging images for Identity, Programme, Activity, and Geodata
+  are running on K3s; all service and worker replicas were Ready at verification.
+  Geodata relational-boundary, load-harness, and upload-recovery jobs passed.
+- A read-only Identity `GET /healthz` returned HTTP 200. Its trace ID matched
+  one Loki `http.request.completed` structured-metadata record and one Tempo
+  `GET /healthz` span. No business data was written.
+- Live Loki confirmed only three indexed label names. OTLP attributes are
+  queryable as structured metadata, so the JSON parser was removed from the
+  Grafana dashboard queries and runbook; the trace link now selects the
+  `trace_id` metadata field.
+- Deploy and its Platform mirror contain the dashboard/datasource correction.
+  Fleet/Grafana rollout and UI link navigation still require verification.
+  Retention growth, safe live redaction, representative cardinality, async
+  request-to-worker correlation, and PostgreSQL/PostGIS observability remain
+  open. See the [plan](docs/observability/logging-implementation.md),
   [evidence](docs/observability/evidence/logging-implementation-2026-10-11.md),
-  and [operations runbook](docs/observability/logging-runbook.md).
-
+  and [runbook](docs/observability/logging-runbook.md).
 
 ## 11 October 2026 — NATS migration Phase 6 fact-stream cutover
 
