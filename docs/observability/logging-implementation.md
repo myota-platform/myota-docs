@@ -318,7 +318,9 @@ Deliverables:
 - [x] a MyOTA Logs / Failures dashboard;
 - [x] panels for errors by service, recent failures, worker failures/retries and HTTP
   server-error logs;
-- [ ] links from existing operational dashboards where useful.
+- [ ] links from existing operational dashboards where useful;
+- [ ] verify Helm ConfigMap mounting and Grafana provisioning of the dashboard;
+- [ ] execute dashboard queries against live structured logs and verify trace/log links.
 
 Implementation prompt:
 [Phase 5 ChatGPT prompt](prompts/logging-phase-5-grafana-correlation.md)
