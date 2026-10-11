@@ -31,9 +31,10 @@ Geodata image digests include the logging initialization; all application and
 worker replicas were Ready at the latest K3s check. A safe Identity
 `GET /healthz` record was found in Loki by its OTLP structured-metadata
 `trace_id`, and the matching Tempo server span was retrieved. The Grafana
-dashboard query shapes also succeeded against live Loki. Helm revision 224
-mounted the corrected metadata-aware dashboard and datasource files, and
-Grafana logged dashboard provisioning. Fleet release readiness and UI trace/log
+dashboard query shapes also succeeded against live Loki. Helm revision 225
+mounted the corrected metadata-aware dashboard and datasource files, Grafana
+logged dashboard provisioning, and all seven dashboard LogQL queries returned
+successfully against live Loki. Fleet release readiness and UI trace/log
 navigation remain open, as do asynchronous correlation, Phase 6 production
 hardening, and Phase 7 PostgreSQL/PostGIS telemetry. See the
 [implementation plan](logging-implementation.md), [evidence](evidence/logging-implementation-2026-10-11.md),
