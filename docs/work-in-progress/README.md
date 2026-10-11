@@ -24,8 +24,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   — track service metrics remediation and current K3s verification.
 - [Observability and storage verification](../observability/evidence/2026-10-09.md)
   — deployed storage-status and Grafana access evidence; records the test
-  scope and remaining logging gap. The proposed NATS Surveyor consolidation is
-  tracked separately in its observability roadmap.
+  scope and remaining logging gap. NATS Surveyor consolidation is deployed and
+  complete; its roadmap and evidence remain linked in the observability index.
 - [Recent award designer delivery evidence](../domain/awards/evidence/programme-awards-2026-10-09.md)
   — UI/API verification record, including the platform integration test not run
   against an isolated NATS broker.
