@@ -33,6 +33,10 @@ indexes organize open work by delivery status.
   and its two PostGIS panels are not recreated.
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, Surveyor migration plan and current verification.
+- [Structured logging implementation status](observability/logging-implementation.md) —
+  Phase 1–5 source/configuration progress and open Phase 6–7 gates.
+- [Logging implementation evidence](observability/evidence/logging-implementation-2026-10-11.md) —
+  CI, K3s, runtime image and end-to-end acceptance evidence.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA
   migration context.
 - [History and status reconciliation](history/README.md) — project timeline,
