@@ -43,60 +43,57 @@ Documentation and phase evidence are owned by `myota-docs`.
   `observability/grafana/provisioning/datasources/datasources.yml`,
   `observability/grafana/dashboards/myota-logs-failures.json`, and their
   `deploy/helm/myota/` mirrors in Deploy and Platform.
-- The latest dashboard fix inserted the required separation before LogQL range
-  selectors. The JSON parser check passed; this does not substitute for Loki
-  query execution.
+- The dashboard uses Loki OTLP structured metadata rather than parsing its string event body as JSON. The live query run is recorded below.
 
 ## Host and CI evidence
 
-- K3s namespace: `myota`. The last check found the Fleet bundle
-  `myota-deploy-deploy-helm-myota` Ready=True.
-- Loki `grafana/loki:3.7.8` and Collector
-  `otel/opentelemetry-collector-contrib:0.135.0` were Ready.
-- Fleet accepted Deploy main commit `c039d694206d45f7dc2ae4c4822feb6e6cf9768f`
-  and returned Ready=True. New CI-published images rolled out and all desired replicas are Ready:
+- K3s namespace: `myota`; Deploy is authoritative for Helm and Platform is
+  its synchronized mirror. At the latest check, Helm revision 223 was deployed;
+  all application, worker, Loki, Collector, Grafana, and Tempo workloads were
+  Ready. Fleet had applied Deploy commit
+  `0bd491fa5ffd92a0a46c9aaf0978fad88bd4d872`.
+- Running service digests:
 
 | Owner | Running image digest | Build evidence |
 |---|---|---|
-| Identity | `sha256:dc0b3482fc930e8abc4d4b8ff1db9dde802bc6c8edc15c72cd9d542af3c0c22b` | [38103324688](https://github.com/myota-platform/myota-identity-service/actions/runs/38103324688) |
-| Programme | `sha256:d10a123a79f128bc226fef72ff3cbf891950294a07d354f21365b78082c8ce29` | [38103325704](https://github.com/myota-platform/myota-programme-service/actions/runs/38103325704) |
-| Activity | `sha256:6760bb5a1db70cddec3e99e738bc38af19231090919f430e61861f4a006c161e` | [38103443803](https://github.com/myota-platform/myota-activity-service/actions/runs/38103443803) |
+| Identity | `sha256:d2feb9935e4d7e457a3cce6b39f30a81eb6ee00f26ef52744fd6a0575f2197b2` | [38104742283](https://github.com/myota-platform/myota-identity-service/actions/runs/38104742283), quality [38104743122](https://github.com/myota-platform/myota-identity-service/actions/runs/38104743122) |
+| Programme | `sha256:d5a4b18098b98c9e9b6c4acac085b20c663c2361c9e9019f1d3b6de5ff38a145` | [38104741260](https://github.com/myota-platform/myota-programme-service/actions/runs/38104741260), quality [38104741752](https://github.com/myota-platform/myota-programme-service/actions/runs/38104741752) |
+| Activity | `sha256:f88145de15a580d426d3452c12e6f652a16f6b433dd9441ddc7b7ac8d80654ce` | [38104743745](https://github.com/myota-platform/myota-activity-service/actions/runs/38104743745), quality [38104744128](https://github.com/myota-platform/myota-activity-service/actions/runs/38104744128) |
+| Geodata | `sha256:f924eed50a6e8cc83b5399836cf597d293a0f95b3fb2e830cff78128d44a6311` | [38104897949](https://github.com/myota-platform/myota-geodata-service/actions/runs/38104897949), quality [38104898359](https://github.com/myota-platform/myota-geodata-service/actions/runs/38104898359) |
 | Operations | `sha256:8a948db53794baf8a3e38125bc943182c9ac1f497863ab9525df0532444e2f0c` | [38103329678](https://github.com/myota-platform/myota-operations-service/actions/runs/38103329678) |
-| Deploy workers | `sha256:8bb123325b4e1f0fc9d0c42947c7fc8cee91c8354ce54323266fb6d457491982` | [38103800310](https://github.com/myota-platform/myota-deploy/actions/runs/38103800310) |
-| Geodata | `sha256:4c7c65a51a983f760176b6149ad389102a4a65b31cb4b2fc39a180008dfd86eb` | Still running the prior digest; latest image build [38103448580](https://github.com/myota-platform/myota-geodata-service/actions/runs/38103448580) failed and skipped publication. |
+| Deploy workers | `sha256:8bb123325b4e1f0fc9d0c42947c7fc8cee91c8354ce54323266fb6d457491982` | [38105043371](https://github.com/myota-platform/myota-deploy/actions/runs/38105043371) quality; [38105042942](https://github.com/myota-platform/myota-deploy/actions/runs/38105042942) Helm validation |
 
-The logging changes are live in the five successful owners; Geodata has not
-rolled out.
-- A safe read-only Identity probe returned HTTP 200 from `/healthz` and HTTP 403
-  from unauthenticated `GET /v1/identity/me`. The API pod emitted
-  `http.request.completed` records. A Loki query over the matching test trace ID
-  returned no records; a bounded count query showed Activity notifications and
-  Operations logs only. Identity trace-to-log acceptance therefore failed and
-  remains open. The temporary port-forwards were stopped; no database/business
-  rows or other test data were created.
-- Loki's live `/loki/api/v1/labels` endpoint returned only
-  `deployment_environment`, `service_name`, and
-  `service_namespace`. This confirms a low-cardinality label *name set*;
-  it does not prove that no prohibited identifier exists in log bodies or that
-  future traffic cardinality is bounded.
-- Geodata's latest image publication workflow
-  [38103448580](https://github.com/myota-platform/myota-geodata-service/actions/runs/38103448580)
-  failed because its relational-boundary job reports seven JetStream worker
-  delivery timeouts. Job output also shows the existing database error
-  `Geodata writer is obsolete; deploy the row-authoritative service image`;
-  the image build/publish job was skipped. Resolve this service test/deployment
-  mismatch before expecting a new Geodata digest.
-- Deploy Python quality passed on main after fixing formatting and two missing
-  mirror imports: workflow run
-  [38103761084](https://github.com/myota-platform/myota-deploy/actions/runs/38103761084).
-  The preceding failures were fixed. The matching deployment image workflow
-  [38103760646](https://github.com/myota-platform/myota-deploy/actions/runs/38103760646)
-  completed successfully.
-- Identity, Activity, and Geodata Python quality runs passed for their latest
-  helper/worker commits (runs 38103325177, 38103444208, and 38103449017).
-- The prior disposable Loki smoke test submitted one OTLP record and queried it
-  successfully; its temporary namespace was removed. No production business
-  data was inserted by this logging work.
+- The four service entrypoints now call `configure_logging()`. Identity,
+  Programme, Activity, and Geodata quality checks and image builds passed.
+  Geodata's relational-boundary, load-harness, and upload-recovery jobs all
+  passed in run 38104897949; its previously failing delivery timeout and
+  formatter attempts were superseded by that successful run.
+- A non-mutating Identity `GET /healthz` returned HTTP 200 and response
+  `X-Trace-ID: 37e1a9421947ff6904ab225d5366ad0d`. Loki returned one matching
+  `http.request.completed` record when filtering structured metadata directly
+  by `trace_id`; the record also included `severity_text=INFO`, route, status,
+  duration, request ID, and correlation ID. Tempo returned the matching trace
+  with one `GET /healthz` span. The temporary port-forwards were stopped. No
+  application/business rows or test data were created.
+- Loki's `/loki/api/v1/labels` endpoint returned the three indexed label names
+  `deployment_environment`, `service_name`, and `service_namespace`.
+  The record's other OTLP attributes are queryable structured metadata. This is
+  evidence about the current indexed-label set, not a representative cardinality
+  or sensitive-field/redaction audit.
+- The dashboard query shapes were executed against live Loki with the JSON
+  parser removed and `severity_text` used. Log streams and metric aggregations
+  returned success. The prior parser generated `JSONParserErr` because the
+  OTLP body is an event string while attributes are separate structured
+  metadata. Deploy and Platform now contain the correction: direct structured
+  metadata filters and a label-type `trace_id` derived field. These commits
+  have not yet been observed in a new Helm revision; UI trace/log navigation
+  stays open until the corrected config is provisioned and exercised.
+- Grafana logged successful dashboard provisioning from Helm revision 221; the
+  dashboard ConfigMap and mount were also verified. Revision 223 subsequently
+  rolled out the Geodata digest. Loki and Collector were Ready during the live
+  query checks.
+- The temporary disposable-broker smoke test remains cleaned up. No production
+  business data was injected.
 
 ## Phase 6 — production hardening
 
