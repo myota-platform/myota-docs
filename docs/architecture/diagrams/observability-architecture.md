@@ -25,8 +25,12 @@ are provisioned in Grafana folder `NATS`. Prometheus keeps 15 days of metrics,
 not broker messages. The single-server deployment leaves cluster, gateway,
 multi-node Raft, and optional service-observation panels without data.
 
-**Implementation status (11 October 2026):** source retirement passed service
-CI. Fleet is applying corrected capacity configuration after a failed NATS
-config render was rolled back to the prior healthy release. The Admin,
-Operations, and Geodata live image rollout and Operations history-table
-migration remain open. See the [NATS monitoring roadmap](../../observability/nats-surveyor-migration.md).
+
+**Implementation status (11 October 2026):** Surveyor 0.9.11, the eleven NATS
+folder dashboards, bounded JetStream capacities, and replacement Admin,
+Operations, and Geodata images are live. Helm revision 206 applied the
+Operations snapshot retirement migration; storage history remains. The
+remaining gate is Fleet reconciliation: `myota-deploy` reports
+`WaitApplied(1)` with stale applied-release metadata despite the healthy Helm
+release and workloads. See the [NATS monitoring roadmap](../../observability/nats-surveyor-migration.md)
+and [live evidence](../../observability/evidence/2026-10-11-nats-surveyor-cutover.md).
