@@ -1,3 +1,32 @@
+## 12 October 2026 — Admin entity metadata visibility follow-up
+
+- **Prompt used:** “Revisit issue
+  https://github.com/myota-platform/myota-admin-web/issues/2.”
+- **Scope:** Admin web management dialog, Admin browser regression, Deploy and
+  Platform image pins, Docs workflow guide/diagram, local K3s read-only rollout
+  verification, and issue closeout.
+- **Finding and change:** Website and Description were present but nested under
+  Name & categories. A dedicated metadata section now appears near the top of
+  the management dialog. Browser checks assert visibility and the persisted
+  values.
+- **Verification:** Admin workflow
+  [#38183593814](https://github.com/myota-platform/myota-admin-web/actions/runs/38183593814)
+  passed production build, type checking, publishing, and all 24 browser tests.
+  The live Admin Deployment runs image
+  `sha256:ac82ae5420a5a449a2c5a812d972e62f3f8a291edbae3e7a3f45695388abdb24`.
+  Helm 0.2.20 revision 273 is deployed; Fleet reports Ready and 23 Deployments
+  with 27 replicas are Ready. A read-only live asset inspection found the new
+  section and input labels. No test data was created.
+- **Commits:** Admin UI
+  `c4314ba2eef69877219861e24c1220f89801ae3b` (browser assertions) and
+  `0c1d0cc9a8262745fadd35c7c6fb14ca8737b5fb` (workflow documentation);
+  Deploy `0dd7de270a111adf2169601c1e8e796ef203fc57`; Platform mirror
+  `9cabc46d657e387b5adb2152c294af206dd0342f`.
+- **Result:** Issue #2 was closed after the live image and rollout checks.
+  The [entity editor guide](../domain/administration/entity-catalogue-editor.md)
+  and [diagram](../architecture/diagrams/entity-catalogue-editor.md) describe
+  the prominent section.
+
 ## 11 October 2026 — Operations Service retirement and OpenTelemetry migration
 
 - **Prompt used:** “Work on and complete all issues related to Operations
