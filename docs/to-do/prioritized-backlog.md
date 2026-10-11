@@ -22,25 +22,6 @@ new operational evidence.
 
 ## P0 — close before the affected rollout or capability expansion
 
-### Add duplicate-YAML-key rejection to contract validation
-
-**Current evidence:** Phases 1–4 of the cross-repository review are complete.
-Owner-to-mirror CI, source builds, image builds, route inventory, Fleet, and
-Helm evidence are recorded in the
-[phase evidence record](../architecture/evidence/review-phases-1-4-2026-10-11.md).
-The current Contracts audit does not reject duplicate YAML mapping keys in
-the destructive Geodata cleanup definition.
-
-**Why first:** a duplicate mapping key can make parsers retain different
-schemas for one destructive operation. This is the only open item in the
-cross-repository review and should be closed before relying on generated
-contract tooling for that operation.
-
-**Next:** complete the unchecked Phase 0 tasks in
-[REVIEW.md](../../REVIEW.md): add duplicate-key-aware validation, compare the
-single contract definition with the Geodata handler, check the Platform mirror,
-and record exact focused CI evidence.
-
 ### 1. Qualify geodata upload and worker recovery before scaling
 
 **Current evidence:** Phase 2 API/session recovery across API and SeaweedFS

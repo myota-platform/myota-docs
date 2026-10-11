@@ -1,8 +1,8 @@
 # REST API consolidation — delivered state
 
-**Status:** resource-oriented API delivery and pre-live alias retirement are
-complete. The independent duplicate-YAML-key contract safeguard remains open
-in [REVIEW.md](../../../REVIEW.md).
+**Status:** resource-oriented API delivery, pre-live alias retirement, and
+Phase 0 contract-safety closure are complete. See [REVIEW.md](../../../REVIEW.md)
+and the [Phase 0 evidence](../../architecture/evidence/review-phase-0-2026-10-11.md).
 **Reviewed:** 2026-10-11
 
 ## Ownership and contract
@@ -15,10 +15,10 @@ and dependency-light client facades. Each service owns authorization, validation
 transactions, audit and event writes, idempotency, workers, and persistence.
 
 The deployed service route inventory and canonical contract currently agree:
-132 OpenAPI operations and 170 route registrations, with zero unregistered
+131 OpenAPI operations and 170 route registrations, with zero unregistered
 contract operations, zero runtime routes missing from OpenAPI, and zero duplicate
-operation identifiers. The remaining parser gap is specific: the route audit
-does not reject duplicate YAML mapping keys.
+operation identifiers. Contracts CI rejects duplicate YAML mapping keys with
+a Psych AST check and a regression self-test.
 
 ## Current API design
 

@@ -8,14 +8,18 @@
   Geodata route registration, and removed unused pre-live API aliases and
   their deprecation machinery.
 - Contracts CI passes for 44 owner files, 92 file mirrors, and five exact tree
-  mirrors. The current route inventory contains 132 OpenAPI operations and
+  mirrors. The current route inventory contains 131 OpenAPI operations and
   170 route registrations with no missing or unregistered routes or duplicate
   operation IDs.
 - Fleet is Ready=True at Deploy commit f7d2e65; Helm release myota is
   deployed at revision 246 and all Deployments were ready at requested counts.
-- Phase 0 remains open only for duplicate-YAML-key rejection and the final
-  handler/mirror comparison. See [REVIEW.md](REVIEW.md) and the
-  [phase evidence report](docs/architecture/evidence/review-phases-1-4-2026-10-11.md).
+- Phase 0 is complete: the duplicate cleanup path was merged into one
+  handler-aligned contract; Contracts CI rejects duplicate YAML mapping keys;
+  the route inventory has 131 unique operations and 170 route registrations.
+  Contracts CI run [38157218999](https://github.com/myota-platform/myota-contracts/actions/runs/38157218999)
+  and Platform CI run [38157179490](https://github.com/myota-platform/myota-platform/actions/runs/38157179490)
+  passed. The canonical, Contracts root, and Platform copies are byte-identical.
+  See the [Phase 0 closure record](docs/architecture/evidence/review-phase-0-2026-10-11.md).
 
 
 ## 11 October 2026 — Phase 7 database observability work

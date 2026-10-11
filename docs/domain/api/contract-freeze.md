@@ -26,7 +26,7 @@ current main-branch inventory contains:
 
 | Check | Current result |
 | --- | ---: |
-| Canonical OpenAPI operations | 132 |
+| Canonical OpenAPI operations | 131 |
 | Service route registrations | 170 |
 | Contract operations without a registered handler | 0 |
 | Registered handlers missing from OpenAPI | 0 |
@@ -36,9 +36,13 @@ The historical 117-operation baseline from 2026-10-01 is not the current
 contract size. Operations were added as resource and job APIs were built, and
 unused compatibility-only operations were later removed.
 
-The route checker does not reject every duplicate YAML mapping key. The
-duplicate-key safeguard for the destructive Geodata cleanup definition remains
-an open item in the cross-repository review.
+Contracts CI now runs a Psych AST validator before route
+inventory generation and self-tests that duplicate keys are rejected without
+treating same-named keys in separate mappings as duplicates. The one canonical
+Geodata cleanup operation matches its owner handler; the root and Platform
+contract mirrors are byte-identical. See the
+[Phase 0 closure evidence](../../architecture/evidence/review-phase-0-2026-10-11.md)
+and passing [Contracts CI run 38157218999](https://github.com/myota-platform/myota-contracts/actions/runs/38157218999).
 
 ## CI gates
 

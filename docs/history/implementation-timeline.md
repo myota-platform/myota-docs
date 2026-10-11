@@ -40,6 +40,7 @@ describe current ownership and are authoritative for the present-day system.
   completion of Phases 1–4 is recorded in the next entry.
 
 
+
 ## 11 October 2026 — Cross-repository review mitigation, Phases 1–4
 
 - **Prompt used:** “Fix REVIEW.md phases 1–4 iteratively. Make sure to retire
@@ -63,7 +64,34 @@ describe current ownership and are authoritative for the present-day system.
   Ready=True at Deploy f7d2e65, Helm revision 246 deployed, and Deployment
   readiness are recorded in the
   [phase evidence report](../architecture/evidence/review-phases-1-4-2026-10-11.md).
-  The independent duplicate-YAML-key guard remains open in Phase 0.
+  Phase 0 closure is recorded in the following timeline entry.
+
+## 11 October 2026 — Cross-repository review Phase 0 contract safety
+
+- **Prompt used:** “Decide how to resolve: Phase 0 remains open for
+  duplicate-YAML-key rejection and the final handler/mirror check.”
+- **Decision:** use a standard-library Psych AST validator in Contracts CI.
+  Self-test that duplicate keys in one mapping fail and same-named keys in
+  separate mappings pass. Merge the two cleanup path definitions into one
+  operation that matches the Geodata handler, including the `lt-` identifier
+  constraint, both supported global-admin roles, environment and production
+  opt-ins, exact confirmation, active-work and linked-data guards, bucket
+  restrictions, and all response fields.
+- **Changes:** Contracts owns the canonical OpenAPI and validator; its root
+  copy and the Platform bootstrap mirror are synchronized byte-for-byte. The
+  regenerated route inventory records 131 operations and 170 service route
+  registrations. No runtime handler or deployed behavior changed.
+- **Evidence:** Contracts commits
+  [1ed6efb](https://github.com/myota-platform/myota-contracts/commit/1ed6efb476879da3d10abb20325a104e5f504e24)
+  and
+  [36cf244](https://github.com/myota-platform/myota-contracts/commit/36cf244bedaf6071e50d7c5aef973ccd890128c4)
+  pass [CI run 38157218999](https://github.com/myota-platform/myota-contracts/actions/runs/38157218999).
+  Platform mirror commit
+  [2426e4d](https://github.com/myota-platform/myota-platform/commit/2426e4da186aca49cfa00a58a83746f3573cdf66)
+  passes [CI run 38157179490](https://github.com/myota-platform/myota-platform/actions/runs/38157179490).
+  The [Phase 0 evidence record](../architecture/evidence/review-phase-0-2026-10-11.md)
+  contains the exact changed paths and results.
+
 
 ## 11 October 2026 — Structured logging rollout, Phases 1–5
 

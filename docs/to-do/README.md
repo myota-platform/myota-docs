@@ -7,9 +7,6 @@ only a navigation index.
 For the recommended execution order, see the
 [prioritized backlog](prioritized-backlog.md).
 
-- [OpenAPI duplicate-key safety check](../../REVIEW.md) — review Phase 0 still
-  needs a duplicate-YAML-key guard for the Geodata destructive cleanup
-  operation. The current route inventory does not provide that check.
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 5 retains broader capacity, independent-row consistency, node/storage
   failure, canary, and rollback evidence gates.

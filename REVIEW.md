@@ -1,8 +1,7 @@
 # Cross-repository architecture review
 
 **Reviewed:** 2026-10-11  
-**Status:** Phases 1–4 implemented; the separate Phase 0 duplicate-YAML-key
-safeguard remains open.  
+**Status:** Phases 0–4 complete.  
 **Scope:** Identity, Programme, Activity, Geodata, Operations, Contracts, Deploy,
 Platform, both first-party web clients, Docs, and .github.
 
@@ -23,16 +22,19 @@ The four requested mitigation phases are implemented and recorded:
    Unused compatibility-only API aliases and their runtime deprecation
    machinery have been removed. Audited domain commands remain explicit.
 
-The current route inventory has 132 OpenAPI operations and 170 registered
-routes, with no missing operations or duplicate operation identifiers.
+The current route inventory has 131 OpenAPI operations and 170 registered
+routes, with no missing operations, duplicate operation identifiers, or duplicate
+method/path declarations.
 Identity, Programme, Activity, Geodata, Operations, Deploy, Platform, and
 Contracts checks pass at the revisions linked in the
 [phase evidence record](docs/architecture/evidence/review-phases-1-4-2026-10-11.md).
 
-One independent contract-safety issue remains open: the route inventory does
-not reject duplicate YAML mapping keys. The destructive Geodata cleanup
-operation still needs a duplicate-key-aware parser check. It is tracked as
-Phase 0 and in the To do index; this review does not mark it complete.
+Phase 0 is complete. Contracts CI now rejects duplicate YAML mapping keys
+before route-inventory generation, self-tests that rejection, and checks that
+the canonical Geodata cleanup definition matches the handler and byte-identical
+root and Platform mirrors. The route inventory now records 131 unique
+OpenAPI operations and 170 service route registrations. See the
+[Phase 0 closure evidence](docs/architecture/evidence/review-phase-0-2026-10-11.md).
 
 ## Ownership decisions
 
@@ -50,19 +52,26 @@ Phase 0 and in the To do index; this review does not mark it complete.
 
 ### A-01 — Duplicate destructive OpenAPI mapping
 
-**Severity:** High. **Status:** open in Phase 0.
+**Severity:** High. **Status:** resolved in Phase 0.
 
-The canonical OpenAPI file contains duplicate mapping-key definitions for the
-Geodata load-test cleanup operation. The definitions disagree on identifier
-constraints and descriptions. Ordinary YAML parsing can silently retain one
-value. The current route inventory checks methods, paths, operation IDs, and
-runtime registrations, but does not reject duplicate YAML mapping keys.
+The duplicate Geodata load-test cleanup path has been collapsed into one
+canonical OpenAPI operation. Its identifier constraint, authorization
+description, exact confirmation, environment/production opt-ins, active-work
+refusal, cross-service impact guard, object-scope protection, and full response
+schema now match the Geodata owner handler. The response includes
+`uploadSessionsDeleted`, which the previous contract omitted.
 
-**Required follow-up:** add duplicate-key rejection to the Contracts validation
-path, compare the single contract definition with the Geodata handler, and
-record the exact parser/test result. Preserve the current handler's
-authorization, explicit enablement, production acknowledgement, exact
-confirmation, and linked-data safeguards.
+Contracts CI parses the OpenAPI syntax and runs a Psych AST check that rejects
+duplicate mapping keys. Its regression self-test proves duplicates in one
+mapping fail while identically named keys in separate mappings remain valid.
+The canonical Contracts document, its repository-root mirror, and the Platform
+bootstrap mirror are byte-identical. The regenerated inventory records 131
+operations and 170 service route registrations with no missing routes or
+duplicate operation IDs.
+
+**Evidence:** [Phase 0 closure record](docs/architecture/evidence/review-phase-0-2026-10-11.md),
+including the Geodata handler comparison, mirror verification, Contracts CI
+run 38157218999, and Platform CI run 38157179490.
 
 ### A-02 — Operations and Geodata mirror drift
 
@@ -199,35 +208,25 @@ does not claim the handler module is small.
 There is no user migration or runtime observation gate for these removed
 aliases in this pre-live system.
 
-## Remaining Phase 0 work
+## Phase 0 — Duplicate-key and handler safety (complete)
 
-- [ ] Add duplicate-YAML-mapping-key rejection to the Contracts validation path.
-- [ ] Verify the single destructive Geodata cleanup definition against its handler and synchronized OpenAPI mirror.
-- [ ] Record the exact parser and CI result before closing this item.
+- [x] Add duplicate-YAML-mapping-key rejection to Contracts CI and self-test
+  both duplicate rejection and same-name keys in separate mappings.
+- [x] Reconcile the single Geodata cleanup OpenAPI operation with its owner
+  handler, including destructive safeguards and the complete response schema.
+- [x] Regenerate the route inventory and verify the canonical, root, and
+  Platform OpenAPI copies are byte-identical.
+- [x] Record passing Contracts and Platform CI evidence.
 
-## Remaining Phase 0 prompt
-
-~~~text
-Complete the remaining Phase 0 contract-safety item in myota-docs/REVIEW.md.
-Read this review, the API contract freeze record, and the current Geodata
-cleanup handler. Treat myota-contracts as the OpenAPI authority and the
-Platform OpenAPI file as a synchronized mirror.
-
-Add a focused YAML validation check that rejects duplicate mapping keys.
-Reduce the current Geodata cleanup operation to one OpenAPI definition that
-matches its owner handler. Preserve authorization, explicit enablement,
-production acknowledgement, exact confirmation, and linked-data safeguards.
-Regenerate the route inventory and verify the OpenAPI mirror.
-
-Run the focused Contracts check and report exact file changes and results.
-Update the Phase 0 checkbox and this review only when the duplicate-key check,
-handler comparison, and mirror evidence pass.
-~~~
+The implementation changes the contract, its validation and synchronized
+mirrors only. No runtime handler or deployed behavior changed. See the
+[Phase 0 closure record](docs/architecture/evidence/review-phase-0-2026-10-11.md).
 
 ## Verification boundary
 
 The work changed source code, Contracts, synchronized runtime files,
 deployment inputs, and documentation. CI results and deployed cluster state
 are linked from the [phase evidence record](docs/architecture/evidence/review-phases-1-4-2026-10-11.md).
-The remaining duplicate-key safeguard is not implied complete by a passing
-route inventory.
+Phase 0 closure depends on both duplicate-key-aware YAML validation
+and direct handler/mirror reconciliation; both are recorded in the linked
+evidence file.

@@ -6,11 +6,11 @@ is listed in [To do](../to-do/README.md).
 
 ## Cross-repository architecture review
 
-Phases 1–4 are implemented and documented in [REVIEW.md](../../REVIEW.md) and
-the [phase evidence record](../architecture/evidence/review-phases-1-4-2026-10-11.md).
-They restore source-to-mirror parity, establish the shared logger source,
-extract the Geodata route map, and retire unused API aliases. The separate
-Phase 0 duplicate-YAML-key check remains open.
+Phases 0–4 are complete and documented in [REVIEW.md](../../REVIEW.md), the
+[Phase 0 closure record](../architecture/evidence/review-phase-0-2026-10-11.md),
+and the [Phases 1–4 evidence record](../architecture/evidence/review-phases-1-4-2026-10-11.md).
+The contract cleanup definition, duplicate-key CI gate, handler check, and
+canonical/root/Platform mirrors are reconciled.
 
 ## Active implementation and evidence
 
