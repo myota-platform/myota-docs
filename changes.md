@@ -12,8 +12,10 @@
 - K3s Loki and Collector are Ready. The current service image digests have not
   yet advanced to the latest worker logging commits, so live end-to-end logging
   is not accepted. Phase 6 hardening and Phase 7 database observability remain
-  open. See the [logging plan](docs/observability/logging-implementation.md)
-  and [evidence](docs/observability/evidence/logging-implementation-2026-10-11.md).
+  open. The Geodata image build remains blocked by the worker-delivery test
+  failures documented in the evidence. See the [logging plan](docs/observability/logging-implementation.md),
+  [evidence](docs/observability/evidence/logging-implementation-2026-10-11.md),
+  and [operations runbook](docs/observability/logging-runbook.md).
 
 
 ## 11 October 2026 — NATS migration Phase 6 fact-stream cutover
