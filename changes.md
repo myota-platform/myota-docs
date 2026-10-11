@@ -1,5 +1,15 @@
 # MyOTA changes
 
+## 11 October 2026 — Geodata Phase 5 owner-accepted closure
+
+- Closed Phase 5 administratively on the project owner's instruction, accepting
+  the remaining qualification risk. No unverified gate is represented as a
+  tested pass; checklist items remain unchecked.
+- Broad-catalogue/write, node/storage, canary, rollback, and above-three-replica
+  evidence remains unverified and must be reopened before capacity expansion.
+- See the [closure record](docs/geodata/evidence/phase5-owner-acceptance-2026-10-11.md)
+  and [scaling roadmap](docs/geodata/horizontal-scaling-roadmap.md).
+
 ## 11 October 2026 — Geodata Phase 5 scale qualification follow-up
 
 - The read-only 2/10/50-VU catalogue profiles passed with 0% request failures

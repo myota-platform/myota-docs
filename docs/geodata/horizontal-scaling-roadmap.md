@@ -2,8 +2,10 @@
 
 ## Status and scope
 
-**Phases 0–4 are complete for their documented evidence bounds; Phase 5
-remains open.** Phase 4 qualified the current single-node K3s deployment for
+**Phases 0–4 are complete for their documented evidence bounds. Phase 5
+was closed on 11 October 2026 by explicit owner acceptance of its remaining
+qualification risk; several gates were not empirically verified and their
+checklist boxes remain open.** Phase 4 qualified the current single-node K3s deployment for
 bounded Geodata API pod scaling (two minimum, three maximum). It does not
 qualify broad throughput or higher replica counts. Under the current project
 scope, this single-node cluster is acceptable for Phase 4: its exit criterion
@@ -520,9 +522,10 @@ CPU-triggered HPA scale-up/down within the charted 2–3 replicas, and read/writ
 performance at two and three replicas. The measured write gain is modest, and
 same-row edit contention produced lock waits and a two-replica p95 threshold
 miss. An 11 October read-only check at 2, 10, and 50 VUs passed against the
-ten-entity catalogue, but did not test writes or broad catalogue scale. Phase 5
-remains open: node/storage failure, broader sustained load, independent-row
-write consistency, canary proof, and end-to-end rollback are not qualified.
+ten-entity catalogue, but did not test writes or broad catalogue scale. The
+project owner accepted the remaining gates for administrative Phase 5 closure on
+11 October. Node/storage failure, broader sustained load, independent-row write
+consistency, canary proof, and end-to-end rollback remain unverified, not passed.
 The API-session and SeaweedFS container restart gate remains covered by the
 separate Phase 2 evidence. See the [read-only follow-up
 evidence](evidence/phase5-read-only-follow-up-2026-10-11.md).
@@ -575,14 +578,17 @@ ChatGPT implementation prompt: [complete staged rollout and operational proof](p
   scrape/alerts and operator docs for the delivered work; see the
   [deployment evidence](#latest-delivery-and-evidence--8-october-2026).
 - [ ] Update and revalidate deployment limits, autoscaling, dashboards/alerts
-  and operator documentation when the remaining qualification gates close.
+  and operator documentation when the deployment footprint changes or an
+  accepted qualification gate is reopened.
 
-**Overall completion criteria:** multiple Geodata API replicas can be rolled,
+**Technical completion criteria:** multiple Geodata API replicas can be rolled,
 rescheduled, and autoscaled while large imports continue to recover; catalogue
 reads and edits remain consistent; no accepted upload depends on pod-local
 storage; and measured tests show the intended throughput/latency improvement.
+These criteria are not all verified by the evidence below.
 
-**Current assessment: partially demonstrated; Phase 5 is not closed.** The
+**Current assessment: Phase 5 administratively closed by owner acceptance on
+11 October 2026; broad technical qualification remains partial.** The
 bounded upload/rollout and HPA checks passed on the one-node deployment, and the
 read comparison showed lower p95 but only a 0.8% throughput increase on ten
 entities. The write test deliberately contended on one row, exposed lock waits,
@@ -590,8 +596,10 @@ and slightly exceeded the two-replica p95 target. The 11 October read-only
 follow-up passed at 2/10/50 VUs but sampled only ten catalogue entities and
 created no data; it adds no write or broader-scale qualification. Multi-node
 rescheduling, stateful failure, broader catalogue scale, independent-row write
-consistency, a new image canary, and a drilled rollback remain open. See the
-[Phase 5 evidence report](evidence/phase5-staged-rollout-2026-10-09.md) and
+consistency, a new image canary, and a drilled rollback remain unverified and
+were accepted for phase closure. The corresponding checklist items stay
+unchecked. See the [owner-acceptance closure record](evidence/phase5-owner-acceptance-2026-10-11.md),
+[Phase 5 evidence report](evidence/phase5-staged-rollout-2026-10-09.md), and
 [read-only follow-up](evidence/phase5-read-only-follow-up-2026-10-11.md).
 
 ## Ownership and sequencing

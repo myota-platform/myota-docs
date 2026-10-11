@@ -17,10 +17,10 @@ canonical/root/Platform mirrors are reconciled.
 ## Active implementation and evidence
 
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
-  Phase 5 remains open for broader capacity, independent-row consistency,
-  node/storage failure, canary, and rollback evidence. The 11 October
-  2/10/50-VU read-only check passed on ten catalogue entities but closes none
-  of these gates; see the [dated evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md).
+  Phase 5 was administratively closed by owner acceptance on 11 October. Broad
+  capacity, independent writes, node/storage failure, canary, rollback, and
+  scaling above three replicas remain unverified; reopen these gates before
+  expanding capacity. See the [closure record](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md).
 - [Structured logging acceptance](../observability/logging-implementation.md) —
   release-state reconciliation, authenticated Grafana navigation,
   request-to-worker correlation, Loki field privacy, and Compose parity remain

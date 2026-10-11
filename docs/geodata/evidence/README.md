@@ -1,7 +1,9 @@
 # Geodata evidence
 
+- [Phase 5 owner-acceptance closure (11 October 2026)](phase5-owner-acceptance-2026-10-11.md)
+  — phase closed by accepted risk; lists the gates that were not verified.
 - [Phase 5 read-only capacity follow-up (11 October 2026)](phase5-read-only-follow-up-2026-10-11.md)
-  — 2/10/50-VU read-path results, exact runtime state, and gates that remain open.
+  — 2/10/50-VU read-path results, exact runtime state, and qualification limits.
 - [Phase 5 staged rollout and operational proof](phase5-staged-rollout-2026-10-09.md)
   — bounded live upload during API rollout, CPU HPA up/down, 2-vs-3 replica
   read/write results, shared-service telemetry, exact cleanup, and remaining

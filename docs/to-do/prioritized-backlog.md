@@ -44,9 +44,13 @@ missed its target. This does not establish broad capacity, multi-node failover,
 independent-row edit consistency, or rollback safety. See the [Phase 3 review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md),
 [Phase 4 report](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md),
 and [Phase 5 report](../geodata/evidence/phase5-staged-rollout-2026-10-09.md).
-The 11 October 2/10/50-VU read-only profile passed on ten entities, but did
-not test writes or broad catalogue behavior; see the
-[follow-up evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md).
+Phase 5 was closed by owner acceptance on 11 October, with broad capacity,
+independent writes, node/storage failure, canary, rollback, and scaling above
+three replicas accepted without empirical verification. The 11 October
+2/10/50-VU read-only profile passed on ten entities but did not test writes or
+broad catalogue behavior; see the [closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md)
+and [read-only follow-up](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md).
+Reopen these gates before expanding beyond the currently tested replica range.
 The measured Phase 0 baseline is useful but does not establish broader capacity.
 
 **Why first:** horizontal expansion can multiply a failure mode or create

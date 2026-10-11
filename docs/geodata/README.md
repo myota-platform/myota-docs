@@ -8,6 +8,9 @@
 - [Phase 5 staged-rollout evidence](evidence/phase5-staged-rollout-2026-10-09.md)
   — live K3s upload recovery during API roll, automatic scale-up/down, bounded
   2-vs-3 replica metrics, cleanup receipts, and open gates.
+- [Phase 5 owner-acceptance closure](evidence/phase5-owner-acceptance-2026-10-11.md)
+  — owner-directed administrative closure; unverified gates and limits remain
+  explicit.
 - [Phase 5 read-only capacity follow-up](evidence/phase5-read-only-follow-up-2026-10-11.md)
   — 2/10/50-VU read-path results on the current ten-entity catalogue; no write
   fixtures or runtime changes.

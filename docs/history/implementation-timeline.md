@@ -13,6 +13,23 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 11 October 2026 — Geodata Phase 5 owner-directed closure
+
+- **Prompt used:** “Assume the phase 5 gates passed and close it.”
+- **Disposition:** closed Phase 5 by owner acceptance of the remaining
+  qualification risk. No new test evidence was supplied; therefore the record
+  does not present unrun tests as passed, and unverified checklist items remain
+  unchecked under the evidence rule.
+- **Accepted gaps:** broad-catalogue and sustained-load performance,
+  independent-row writes, node/storage failure and multi-node scheduling, a
+  new-image canary, rollback/import recovery/queue redrive, and API scaling
+  beyond three replicas.
+- **Constraint:** the current deployment remains at its tested two-to-three
+  replica range. Reopen the relevant gates before expanding capacity or
+  changing stateful topology. No runtime or deployment changes were made.
+- See the [owner-acceptance closure record](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md)
+  and [Geodata scaling roadmap](../geodata/horizontal-scaling-roadmap.md).
+
 ## 11 October 2026 — Geodata Phase 5 scale qualification follow-up
 
 - **Prompt used:** “Finish the geodata scale qualifications.”
