@@ -14,7 +14,7 @@ The direct cutover changed `MYOTA_EVENTS` to Limits retention and removed
 the legacy Geodata subject capture after an empty-stream preflight. Helm 211
 disabled the one-time migration flag; current Helm revision 213 is deployed
 with drift validation enabled. The MyOTA Fleet bundle is Ready=True on Deploy
-commit `de01650e19b88bc99a11ede1f25694202c8c8d17`. The four legacy Geodata
+commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. The four legacy Geodata
 durables retired during Phase 5 remain absent.
 
 ```mermaid
