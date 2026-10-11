@@ -13,6 +13,41 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 11 October 2026 — NATS migration Phase 6 fact-stream cutover
+
+- **Prompt used:** “Finish implementing phase 6 of
+  https://github.com/myota-platform/myota-docs/blob/main/docs/operations/messaging/nats-event-migration-plan.md.
+  No metrics, no shadowing, no canary. Usual decision-making and
+  documentation requirements and consistency.”
+  The copyable, self-contained execution prompt is recorded in the Phase 6
+  section of the [migration plan](../operations/messaging/nats-event-migration-plan.md#phase-6).
+- **Decision and implementation:** Used one direct gated cutover. The
+  Deploy-owned Helm pre-upgrade migration changed the empty, legacy
+  Interest-retained `MYOTA_EVENTS` to finite Limits retention with only
+  `myota.events.>`. Its one-time migration setting is disabled after cutover;
+  topology drift validation remains enabled. All three database-specific relay
+  copies now enforce the fact-only stream, while Activity and Geodata work stay
+  on separate WorkQueue streams. No runtime service business logic changed.
+- **Evidence:** Preflight found zero stream messages/bytes, a drained Activity
+  durable and owner outboxes, and preserved six unresolved Geodata DLQ rows.
+  The live stream caps are Events 1 GiB/500,000/1 MiB, Activity work
+  1 GiB/250,000/1 MiB, and Geodata work 3 GiB/500,000/1 MiB, each with 30-day
+  max age, file storage, one replica, and DiscardNew. The disposable K3s test
+  verified migration refusal/target validation and idempotent rerun without
+  publishing a message; its namespace was deleted.
+- **Rollout:** Deploy focused Python quality and Helm validation passed
+  (runs 38099669717 and 38099669405). Helm revision 211 is deployed with the
+  migration flag off. Fleet is Ready=True at Deploy main commit
+  `16af2edf6b8e868904f9284e481d971ae7d6d38c`; every MyOTA Deployment has its
+  desired replicas ready. No shadowing, canary, new metrics baseline, or
+  production test data was used. No Phase 6 database object was obsolete.
+- **Limits:** Previously Interest-expired facts remain unrecoverable from NATS.
+  PostgreSQL remains authoritative and JetStream is only a bounded transport
+  and replay window. Off-node broker recovery is still deferred. See the
+  [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md),
+  [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md),
+  and [live topology diagram](../architecture/diagrams/nats-event-migration.md).
+
 ## 11 October 2026 — NATS Surveyor retirement implementation
 
 - **Prompt used:** “check implementation of
@@ -139,7 +174,7 @@ describe current ownership and are authoritative for the present-day system.
   and [Platform `a184baa`](https://github.com/myota-platform/myota-platform/commit/a184baac3f36e0272cbc79107f4b362139de7515).
   See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 
-## 10 October 2026 — NATS migration Phase 3 domain-event consumers## 10 October 2026 — NATS migration Phase 3 domain-event consumers
+## 10 October 2026 — NATS migration Phase 3 domain-event consumers
 
 - **Prompt used:** “Continue with the implementation of phase 3, decide any
   blocker based on your best criteria and established best practices, verify
