@@ -28,8 +28,12 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   live Loki. Helm revision 227 is deployed after rollback to 226; Fleet is
   Ready=True. Authenticated UI link acceptance remains open.
   Retention/growth, live redaction, async correlation, and Phase 7 database
-  telemetry remain open. See the [runbook](../observability/logging-runbook.md)
-  and [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+  telemetry remain open. The PostgreSQL monitor roles and six-panel dashboard
+  asset are present, but the Collector receiver is paused after auth errors;
+  read-only `psql` checks with the same Secrets succeeded. All Deployments are
+  Ready while Helm revision 231 awaits Fleet reconciliation. See the
+  [runbook](../observability/logging-runbook.md) and
+  [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 
 - [Observability live status](../observability/overview.md#live-k3s-verification-and-known-gap)
   — track service metrics remediation and current K3s verification.
