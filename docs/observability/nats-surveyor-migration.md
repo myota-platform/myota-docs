@@ -5,10 +5,10 @@ are live. The corrected broker limits are active, all three retired service
 paths are on replacement images, the Operations JetStream history table and
 index have been dropped by the forward migration, and storage history remains
 healthy. A temporary in-memory validation stream was observed and deleted.
-The Helm release is healthy at revision 206. Fleet still reports
-`WaitApplied(1)` with stale applied-release metadata after the earlier failed
-upgrade and rollback, so the GitOps reconciliation gate remains open; do not
-mark Phase 2 complete until Fleet reports the desired commit applied.
+Helm revision 207 is deployed and Fleet reports Ready for Deploy main commit
+`fa4e0127af2cc7d29851f1f76b3bb8303655ad46`. Its bundle reports all 64 resources
+ready and the applied deployment ID matches the desired ID. The implementation
+and Phase 2 exit criteria are complete.
 
 **Owners:** Volker Kerkhoff and Codex, the MyOTA platform team.
 **Deployment authority:** `myota-deploy`; `myota-platform` is its synchronized
@@ -66,8 +66,8 @@ Current source commits:
   `8c63f9ddc2f50091e975c836e5413e2bd6405c26` (CI passed).
 - Geodata poller removal: `2a73101a741b8325afba9cda9176be0d85003e65` (CI passed).
 - Deploy monitoring parity and bounded capacity: `2a5b96a130e6a452118be45777ba93081f4701ec` (Python and Helm checks passed).
-- Deploy migration mirror and runtime-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`.
-- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`, `049c6522bb3093a2a74424e9d2777d6cb6659666`, and `15fc56f93586c1724cde65f3a8f674ad78aeaba2`.
+- Deploy migration mirror and runtime-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`; Deploy README/source head is `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`.
+- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`, `049c6522bb3093a2a74424e9d2777d6cb6659666`, `15fc56f93586c1724cde65f3a8f674ad78aeaba2`, and `8be1949bea7a9c75e8e858619b280a640f56346f`.
 
 The first NATS config rollout rendered byte limits in scientific notation.
 NATS rejected the replacement before starting, and the prior server stayed
@@ -78,9 +78,10 @@ limits and a `Recreate` strategy. Helm revision 205 brought up the 7 GiB file
 and 1 GiB memory caps; revision 206 ran the retirement migration image. NATS
 logs reported the configured limits, restored the three existing streams and
 their 11 consumers, and reached Ready. Operations, Admin, and Geodata now run
-the published replacement digests. Fleet’s `WaitApplied(1)` status and
-stale `status.appliedDeploymentID` still need reconciliation; the cluster’s
-actual Helm revision is 206.
+the published replacement digests. Fleet initially retained stale applied-release metadata after the direct
+recovery. Restarting the local Fleet agent and requesting one force sync let
+Fleet apply the desired bundle at revision 207; its Ready condition and all
+64/64 resource counts now agree with Deploy main.
 
 ## Dashboard compatibility
 
@@ -147,7 +148,7 @@ out above, and missing data is not represented as zero.
 
 ### Phase 2 — retire duplicate monitoring
 
-**Status: runtime cutover and schema retirement verified; Fleet reconciliation pending.**
+**Status: complete.**
 
 - [x] Remove the Admin JetStream route/page/client/styles and retire its stale
   browser test expectation. Keep the general Observability workspace.
@@ -161,7 +162,7 @@ out above, and missing data is not represented as zero.
 - [x] Roll out the Admin, Operations and Geodata replacement digests. Verify
   their Deployments are Ready; the Operations image no longer exposes NATS
   sampling and the Geodata image no longer starts its duplicate NATS poller.
-  The Operations storage snapshot table still contains live samples.
+  Operations storage history remains live and healthy.
 - [x] Add and apply the Operations-owned forward migration to drop
   `operations_jetstream_snapshot` without `CASCADE`. Migration 003 is mirrored
   as core migration 005 in Deploy and Platform and passed Operations/Deploy CI.
@@ -169,19 +170,18 @@ out above, and missing data is not represented as zero.
   `634520fef35d62e647eb34b01d803efa7d77a91bf5e43eba7eda65118e215428`, and
   remains outside source control. Database verification shows the table and
   history index absent while `operations_storage_snapshot` retains 6,015 rows.
-- [ ] Resolve Fleet’s stale applied-release metadata and confirm `Ready=True`
-  for the current Deploy main commit. Direct chart application is healthy at
-  Helm revision 206, but this does not satisfy the GitOps readiness gate.
+- [x] Reconcile Fleet and verify `Ready=True` for Deploy main commit
+  `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`, Helm revision 207, matching
+  applied/desired deployment IDs, and 64/64 ready resources.
 - [x] Confirm the Compose/Helm monitoring sources and migration/digest mirrors
   are synchronized between Deploy and Platform.
 
-**Phase 2 exit:** runtime and database retirement gates have passed, including
-backup verification, retained storage history, healthy Surveyor, and live
-replacement images. Phase 2 remains open until Fleet reports the desired Deploy
-commit as applied and Ready; the manually verified Helm release is not treated
-as a substitute for that GitOps gate.
+**Phase 2 exit: complete.** Runtime and database retirement gates passed,
+including verified backup, retained storage history, healthy Surveyor, live
+replacement images, the absent old history table/index, all eleven dashboards,
+and Fleet Ready on the desired Deploy commit.
 
-## Phase 2 implementation prompt
+## Phase 2 implementation prompt (executed)
 
 ```text
 Finish the remaining Phase 2 GitOps gate for the NATS Surveyor monitoring
