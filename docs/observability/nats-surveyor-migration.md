@@ -60,14 +60,21 @@ deployment and bootstrap mirror. Service changes belong to their owning repos:
 | Operations snapshot migration | `myota-operations-service/migrations/003_retire_jetstream_snapshots.sql` | `db/migrations/core/005_retire_jetstream_snapshots.sql` in Deploy and byte-for-byte Platform mirror |
 
 Current source commits:
-- Operations removal and CI repair: `601b9fc42013e98c8531320185b08f4fb756f940` (CI passed). The current Operations source head is `3b4302e60105e00ebdc13fe14c5de96d8ed12af4`; its README update passed run `38098411907` and published the runtime digest recorded below.
+- Operations removal and CI repair: `601b9fc42013e98c8531320185b08f4fb756f940` (CI passed).
+  Current Operations source head: `3b4302e60105e00ebdc13fe14c5de96d8ed12af4`;
+  the README update passed run `38098411907` and published the runtime digest below.
 - Operations-owned snapshot retirement migration: `9dd93091b9abcb74fb5c047bbbd6a592edffd186` (CI passed).
 - Admin removal and stale browser assertion repair:
   `8c63f9ddc2f50091e975c836e5413e2bd6405c26` (CI passed).
 - Geodata poller removal: `2a73101a741b8325afba9cda9176be0d85003e65` (CI passed).
 - Deploy monitoring parity and bounded capacity: `2a5b96a130e6a452118be45777ba93081f4701ec` (Python and Helm checks passed).
-- Deploy migration mirror and runtime-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`; Deploy main `d0d2f50846fe2c9e239d46a48809860f4b98d7f5` records Operations image digest `sha256:b50b4666919e1f4046067129abd95993d371093088ea5e5f7633fd5ced163af4`.
-- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`, `049c6522bb3093a2a74424e9d2777d6cb6659666`, `15fc56f93586c1724cde65f3a8f674ad78aeaba2`, and current main `c81033e4fe694c1d6a3dab431024d18d39ee85d6`.
+- Deploy migration mirror and platform-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`.
+  Deploy main `d0d2f50846fe2c9e239d46a48809860f4b98d7f5` records Operations
+  image digest `sha256:b50b4666919e1f4046067129abd95993d371093088ea5e5f7633fd5ced163af4`.
+- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`,
+  `049c6522bb3093a2a74424e9d2777d6cb6659666`, and
+  `15fc56f93586c1724cde65f3a8f674ad78aeaba2`; Platform main is
+  `c81033e4fe694c1d6a3dab431024d18d39ee85d6`.
 
 The first NATS config rollout rendered byte limits in scientific notation.
 NATS rejected the replacement before starting, and the prior server stayed
@@ -169,7 +176,7 @@ out above, and missing data is not represented as zero.
   The pre-migration backup was verified with `pg_restore --list`, has SHA-256
   `634520fef35d62e647eb34b01d803efa7d77a91bf5e43eba7eda65118e215428`, and
   remains outside source control. Database verification shows the table and
-  history index absent while `operations_storage_snapshot` retains 6,015 rows.
+  history index absent while `operations_storage_snapshot` retains 6,046 rows.
 - [x] Reconcile Fleet and verify `Ready=True` for Deploy main commit
   `d0d2f50846fe2c9e239d46a48809860f4b98d7f5`, Helm revision 208, matching
   applied/desired deployment IDs, and 64/64 ready resources.
