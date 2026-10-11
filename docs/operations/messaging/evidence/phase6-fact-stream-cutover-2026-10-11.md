@@ -1,11 +1,11 @@
 # Phase 6 — shared fact-stream cutover and retirement
 
 **Date:** 11 October 2026  
-**Status:** Runtime cutover applied; Fleet revision 211 is finishing the
-post-cutover chart reconciliation that disables the one-time migration flag.
-The migration itself succeeded in Helm revision 210. Do not mark Phase 6
-complete until revision 211 is deployed and Fleet reports Ready=True for the
-latest Deploy commit.
+**Status:** Complete. The migration succeeded in Helm revision 210.
+Helm revision 211 is deployed with the one-time migration flag disabled and
+all-topology validation enabled. The MyOTA Fleet bundle is Ready=True at Deploy
+main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`; every MyOTA Deployment
+has all desired replicas ready.
 
 ## Decision and scope
 
@@ -75,10 +75,11 @@ ack-pending, and redeliveries. Core, Activity, and Geodata outbox queues remain
 at zero unpublished rows after rollout. The Postgres DLQ records remain
 unchanged.
 
-The chart is on Helm revision 210 for the cutover. The follow-up revision 211
-disables the one-time migration environment flag while keeping the
-all-topology drift-validation hook enabled. Record its final Fleet readiness
-and Deploy commit before closing the phase.
+Helm revision 210 applied the cutover. Follow-up revision 211 disables the
+one-time migration environment flag while keeping the all-topology
+drift-validation hook enabled. Revision 211 is deployed, and Fleet reports
+Ready=True at Deploy main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`.
+All MyOTA Deployment desired replicas are ready.
 
 ## Isolated migration qualification and cleanup
 
@@ -116,16 +117,18 @@ scope.
 
 ## Phase 6 exit review
 
-- All registry-approved producers publish through the database-specific
+- [x] All registry-approved producers publish through the database-specific
   outbox relays and registered fact/work subjects. The only selected fact
   consumer remains Activity notifications; work consumers use their ten exact
   WorkQueue durables. Operations remains read-only.
-- The mixed Interest stream is gone; the fact stream has the approved bounded
+- [x] The mixed Interest stream is gone; the fact stream has the approved bounded
   Limits policy, and no Geodata work subject is captured by it.
-- Live relay/outbox state, consumer filters/counters, target capacity settings,
+- [x] Live relay/outbox state, consumer filters/counters, target capacity settings,
   Helm hook results, and isolated migration/idempotency behavior are verified.
-- Existing NATS Surveyor dashboards, alerts, recovery docs, and redrive
+- [x] Existing NATS Surveyor dashboards, alerts, recovery docs, and redrive
   ownership remain in operation. No new metrics baseline, shadow traffic, or
   canary rollout was run or added.
-- Do not check these exit items or declare Phase 6 complete until Helm revision
-  211 and latest Fleet Ready=True are verified.
+- [x] Helm revision 211 is deployed, its one-time migration flag is disabled,
+  all-topology drift validation remains enabled, every MyOTA Deployment is ready,
+  and the MyOTA Fleet bundle is Ready=True at Deploy commit
+  `16af2edf6b8e868904f9284e481d971ae7d6d38c`.
