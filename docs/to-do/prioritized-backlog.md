@@ -60,47 +60,7 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Phase 6 fact-stream lifecycle
-
-**Current evidence:** Phases 0–5 are complete within their recorded evidence
-bounds. Phase 5 moved all four Geodata work kinds to the bounded
-MYOTA_GEODATA_WORK WorkQueue, applied migration 021, shipped retry-safe
-partial deletion and deployed the Activity cascade idempotency fix. Helm
-revision 193 remains deployed; Fleet is Ready=True at Deploy commit
-cfecd655d9c0eee9d19db26725fb11c99366815a. First-party runtime, worker,
-provisioner and scheduled-job images use immutable references that match live
-pods. See the [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
-
-The four legacy Geodata durables were retired after final checks of replacement
-and legacy filters, backlog counters, migration 021 markers, age-bounded
-owner-row recovery and Fleet readiness. The user explicitly waived the
-24-hour elapsed-time requirement; closure occurred about ten minutes after
-the revision 193 Fleet readiness anchor. This does not claim a full 24-hour
-observation. The Activity notification durable, shared Interest-retained
-MYOTA_EVENTS, four target durables, recovery schema and authoritative
-database rows remain. A disposable broker deletion-semantics test passed and
-its namespace was removed. Two full delivery-suite attempts each exposed a
-timing-sensitive immediate ACK-counter assertion; focused ACK verification
-passed, but those runs are not recorded as clean suite passes.
-
-**Why next:** Phase 5's bounded work migration and legacy durable retirement
-are complete within the user's explicit timing waiver. Phase 6 governs the
-separate fact-stream retention transition and must preserve the bounded replay
-contract; JetStream is not a permanent event archive.
-
-**Next:** follow the Phase 6 gates in the
-[NATS event migration plan](../operations/messaging/nats-event-migration-plan.md)
-and [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-Before changing MYOTA_EVENTS from Interest to Limits retention, verify
-retained-message implications, consumer/replay needs, capacity and rollback
-behavior. Keep facts, outbox history and consumer idempotency state in their
-authoritative stores; do not change runtime retention until the plan's gates
-are met.
-
-See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
-[Phase 6 plan](../operations/messaging/nats-event-migration-plan.md#phase-6),
-and [ADR-0008](../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-### 3. Establish programme governance, jurisdiction, and eligibility controls
+### 2. Establish programme governance, jurisdiction, and eligibility controls
 
 **Current evidence:** the programme configuration gap analysis labels
 programme identity/ownership, locale/content policy, jurisdiction/approver
@@ -125,7 +85,7 @@ and the [administration workflows index](../domain/administration/README.md).
 
 ## P1 — close identified operational visibility gaps
 
-### 4. Restore Identity and Programme metrics coverage
+### 3. Restore Identity and Programme metrics coverage
 
 **Current evidence:** the observability page records HTTP 404 responses from
 the configured Identity and Programme `/metrics` targets and Prometheus
@@ -146,7 +106,7 @@ and the [observability evidence](../observability/evidence/2026-10-09.md).
 
 ## P2 — sequence after the rollout and operational gates
 
-### 6. Define the typed future award-condition model
+### 4. Define the typed future award-condition model
 
 **Current evidence:** the roadmap proposes POTA-like activation, worked-entity,
 Maidenhead, geographic, milestone, and MyOTA-specific diversity conditions.
@@ -163,7 +123,7 @@ data and QSO-resolution work must precede evaluator implementation.
 
 See [Future award-condition model and implementation roadmap](../domain/awards/future-condition-model-roadmap.md).
 
-### 7. Complete the admin UI internationalization foundation and translations
+### 5. Complete the admin UI internationalization foundation and translations
 
 **Current evidence:** the roadmap is proposed and all phases are unchecked. It
 calls for locale policy and inventory before introducing translation catalogs
@@ -179,7 +139,7 @@ supported locales, fallback, persistence, and translation review ownership.
 
 See [Admin UI internationalization roadmap](../domain/administration/i18n-roadmap.md).
 
-### 8. Retire legacy REST aliases after usage-based migration
+### 6. Retire legacy REST aliases after usage-based migration
 
 **Current evidence:** REST consolidation Phases 0–4 are recorded as implemented;
 Phase 5 remains planned. The plan requires usage measurement and client
@@ -195,7 +155,7 @@ plan's criteria.
 
 See [REST API consolidation plan](../domain/api/rest-consolidation-plan.md).
 
-### 9. Address longer-term programme and charter gaps
+### 7. Address longer-term programme and charter gaps
 
 **Current evidence:** the charter gap analysis describes longer-term product,
 governance, interoperability, and production-readiness work. Detailed
@@ -218,5 +178,5 @@ See [Charter delivery gaps](../governance/charter-gap-analysis.md) and
   or reliability dependency; record the evidence and date in the source plan.
 - Keep rollout gates attached to the capability they qualify. For example,
   geodata recovery evidence blocks scale expansion even if other work proceeds.
-- The priority here ranks the nine entries in the To do index. Active evidence
+- The priority here ranks the seven remaining entries in the To do index. Active evidence
   and gates remain discoverable in the [Work in progress index](../work-in-progress/README.md).
