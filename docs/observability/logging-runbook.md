@@ -1,15 +1,11 @@
 # Structured logging operations runbook
 
-**Status:** Identity LogQL queries are qualified against Loki OTLP structured
-metadata; Tempo stores the matching trace. The seven log dashboard queries
-passed against live Loki. The PostgreSQL/PostGIS dashboard JSON is mounted in
-Grafana, but its database panels have no accepted receiver data. PostgreSQL
-receivers are currently disabled after authentication failures; see the
-[Phase 7 evidence](evidence/logging-implementation-2026-10-11.md). Helm revision 234 is deployed; Helm history labels it a rollback to revision
-233. The Fleet BundleDeployment is Ready=True at sync generation 93. All 67
-resources are ready, and all Deployments meet their requested replica counts.
-Authenticated UI navigation, worker correlation, retention, capacity, redaction,
-and database gates remain open.
+**Status:** Helm revision 241 is deployed with 67/67 Fleet resources ready.
+The PostgreSQL/PostGIS dashboard uses live read-only metrics from the Operations
+adapter. Psycopg spans are visible in Tempo after Collector SQL-attribute
+removal. Remaining acceptance items are authenticated UI navigation, a
+representative async correlation check, a Loki prohibited-field audit, and full
+Compose runtime parity.
 
 Structured logs travel from services through the OpenTelemetry Collector to Loki.
 PostgreSQL and application state remain authoritative; logs are diagnostic

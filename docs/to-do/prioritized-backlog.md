@@ -87,29 +87,22 @@ and the [administration workflows index](../domain/administration/README.md).
 
 ### Structured logging and database observability acceptance
 
-**Current evidence:** a read-only Identity health request has a matching
-Loki structured-metadata record and Tempo span; all seven log dashboard queries
-passed after removing the incompatible JSON parser. The six-panel
-PostgreSQL/PostGIS dashboard asset is mounted. Dedicated monitor roles and
-external Secrets are provisioned, and read-only `psql` checks queried
-`pg_stat_database` across all three databases. The pinned Collector receiver
-still fails authentication with those same Secrets, so its receivers are paused
-in the active pipeline. All Deployments report Ready. Helm revision 234 is deployed; Helm history labels it a rollback to revision
-233. The Fleet BundleDeployment is Ready=True at sync generation 93. All 67
-resources are ready, and all Deployments meet their requested replica counts. Authenticated UI navigation remains open.
-Phase 6 retention, growth, capacity, cardinality, and live redaction evidence
-is incomplete. See the [logging implementation plan](../observability/logging-implementation.md),
-[11 October evidence](../observability/evidence/logging-implementation-2026-10-11.md),
+**Current evidence:** Helm revision 241 is deployed with 67/67 Fleet resources
+ready. The Operations fallback samples the three databases using a read-only
+non-superuser role; Prometheus shows all three up and bounded connection, size,
+transaction, deadlock, and PostGIS presence metrics. Psycopg spans are live and
+Collector processing removes SQL attributes before Tempo. The dashboard now
+reads these active metrics. Remaining acceptance is authenticated Grafana
+navigation, representative request-to-worker correlation, a Loki prohibited-
+field audit, and full Compose runtime parity. The current Loki growth sample is
+short and does not establish a production rate. See the
+[plan](../observability/logging-implementation.md),
+[evidence](../observability/evidence/logging-implementation-2026-10-11.md),
 and [runbook](../observability/logging-runbook.md).
 
-**Recommended next work:** resolve the Collector-versus-`psql` authentication
-discrepancy in an isolated test, enable the receiver only after all three
-database series appear without errors, and execute the dashboard queries against
-live data. Then test both trace/log directions and async correlation. Measure
-retention and storage growth before setting capacity thresholds. Do not use
-application/superuser credentials or grant `pg_monitor` for basic metrics.
-
-
+**Recommended next work:** close the four remaining acceptance checks against
+the deployed images, then update the implementation roadmap and this backlog
+from the recorded results.
 ### 3. Restore Identity and Programme metrics coverage
 
 **Current evidence:** the observability page records HTTP 404 responses from

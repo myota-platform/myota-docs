@@ -1320,3 +1320,10 @@ capacity, trust-boundary, recovery, and production-cutover decisions.
 resources are ready, and all Deployments meet their requested replica counts. Phase 7 remains open; see the
   [evidence](../observability/evidence/logging-implementation-2026-10-11.md)
   and [plan](../observability/logging-implementation.md).
+
+## 11 October 2026 — Structured logging, database signals, and deployed acceptance
+
+- **Prompt used:** “https://github.com/myota-platform/myota-docs/blob/main/docs/observability/logging-implementation.md isn't complete. Decide on any gaps based on what you know and best practices. A transition or verification period isn't needed, as this is not yet a live system. Continue to implement the missing bits. No individual feile commits, one commit per task or item completed.”
+- **Decision:** retain bounded PostgreSQL metrics through the Operations read-only adapter after the direct Collector receiver failed authentication. Keep PostgreSQL statement logs out of the telemetry pipeline because they may contain SQL literals and user data. Use Psycopg instrumentation with parameter capture disabled and Collector removal of SQL attributes.
+- Operations database metrics, Psycopg spans, Loki capacity scrape/panels, and synced Compose/Helm source are deployed. Helm revision 241 is active with 67/67 Fleet resources ready. Live database metrics and SQL-free Tempo span attributes are documented in the [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+- The roadmap remains open for authenticated Grafana navigation, request-to-worker correlation, Loki prohibited-field audit, and dynamic Compose runtime parity. No transition period was added; retention configuration was accepted by config and runtime checks without waiting 14 days.

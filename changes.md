@@ -562,3 +562,23 @@ GitHub Helm rendering passed. Live read-only verification covered 14 pages with
 zero browser/API failures or attempted writes. Helm **0.2.12 revision 114** is
 deployed, Fleet **1/1 Ready**, and all 21 MyOTA deployments are Ready. See the
 evidence page for commits, workflow links, image digest and verification limits.
+
+## 11 October 2026 — Logging database telemetry and current rollout
+
+- Replaced the failed direct Collector PostgreSQL receiver with the Operations
+  service's read-only bounded monitor adapter for core, Activity, and Geo.
+- Enabled pinned Psycopg instrumentation across service images, with parameter
+  capture and SQL commenter disabled; Collector removes SQL attributes before
+  Tempo export.
+- Live samples show all three databases up, bounded connection/size/counter
+  metrics, and PostGIS 3.4.3 present in Geo. A read-only trace test produced
+  three SQL-free child spans. No business rows were written.
+- Added Loki internal-metric scraping and capacity dashboard panels. The short
+  initial bucket sample is explicitly not treated as a production growth rate.
+- Deploy main commit
+  [86df3de](https://github.com/myota-platform/myota-deploy/commit/86df3dedfeffa42fe44011169bec0e81eae36713)
+  is deployed at Helm revision 241; Fleet reports 67/67 resources ready.
+  Remaining logging acceptance: authenticated Grafana navigation, async
+  correlation, Loki field privacy audit, and Compose runtime parity. See
+  [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md)
+  and the [plan](docs/observability/logging-implementation.md).

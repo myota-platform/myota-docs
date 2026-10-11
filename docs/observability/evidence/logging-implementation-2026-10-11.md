@@ -239,3 +239,31 @@ Do not mark the overall plan complete until all items below have evidence:
 7. Bounded PostGIS signals are visible with measured overhead.
 8. Compose/Helm parity, Helm render/lint, Collector validation, service tests,
    runbooks, and dashboard queries have passed.
+
+
+## Current implementation update — 11 October 2026
+
+This update supersedes earlier revision, image-digest, and Phase 7 status snapshots.
+
+### Database telemetry and privacy
+
+- The direct Collector PostgreSQL receiver remains disabled after repeated authentication failures. The deployment now uses a bounded fallback owned by `myota-operations-service/postgres_observability.py`; it polls only the fixed `core`, `activity`, and `geo` databases every 30 seconds using the non-superuser `myota_observability` role and read-only transactions.
+- Live Prometheus samples showed `myota_postgresql_up=1` for all three databases, connection counts of 9/5/11 against 100, and database sizes of approximately 20.5/14.0/108.7 MB. Counters include commits, rollbacks, blocks read, and deadlocks. Geo reported PostGIS version 3.4.3. No application tables, query text, geometry, or row data is sampled.
+- All five service images include pinned Psycopg instrumentation. Parameter capture and SQL commenter are disabled. A temporary read-only sampler emitted trace `bf56e1c893d08adfc0e02d662ec7bab1`; Tempo showed three child `SELECT` spans with database identity attributes and no SQL statement, query-text, or parameter attributes. No business rows were written.
+- Collector transforms remove `db.statement`, `db.query.text`, and `db.query.parameters` before trace export. PostgreSQL server statement logs are intentionally not collected because they can contain SQL literals and user data. Bounded database counters and sanitized application/Operations errors are the approved operational signals.
+
+### Rollout and capacity evidence
+
+- Deploy commit [`86df3de`](https://github.com/myota-platform/myota-deploy/commit/86df3dedfeffa42fe44011169bec0e81eae36713) is deployed in K3s. Helm release `myota`, namespace `myota`, is revision 241 with status `deployed`; Fleet reports 67/67 resources ready. Operations image: `sha256:8791af907bd7a4d328d7c30daf1e18fbbe64509f174851e63fff20bfe4ba7beb`.
+- Running service image digests are Identity `sha256:ec86ee28bfd6886ef85c9e41e4b0fd395efe45d730e77806736fc5ac003f6b73`, Programme `sha256:e0298c1c3ef9321a24692dcb634715f714d6eec9df48aea733763dfd36e9d0ee`, Activity `sha256:b3218c3272d0f1699af31029bcda0d7965e8b0a1b2637a8932a124dcee3cfd93`, and Geodata `sha256:52ac8a040482bdab616a886392c6a658b9b7d78dee0e43630cf244590c6d02ab`.
+- Loki internal metrics are scraped. A roughly 5.3-hour post-restart sample recorded 28.7 MB uncompressed OTLP bytes and 3.12 MB in the Loki SeaweedFS bucket. This is a short initial sample, not a representative daily growth rate.
+- Storage guardrails are review at 70% and urgent action at 85% of the 2 GiB Loki working PVC and 100 GiB SeaweedFS storage PVC. Escalate shared host storage if free space falls below 20%. These conservative triggers are tied to provisioned capacity, not extrapolated from the short sample. Host free space at the check was 157 GiB of 436 GiB (36%).
+- Compose source parses as YAML. Full `docker compose config` was unavailable because Docker/Compose is not installed. Helm validation and live rollout passed.
+
+### Remaining acceptance items
+
+- Authenticated Grafana browser navigation from log to trace and trace to logs.
+- Representative request-to-async-worker correlation. Some outbox rows currently lose the initiating HTTP correlation ID before relay publication; do not claim complete workflow correlation.
+- A representative Loki record audit proving prohibited payload/credential fields are absent.
+- Full Compose runtime parity. No retention waiting period is required for this pre-live system; the configured 14-day compactor policy and object-store ownership are verified as configuration, not by waiting 14 days for expiry.
+- Do not use an empty broker or short log sample as evidence of production capacity. No test business data was created during these checks.

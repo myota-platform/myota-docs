@@ -26,9 +26,10 @@ unavailable.
 
 ## Structured logging implementation roadmap
 
-Structured logging is in progress. Current Identity, Programme, Activity, and
-Geodata image digests include the logging initialization; all application and
-worker replicas were Ready at the latest K3s check. A safe Identity
+Structured logging and bounded database telemetry are deployed. Helm revision
+241 is active with 67/67 Fleet resources ready. Operations exposes read-only
+PostgreSQL metrics for all three databases, and Psycopg client spans are scrubbed
+of SQL attributes before Tempo export. A safe Identity
 `GET /healthz` record was found in Loki by its OTLP structured-metadata
 `trace_id`, and the matching Tempo server span was retrieved. The Grafana
 dashboard query shapes also succeeded against live Loki. Helm revision 225

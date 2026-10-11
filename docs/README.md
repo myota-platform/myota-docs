@@ -17,7 +17,7 @@ indexes organize open work by delivery status.
   — staged K3s rollout, HPA up/down, load comparison, cleanup, and open limits.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
-- [Structured logging implementation](observability/logging-implementation.md) — current phased status, Phase 7 receiver gate, and evidence.
+- [Structured logging implementation](observability/logging-implementation.md) — deployed log pipeline, active database telemetry, and remaining acceptance gaps.
 - [MyOTA observability overview](observability/overview.md) — metrics, traces, logs, dashboards, and current live gaps.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
   Phases 0–6 are complete within their documented evidence bounds. Helm

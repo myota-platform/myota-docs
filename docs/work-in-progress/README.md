@@ -21,22 +21,13 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   — current measured 2,875-entity baseline, with explicit limits on broader
   capacity claims.
 - [Structured logging rollout](../observability/logging-implementation.md) —
-  Identity, Programme, Activity, and Geodata logging images are live. Identity
-  `/healthz` has a matching Loki structured-metadata record and Tempo span.
-  Helm revision 225 mounted the metadata-aware dashboard and datasource;
-  Grafana logged provisioning, and all seven dashboard queries passed against
-  live Loki. Helm revision 227 is deployed after rollback to 226; Fleet is
-  Ready=True. Authenticated UI link acceptance remains open.
-  Retention/growth, live redaction, async correlation, and Phase 7 database
-  telemetry remain open. The PostgreSQL monitor roles and six-panel dashboard
-  asset are present, but the Collector receiver is paused after auth errors;
-  read-only `psql` checks with the same Secrets succeeded. All Deployments are
-  Ready. Helm revision 234 is deployed; Helm history labels it a rollback to revision
-233. The Fleet BundleDeployment is Ready=True at sync generation 93. All 67
-resources are ready, and all Deployments meet their requested replica counts. See the
+  deployed on Helm revision 241 with all 67 Fleet resources ready. Operations
+  supplies bounded read-only PostgreSQL/PostGIS metrics for all three databases;
+  Psycopg spans are SQL-scrubbed before Tempo. Authenticated Grafana navigation,
+  end-to-end request-to-worker correlation, a Loki prohibited-field audit, and
+  full Compose runtime parity remain open. See the
   [runbook](../observability/logging-runbook.md) and
   [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
-
 - [Observability live status](../observability/overview.md#live-k3s-verification-and-known-gap)
   — track service metrics remediation and current K3s verification.
 - [Observability and storage verification](../observability/evidence/2026-10-09.md)

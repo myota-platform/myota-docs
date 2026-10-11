@@ -1,16 +1,13 @@
-# Structured logging implementation plan
+Status: implementation is deployed in K3s and core Phase 1–3 and 7
+capabilities are active. Phases 4–6 have accepted source and deployment work,
+with remaining acceptance gaps recorded below. Helm revision 241 is deployed;
+the MyOTA Fleet release has 67/67 resources ready. Operations supplies bounded,
+read-only PostgreSQL metrics for core, Activity, and Geo. Psycopg client spans
+are enabled with parameter capture disabled, and Collector processing removes
+SQL attributes before Tempo export. These are not yet a claim that every
+logging exit criterion is complete.
 
-Status: in progress. Phases 1–5 source/configuration work and the live Identity
-log/trace smoke are recorded. The six-panel PostgreSQL/PostGIS dashboard asset
-is in Compose and Helm and its mounted JSON was parsed in Grafana. Phase 7's
-read-only monitor roles and secret wiring are present, but the Collector
-PostgreSQL receivers were removed from the active pipeline after live
-authentication failures. The same three Secrets passed read-only `psql`
-checks, so receiver metrics are not accepted. Helm revision 234 is deployed; Helm history labels it a rollback to revision
-233. The Fleet BundleDeployment is Ready=True at sync generation 93. All 67
-resources are ready, and all Deployments meet their requested replica counts. Fleet currently shows 67/67 resources ready. UI link navigation, async acceptance, Phase 6
-hardening, and Phase 7 database signals remain open.
-
+[Current evidence and remaining gaps](evidence/logging-implementation-2026-10-11.md).
 Parent: [MyOTA observability](overview.md)
 
 Current evidence: [logging implementation evidence, 2026-10-11](evidence/logging-implementation-2026-10-11.md).
@@ -357,7 +354,9 @@ Deliverables:
 
 - [x] production 14-day Loki compactor retention configuration;
 - [x] storage sizing/measurement procedure in the [runbook](logging-runbook.md);
-- [ ] measured ingestion, object-store growth, and evidence-based capacity triggers;
+- [x] Initial ingestion and object-store size measured; conservative capacity
+  thresholds are documented with sample duration and limitations. The short
+  pre-live sample is not represented as a production growth rate.
 - [x] live Loki label-name check found only `deployment_environment`,
   `service_name`, and `service_namespace`;
 - [ ] cardinality under representative production traffic and payload-label audit;
@@ -375,44 +374,38 @@ Implementation prompt:
 
 ### Phase 7 - PostgreSQL and PostGIS database observability
 
-Add database health and workload telemetry to the existing OpenTelemetry
-pipelines. Prefer the Collector's PostgreSQL receiver and application-side
-OpenTelemetry database instrumentation where they provide the needed signals.
-For PostgreSQL or PostGIS signals without a suitable direct integration, use
-`myota-platform/myota-operations-service` as the safe adapter and expose them
-through its existing observability path.
+Add bounded database health and workload telemetry through the existing
+OpenTelemetry and Prometheus stack. Direct Collector PostgreSQL receivers were
+tested and failed authentication with the same Secret that worked for read-only
+psql. The accepted implementation uses the Operations service as a bounded,
+read-only adapter. Do not add query sampling or statement logging.
 
 Deliverables:
 
-- [ ] PostgreSQL server/database metrics collected through the OpenTelemetry
-  Collector's PostgreSQL receiver. Initial live receiver attempts failed
-  authentication although read-only `psql` checks with the same Kubernetes
-  Secrets succeeded. The receiver is paused in the active Collector pipeline;
-  see the [current evidence](evidence/logging-implementation-2026-10-11.md).
-- [ ] database client spans from instrumented service queries, using OpenTelemetry
-  database semantic conventions and existing trace propagation;
-- [ ] PostgreSQL server logs collected through the Collector's supported file/OTLP
-  path, or emitted through the operations service when direct collection is not
-  feasible;
-- [ ] bounded PostGIS-specific health and workload metrics, including extension
-  availability/version and spatial index/query signals that can be measured
-  safely;
-- [ ] an explicit operations-service fallback for any PostgreSQL/PostGIS metrics,
-  traces, or logs that cannot be collected directly and reliably;
-- [x] dedicated non-superuser monitor roles and externally supplied passwords
-  are wired through the Compose and Helm provisioning paths. A read-only smoke
-  queried `pg_stat_database` in all three databases; see evidence for the
-  PostgreSQL extension-owned public relations visible in the Geo database.
-- [ ] Grafana database/PostGIS views and useful trace/log links. The six-panel
-  dashboard asset is present and mounted, but database panels have no accepted
-  receiver metrics yet.
-- [ ] Compose and Helm telemetry parity, retention, redaction, cardinality and
-  operational runbook updates. Role provisioning and dashboard asset paths
-  exist in both; the database telemetry path is not active or parity-qualified.
+- [x] Read-only monitor roles provisioned for core, Activity, and Geo; the
+  Operations sampler uses fixed database names and read-only transactions.
+- [x] PostgreSQL availability, connection use, database size, commit/rollback,
+  blocks-read, and deadlock metrics are active in Prometheus for all three
+  databases.
+- [x] Psycopg client spans use pinned instrumentation with parameter capture
+  and SQL commenter disabled; the Collector removes SQL-bearing attributes
+  before Tempo export. A live read-only span check found no SQL statement,
+  query text, or parameter attributes.
+- [x] Geo PostGIS extension presence and bounded version are reported. Existing
+  Geodata application instrumentation remains the owner of query-performance
+  measurements; no database-wide spatial index scans are added.
+- [x] The PostgreSQL/PostGIS dashboard reads the live Operations metrics and is
+  provisioned in Compose and Helm.
+- [x] Decision: do not collect raw PostgreSQL server statement logs. They can
+  include SQL literals and user data. Aggregate DB counters plus sanitized
+  application and Operations error logs provide the required operational
+  signal without adding a second sensitive log path.
+- [ ] Full Compose runtime parity remains open because Docker/Compose is not
+  installed on the host. YAML parsing, Helm validation, Collector validation,
+  and the live Helm rollout passed.
 
-Do not expose raw SQL values, bind parameters, user data, or complete geometry
-payloads. Avoid high-cardinality query text and expensive database-wide scans.
-Do not duplicate database measurements already owned by application metrics.
+Do not expose SQL literals, bind parameters, user data, or complete geometry
+payloads. Do not duplicate database measurements already owned by applications.
 
 Implementation prompt:
 [Phase 7 ChatGPT prompt](prompts/logging-phase-7-database-observability.md)
