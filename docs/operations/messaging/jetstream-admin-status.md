@@ -11,7 +11,7 @@ periodic snapshots in `operations_jetstream_snapshot`. It did not consume
 application work or change stream state. The separate Operations storage
 inspection and Grafana identity functions remain.
 
-The snapshot table and its history index are still present until the
-Operations-owned forward migration is applied after the replacement image is
-healthy and the verified backup gate is met. Do not use this retired page as an
-operational runbook or infer broker health from its historical samples.
+The Operations-owned forward migration has removed the snapshot table and
+history index after the replacement image and verified backup gates passed.
+The backup remains outside source control. Do not use this historical page as
+an operational runbook or infer broker health from its old sample description.
