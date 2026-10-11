@@ -87,7 +87,7 @@ must be updated with final live evidence before any checkbox is marked complete.
   format backup remains outside source control with SHA-256
   `634520fef35d62e647eb34b01d803efa7d77a91bf5e43eba7eda65118e215428`.
 - Fleet reports Ready=True for Deploy main commit
-  `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`. Helm revision 207 is deployed,
+  `f43d600380803e86292e7e0010bfc1655b1a5d2a`. Helm revision 207 is deployed,
   the bundle applied/desired deployment IDs match, and 64/64 resources are
   ready. The earlier `WaitApplied(1)` state cleared after the local Fleet agent
   restart and one force sync.
