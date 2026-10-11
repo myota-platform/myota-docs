@@ -20,7 +20,15 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
 - [Geodata Phase 0 evidence set](../geodata/evidence/phase0-production-evidence-2026-10-08.md)
   — current measured 2,875-entity baseline, with explicit limits on broader
   capacity claims.
-- [Structured logging rollout](../observability/logging-implementation.md) — Identity, Programme, Activity, and Geodata logging images are live. Identity `/healthz` has a matching Loki structured-metadata record and Tempo span, and live dashboard query shapes succeeded. Deploy/Platform now use structured-metadata queries and trace-field extraction. Helm revision 225 mounted the fix, Grafana logged provisioning, and all seven dashboard queries passed against live Loki; Fleet readiness and authenticated UI link acceptance remain open. Retention/growth, live redaction, async correlation, and Phase 7 database telemetry remain open. See the [runbook](../observability/logging-runbook.md) and [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+- [Structured logging rollout](../observability/logging-implementation.md) —
+  Identity, Programme, Activity, and Geodata logging images are live. Identity
+  `/healthz` has a matching Loki structured-metadata record and Tempo span.
+  Helm revision 225 mounted the metadata-aware dashboard and datasource;
+  Grafana logged provisioning, and all seven dashboard queries passed against
+  live Loki. Fleet readiness and authenticated UI link acceptance remain open.
+  Retention/growth, live redaction, async correlation, and Phase 7 database
+  telemetry remain open. See the [runbook](../observability/logging-runbook.md)
+  and [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 
 - [Observability live status](../observability/overview.md#live-k3s-verification-and-known-gap)
   — track service metrics remediation and current K3s verification.
