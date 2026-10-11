@@ -101,3 +101,40 @@ must be updated with final live evidence before any checkbox is marked complete.
   README/image refresh run `38098411907` passed; Deploy digest commit
   `d0d2f50846fe2c9e239d46a48809860f4b98d7f5` passed Helm run `38098476536`
   and Python run `38098477081`. Prometheus reported no firing NATS alerts.
+
+## Post-rollout Grafana query verification — 11 October 2026
+
+At 00:35:46 UTC, the live Grafana API executed all thirteen PromQL targets in
+provisioned dashboard 16256 using the myota-prometheus datasource and a
+five-minute query window. Every request returned HTTP 200, one data frame, and
+no error. This checks the Grafana-to-Prometheus path and the adapted panel
+expressions; it is a point-in-time sample, not a capacity baseline.
+
+| Dashboard 16256 panel | Expression | Observed value |
+|---|---|---:|
+| Server CPU | `nats_core_cpu_percentage` | 0 |
+| Server Memory | `nats_core_mem_bytes` | 24,772,608 bytes |
+| Bytes In | `nats_core_recv_bytes` | 492,889 bytes |
+| NATS Msgs In | `nats_core_recv_msgs_count` | 13,310 messages |
+| Bytes Out | `nats_core_sent_bytes` | 2,136,464 bytes |
+| NATS Msgs Out | `nats_core_sent_msgs_count` | 13,291 messages |
+| rate(Bytes In) | `sum(rate(nats_core_recv_bytes[1m]))` | 308.87 bytes/second |
+| rate(NATS Msgs In) | `sum(rate(nats_core_recv_msgs_count[1m]))` | 8.27 messages/second |
+| rate(Bytes Out) | `sum(rate(nats_core_sent_bytes[1m]))` | 1,199.78 bytes/second |
+| rate(NATS Msgs Out) | `sum(rate(nats_core_sent_msgs_count[1m]))` | 8.27 messages/second |
+| Connections | `nats_core_connection_count` | 8 |
+| Subscriptions | `nats_core_subs_count` | 126 |
+| Slow Consumers | `nats_core_slow_consumer_count` | 0 |
+
+The live Grafana search returned exactly eleven dashboards in folder `NATS`.
+Prometheus reported `up{job="nats-surveyor"}=1` and `nats_up=1`. The broker
+reported three streams, eleven durable consumers, a 7,516,192,768-byte file
+store cap, a 1,073,741,824-byte memory store cap, and zero JetStream message
+bytes after validation cleanup. No NATS alert was firing.
+
+At 00:35:04 UTC, the wider Prometheus alert snapshot also contained five
+independent application alerts: `MyOTAMetricsCollectorDown` and
+`MyOTAServiceMetricsUnavailable` for Identity and Programme metrics, plus
+`MyOTAOutboxDeadLetterUnresolved` for the Geodata outbox (value 6). These are
+not Surveyor alerts and were not changed or suppressed by this monitoring
+verification; they require separate service follow-up.
