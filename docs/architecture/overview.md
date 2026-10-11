@@ -62,10 +62,13 @@ Geodata work with Interest retention; the selected bounded fact/work split is
 recorded in [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md)
 and remains unimplemented.
 
-The operations service currently owns timestamped broker samples in the control-plane
-database; domain workers still consume their own queues. Its
-[authenticated JetStream page/API](../operations/messaging/jetstream-admin-status.md) is read-only and is planned for retirement after the
-[NATS Surveyor monitoring cutover](../observability/nats-surveyor-migration.md).
+The Operations service owns storage status, storage history and Grafana role
+resolution; it has no NATS connection. Broker/server metrics come from the
+cluster-local Surveyor exporter and Prometheus, with eleven dashboards in the
+Grafana `NATS` folder. The former Admin JetStream page and read-only status
+stub are historical only; the Operations JetStream history table and index
+were removed by a forward migration after a verified backup. See the
+[NATS Surveyor monitoring evidence](../observability/nats-surveyor-migration.md).
 Geodata now uses [database-authoritative, request-scoped row repositories](../geodata/phase1-relational-authority.md),
 with transactionally coupled entity/candidate/audit writes and a write-fenced
 rollout. This closes Phase 1 correctness, not the remaining scalability gates.
