@@ -1,17 +1,14 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phases 0–5 are complete within their recorded evidence bounds. Phase 6's fact-stream cutover is applied; its revision 211 Fleet closeout remains open.
-Phase 5's four Geodata work consumers, migration 021, retry-safe partial
-deletion recovery, and Activity idempotency fix are live. Helm revision 193 is
-deployed; Fleet is Ready=True at Deploy commit
-`cfecd655d9c0eee9d19db26725fb11c99366815a`. The four legacy Geodata durables
-were retired individually after current Fleet, stream, schema, and recovery
-checks passed. At the user's explicit direction, the 24-hour elapsed-time
-requirement was waived: the final check and retirement occurred about ten
-minutes after the revision 193 readiness anchor, so this is not a claim that
-24 hours elapsed. Both streams remain empty; Activity and the four replacement
-Geodata durables remain healthy. Phase 6 covers the separate shared fact-stream
-retention transition.
+**Status:** Phases 0–6 are complete within their recorded evidence bounds.
+Phase 6's bounded fact-stream cutover and retirement checks are complete.
+Helm revision 211 is deployed; Fleet is Ready=True for Deploy main commit
+`16af2edf6b8e868904f9284e481d971ae7d6d38c`. All MyOTA Deployments are
+ready. The old Interest-retained `MYOTA_EVENTS` definition and four legacy
+Geodata durables are retired. The 24-hour Phase 5 observation was explicitly
+waived and closed early; it is not recorded as a completed 24-hour window.
+Six unresolved Geodata application DLQ records remain preserved. See the
+[Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md).
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its
@@ -928,11 +925,11 @@ retired, cleanup, and any remaining evidence gap.
 
 ### Phase 6 — bounded fact-stream cutover and retirement
 
-**Status:** The shared fact-stream migration completed in Helm revision 210.
-The one-time migration flag is disabled in the revision 211 chart values; the
-Fleet reconciliation for that cleanup is still in progress. Keep Phase 6 exit
-criteria open until revision 211 is deployed and Fleet reports Ready=True on
-the latest Deploy commit. See the
+**Status: complete.** The gated fact-stream migration completed in Helm
+revision 210. Helm revision 211 is deployed with the one-time migration flag
+disabled and all-topology drift validation enabled. The MyOTA Fleet bundle is
+Ready=True at Deploy main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`;
+all MyOTA Deployments are ready. See the
 [Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md).
 
 **Decision:** Use one direct, coordinated cutover. No shadow traffic, canary
@@ -970,25 +967,25 @@ dashboards, alerts, runbooks, and recovery controls remain in service.
 - [x] Qualify migration and idempotent rerun in disposable host-K3s namespace
       `phase6-nats-migration` using the published Deploy image; no message was
       published and the namespace was removed.
-- [ ] Complete Helm revision 211 with the one-time migration flag disabled,
+- [x] Complete Helm revision 211 with the one-time migration flag disabled,
       all-topology drift validation enabled, every Deployment ready, and Fleet
-      Ready=True at the applied Deploy main commit.
+      Ready=True at the applied Deploy main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`.
 
 **Exit criteria**
 
-- [ ] Every registered producer and selected consumer uses the registered
+- [x] Every registered producer and selected consumer uses the registered
       fact/work subject and intended durable. The exact Activity notification
       group and ten work durables are live; Operations remains read-only.
-- [ ] `MYOTA_EVENTS` is Limits-retained, bounded to the approved 30-day window,
+- [x] `MYOTA_EVENTS` is Limits-retained, bounded to the approved 30-day window,
       captures only `myota.events.>`, and uses the approved file/replica/limit/
       discard settings. The Activity and Geodata WorkQueue streams remain
       disjoint and correctly provisioned.
-- [ ] Live outbox, stream, durable, Deployment, Helm, and Fleet checks confirm
+- [x] Live outbox, stream, durable, Deployment, Helm, and Fleet checks confirm
       the handoff completed without lost or duplicated business effects.
-- [ ] Recovery/rollback boundaries and the loss of previously Interest-expired
+- [x] Recovery/rollback boundaries and the loss of previously Interest-expired
       facts are recorded. PostgreSQL remains authoritative; JetStream remains
       a bounded transport and replay window, not an archive.
-- [ ] Existing Surveyor dashboards, alerts, Operations boundary, and runbooks
+- [x] Existing Surveyor dashboards, alerts, Operations boundary, and runbooks
       remain valid. No new metrics baseline, shadow traffic, or canary rollout
       was run or added.
 
