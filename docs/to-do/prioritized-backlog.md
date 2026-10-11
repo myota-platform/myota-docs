@@ -100,7 +100,7 @@ short and does not establish a production rate. See the
 [evidence](../observability/evidence/logging-implementation-2026-10-11.md),
 and [runbook](../observability/logging-runbook.md).
 
-**Recommended next work:** close the four remaining acceptance checks against
+**Recommended next work:** close the five remaining acceptance checks against
 the deployed images, then update the implementation roadmap and this backlog
 from the recorded results.
 ### 3. Restore Identity and Programme metrics coverage

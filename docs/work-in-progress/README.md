@@ -21,12 +21,13 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   — current measured 2,875-entity baseline, with explicit limits on broader
   capacity claims.
 - [Structured logging rollout](../observability/logging-implementation.md) —
-  deployed on Helm revision 241 with all 67 Fleet resources ready. Operations
-  supplies bounded read-only PostgreSQL/PostGIS metrics for all three databases;
-  Psycopg spans are SQL-scrubbed before Tempo. Authenticated Grafana navigation,
-  end-to-end request-to-worker correlation, a Loki prohibited-field audit, and
-  full Compose runtime parity remain open. See the
-  [runbook](../observability/logging-runbook.md) and
+  updated log and database telemetry images are running; all Deployments are
+  Ready. Helm revision 242 remains `pending-upgrade`, while Fleet reports
+  revision 241 Ready with 67/67 resources. NATS correlation now uses stable
+  work/event IDs, but source outbox rows do not always preserve the initiating
+  HTTP correlation ID. Authenticated Grafana navigation, the live request-to-
+  worker check, Loki prohibited-field audit, and Compose runtime parity remain
+  open. See the [runbook](../observability/logging-runbook.md) and
   [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 - [Observability live status](../observability/overview.md#live-k3s-verification-and-known-gap)
   — track service metrics remediation and current K3s verification.

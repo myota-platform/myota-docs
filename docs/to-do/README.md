@@ -29,9 +29,10 @@ documentation evidence and does not set delivery dates.
   and [roadmap](../geodata/horizontal-scaling-roadmap.md).
 - [Structured logging acceptance](../observability/logging-implementation.md) —
   deployed with active Operations PostgreSQL metrics and SQL-scrubbed Psycopg
-  traces. Remaining acceptance is authenticated Grafana navigation,
-  representative async correlation, Loki field privacy audit, and Compose
-  runtime parity. See
+  traces. Stable NATS work/event correlation is implemented. Remaining
+  acceptance is Helm/Fleet release-state reconciliation, authenticated Grafana
+  navigation, request-to-worker correlation, Loki field privacy audit, and
+  Compose runtime parity. See
   [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 - [Observability coverage gap](../observability/overview.md#live-k3s-verification-and-known-gap)
   — Identity and Programme `/metrics` coverage needs remediation and live

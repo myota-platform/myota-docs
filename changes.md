@@ -593,3 +593,5 @@ evidence page for commits, workflow links, image digest and verification limits.
 - All Deployments are Ready. Helm revision 242 still reports `pending-upgrade`
   while Fleet reports revision 241 Ready with 67/67 resources. Request-to-worker
   correlation remains open where the source outbox does not store the HTTP ID.
+
+- **Rollout note:** all Deployments are ready on the updated image digests, but Helm revision 242 remains `pending-upgrade`; Fleet still reports revision 241 Ready with 67/67 resources. The release-state discrepancy remains open.

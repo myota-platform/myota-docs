@@ -1,9 +1,10 @@
 # Observability documentation
 
 - [Structured logging implementation roadmap](logging-implementation.md) —
-  deployed log pipeline and active PostgreSQL/PostGIS metrics; authenticated
-  Grafana navigation, async correlation, Loki privacy audit, and full Compose
-  runtime parity remain open.
+  deployed logging, active PostgreSQL/PostGIS metrics, and stable NATS work/event
+  correlation. The release state, initiating HTTP-to-worker correlation,
+  authenticated Grafana navigation, Loki privacy audit, and full Compose runtime
+  parity remain open.
 - [Logging implementation evidence (11 October 2026)](evidence/logging-implementation-2026-10-11.md) — current checks, image rollout status, and phase exit gates.
 - [Logging operations runbook](logging-runbook.md) — LogQL queries, trace/log navigation, ingestion troubleshooting and capacity observations.
 - [Logging phase prompts](prompts/README.md)

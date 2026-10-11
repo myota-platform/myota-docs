@@ -15,17 +15,22 @@ Identity, Programme, Activity, Geodata, and Operations. Deployment behavior is
 owned by `myota-deploy`; `myota-platform` is its synchronized mirror.
 Documentation and phase evidence are owned by `myota-docs`.
 
-## Phase gate summary
+## Current phase gate summary
 
-| Phase | Verified work | Open exit evidence |
+| Phase | Verified current work | Remaining acceptance |
 |---|---|---|
-| 1 — shared logging | Shared `myota_logging.py`, JSON logging, OTel logging provider/handler, resource attributes, redaction helpers, and focused unit tests exist in all five services. Deploy/Platform contain the shared runtime mirror. | Run the complete five-service CI/test evidence against the exact current commits and verify production images include the changes. |
-| 2 — Loki platform | Deploy-owned Loki uses TSDB and SeaweedFS bucket `myota-loki`, 14-day compactor retention, a bounded working volume, and the existing Collector OTLP logs path. Grafana Loki datasource is provisioned. Loki and Collector are Ready in K3s. A disposable OTLP-to-Loki smoke test passed and its namespace was removed. | Compose was not started for parity/restart qualification. Long-term object-store growth and production retention behavior have not been observed. |
-| 3 — HTTP tracing | Shared HTTP path emits completion events, normalizes routes, extracts/injects W3C trace context, and adds response trace IDs. Tests cover success, authorization failure, server error, and propagation. A live Identity health request now has a matching structured-metadata log and Tempo server span. | Exercise the Grafana link after its corrected datasource provision is deployed; qualify HTTP-to-worker correlation across services. |
-| 4 — workers and NATS | Activity worker, notification consumer, Geodata worker, Identity maintenance, and Deploy outbox relay have structured lifecycle logs and messaging spans/headers. Sensitive payloads and exception text remain excluded. Helper propagation tests passed. | Worker retry/ACK integration and end-to-end async correlation have not been accepted against the live images. Some event/outbox envelopes do not carry a `correlation_id`; no synthetic business ID is added. Verify the Geodata Deploy mirror against its authoritative implementation. |
-| 5 — Grafana correlation | All seven queries from the mounted dashboard returned successfully against live Loki structured metadata. Helm ConfigMap/mount, Grafana dashboard provisioning, and the label-type `trace_id` derived-field config were observed in revision 225. | Authenticated Grafana log-to-trace and trace-to-log clicks remain unverified; links from other operational dashboards remain open. |
-| 7 — PostgreSQL/PostGIS | Dedicated non-superuser monitor roles and external secret references exist. Read-only smoke jobs queried `pg_stat_database` in core, Activity, and Geo. The six-panel PostgreSQL/PostGIS dashboard JSON is mounted and parses in Grafana. | The Collector PostgreSQL receivers failed authentication despite successful `psql` checks with the same Secrets. They have been removed from the active pipeline. Client spans, safe DB logs, PostGIS direct/fallback signals, dashboard data, and Compose parity remain open. |
+| 1 — shared logging | Shared structured logging, redaction helpers, resource identity, and focused tests are in all five service repositories; current images are live. | Complete within the documented scope. |
+| 2 — Loki platform | Loki uses SeaweedFS object storage and 14-day compactor retention; Collector, datasource, and dashboards are live. | Full Compose runtime execution is unavailable on this host; no retention waiting period is required before launch. |
+| 3 — HTTP tracing | HTTP completion logs and W3C trace propagation are implemented; live Identity request matched Loki and Tempo. | Authenticated Grafana navigation remains open. |
+| 4 — workers and NATS | Worker lifecycle logging and W3C headers are implemented. Relay correlation fallback is correlationId → workId → eventId, and consumer logs inherit the header. | Live request-to-worker acceptance remains open because some outbox rows do not retain the originating HTTP correlation ID; live retry/ACK acceptance remains open. |
+| 5 — Grafana correlation | Seven dashboard LogQL queries pass against live Loki; Grafana assets are provisioned. | Authenticated trace/log navigation has not been exercised. |
+| 6 — hardening | Loki labels are low-cardinality; retention is configured; initial ingestion/object size and capacity guardrails are documented. | Representative Loki prohibited-field audit and alert-rule decision remain open; short sample is not a production growth rate. |
+| 7 — PostgreSQL/PostGIS | Operations read-only sampling exposes bounded PostgreSQL counters and Geo PostGIS presence/version; Psycopg spans are SQL-scrubbed before Tempo; the dashboard reads active metrics. | Dynamic Compose execution parity remains open. Direct Collector receiver is intentionally disabled after repeatable authentication failure. |
 
+Current rollout state: all Deployments are Ready on the updated digests. Helm
+revision 242 reports `pending-upgrade`; Fleet's BundleDeployment still reports
+revision 241 Ready with 67/67 resources. Do not treat that bookkeeping mismatch
+as a stable deployed release.
 ## Phase 1–5 implementation references
 
 - Shared logging and tests: `myota-identity-service/myota_logging.py`,
