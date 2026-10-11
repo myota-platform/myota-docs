@@ -12,12 +12,12 @@ code. Start with the [documentation index](docs/README.md), the
 
 ## Current state
 
-The latest K3s and repository reconciliation is dated 11 October 2026. At the
-last check, Helm revision 249 was pending in Fleet while all 23/23 MyOTA
-Deployments and 67/67 Fleet resources reported ready. The snapshot records the
-Deploy retirement commit `6a87f36`, digest update `12251ff`, repository and image
-revisions, current ownership, remaining work, and evidence limits. Readiness is
-not production qualification.
+The latest K3s and repository reconciliation is dated 11 October 2026. Helm
+revision 249 is deployed; Fleet is Ready 1/1 at Deploy commit `12251ff`, with
+matching applied and desired deployment IDs, 23/23 Deployments and 67/67
+resources ready. The snapshot records current repository/image revisions,
+ownership, remaining work, and evidence limits. Readiness is not production
+qualification.
 
 SeaweedFS monitoring now uses the Collector and provisioned Grafana dashboard;
 the Admin sampling page, Operations polling API, and history table are retired.

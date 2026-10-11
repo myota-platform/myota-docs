@@ -677,9 +677,10 @@ evidence page for commits, workflow links, image digest and verification limits.
 - On local K3s, the revision 249 migration completed and checks confirm the
   sampled table/index and retired endpoints are absent, `/healthz` returns 200,
   and all 14 dashboard Prometheus targets return live series. All 23 Deployments
-  and 67 Fleet resources report ready. Helm/Fleet still reports revision 249 as
-  `pending-upgrade` / `WaitApplied(1)`; this release-state reconciliation remains
-  open and is not represented as a clean Fleet cutover.
+  and 67 Fleet resources report ready. Helm revision 249 is deployed; Fleet is
+  Ready 1/1 on Deploy commit `12251ff0ccea4c01ac039cc85cd1ee44e29d1b95`, with
+  matching applied and desired deployment IDs. The initial pending-upgrade state
+  cleared during Fleet reconciliation.
 - Commits: Operations `1b52897`, Deploy `6a87f36`, Platform `eb79df0`, Contracts
   `3852666`/`cce166a`, and Admin `9d54cc6`; all pushed to `main`. See the
   [current state](docs/architecture/current-state.md), [monitoring guide](docs/operations/storage/seaweedfs-admin-status.md),
