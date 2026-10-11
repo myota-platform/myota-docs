@@ -53,11 +53,21 @@ Documentation and phase evidence are owned by `myota-docs`.
   `myota-deploy-deploy-helm-myota` Ready=True.
 - Loki `grafana/loki:3.7.8` and Collector
   `otel/opentelemetry-collector-contrib:0.135.0` were Ready.
-- At the last image check, service Deployments still referenced the older
-  Identity, Programme, Geodata, Activity, and Operations image digests recorded
-  in the deployment values. Therefore current source changes cannot yet be
-  treated as live. Confirm the digest sync and pod rollout before accepting
-  runtime behavior.
+- Fleet accepted Deploy main commit `c039d694206d45f7dc2ae4c4822feb6e6cf9768f`
+  and returned Ready=True. New CI-published images rolled out and all desired
+  replicas are Ready for Identity (`dc0b3482…`), Programme (`d10a123a…`),
+  Activity (`6760bb5a…`), Operations (`8a948db5…`), and the Deploy worker image
+  (`8bb12332…`). Geodata remains on its prior digest
+  `4c7c65a51a983f760176b6149ad389102a4a65b31cb4b2fc39a180008dfd86eb` because
+  its image publish was skipped after a failing integration job. The latest
+  structured logging code is therefore live in five owners, but not in Geodata.
+- A safe read-only Identity probe returned HTTP 200 from `/healthz` and HTTP 403
+  from unauthenticated `GET /v1/identity/me`. The API pod emitted
+  `http.request.completed` records. A Loki query over the matching test trace ID
+  returned no records; a bounded count query showed Activity notifications and
+  Operations logs only. Identity trace-to-log acceptance therefore failed and
+  remains open. The temporary port-forwards were stopped; no database/business
+  rows or other test data were created.
 - Geodata's latest image publication workflow
   [38103448580](https://github.com/myota-platform/myota-geodata-service/actions/runs/38103448580)
   failed because its relational-boundary job reports seven JetStream worker
