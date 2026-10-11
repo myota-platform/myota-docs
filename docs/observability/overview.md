@@ -26,25 +26,26 @@ unavailable.
 
 ## Structured logging implementation roadmap
 
-Structured application and worker logging is in progress. Phase 1–5 source and
-configuration work is recorded; live acceptance, production hardening, and
-PostgreSQL/PostGIS observability remain open. Loki and the OpenTelemetry
-Collector are Ready in K3s, but the deployed service image digests have not yet
-been verified to contain the latest logging code. See the
-[implementation plan](logging-implementation.md) and [11 October evidence](evidence/logging-implementation-2026-10-11.md).
+Structured logging is in progress. Current Identity, Programme, Activity, and
+Geodata image digests include the logging initialization; all application and
+worker replicas were Ready at the latest K3s check. A safe Identity
+`GET /healthz` record was found in Loki by its OTLP structured-metadata
+`trace_id`, and the matching Tempo server span was retrieved. The Grafana
+dashboard query shapes also succeeded against live Loki. Helm revision 224
+mounted the corrected metadata-aware dashboard and datasource files, and
+Grafana logged dashboard provisioning. Fleet release readiness and UI trace/log
+navigation remain open, as do asynchronous correlation, Phase 6 production
+hardening, and Phase 7 PostgreSQL/PostGIS telemetry. See the
+[implementation plan](logging-implementation.md), [evidence](evidence/logging-implementation-2026-10-11.md),
+and [runbook](logging-runbook.md).
 
-The plan adds Loki behind the existing OpenTelemetry Collector, standardizes
-structured service and worker logging, propagates trace and business correlation
-context through HTTP and NATS/JetStream, adds PostgreSQL/PostGIS database
-metrics, traces and logs, and connects Grafana metrics, traces and logs. Phases
-1–5 source/configuration work is recorded, and Identity, Programme, Activity,
-Operations, and Deploy worker images have rolled out. Geodata remains on its
-prior image because its current worker integration suite failed. A live Identity
-request reached the API but its trace was not found in Loki, so trace/log
-navigation is not accepted. Phase 6 hardening and Phase 7 database telemetry
-remain open. Each phase has a linked implementation prompt; see the [current
-evidence](evidence/logging-implementation-2026-10-11.md) and [operations
-runbook](logging-runbook.md).
+Loki stores OTLP event text as the log body and attributes such as
+`severity_text`, `trace_id`, `event`, and `correlation_id` as structured
+metadata. Grafana and LogQL query those attributes directly; they are not JSON
+fields in the event string. The indexed Loki label set observed during the
+smoke was `deployment_environment`, `service_name`, and
+`service_namespace`; this short check does not qualify representative
+cardinality or privacy.
 
 ## Collection architecture
 
