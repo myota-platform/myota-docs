@@ -13,15 +13,17 @@
 - [JetStream administration history](jetstream-admin-status.md) — retired Admin page behavior and cutover evidence.
 - [NATS event migration plan](nats-event-migration-plan.md)
   — Phases 0–6 are complete within their documented evidence bounds.
-  Helm revision 213 is deployed; MyOTA Fleet is Ready=True at Deploy commit
-  `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. `MYOTA_EVENTS` uses bounded
+  Helm revision 257 is deployed; Fleet is Ready 1/1 at Deploy commit
+  `f37a1fa8b5f3f5c0eb639c7125fcc9ab0fe323b8`, and the MyOTA bundle is deployed
+  and monitored (23 Deployments, 27/27 desired replicas). `MYOTA_EVENTS` uses bounded
   Limits retention and captures only registered facts; Activity and Geodata
   work remain on separate WorkQueue streams. The migration flag is disabled
   and topology drift validation remains enabled. The user explicitly waived
   Phase 5's 24-hour observation; it closed early, not as a full-day observation.
   See the [Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md),
   [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md), and
-  [NATS monitoring plan](../../observability/nats-surveyor-migration.md).
+  [NATS monitoring plan](../../observability/nats-surveyor-migration.md), and
+  [readiness issue closeout](evidence/nats-readiness-issue-closeout-2026-10-11.md).
 - [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.

@@ -1,14 +1,15 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phases 0–6 are complete within their recorded evidence bounds.
-Phase 6's bounded fact-stream cutover and retirement checks are complete.
-Helm revision 246 is deployed with the one-time migration flag disabled; Fleet is Ready=True with 67/67 resources for Deploy main commit
-`f7d2e65edd5248d70376cf99ccc98c836b7f95e3`. All 23 MyOTA Deployments
-were ready at the 11 October read-only check. The old Interest-retained `MYOTA_EVENTS` definition and four legacy
-Geodata durables are retired. The 24-hour Phase 5 observation was explicitly
-waived and closed early; it is not recorded as a completed 24-hour window.
-Six unresolved Geodata application DLQ records remain preserved. See the
-[Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md).
+**Status:** Phases 0–6 are complete within their documented evidence limits.
+The current host deployment is Helm release `myota`, chart `myota-0.2.14`,
+revision 257, status `deployed`. Fleet's Deploy GitRepo is Ready 1/1 at
+`f37a1fa8b5f3f5c0eb639c7125fcc9ab0fe323b8`; its MyOTA bundle is deployed and
+monitored. All 23 Deployments and 27/27 desired replicas are Ready. Six
+unresolved Geodata application DLQ records remain preserved. Off-node recovery,
+representative 30-day capacity qualification, and live production-event
+traffic are not claimed. The linked
+[NATS readiness issue closeout](evidence/nats-readiness-issue-closeout-2026-10-11.md)
+records accepted decisions and current live evidence.
 
 **Progress tracking:** leave items unchecked until evidence is available; mark
 `[x]` only when the work is verified. A phase is complete only after all its

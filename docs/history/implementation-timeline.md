@@ -1142,3 +1142,38 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
   ready (27/27 replicas). Geodata #7 and Deploy #14 were closed with verified
   acceptance criteria. The complete evidence is in the
   [TracerProvider repair record](../observability/evidence/geodata-tracerprovider-2026-10-11.md).
+
+
+## 11 October 2026 — NATS migration evidence/readiness issue closeout
+
+- **Prompt used:** “Work on and close all issues related to NATS migration
+  evidence and readiness in
+  https://github.com/myota-platform/.github/blob/main/profile/README.md.”
+- Reviewed the Phase 0–6 evidence, authoritative Contracts registry, service
+  dispositions, the three database relay paths, selected Activity/Geodata work
+  consumers, and the deployment-owned provisioning and recovery boundary.
+- Updated the Contracts registry status and tests for 68 facts; synchronized
+  the registry mirror in Platform. The clean-clone registry suite passed 7/7,
+  and the workspace event-source audit verified 68 facts and found no
+  unclassified event-like literals. The Platform registry test job passed.
+- Read-only K3s/NATS inspection confirmed all three disjoint streams and eleven
+  expected consumers. Streams were empty, consumers had no pending work, three
+  database relays were ready, Helm revision 257 was deployed, Fleet was Ready
+  1/1, and all 23 Deployments (27/27 replicas) were ready. The temporary
+  read-only NATS CLI pod was removed without publishing messages.
+- Closed six source/contract/service/deployment issues with completion
+  evidence. Closed Operations #1 as superseded by the current Surveyor and
+  Operations retirement design. Refreshed the organization issue index.
+- **Accepted limits:** the owner has deferred off-node recovery. Initial finite
+  capacity ceilings are accepted for this single-node scope but are not a
+  measured 30-day production qualification. No production event traffic is
+  inferred from the zero current stream backlog. Six unresolved Geo DLQ
+  records remain untouched.
+- **CI caveat:** Contract CI run 38171573878 still stops at the unrelated
+  Identity/Programme runtime-mirror audit. Platform run 38171688089 passed its
+  test job but failed Ruff formatting for `services/identity.py`. These
+  failures are recorded without claiming full repository CI success.
+- Detailed issue mapping and runtime values are in the
+  [NATS readiness closeout](../operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md);
+  the [current system snapshot](../architecture/current-state.md) carries the
+  reconciled deployment state.

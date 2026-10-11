@@ -18,8 +18,7 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
 | Monitoring | NATS Surveyor 0.9.11, Prometheus 2.55.1, Grafana 11.2.2, Alertmanager 0.28.1, OTel Collector 0.135.0, Tempo 2.6.1, and Loki 3.7.8. Eleven NATS dashboards are in Grafana folder `NATS`. |
 
-The 23/23 Deployment and 67/67 Fleet observations establish Kubernetes
-readiness only. They do not establish external availability, multi-node
+The Deployment and Fleet observations establish Kubernetes readiness only. They do not establish external availability, multi-node
 resilience, capacity, recovery outside this node, or product launch readiness.
 The deployed participant web client was absent from the MyOTA namespace check.
 
@@ -35,12 +34,12 @@ does not prove that its image is deployed; deployed image digests are separate.
 | [Activity](https://github.com/myota-platform/myota-activity-service) | `13cdef14b2da78bd55d8ce3c06a202cb9fffcebc` |
 | [Geodata](https://github.com/myota-platform/myota-geodata-service) | `e0e5326376e3c7549113b69f7e5cbdfa3867e7ae` |
 | [Operations](https://github.com/myota-platform/myota-operations-service) | `b3851dddc80a2186f29738cafad74532dac64f74` |
-| [Contracts](https://github.com/myota-platform/myota-contracts) | `cce166ab6f7efef053bc395213fb2d9e2f9583de` |
+| [Contracts](https://github.com/myota-platform/myota-contracts) | `1e0992c5585f42a675d6d54eeac2925a01612dd0` |
 | [Deploy](https://github.com/myota-platform/myota-deploy) | `f37a1fa8b5f3f5c0eb639c7125fcc9ab0fe323b8` |
-| [Platform](https://github.com/myota-platform/myota-platform) | `5924f3dc7e32b7396efba46a180ef96cd082af9e` |
+| [Platform](https://github.com/myota-platform/myota-platform) | `b3d77e84db7cc8eb591315b66d70397629ef16e4` |
 | [Participant web](https://github.com/myota-platform/myota-web) | `0e6cb4cb03a1bdfac03c288d90af540fba917279` |
 | [Admin web](https://github.com/myota-platform/myota-admin-web) | `9d54cc635b7d5411fee6b18d963dc6788a92a43c` |
-| [.github](https://github.com/myota-platform/.github) | `ab0d945edd534de28343b2a6c5d1192cf1e8cb81` |
+| [.github](https://github.com/myota-platform/.github) | `60256b1ebcc27245369123e522477e30545df402` |
 
 ### First-party images observed in K3s
 
@@ -82,7 +81,7 @@ is explicitly deferred; the local file store is not a backup.
 | Workstream | Current status | Source of detail |
 |---|---|---|
 | Cross-repository architecture review | Phases 0–4 complete, including duplicate-YAML-key rejection, handler/mirror check, and route inventory evidence. | [Review](../../REVIEW.md), [Phase 0 evidence](evidence/review-phase-0-2026-10-11.md), [Phases 1–4 evidence](evidence/review-phases-1-4-2026-10-11.md) |
-| NATS event/work migration | Phases 0–6 complete within evidence bounds. Phase 5's 24-hour observation was waived and closed early, not completed as a full-day window. Six application DLQ records remain preserved. | [Migration plan](../operations/messaging/nats-event-migration-plan.md), [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md) |
+| NATS event/work migration | Phases 0–6 complete within evidence bounds. Six application DLQ records remain preserved. Seven migration evidence/readiness issues are closed (Operations #1 was superseded); the 24-hour observation was waived and closed early, not completed as a full-day window. Off-node recovery and representative 30-day capacity qualification remain accepted limits. | [Migration plan](../operations/messaging/nats-event-migration-plan.md), [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md), [issue closeout](../operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md) |
 | NATS monitoring consolidation | Surveyor, dashboards, capacity settings, and broker-sampler retirement are implemented; single-host broker and Prometheus limits still apply. | [Surveyor plan](../observability/nats-surveyor-migration.md), [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md) |
 | SeaweedFS monitoring retirement | Admin page, Operations sampler/API, and sampled-history table are retired; Collector scrape and Grafana dashboard remain. All runtime Deployments are Ready; Helm revision 249 is deployed and Fleet is Ready on the desired commit. | [Deploy issue #8](https://github.com/myota-platform/myota-deploy/issues/8), [monitoring guide](../operations/storage/seaweedfs-admin-status.md) |
 | Geodata scale qualification | Phase 5 was administratively closed by owner acceptance on 11 October; broad capacity, independent writes, node/storage failure, canary, rollback, and >3 replicas remain unverified and were accepted for closure. | [Scaling roadmap](../geodata/horizontal-scaling-roadmap.md), [closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md), [read-only evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md) |

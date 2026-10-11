@@ -743,3 +743,25 @@ evidence page for commits, workflow links, image digest and verification limits.
   `3852666`/`cce166a`, and Admin `9d54cc6`; all pushed to `main`. See the
   [current state](docs/architecture/current-state.md), [monitoring guide](docs/operations/storage/seaweedfs-admin-status.md),
   and [cross-repository issues](https://github.com/myota-platform/myota-deploy/issues/8).
+
+
+## 11 October 2026 — NATS migration evidence and readiness closeout
+
+- Closed the Contracts, Identity, Programme, Activity, Geodata, and Deploy
+  NATS migration evidence issues. Closed Operations #1 as superseded by the
+  approved Surveyor monitoring and Operations retirement work.
+- Updated the contract registry check to 68 facts and 10 work commands and
+  synchronized its Platform mirror. A clean-clone registry test passed 7/7;
+  the workspace event-source audit found no undispositioned event-like source
+  literals.
+- Read-only K3s inspection confirmed the three bounded streams, 11 expected
+  consumers, zero current backlog, three ready outbox relays, Helm revision
+  257, Fleet Ready 1/1, and 23/23 ready Deployments (27/27 replicas). The
+  temporary inspection pod was deleted and published no messages.
+- Off-node recovery remains deferred; the accepted single-node capacity
+  ceilings are not a representative 30-day capacity qualification. Six
+  unresolved Geodata application DLQ records remain preserved. The current
+  Contracts workflow mirror-audit and Platform Ruff caveats are documented.
+  See the [NATS readiness closeout](docs/operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md),
+  the [migration plan](docs/operations/messaging/nats-event-migration-plan.md),
+  and the current [system snapshot](docs/architecture/current-state.md).
