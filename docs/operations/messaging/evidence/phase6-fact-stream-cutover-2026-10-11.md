@@ -4,7 +4,7 @@
 **Status:** Complete. The migration succeeded in Helm revision 210.
 The one-time migration flag was disabled in Helm revision 211; the current
 Helm release is revision 213 with all-topology validation enabled. The MyOTA Fleet bundle is Ready=True at Deploy
-main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`; every MyOTA Deployment
+main commit `de01650e19b88bc99a11ede1f25694202c8c8d17`; every MyOTA Deployment
 has all desired replicas ready.
 
 ## Decision and scope
@@ -94,7 +94,7 @@ No message was published. The namespace and its resources were deleted and
 verified absent.
 
 Deploy CI passed the focused Python quality and Helm rendering workflows on
-main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`
+source commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`
 (runs 38099669717 and 38099669405).
 
 ## Recovery and accepted limits
