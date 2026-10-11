@@ -1197,3 +1197,29 @@ capacity, trust-boundary, recovery, and production-cutover decisions.
     pending rows. Geodata reports six unresolved DLQs, left untouched. Fleet
     is Ready with 59/59 resources, and Helm revision 167 is deployed. See the
     [Phase 2 evidence](../operations/messaging/evidence/phase2-relay-hardening-2026-10-10.md).
+
+## 11 October 2026 — NATS Surveyor dashboard query verification
+
+- **Prompt used:**
+
+  ```text
+  Check the implementation of
+  https://github.com/myota-platform/myota-docs/blob/main/docs/observability/nats-surveyor-migration.md,
+  implement missing parts, and update documentation, architecture, and any
+  dependent repositories.
+  ```
+
+- Rechecked the live deployment on the host K3s cluster without writing test
+  data. Grafana search returned eleven dashboards in folder `NATS`; all
+  thirteen adapted dashboard 16256 expressions returned HTTP 200 and one data
+  frame through Grafana's Prometheus datasource API, with no query error.
+  Surveyor and NATS health were both 1, and no NATS alert was firing.
+- Confirmed Deploy and Platform carry the same Surveyor alert rules (Git blob
+  `f20ceece6fbf71e517a28008382f02d157c4560d`). No runtime source changes were
+  required. The wider Prometheus snapshot had five separate Identity,
+  Programme, and Geodata outbox alerts, recorded as follow-up outside this
+  monitoring task.
+- Recorded the sample values and alert boundary in the
+  [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md)
+  and updated the [monitoring roadmap](../observability/nats-surveyor-migration.md)
+  and [observability architecture](../architecture/diagrams/observability-architecture.md).
