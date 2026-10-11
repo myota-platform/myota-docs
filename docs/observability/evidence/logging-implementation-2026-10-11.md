@@ -351,3 +351,13 @@ This update supersedes earlier revision, image-digest, and Phase 7 status snapsh
 - This stable work/event correlation does not restore the original HTTP
   correlation ID where a producer outbox row never stored it. A live
   request-to-worker trace/log workflow check is therefore still open.
+
+## 11 October 2026 — Identity and Programme metrics coverage
+
+The separate [metrics evidence record](identity-programme-metrics-2026-10-11.md)
+closes Identity #4, Programme #3, and Deploy #7. The services now export bounded
+HTTP request counters and duration histograms, and Prometheus scrapes each
+service through its own named collector receiver. The existing API performance
+dashboard queries both services through the `service_name` label. This closes
+the metrics-coverage work only; the logging acceptance gaps listed above remain
+open.

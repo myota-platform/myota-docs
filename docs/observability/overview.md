@@ -1,11 +1,11 @@
 # MyOTA observability
 
-For the latest deployment and repository snapshot, see
-[Current system state](../architecture/current-state.md). The last read-only
-K3s reconciliation (11 October 2026) found Helm revision 246 deployed, Fleet
-Ready with 67/67 resources, and 23/23 MyOTA Deployments Ready. Observability
-implementation is active, but acceptance gates remain open; see the
-[logging roadmap](logging-implementation.md).
+For the latest deployment and repository snapshot, see the
+[Current system state](../architecture/current-state.md). The 11 October 2026
+reconciliation found Helm revision 261 deployed, Fleet Ready with 67/67
+resources, and 23/23 MyOTA Deployments Ready. Identity and Programme metrics
+coverage is verified; other logging and observability acceptance gates remain
+open. See the [logging roadmap](logging-implementation.md).
 
 ## What was confirmed
 
@@ -89,23 +89,21 @@ collector's `:8889` endpoint. The collector also scrapes each service's
 Prometheus-compatible `/metrics` endpoint, allowing durable gauges to remain
 available during an OTLP exporter or collector restart.
 
-### Live K3s verification and known gap
+### Live K3s verification and resolved metrics gap
 
-On 2026-10-08, the Identity and Programme pods were Ready, but a request from a
-running service pod to `http://myota-identity:8001/metrics` and
-`http://myota-programmes:8002/metrics` returned HTTP 404. Prometheus reported
-`up=0` for those two scrape targets, and no Identity or Programme HTTP request
-series appeared in the recent `myota_http_server_requests_total` query. This
-is a **metrics coverage gap**, not proof that either application API is down;
-the Identity login used for the authorized import completed successfully.
+The 2026-10-08 HTTP 404 responses and missing Prometheus series are retained as
+historical evidence. The gap was resolved on 2026-10-11: Helm revision 261
+runs the immutable Identity and Programme images with successful
+`/healthz` and `/metrics` responses. Prometheus now returns non-empty
+`myota_http_server_requests_total` series for each service, labeled separately
+as `myota-identity` and `myota-programmes`. The API performance dashboard's
+request-rate and latency queries select both services.
 
-Do not treat missing Identity/Programme series as zero business activity or
-claim complete per-service/per-API observability until resolved. The owning
-services should expose their real aggregate and request metrics at the
-configured endpoints, or the scrape config should be aligned with their actual
-telemetry transport. Verify non-404 responses, live series, and dashboard
-coverage after the fix. This issue does not invalidate the geodata-only Phase 0
-query/load evidence below.
+The current check used GET requests to health and metrics endpoints and made no
+domain writes. The older 404 result must not be interpreted as current status.
+See the [dated evidence record](evidence/identity-programme-metrics-2026-10-11.md)
+for commit, CI, image digest, query, and deployment details. The verification
+does not change the separate geodata-only Phase 0 query/load evidence below.
 
 ## API endpoint telemetry
 

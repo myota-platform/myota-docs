@@ -1,6 +1,6 @@
 # Current system state
 
-**Verified:** 11 October 2026 21:15 UTC  
+**Verified:** 11 October 2026 21:36 UTC  
 **Scope:** GitHub `main` repository heads and a read-only inspection of the
 MyOTA namespace on the local single-node K3s host. This is a snapshot, not a
 production-readiness declaration. Authoritative owner repositories remain the
@@ -12,7 +12,7 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 | Area | Verified state |
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
-| Helm/Fleet | Release `myota`, chart `myota-0.2.14`, revision `259`, status `deployed`. Fleet GitRepo is Ready 1/1 at Deploy commit `cd13e2ce8396025c84b89eb4e9e3c153ca5a8489`; the MyOTA BundleDeployment is ready. All 23 Deployments and 27/27 desired replicas are Ready. |
+| Helm/Fleet | Release `myota`, chart `myota-0.2.14`, revision `261`, status `deployed`. Fleet's MyOTA BundleDeployment is ready at Deploy commit `26d13abaef55f1c545d0fff3b8003f2572bd5483`; all 23 Deployments and 27/27 desired replicas are Ready. |
 | MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas). The admin web is deployed; `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
@@ -29,14 +29,14 @@ does not prove that its image is deployed; deployed image digests are separate.
 
 | Repository | `main` commit |
 |---|---|
-| [Identity](https://github.com/myota-platform/myota-identity-service) | `46c6e51acf5f386143ac1b943a961f24e05b8e1b` |
-| [Programme](https://github.com/myota-platform/myota-programme-service) | `c66aefae442464b096b5e2c97ef2f89018a71856` |
+| [Identity](https://github.com/myota-platform/myota-identity-service) | `846da380ce733863fd7710b1994f008aaaa7fa14` |
+| [Programme](https://github.com/myota-platform/myota-programme-service) | `88b12ddd6e31282ae2e0d8822c471eeb77adc954` |
 | [Activity](https://github.com/myota-platform/myota-activity-service) | `fe804ddc0b0b5dca3bb0ad0faa1429fdb6ecec18` |
 | [Geodata](https://github.com/myota-platform/myota-geodata-service) | `08e416ab746863602c2024f1961c6f66aaec2023` |
 | [Operations](https://github.com/myota-platform/myota-operations-service) | `b3851dddc80a2186f29738cafad74532dac64f74` |
 | [Contracts](https://github.com/myota-platform/myota-contracts) | `d6445586580a70c155a4797f1122f9b3ddf44eaa` |
-| [Deploy](https://github.com/myota-platform/myota-deploy) | `cd13e2ce8396025c84b89eb4e9e3c153ca5a8489` |
-| [Platform](https://github.com/myota-platform/myota-platform) | `e2ed7a184775652d6cba7f084c7880f7d5a02a0c` |
+| [Deploy](https://github.com/myota-platform/myota-deploy) | `26d13abaef55f1c545d0fff3b8003f2572bd5483` |
+| [Platform](https://github.com/myota-platform/myota-platform) | `45437c64ee4f52559b434ede65797e08b8395ac9` |
 | [Participant web](https://github.com/myota-platform/myota-web) | `0e6cb4cb03a1bdfac03c288d90af540fba917279` |
 | [Admin web](https://github.com/myota-platform/myota-admin-web) | `9d54cc635b7d5411fee6b18d963dc6788a92a43c` |
 | [.github](https://github.com/myota-platform/.github) | `6129d75f06ff9fcba713e5f716d9c46b7de76121` |
@@ -45,8 +45,8 @@ does not prove that its image is deployed; deployed image digests are separate.
 
 | Workload | Image digest |
 |---|---|
-| Identity | `ghcr.io/myota-platform/myota-identity-service@sha256:b8529ac66102952b4e9b215b8c51ec78b3da0c21163c761129c248828f759d92` |
-| Programme | `ghcr.io/myota-platform/myota-programme-service@sha256:f4594ebc9c21878989206793e69925bae9d8b4977ad2b2035b63b6b5edca6c8b` |
+| Identity | `ghcr.io/myota-platform/myota-identity-service@sha256:9bb32a202453319863de357d9dc643bdf6a000e1ae3aa615ffa510e3ea06fa2a` |
+| Programme | `ghcr.io/myota-platform/myota-programme-service@sha256:8a89e03ba1cf8a8044e2f99658e6dd7a0d5a099097e7ef7818cdaa9a4d1938c2` |
 | Activity API and workers | `ghcr.io/myota-platform/myota-activity-service@sha256:33e7b42f68544b569d621f93bae8fdeec5f696408f0527bc484be6a648673bbc` |
 | Geodata API and workers | `ghcr.io/myota-platform/myota-geodata-service@sha256:2f88ec1e48657f751b562ff928c8dd2574289217cda50f086806d5420a51a14a` |
 | Operations | `ghcr.io/myota-platform/myota-operations-service@sha256:3649b9977a56ea436b39555fa1b579b619311f11bf6fecfc33b125b302f0c7ca` |
@@ -85,7 +85,7 @@ is explicitly deferred; the local file store is not a backup.
 | NATS monitoring consolidation | Surveyor, dashboards, capacity settings, and broker-sampler retirement are implemented; single-host broker and Prometheus limits still apply. | [Surveyor plan](../observability/nats-surveyor-migration.md), [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md) |
 | SeaweedFS monitoring retirement | Admin page, Operations sampler/API, and sampled-history table are retired; Collector scrape and Grafana dashboard remain. All runtime Deployments are Ready on Helm revision 259 and Fleet's current bundle. | [Deploy issue #8](https://github.com/myota-platform/myota-deploy/issues/8), [monitoring guide](../operations/storage/seaweedfs-admin-status.md) |
 | Geodata scale qualification | Phase 5 was administratively closed by owner acceptance on 11 October; broad capacity, independent writes, node/storage failure, canary, rollback, and >3 replicas remain unverified and were accepted for closure. | [Scaling roadmap](../geodata/horizontal-scaling-roadmap.md), [closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md), [read-only evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md) |
-| Logging and observability | Helm 259 is deployed and Fleet is ready. Identity request-to-worker correlation passed a sanitized live outbox/JetStream/Activity-worker test and issue #3 is closed. Programme/Activity/Geodata producer-specific live correlation, authenticated Grafana navigation, Loki privacy/cardinality review, alert/runbook and retention/recovery evidence, Compose parity, and Identity/Programme metrics coverage remain open. | [Logging roadmap](../observability/logging-implementation.md), [evidence](../observability/evidence/logging-implementation-2026-10-11.md) |
+| Logging and observability | Helm 261 is deployed and all 23 Deployments/27 replicas are Ready. Identity request-to-worker correlation and Identity/Programme metrics coverage are verified; metrics issues #4, #3, and #7 are closed. Programme/Activity/Geodata producer-specific live correlation, authenticated Grafana navigation, Loki privacy/cardinality review, alert/runbook and retention/recovery evidence, and Compose parity remain open. | [Logging roadmap](../observability/logging-implementation.md), [evidence](../observability/evidence/logging-implementation-2026-10-11.md), [metrics verification](../observability/evidence/identity-programme-metrics-2026-10-11.md) |
 | Product/domain backlog | Programme configuration, Admin UI internationalization, award-condition modeling, and charter gaps remain planned work. | [To do](../to-do/README.md), [prioritized backlog](../to-do/prioritized-backlog.md) |
 
 ## Evidence and method

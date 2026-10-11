@@ -1,16 +1,16 @@
-Status: Source and deployment changes for structured logging and bounded
-request correlation are implemented. As of 11 October 2026 21:15 UTC, Helm
-revision 259 is deployed from Deploy main
-`cd13e2ce8396025c84b89eb4e9e3c153ca5a8489`; Fleet reports the GitRepo and
-MyOTA bundle ready, with 23/23 Deployments and 27/27 replicas Ready. The
-Activity notification worker's nats-py header handling was fixed and deployed.
-A sanitized Identity registration request reached the Activity worker with its
-original correlation ID, completed, and was ACKed. Identity issue #3 is closed.
-Authenticated Grafana navigation, Programme/Activity/Geodata producer-specific
-live correlation evidence, Loki privacy/cardinality review, alert/runbook
-acceptance, capacity/retention/recovery evidence, full Compose runtime parity,
-and Identity/Programme metrics coverage remain open.
+Status: Structured logging and bounded request correlation are implemented.
+As of 11 October 2026 21:36 UTC, Helm revision 261 is deployed from Deploy
+main `26d13abaef55f1c545d0fff3b8003f2572bd5483`; Fleet is reconciling the
+same chart and all 23 Deployments and 27/27 replicas are Ready. Identity and
+Programme request metrics now return successfully and are visible in
+Prometheus under distinct service labels. The three metrics-coverage issues
+are closed with evidence. Remaining logging acceptance includes authenticated
+Grafana navigation, Programme/Activity/Geodata producer-specific live
+correlation evidence, Loki privacy/cardinality review, alert/runbook acceptance,
+capacity/retention/recovery evidence, and full Compose runtime parity.
 
+[Current evidence and remaining gaps](evidence/logging-implementation-2026-10-11.md).
+Parent: [MyOTA observability](overview.md)
 [Current evidence and remaining gaps](evidence/logging-implementation-2026-10-11.md).
 Parent: [MyOTA observability](overview.md)
 

@@ -77,21 +77,9 @@ coverage remains tracked separately. See the
 from their recorded evidence. Do not infer successful workflow correlation for
 service paths that have not been verified end to end.
 
-### 4. Restore Identity and Programme metrics coverage
-
-**Current position:** Identity and Programme metrics coverage remains an open
-gap in the current-state snapshot and observability roadmap. This describes
-missing telemetry coverage, not proof that either service API is unavailable.
-See [current observability status](../observability/overview.md#live-k3s-verification-and-known-gap)
-and the [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md).
-
-**Next:** Align each service's metrics endpoint with its scrape configuration,
-then verify non-error responses, live service/request series, and dashboard
-coverage from the running cluster.
-
 ## P2 — planned capability after higher-priority work
 
-### 5. Define the typed future award-condition model
+### 4. Define the typed future award-condition model
 
 **Current position:** This is a proposed capability. Its roadmap leaves the
 semantic and evidence decisions open; later implementation depends on reliable
@@ -101,7 +89,7 @@ worked-entity resolution and versioned geodata/reference evidence.
 which reference-data and QSO-resolution work must precede evaluator
 implementation. See the [award-condition roadmap](../domain/awards/future-condition-model-roadmap.md).
 
-### 6. Establish Admin UI internationalization
+### 5. Establish Admin UI internationalization
 
 **Current position:** The proposed roadmap has no completed phases. Locale and
 string inventory should precede translation catalogs or screen migration.
@@ -110,7 +98,7 @@ string inventory should precede translation catalogs or screen migration.
 persistence, and translation-review ownership. See the
 [internationalization roadmap](../domain/administration/i18n-roadmap.md).
 
-### 7. Address longer-term programme and charter gaps
+### 6. Address longer-term programme and charter gaps
 
 **Current position:** The charter gap analysis is a baseline, not a set of
 completed deliverables. Product, governance, interoperability, open-data,

@@ -1,3 +1,18 @@
+## 11 October 2026 — Identity and Programme metrics coverage
+
+- Added bounded HTTP request counters and duration histograms to Identity and
+  Programme, with route-template and status labels that exclude account,
+  programme, callsign, URL, and other high-cardinality identifiers.
+- Added separate Identity and Programme scrape jobs in Deploy and synchronized
+  the Platform mirror. CI, metric tests, immutable image builds, Helm chart
+  validation, and mirror checks passed.
+- Deployed both images in Helm revision 261. Read-only endpoint checks and
+  Prometheus queries found non-empty request series under distinct service
+  labels. See the [implementation and live evidence](docs/observability/evidence/identity-programme-metrics-2026-10-11.md)
+  and the closed issues for [Identity](https://github.com/myota-platform/myota-identity-service/issues/4),
+  [Programme](https://github.com/myota-platform/myota-programme-service/issues/3),
+  and [Deploy](https://github.com/myota-platform/myota-deploy/issues/7).
+
 ## 11 October 2026 — Structured logging and request-to-worker correlation
 
 - Fixed the deployed Activity notification consumer crash caused by calling

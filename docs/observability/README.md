@@ -9,6 +9,8 @@ for the latest verified deployment and open acceptance gates.
   acceptance criteria, and remaining work.
 - [Logging evidence](evidence/logging-implementation-2026-10-11.md) — dated
   rollout and verification record.
+- [Identity and Programme metrics evidence](evidence/identity-programme-metrics-2026-10-11.md) —
+  bounded instrumentation, scrape, dashboard, CI, and live K3s verification.
 - [Geodata TracerProvider repair evidence](evidence/geodata-tracerprovider-2026-10-11.md) —
   duplicate initialization root cause, synchronized fixes, and host rollout.
 - [Logging runbook](logging-runbook.md) — LogQL, trace/log navigation, and
