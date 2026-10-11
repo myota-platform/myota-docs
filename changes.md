@@ -1,5 +1,21 @@
 # MyOTA changes
 
+## 11 October 2026 — Phase 7 database observability work
+
+- Added dedicated non-superuser PostgreSQL monitor-role provisioning and
+  external Secret references to Deploy Compose and Helm; mirrored the deployment
+  assets in Platform.
+- Added a six-panel PostgreSQL/PostGIS Grafana dashboard to Compose and Helm.
+  The dashboard JSON is mounted and parses in the Grafana pod.
+- A read-only smoke queried `pg_stat_database` in core, Activity, and Geo. The
+  pinned Collector receiver still failed authentication with the same Secret
+  references in both the live and temporary diagnostic Collector. The receiver
+  was removed from the active metrics pipeline to stop repeated failures.
+- All Deployments report Ready. Helm revision 231 remains pending Fleet
+  reconciliation. Phase 7 remains open; no PostgreSQL receiver metrics are
+  claimed as delivered. See the [evidence](docs/observability/evidence/logging-implementation-2026-10-11.md)
+  and [plan](docs/observability/logging-implementation.md).
+
 ## 11 October 2026 — Structured logging rollout and live trace verification
 
 - CI-published logging images for Identity, Programme, Activity, and Geodata
