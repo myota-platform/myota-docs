@@ -6,9 +6,7 @@ is in Compose and Helm and its mounted JSON was parsed in Grafana. Phase 7's
 read-only monitor roles and secret wiring are present, but the Collector
 PostgreSQL receivers were removed from the active pipeline after live
 authentication failures. The same three Secrets passed read-only `psql`
-checks, so receiver metrics are not accepted. All K3s Deployments were Ready
-after Helm revision 231's changes; Fleet/Helm still reports revision 231 as
-pending reconciliation. UI link navigation, async acceptance, Phase 6
+checks, so receiver metrics are not accepted. Helm revision 231 is deployed and the last Fleet-applied release reports Ready. A subsequent forced resync is Helm revision 232, still pending-upgrade; all Deployments report Ready. Fleet currently shows 67/67 resources ready. UI link navigation, async acceptance, Phase 6
 hardening, and Phase 7 database signals remain open.
 
 Parent: [MyOTA observability](overview.md)
