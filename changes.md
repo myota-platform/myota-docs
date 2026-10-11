@@ -23,7 +23,6 @@
   applied/desired IDs matching. Phase 2 is complete. See the
   [monitoring roadmap](docs/observability/nats-surveyor-migration.md) and
   [evidence record](docs/observability/evidence/2026-10-11-nats-surveyor-cutover.md).
-
 - Follow-up live query validation executed all thirteen dashboard 16256
   expressions through Grafana's Prometheus datasource API; every expression
   returned HTTP 200 and a data frame with no query error. The NATS folder
