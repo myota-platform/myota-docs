@@ -33,8 +33,9 @@ The current structured-logging rollout uses the existing Collector, Tempo, and
 Prometheus plus Loki. Identity, Programme, Activity, and Geodata logging images
 are live. A safe Identity health request has a matching Loki structured-metadata
 record and Tempo span; dashboard LogQL query shapes pass against live Loki.
-Helm revision 224 mounted the corrected datasource/dashboard and Grafana logged
-dashboard provisioning. Fleet release readiness and UI link navigation,
+Helm revision 227 is deployed after rollback to 226; the resulting ConfigMap
+retains the corrected datasource/dashboard and Grafana logged provisioning.
+Fleet is Ready=True at Deploy commit `904bef2`. UI link navigation,
 request-to-worker correlation, Phase 6 hardening, and Phase 7 database
 observability remain open. The PostgreSQL-to-Collector edge is **proposed** and
 remains disabled until a dedicated read-only monitoring login and Phase 7
