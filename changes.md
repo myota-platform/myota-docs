@@ -1,14 +1,21 @@
 # MyOTA changes
 
-## 11 October 2026 — Cross-repository architecture review
+## 11 October 2026 — Cross-repository architecture review and mitigation
 
 - Reviewed the service owners, Contracts, Deploy, Platform, both web clients,
-  Docs, and the shared GitHub workflow on main.
-- Recorded a duplicate destructive OpenAPI path, Operations source-to-runtime
-  mirror drift, retired NATS API entries, shared helper duplication, Geodata
-  complexity hotspots, and remaining roadmap gates in [REVIEW.md](REVIEW.md).
-- Added phased copyable prompts and updated architecture, To do, and backlog
-  links. No runtime code or deployed state changed.
+  Docs, and the shared GitHub workflow on main. Phases 1–4 then restored
+  owner-to-mirror parity, established a synchronized logger source, grouped
+  Geodata route registration, and removed unused pre-live API aliases and
+  their deprecation machinery.
+- Contracts CI passes for 44 owner files, 92 file mirrors, and five exact tree
+  mirrors. The current route inventory contains 132 OpenAPI operations and
+  170 route registrations with no missing or unregistered routes or duplicate
+  operation IDs.
+- Fleet is Ready=True at Deploy commit f7d2e65; Helm release myota is
+  deployed at revision 246 and all Deployments were ready at requested counts.
+- Phase 0 remains open only for duplicate-YAML-key rejection and the final
+  handler/mirror comparison. See [REVIEW.md](REVIEW.md) and the
+  [phase evidence report](docs/architecture/evidence/review-phases-1-4-2026-10-11.md).
 
 
 ## 11 October 2026 — Phase 7 database observability work

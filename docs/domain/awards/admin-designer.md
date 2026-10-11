@@ -51,8 +51,9 @@ The service selects buckets, ignoring caller-supplied storage destinations:
 | Manager signatures | `myota-award-signatures` |
 | Permanently issued PDFs | `myota-certificates` |
 
-No browser-reachable S3 endpoint is required. Existing presigned/base64 routes
-remain compatibility options; the new UI prefers authenticated binary `PUT`.
+No browser-reachable S3 endpoint is required. The UI uploads image bytes through
+the authenticated content resource; the service selects and validates the
+storage destination.
 An interrupted upload can leave registered metadata without content; registration
 alone does not imply print readiness. No existing asset or award is deleted.
 Publication retains aspect-ratio and resolution checks: use about 2481×3508

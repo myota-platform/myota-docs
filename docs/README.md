@@ -9,9 +9,9 @@ indexes organize open work by delivery status.
 
 - [Architecture and decisions](architecture/README.md) — system boundaries,
   repository ownership, ADRs, and diagrams.
-- [Cross-repository architecture review](../REVIEW.md) — confirmed contract and
-  mirror inconsistencies, code/API duplication, open roadmap phases, and
-  copyable implementation prompts.
+- [Cross-repository architecture review](../REVIEW.md) — Phases 1–4 are
+  complete with evidence; the separate duplicate-YAML-key contract safeguard
+  remains open.
 - [Domain, API, and client contracts](domain/README.md) — API migration,
   programmes, identity, administration, and awards.
 - [Geodata](geodata/README.md) — entity lifecycle, scaling, upload, and query
@@ -24,8 +24,8 @@ indexes organize open work by delivery status.
 - [MyOTA observability overview](observability/overview.md) — metrics, traces, logs, dashboards, and current live gaps.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
   Phases 0–6 are complete within their documented evidence bounds. Helm
-  revision 213 is deployed; MyOTA Fleet is Ready=True at Deploy main commit
-  `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. `MYOTA_EVENTS` now has
+  revision 246 is deployed; MyOTA Fleet is Ready=True at Deploy main commit
+  `f7d2e65edd5248d70376cf99ccc98c836b7f95e3`. `MYOTA_EVENTS` now has
   bounded Limits retention for registered facts, while Activity and Geodata
   work remain on separate WorkQueue streams. See the
   [Phase 6 evidence](operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md),
@@ -33,8 +33,8 @@ indexes organize open work by delivery status.
   and [ADR-0008](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
 - [NATS Surveyor monitoring consolidation](observability/nats-surveyor-migration.md) —
   live Surveyor, dashboard, alert and bounded capacity decisions. Fleet is Ready
-  on Deploy main at Helm revision 208; the replacement images and forward-only
-  Operations history migration are deployed. The retired combined dashboard
+  on Deploy main; Helm revision 246 includes the replacement images and
+  forward-only Operations history migration. The retired combined dashboard
   and its two PostGIS panels are not recreated.
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, Surveyor migration plan and current verification.

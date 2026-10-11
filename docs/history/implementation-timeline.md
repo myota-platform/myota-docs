@@ -2,7 +2,7 @@
 
 This timeline reconstructs the major implementation milestones from the local
 Git histories of the service, client, contract, deployment, and integration
-repositories available through 10 October 2026, cross-checked against the current
+repositories available through 11 October 2026, cross-checked against the current
 architecture and operations documentation. It is intentionally a concise
 history of meaningful system changes, not a complete commit-by-commit changelog.
 Dates are repository commit dates. A commit link points to a representative
@@ -32,12 +32,38 @@ describe current ownership and are authoritative for the present-day system.
   Geodata scaling, logging, API consolidation, Programme configuration, and
   metrics-coverage work. Runtime impact of the source/image discrepancy was
   not independently verified.
-- **Plan and status:** added [REVIEW.md](../../REVIEW.md) with five proposed
-  phases, individual tasks, exit criteria, and a self-contained prompt for each
-  phase. Mitigation work is not started. Updated the repository map, Docs
-  indexes, To do, prioritized backlog, Work in progress, changes log, and the
-  organization profile. No runtime code, API, database, or deployed state was
-  changed; no tests were run as part of this documentation review.
+- **Plan and status at that review point:** added
+  [REVIEW.md](../../REVIEW.md) with proposed phases, individual tasks, exit
+  criteria, and a self-contained prompt for each phase. Mitigation had not yet
+  started at the time of that read-only review. The original review changed no
+  runtime code, API, database, or deployed state and ran no tests. The later
+  completion of Phases 1–4 is recorded in the next entry.
+
+
+## 11 October 2026 — Cross-repository review mitigation, Phases 1–4
+
+- **Prompt used:** “Fix REVIEW.md phases 1–4 iteratively. Make sure to retire
+  all documentation in this repo and elsewhere for removed API endpoints and
+  functionality. Use own criteria and general best practices, don't ask me.
+  Document all work done in docs repo and other repositories as well. Leave a
+  clean and tidy documentation everywhere.”
+- **Phase 1:** added the Contracts-owned source/mirror manifest and CI audit.
+  It checks 44 source files, 92 file mirrors, and five exact tree mirrors.
+- **Phase 2:** established Platform's canonical logging source and exact
+  synchronization; retained service-specific HTTP, persistence, upload,
+  authorization, and metrics adapters with their owners.
+- **Phase 3:** extracted Geodata route registration into catalogue, import,
+  and job groups while keeping state, handlers, transactions, and data
+  ownership in Geodata.
+- **Phase 4:** removed unused pre-live aliases and their runtime headers,
+  registries, and counters. The current contract has 132 operations and 170
+  route registrations with no missing or unregistered routes or duplicate
+  operation IDs. Audited lifecycle commands remain.
+- **Evidence:** source revisions and passing workflow runs, Fleet
+  Ready=True at Deploy f7d2e65, Helm revision 246 deployed, and Deployment
+  readiness are recorded in the
+  [phase evidence report](../architecture/evidence/review-phases-1-4-2026-10-11.md).
+  The independent duplicate-YAML-key guard remains open in Phase 0.
 
 ## 11 October 2026 — Structured logging rollout, Phases 1–5
 

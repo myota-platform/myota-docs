@@ -84,7 +84,7 @@ backgrounds use `myota-award-assets`, manager signatures use
 dimensions and optional checksum. The admin web
 uploads PNG/JPEG bytes through authenticated `PUT /v1/awards/assets/{assetId}/content`
 (20 MiB / 16 million pixel bounds). Named backgrounds and signatures populate
-the designer selectors; old presigned/JSON routes remain compatibility options.
+the designer selectors. Content replacement uses authenticated binary upload.
 See the [programme and award designer guide](admin-designer.md).
 The certificate
 template stores normalized `x`, `y`, `width`, and `height` positions for the

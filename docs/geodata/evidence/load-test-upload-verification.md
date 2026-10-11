@@ -11,10 +11,10 @@ failure-injection tests into production.
 
 ## Failure and correction
 
-The failed `large-upload` run used the old multipart
-`POST /v1/geodata/imports/upload`. Durable deployments reject that route and
-require the resumable API. Idle looping iterations made the output misleading:
-the reported iteration count did not represent actual upload attempts.
+The failed `large-upload` run used the retired single-request multipart
+intake path. The deployed upload flow uses resumable sessions and independently
+retryable parts. Idle looping iterations made the output misleading: the
+reported iteration count did not represent actual upload attempts.
 
 The profile now runs one real upload per VU with these existing contract routes:
 

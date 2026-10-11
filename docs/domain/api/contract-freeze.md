@@ -1,64 +1,55 @@
-# API contract freeze — Phase 0
+# API contract and route inventory
 
-Status: complete  
-Reviewed: 2026-10-01  
-Owner: `myota-contracts` with the deployed service registries
-
-Phase 0 establishes the contract baseline used before any REST route
-consolidation. It does not remove or change runtime routes.
+**Status:** current contract and service route inventory agree  
+**Canonical owner:** myota-contracts  
+**Current evidence:** Contract freeze checks, 2026-10-11
 
 ## Canonical contract and mirrors
 
-The canonical OpenAPI document is:
+The authoritative OpenAPI document is
+[myota-contracts/contracts/openapi.yaml](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml).
+The repository-local root copy and
+[myota-platform/contracts/openapi.yaml](https://github.com/myota-platform/myota-platform/blob/main/contracts/openapi.yaml)
+are synchronized mirrors. They are updated from the canonical file and checked
+byte-for-byte.
 
-- [`myota-contracts/contracts/openapi.yaml`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/openapi.yaml)
+The event registry and schema tree are also Contracts-owned. Platform contains
+the synchronized event registry and schema tree. The owner-to-mirror audit
+checks exact file and directory contents.
 
-The following files are retained as generated mirrors for consumers that
-already depend on their repository-local path:
+## Route inventory
 
-- [`myota-contracts/openapi.yaml`](https://github.com/myota-platform/myota-contracts/blob/main/openapi.yaml)
-- [`myota-platform/contracts/openapi.yaml`](https://github.com/myota-platform/myota-platform/blob/main/contracts/openapi.yaml)
+The checked-in inventory is
+[contracts/route-inventory.json](https://github.com/myota-platform/myota-contracts/blob/main/contracts/route-inventory.json).
+It scans the runtime route registries in Deploy and the Geodata owner. The
+current main-branch inventory contains:
 
-They must not be edited independently. Run
-`scripts/sync_contract_mirrors.py --platform-root ../myota-platform` from the
-contracts checkout after changing the canonical document. CI fails if either
-mirror differs byte-for-byte from the canonical file.
-
-## Route reconciliation
-
-The generated inventory is [`route-inventory.json`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/route-inventory.json).
-The Phase 0 checker scans the five HTTP registries used by the deployed local
-runtime in `myota-deploy/services`: identity, programme, geodata, activity,
-and awards. It compares method/path pairs with the canonical OpenAPI paths.
-
-Baseline recorded on 2026-10-01:
-
-| Check | Result |
+| Check | Current result |
 | --- | ---: |
-| Canonical OpenAPI operations | 117 |
-| Deployed registry routes | 117 |
-| Registered routes missing from contract | 0 |
-| Contract operations missing from registry | 0 |
-| Duplicate OpenAPI operation IDs | 0 |
-| Reviewed semantic-duplicate groups | 7 |
+| Canonical OpenAPI operations | 132 |
+| Service route registrations | 170 |
+| Contract operations without a registered handler | 0 |
+| Registered handlers missing from OpenAPI | 0 |
+| Duplicate OpenAPI operation identifiers | 0 |
 
-The checker is [`check_contract_phase0.py`](https://github.com/myota-platform/myota-contracts/blob/main/scripts/check_contract_phase0.py),
-and the review baseline for intentional action-style overlaps is
-[`semantic-duplicates.json`](https://github.com/myota-platform/myota-contracts/blob/main/contracts/semantic-duplicates.json).
-The semantic groups are not treated as accidental duplicates: they represent
-audited lifecycle, relationship, deletion, verification, publication, or
-recalculation commands that remain explicit until a later migration phase.
-Any new or changed group fails CI until it is reviewed and added to that
-baseline with a rationale.
+The historical 117-operation baseline from 2026-10-01 is not the current
+contract size. Operations were added as resource and job APIs were built, and
+unused compatibility-only operations were later removed.
 
-## CI gate
+The route checker does not reject every duplicate YAML mapping key. The
+duplicate-key safeguard for the destructive Geodata cleanup definition remains
+an open item in the cross-repository review.
 
-The executable gate is the
-[Contract freeze checks workflow](https://github.com/myota-platform/myota-contracts/blob/main/.github/workflows/contract-freeze.yml).
-It validates YAML syntax, verifies both mirrors, compares the route inventory,
-checks duplicate operation IDs and semantic-duplicate drift, and ensures the
-generated inventory has no uncommitted changes.
+## CI gates
 
-Phase 1 may now add preferred resource aliases, but it must preserve the
-frozen routes, authorization, idempotency, audit, and event behavior until
-client migration and the documented deprecation window are complete.
+[Contract freeze checks](https://github.com/myota-platform/myota-contracts/blob/main/.github/workflows/contract-freeze.yml)
+verify canonical contract mirrors, route inventory, operation identifiers,
+service owner-to-mirror files, selected schema and migration trees, generated
+event schemas, and runtime event-routing catalogs.
+
+Service repositories continue to own request handling, authorization,
+idempotency, transactions, audit behavior, event publication, and database
+migrations. Contracts does not replace those owners.
+
+See the [REST API consolidation record](rest-consolidation-plan.md) and
+[cross-repository phase evidence](../../architecture/evidence/review-phases-1-4-2026-10-11.md).

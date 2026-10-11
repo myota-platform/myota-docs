@@ -114,8 +114,8 @@ service and splits each graph into route/method series: request rate, p95
 response time in milliseconds, 5xx server-error rate, and calculated
 availability percentage. The route label is the registered API template (for
 example `/v1/entities/{id}`), not an unbounded URL containing identifiers.
-This keeps cardinality bounded and makes the dashboard usable for the new REST
-resource API as well as the remaining compatibility aliases.
+This keeps cardinality bounded and makes the dashboard usable for current REST
+resource operations and explicit audited commands.
 
 API latency is distinct from query-level timings. The geodata service observes
 the PostGIS bounding-box query and entity upsert under
@@ -206,13 +206,11 @@ receive Viewer. Prometheus, Alertmanager and Tempo ports are private. The
 provisioned dashboards default to the last 30 minutes and refresh every
 30 seconds; UI saves are enabled for Editors. Copy a source-managed dashboard
 if its UI edits must survive later provisioning updates. The `MyOTA operations`,
-`MyOTA API performance`, `MyOTA Geodata capacity baseline`, and current
-`MyOTA JetStream backlog and PostGIS query performance` dashboards are tagged
-`real-data`. Its two PostGIS panels have been removed from the Compose and Helm
-assets; no replacement panels are planned. The remaining combined dashboard is
-scheduled for retirement after Surveyor acceptance. The proposed Grafana folder
-`NATS` will contain dashboard 16256 and all ten JSON dashboards from the pinned
-NATS Surveyor provisioning source, subject to per-panel metric compatibility checks. See the [NATS monitoring consolidation plan](nats-surveyor-migration.md).
+`MyOTA API performance`, and `MyOTA Geodata capacity baseline` dashboards use
+live service data. The former combined JetStream/PostGIS dashboard has been
+retired; its PostGIS panels are not recreated. Grafana's `NATS` folder contains
+dashboard 16256 and the ten pinned Surveyor dashboards. See the
+[NATS monitoring consolidation plan](nats-surveyor-migration.md).
 
 Kubernetes enables the same collector, Prometheus, Alertmanager, Grafana and
 Tempo resources with `observability.enabled=true`, including persistent volumes.
@@ -223,21 +221,19 @@ appropriate to the cluster.
 ## Operational interpretation
 
 The [SeaweedFS storage page](../operations/storage/seaweedfs-admin-status.md) at `/object-storage`
-follows the NATS page pattern: read-only operations APIs, real provider gauges,
-explicit unavailable/partial/stale status, and persistent paged history. Native
-bucket counts/sizes and filesystem capacity come from the private exporter;
-no object scans or storage credentials are required by the Admin UI.
+uses read-only Operations APIs, provider gauges, explicit unavailable,
+partial, and stale status, and persistent paged history. Native bucket
+counts/sizes and filesystem capacity come from the private exporter; no object
+scans or storage credentials are required by the Admin UI.
 
 **Current NATS monitoring:** the cluster-local NATS Surveyor exporter feeds
 Prometheus and the Grafana `NATS` folder, which contains dashboard 16256 and
-ten pinned Surveyor dashboards. Surveyor exports broker/server metrics; it
-retains no JetStream messages. Its supported metrics were verified against
-live NATS data, while route/gateway, multi-server Raft, and optional latency
-panels remain empty on the current single-server topology. The Admin
-`/jetstream` page, Operations NATS sampler/history table, Geodata broker
-poller, combined MyOTA JetStream backlog dashboard, and its two PostGIS panels
-are retired. Operations storage history, Grafana identity, and app-level outbox
-and worker metrics remain service-owned.
+ten pinned Surveyor dashboards. Surveyor exports broker/server metrics and
+does not retain JetStream messages. Its supported metrics were verified
+against live NATS data, while route/gateway, multi-server Raft, and optional
+latency panels have no series on the current single-server topology.
+Operations storage history, Grafana identity, and application outbox and worker
+metrics remain service-owned.
 
 - A missing series is not converted to a made-up value.
 - Scrape and exporter health should be checked before interpreting an empty

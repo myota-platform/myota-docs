@@ -390,11 +390,11 @@ policy does not authorize replica/configuration changes or service restarts.
 The one-time Phase 4 API boundary test was separately authorized and is
 complete; see the [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md).
 
-Use `make verify-phase4` after rebuilding the durable stack. It runs the
-authorization, idempotency, audit, activity, award, and geodata regression
-suite, verifies typed-client coverage, and probes gateway/service health and
-metrics endpoints. Keep compatibility aliases enabled until the dashboard
-shows no remaining callers and the Phase 5 review approves their removal.
+Use the focused service and Contracts checks before changing API resources.
+Confirm the generated route inventory matches service registrations and that
+first-party client coverage targets the canonical contract. Current API
+consolidation status and exact CI evidence are in the
+[REST API consolidation record](../domain/api/rest-consolidation-plan.md).
 
 ### Database restart recovery and large staged imports
 

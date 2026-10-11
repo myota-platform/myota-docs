@@ -1,14 +1,14 @@
 # Geodata resource lifecycle
 
-```mermaid
+~~~mermaid
 flowchart LR
   Client[Admin or integration client]
   Import[POST geodata imports]
-  Stage[Preprocessing queue]
+  Stage[Durable preprocessing work]
   Review[Candidate validation and review]
   Entity[Entity collection]
-  Activity[Activity service impact and cascade]
-  Job[Deletion job]
+  Activity[Activity owned impact and cascade]
+  Job[Geodata deletion job and confirmation]
   Client --> Import
   Import --> Stage
   Stage --> Review
@@ -16,9 +16,9 @@ flowchart LR
   Client --> Job
   Job --> Activity
   Activity --> Entity
-  Entity -->|GET bbox-filtered collection| Client
-```
+  Entity -->|GET extent-filtered collection| Client
+~~~
 
-The legacy action routes are aliases into the same resource handlers and are
-marked with deprecation headers. Tile delivery remains separate from the
-filtered entity collection.
+The route map is maintained in Geodata's geodata_routes.py; import,
+catalogue, and job handlers remain in the Geodata service. Activity continues
+to own its impact calculation, cascade, and award recalculation.

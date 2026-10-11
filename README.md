@@ -55,14 +55,18 @@ pre-fixture plans, and evidence limits are recorded in the [Phase 0 evidence
 record](docs/geodata/evidence/phase0-production-evidence-2026-10-08.md) and
 [representative query review](docs/geodata/evidence/phase0-representative-query-review-2026-10-08.md).
 
-A read-only [cross-repository architecture review](REVIEW.md) records source,
-contract, duplication, and API findings with a phased implementation plan.
+The [cross-repository architecture review](REVIEW.md) records Phases 1–4 as
+implemented with source, CI, image, and K3s evidence. The separate Phase 0
+duplicate-YAML-key safeguard remains open; see the
+[Phase 1–4 evidence](docs/architecture/evidence/review-phases-1-4-2026-10-11.md).
 
 Other outstanding platform work is tracked explicitly in the
 [charter gap analysis](docs/governance/charter-gap-analysis.md),
 [programme configuration gap analysis](docs/domain/programmes/configuration-gap-analysis.md),
-[REST API migration plan](docs/domain/api/rest-consolidation-plan.md), and the
-organization’s [profile roadmap](https://github.com/myota-platform/.github/tree/main/profile).
+and the organization’s [profile roadmap](https://github.com/myota-platform/.github/tree/main/profile).
+The completed [REST API consolidation record](docs/domain/api/rest-consolidation-plan.md)
+and [cross-repository review evidence](docs/architecture/evidence/review-phases-1-4-2026-10-11.md)
+remain the references for API and ownership decisions.
 
 ## Documentation map
 
@@ -101,9 +105,9 @@ NATS migration status on 11 October 2026:
   Phase 6 cutover moved `MYOTA_EVENTS` to bounded Limits retention for
   `myota.events.>`; Activity and Geodata work remain on their separate
   WorkQueue streams.
-- Helm revision 213 is deployed; the one-time migration flag remains off and
+- Helm revision 246 is deployed; the one-time migration flag remains off and
   all-topology validation is enabled. Fleet is Ready=True at Deploy commit
-  `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`; all MyOTA Deployments have
+  `f7d2e65edd5248d70376cf99ccc98c836b7f95e3`; all MyOTA Deployments have
   their desired replicas ready.
 - The explicit Phase 5 waiver closed its 24-hour observation early; it is not
   claimed as a full-day observation. Six pre-existing Geodata database DLQ

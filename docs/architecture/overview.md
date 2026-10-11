@@ -2,10 +2,11 @@
 
 Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diagrams/service-boundaries.md), [`diagrams/programme-configuration-lifecycle.md`](diagrams/programme-configuration-lifecycle.md), and [`diagrams/data-model.md`](diagrams/data-model.md). This document remains the narrative architecture reference; the diagrams intentionally show the major ownership and lifecycle relationships without replacing detailed API or migration documentation.
 
-The current versus selected NATS event/work topology is kept separately in the
-[NATS migration diagram](diagrams/nats-event-migration.md). Phases 0 and 1
-contract/topology work are complete. The selected target is not deployed; the
-legacy relay/stream remain in place pending Phase 2 compatibility gates.
+The deployed NATS event/work topology is shown in the
+[NATS migration diagram](diagrams/nats-event-migration.md). Phases 0–6 are
+complete within the evidence recorded by the migration plan. PostgreSQL remains
+the source of truth; broker retention supports delivery and bounded replay, not
+an event archive.
 
 ## Scope
 
@@ -32,15 +33,16 @@ flowchart LR
   G --> P[Programme service\nconfiguration, rules, themes]
   G --> Geo[Geodata service\nPostGIS, imports, review]
   G --> A[Activity service\nactivations, QSOs, awards]
-  G --> Ops[Operations service\nJetStream status and sampled history]
-  I -. events .-> Bus[(Event broker / outbox)]
+  G --> Ops[Operations service\nstorage status, metrics, Grafana identity]
+  I -. events .-> Bus[(NATS JetStream)]
   P -. events .-> Bus
   Geo -. events .-> Bus
   A -. events .-> Bus
+  Bus --> Surveyor[NATS Surveyor]
+  Surveyor --> Prometheus[Broker metrics]
   I --> C[(myota_core\nPostgreSQL)]
   P --> C
   Ops --> C
-  Ops -->|Read-only status| Bus
   A --> ADB[(myota_activity\nPostgreSQL)]
   Geo --> D[(myota_geo\nPostgreSQL + PostGIS)]
   Admin[QGIS / browser map editor] --> Geo
@@ -57,17 +59,15 @@ require it: `myota_geo`.
 Each service owns its database tables and writes outbox events in its database.
 Three database-specific relays publish from core, activity, and geodata. No
 service reads another service's tables. The gateway/ingress is a routing
-boundary, not a domain owner. The current NATS stream still mixes facts and
-Geodata work with Interest retention; the selected bounded fact/work split is
-recorded in [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md)
-and remains unimplemented.
+boundary, not a domain owner. The deployed topology separates bounded fact
+retention from service-owned work queues. See
+[ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md) and the
+[NATS migration plan](../operations/messaging/nats-event-migration-plan.md).
 
-The Operations service owns storage status, storage history and Grafana role
+The Operations service owns storage status, storage history, and Grafana role
 resolution; it has no NATS connection. Broker/server metrics come from the
 cluster-local Surveyor exporter and Prometheus, with eleven dashboards in the
-Grafana `NATS` folder. The former Admin JetStream page and read-only status
-stub are historical only; the Operations JetStream history table and index
-were removed by a forward migration after a verified backup. See the
+Grafana `NATS` folder. See the
 [NATS Surveyor monitoring evidence](../observability/nats-surveyor-migration.md).
 Geodata now uses [database-authoritative, request-scoped row repositories](../geodata/phase1-relational-authority.md),
 with transactionally coupled entity/candidate/audit writes and a write-fenced
@@ -95,7 +95,7 @@ import, correction, job, statistic and notification tables. It does not use
 the generic JSONB `service_state` projection in durable mode. Activity and
 award writes use bounded psycopg pools and transaction-local idempotency.
 
-Geodata uses the same compatibility snapshot during the migration period, but
+Geodata uses the same validated snapshot as its current resource representation, and
 the authoritative entity catalogue is also upserted into the PostGIS-owned
 `geodata_entity`, `geodata_entity_category`, `source_reference`, and review
 tables. Manual candidates and their lifecycle changes therefore remain durable
@@ -305,7 +305,7 @@ ordered request is retained as the singular compatibility value, while
 same relation supports entities with no programme assignment and categories
 assigned to several programmes.
 
-The administration web has a dedicated Geodata imports page. It loads every category from the database-backed shared `/v1/entity-types` catalogue rather than a programme-scoped or hardcoded list. It supports copy/paste for text documents and file upload for binary or text documents, including an explicit OpenStreetMap GeoJSON option that routes GeoJSON through the OSM tag adapter. Browser file uploads use owner-bound resumable sessions (`/v1/geodata/import-uploads`), backed by SeaweedFS S3 multipart objects and relational session/part records; the browser sends independently retryable 16 MiB parts rather than one 1 GiB request. Session creation is idempotent, each part is SHA-256 checked, the completed object is size/checksum/malware checked, and a daily worker aborts expired multipart sessions. The accepted source object and import row are durable before a JetStream outbox event is published. No shared upload-spool PVC or pod-local path is part of the accepted-file handoff. The legacy single-request file endpoint is deprecated and rejected when durable storage is enabled; pasted JSON remains a separate API request path. GeoJSON, KML, GPX and Shapefile decoding is performed by a separately deployable geodata-owned worker, while OSM PBF and ParkServe binary records remain visibly queued for their source adapters. During pre-processing, each normalized record is checked against existing entity geometry; identical geometry or a centroid distance below 50 metres produces a `POSSIBLE_DUPLICATE` warning with comparison geometry, while the administrator retains the final decision. The imports collection exposes pending/confirmed/processed candidate counts, allowing the admin web to display a dedicated pre-processing queue before records are explicitly promoted into Geodata Review. Compose and Helm use the same geodata image in separate API, retention, and JetStream worker processes; the worker scales independently from HTTP API replicas. Production Helm can use the optional single-node SeaweedFS chart or an externally operated S3-compatible endpoint.
+The administration web has a dedicated Geodata imports page. It loads every category from the database-backed shared `/v1/entity-types` catalogue rather than a programme-scoped or hardcoded list. It supports copy/paste for text documents and file upload for binary or text documents, including an explicit OpenStreetMap GeoJSON option that routes GeoJSON through the OSM tag adapter. Browser file uploads use owner-bound resumable sessions (`/v1/geodata/import-uploads`), backed by SeaweedFS S3 multipart objects and relational session/part records; the browser sends independently retryable 16 MiB parts rather than one 1 GiB request. Session creation is idempotent, each part is SHA-256 checked, the completed object is size/checksum/malware checked, and a daily worker aborts expired multipart sessions. The accepted source object and import row are durable before a JetStream outbox event is published. No shared upload-spool PVC or pod-local path is part of the accepted-file handoff. File uploads use the owner-bound resumable session flow; pasted JSON remains a separate API request path. GeoJSON, KML, GPX and Shapefile decoding is performed by a separately deployable geodata-owned worker, while OSM PBF and ParkServe binary records remain visibly queued for their source adapters. During pre-processing, each normalized record is checked against existing entity geometry; identical geometry or a centroid distance below 50 metres produces a `POSSIBLE_DUPLICATE` warning with comparison geometry, while the administrator retains the final decision. The imports collection exposes pending/confirmed/processed candidate counts, allowing the admin web to display a dedicated pre-processing queue before records are explicitly promoted into Geodata Review. Compose and Helm use the same geodata image in separate API, retention, and JetStream worker processes; the worker scales independently from HTTP API replicas. Production Helm can use the optional single-node SeaweedFS chart or an externally operated S3-compatible endpoint.
 
 Import normalization also derives a canonical display name before a record enters the preprocessing queue. An explicit `name` wins, followed by common source aliases such as `SITE_NAME`, `official_name`, `NOMBRE`, `DENOMINACION`, `title`, and `label`; source codes, identifiers, geometry fields, and administrative metadata are excluded from name inference. The original property map remains unchanged in provenance, so the derived `name` is a review-friendly projection rather than a loss of source data. Records without a usable alias retain the `Unnamed candidate` fallback.
 

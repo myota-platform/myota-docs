@@ -1,47 +1,26 @@
 # Work in progress
 
-This index points to active delivery and verification threads. Completed
-components may appear here when their evidence still defines an open rollout or
-qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
+This index points to active delivery and evidence gates. Completed implementation
+does not close independent rollout or acceptance work. Broader unstarted work
+is listed in [To do](../to-do/README.md).
 
-The cross-repository architecture review is complete. Its mitigation phases are
-proposed and not started; the accepted work is listed in [To do](../to-do/README.md)
-and detailed in [REVIEW.md](../../REVIEW.md). Review checkboxes are not implementation
-evidence.
+## Cross-repository architecture review
+
+Phases 1–4 are implemented and documented in [REVIEW.md](../../REVIEW.md) and
+the [phase evidence record](../architecture/evidence/review-phases-1-4-2026-10-11.md).
+They restore source-to-mirror parity, establish the shared logger source,
+extract the Geodata route map, and retire unused API aliases. The separate
+Phase 0 duplicate-YAML-key check remains open.
+
+## Active implementation and evidence
 
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
-  Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
-  image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates
-  are closed with a 33-test isolated evidence run and documented in the
-  [Phase 3 report](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
-  Phase 4 bounded API replica-safety is verified. Phase 5 now has live proof of
-  API replacement during a 22.5 MB accepted import and CPU HPA scale-up/down,
-  plus modest two-vs-three replica latency evidence; broader capacity,
-  independent-row contention, node/storage failure, canary and rollback gates
-  remain open. See the [Phase 5 report](../geodata/evidence/phase5-staged-rollout-2026-10-09.md),
-  [Phase 4 report](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md),
-  the [Phase 2 evidence](../geodata/evidence/phase2-upload-recovery-2026-10-09.md)
-  and [Phase 3 implementation/exit review](../geodata/evidence/phase3-bounded-preprocessing-2026-10-09.md).
-- [Geodata Phase 0 evidence set](../geodata/evidence/phase0-production-evidence-2026-10-08.md)
-  — current measured 2,875-entity baseline, with explicit limits on broader
-  capacity claims.
-- [Structured logging rollout](../observability/logging-implementation.md) —
-  updated log and database telemetry images are running; all Deployments are
-  Ready. Helm revision 242 remains `pending-upgrade`, while Fleet reports
-  revision 241 Ready with 67/67 resources. NATS correlation now uses stable
-  work/event IDs, but source outbox rows do not always preserve the initiating
-  HTTP correlation ID. Authenticated Grafana navigation, the live request-to-
-  worker check, Loki prohibited-field audit, and Compose runtime parity remain
-  open. See the [runbook](../observability/logging-runbook.md) and
-  [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+  Phase 5 remains open for broader capacity, independent-row consistency,
+  node/storage failure, canary, and rollback evidence.
+- [Structured logging acceptance](../observability/logging-implementation.md) —
+  release-state reconciliation, authenticated Grafana navigation,
+  request-to-worker correlation, Loki field privacy, and Compose parity remain
+  open in the evidence record.
 - [Observability live status](../observability/overview.md#live-k3s-verification-and-known-gap)
-  — track service metrics remediation and current K3s verification.
-- [Observability and storage verification](../observability/evidence/2026-10-09.md)
-  — deployed storage-status and Grafana access evidence; records the test
-  scope and remaining logging gap. NATS Surveyor consolidation is deployed and
-  complete; its roadmap and evidence remain linked in the observability index.
-- [Recent award designer delivery evidence](../domain/awards/evidence/programme-awards-2026-10-09.md)
-  — UI/API verification record, including the platform integration test not run
-  against an isolated NATS broker.
-- [Recent entity catalogue delivery evidence](../domain/administration/evidence/entity-catalogue-2026-10-09.md)
-  — browser, build, and deployment evidence for the catalogue workflow.
+  — Identity and Programme metrics coverage requires remediation and current
+  cluster verification.

@@ -22,25 +22,24 @@ new operational evidence.
 
 ## P0 — close before the affected rollout or capability expansion
 
-### Reconcile destructive API contract and runtime source parity
+### Add duplicate-YAML-key rejection to contract validation
 
-**Current evidence:** the canonical OpenAPI file defines the Geodata load-test
-cleanup path twice with conflicting identifier constraints. Operations source
-contains a PostgreSQL sampler module that is absent from the Deploy and
-Platform runtime copies, although the latest logging evidence records the
-fallback as active. This is a source/image provenance gap; the current running
-image was not independently inspected during this review.
+**Current evidence:** Phases 1–4 of the cross-repository review are complete.
+Owner-to-mirror CI, source builds, image builds, route inventory, Fleet, and
+Helm evidence are recorded in the
+[phase evidence record](../architecture/evidence/review-phases-1-4-2026-10-11.md).
+The current Contracts audit does not reject duplicate YAML mapping keys in
+the destructive Geodata cleanup definition.
 
-**Why first:** duplicate contract keys can generate inconsistent clients or
-validation, and runtime copies are the input to deployment images. Resolve both
-before further releases that depend on these paths.
+**Why first:** a duplicate mapping key can make parsers retain different
+schemas for one destructive operation. This is the only open item in the
+cross-repository review and should be closed before relying on generated
+contract tooling for that operation.
 
-**Next:** follow [Phase 0 and Phase 1 of the architecture review](../../REVIEW.md):
-make the cleanup contract unique and fail-closed, audit route/client references
-for retired Operations JetStream endpoints, synchronize owner files into
-Deploy/Platform, and tie the built image digest to its source commit. Do not
-manually patch mirrors or claim live behavior without digest evidence.
-
+**Next:** complete the unchecked Phase 0 tasks in
+[REVIEW.md](../../REVIEW.md): add duplicate-key-aware validation, compare the
+single contract definition with the Geodata handler, check the Platform mirror,
+and record exact focused CI evidence.
 
 ### 1. Qualify geodata upload and worker recovery before scaling
 
@@ -177,23 +176,7 @@ supported locales, fallback, persistence, and translation review ownership.
 
 See [Admin UI internationalization roadmap](../domain/administration/i18n-roadmap.md).
 
-### 6. Retire legacy REST aliases after usage-based migration
-
-**Current evidence:** REST consolidation Phases 0–4 are recorded as implemented;
-Phase 5 remains planned. The plan requires usage measurement and client
-migration before aliases or duplicate contract copies are removed.
-
-**Why here:** current compatibility routes are intentional migration support.
-Removing them prematurely could break deployed clients; there is no documented
-deadline that makes removal more urgent than reliability and policy work.
-
-**Next:** measure alias usage, identify remaining clients, publish deprecation
-and sunset dates, and remove aliases only after migration evidence meets the
-plan's criteria.
-
-See [REST API consolidation plan](../domain/api/rest-consolidation-plan.md).
-
-### 7. Address longer-term programme and charter gaps
+### 6. Address longer-term programme and charter gaps
 
 **Current evidence:** the charter gap analysis describes longer-term product,
 governance, interoperability, and production-readiness work. Detailed
