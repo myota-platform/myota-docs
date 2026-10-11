@@ -7,7 +7,9 @@
   registered subjects/durables, lease and retry behavior, dead-letter recovery,
   schema retirement, and staged rollout checks.
 - [NATS Surveyor monitoring consolidation](../../observability/nats-surveyor-migration.md)
-  — central broker metrics and Grafana dashboard inventory; tracks live image rollout and the Operations history-table migration.
+  — completed exporter, Prometheus, dashboard, alert, and Operations-history
+  migration with live deployment evidence. See the
+  [cutover evidence](../../observability/evidence/2026-10-11-nats-surveyor-cutover.md).
 - [JetStream administration history](jetstream-admin-status.md) — retired Admin page behavior and cutover evidence.
 - [NATS event migration plan](nats-event-migration-plan.md)
   — Phases 0–6 are complete within their documented evidence bounds.
