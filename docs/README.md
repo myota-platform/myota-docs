@@ -18,12 +18,14 @@ indexes organize open work by delivery status.
 - [Operations](operations/README.md) — runbooks, production setup, NATS, and
   storage administration.
 - [NATS migration plan](operations/messaging/nats-event-migration-plan.md) —
-  Phases 0–5 are complete within their documented evidence bounds. Phase 5's
-  four legacy Geodata durables were retired after final checks under an
-  explicit early-close waiver; no claim is made that 24 hours elapsed. Helm
-  revision 193 remains deployed and Fleet reports Ready=True at
-  cfecd655d9c0eee9d19db26725fb11c99366815a. See [Phase 5 evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md)
-  and [Phase 6 plan](operations/messaging/nats-event-migration-plan.md#phase-6).
+  Phases 0–6 are complete within their documented evidence bounds. Helm
+  revision 213 is deployed; MyOTA Fleet is Ready=True at Deploy main commit
+  `de01650e19b88bc99a11ede1f25694202c8c8d17`. `MYOTA_EVENTS` now has
+  bounded Limits retention for registered facts, while Activity and Geodata
+  work remain on separate WorkQueue streams. See the
+  [Phase 6 evidence](operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md),
+  [Phase 5 evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+  and [ADR-0008](architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
 - [NATS Surveyor monitoring consolidation](observability/nats-surveyor-migration.md) —
   live Surveyor, dashboard, alert and bounded capacity decisions. Fleet is Ready
   on Deploy main at Helm revision 208; the replacement images and forward-only
