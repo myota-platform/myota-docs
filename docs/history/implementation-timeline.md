@@ -39,7 +39,10 @@ describe current ownership and are authoritative for the present-day system.
   earlier disposable OTLP-to-Loki smoke test passed with test namespace cleanup.
   Compose parity/restart, real application log/trace navigation, asynchronous
   end-to-end correlation, observed Loki object growth/retention, and all Phase 7
-  database telemetry remain open. See [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md),
+  database telemetry remain open. The [operations runbook](../observability/logging-runbook.md)
+  now contains bounded LogQL examples and ingestion troubleshooting. Geodata's
+  current image publication is blocked by an existing worker-delivery test
+  failure; this is recorded as a rollout gate, not waived. See [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md),
   [phase prompts](../observability/prompts/README.md), and
   [implementation plan](../observability/logging-implementation.md).
 
