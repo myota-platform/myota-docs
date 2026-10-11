@@ -36,9 +36,9 @@ describe current ownership and are authoritative for the present-day system.
   verified migration refusal/target validation and idempotent rerun without
   publishing a message; its namespace was deleted.
 - **Rollout:** Deploy focused Python quality and Helm validation passed
-  (runs 38099669717 and 38099669405). Helm revision 211 is deployed with the
+  (runs 38099669717 and 38099669405). Helm revision 213 is deployed with the
   migration flag off. Fleet is Ready=True at Deploy main commit
-  `16af2edf6b8e868904f9284e481d971ae7d6d38c`; every MyOTA Deployment has its
+  `de01650e19b88bc99a11ede1f25694202c8c8d17`; every MyOTA Deployment has its
   desired replicas ready. No shadowing, canary, new metrics baseline, or
   production test data was used. No Phase 6 database object was obsolete.
 - **Limits:** Previously Interest-expired facts remain unrecoverable from NATS.
