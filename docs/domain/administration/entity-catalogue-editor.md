@@ -48,9 +48,11 @@ Retired geometries remain read-only. Leaving a section stops interactive editing
 but retains its draft. Container-size observation fixes map sizing in dialogs
 and when reopening the collapsed catalogue map.
 
-Website and Description are optional entity-owned metadata. Administrators can
-set, edit or clear them through the existing versioned metadata PATCH; omitted
-fields remain unchanged. Website accepts absolute HTTP/HTTPS URLs up to 2,048
+Website and Description are optional entity-owned metadata. In the management
+dialog they appear together in a dedicated **Website and description** section
+near the top, before the editing tabs, so they are immediately visible when an
+entity is selected. Administrators can set, edit or clear them through the
+existing versioned metadata PATCH; omitted fields remain unchanged. Website accepts absolute HTTP/HTTPS URLs up to 2,048
 characters. Description is plain text up to 2,000 characters and is rendered as
 text. Both fields appear in the entity detail, catalogue and map feature
 properties. Manual candidate proposals can supply them. Import refreshes retain
