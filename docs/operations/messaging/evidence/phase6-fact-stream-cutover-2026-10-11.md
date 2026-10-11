@@ -4,7 +4,7 @@
 **Status:** Complete. The migration succeeded in Helm revision 210.
 The one-time migration flag was disabled in Helm revision 211; the current
 Helm release is revision 213 with all-topology validation enabled. The MyOTA Fleet bundle is Ready=True at Deploy
-main commit `de01650e19b88bc99a11ede1f25694202c8c8d17`; every MyOTA Deployment
+main commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`; every MyOTA Deployment
 has all desired replicas ready.
 
 ## Decision and scope
@@ -78,7 +78,7 @@ unchanged.
 Helm revision 210 applied the cutover. Follow-up revision 211 disables the
 one-time migration environment flag while keeping the all-topology
 drift-validation hook enabled. The current revision 213 is deployed, and Fleet reports Ready=True at Deploy
-main commit `de01650e19b88bc99a11ede1f25694202c8c8d17`.
+main commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`.
 All MyOTA Deployment desired replicas are ready.
 
 ## Isolated migration qualification and cleanup
@@ -131,4 +131,4 @@ scope.
 - [x] The current Helm revision 213 is deployed with its one-time migration flag
   disabled and all-topology drift validation enabled; every MyOTA Deployment is ready,
   and the MyOTA Fleet bundle is Ready=True at Deploy commit
-  `de01650e19b88bc99a11ede1f25694202c8c8d17`.
+  `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`.
