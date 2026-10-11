@@ -6,7 +6,7 @@ paths are on replacement images, the Operations JetStream history table and
 index have been dropped by the forward migration, and storage history remains
 healthy. A temporary in-memory validation stream was observed and deleted.
 Helm revision 207 is deployed and Fleet reports Ready for Deploy main commit
-`fa4e0127af2cc7d29851f1f76b3bb8303655ad46`. Its bundle reports all 64 resources
+`f43d600380803e86292e7e0010bfc1655b1a5d2a`. Its bundle reports all 64 resources
 ready and the applied deployment ID matches the desired ID. The implementation
 and Phase 2 exit criteria are complete.
 
@@ -66,8 +66,8 @@ Current source commits:
   `8c63f9ddc2f50091e975c836e5413e2bd6405c26` (CI passed).
 - Geodata poller removal: `2a73101a741b8325afba9cda9176be0d85003e65` (CI passed).
 - Deploy monitoring parity and bounded capacity: `2a5b96a130e6a452118be45777ba93081f4701ec` (Python and Helm checks passed).
-- Deploy migration mirror and runtime-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`; Deploy README/source head is `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`.
-- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`, `049c6522bb3093a2a74424e9d2777d6cb6659666`, `15fc56f93586c1724cde65f3a8f674ad78aeaba2`, and `8be1949bea7a9c75e8e858619b280a640f56346f`.
+- Deploy migration mirror and runtime-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`; Deploy README/source head is `f43d600380803e86292e7e0010bfc1655b1a5d2a`.
+- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`, `049c6522bb3093a2a74424e9d2777d6cb6659666`, `15fc56f93586c1724cde65f3a8f674ad78aeaba2`, and `f9ba9b0619b89942633fe36b4676c1a71983a187`.
 
 The first NATS config rollout rendered byte limits in scientific notation.
 NATS rejected the replacement before starting, and the prior server stayed
@@ -171,7 +171,7 @@ out above, and missing data is not represented as zero.
   remains outside source control. Database verification shows the table and
   history index absent while `operations_storage_snapshot` retains 6,015 rows.
 - [x] Reconcile Fleet and verify `Ready=True` for Deploy main commit
-  `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`, Helm revision 207, matching
+  `f43d600380803e86292e7e0010bfc1655b1a5d2a`, Helm revision 207, matching
   applied/desired deployment IDs, and 64/64 ready resources.
 - [x] Confirm the Compose/Helm monitoring sources and migration/digest mirrors
   are synchronized between Deploy and Platform.
