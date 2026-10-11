@@ -8,7 +8,9 @@
   1 GiB memory cap and 15-day Prometheus retention are active.
 - The Admin NATS page, Operations broker sampler/API, and Geodata duplicate
   poller are retired in their owning images. Operations migration 003 is
-  mirrored as Deploy/Platform core migration 005; Helm revision 207 applied it.
+  mirrored as Deploy/Platform core migration 005; Helm revision 208 applied it.
+  The refreshed Operations runtime image is pinned at
+  `sha256:b50b4666919e1f4046067129abd95993d371093088ea5e5f7633fd5ced163af4`.
   The snapshot table/index are absent; the storage history table and verified
   external backup remain.
 - A memory-only validation stream received one synthetic message and appeared
@@ -17,7 +19,7 @@
   dashboards are absent, and their two PostGIS panels were not recreated.
 - After restarting the local Fleet agent and issuing one force sync, Fleet
   reports Ready=True at Deploy main commit
-  `f43d600380803e86292e7e0010bfc1655b1a5d2a`, with 64/64 resources ready and
+  `d0d2f50846fe2c9e239d46a48809860f4b98d7f5`, with 64/64 resources ready and
   applied/desired IDs matching. Phase 2 is complete. See the
   [monitoring roadmap](docs/observability/nats-surveyor-migration.md) and
   [evidence record](docs/observability/evidence/2026-10-11-nats-surveyor-cutover.md).
