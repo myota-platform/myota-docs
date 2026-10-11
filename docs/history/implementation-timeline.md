@@ -1315,7 +1315,8 @@ capacity, trust-boundary, recovery, and production-cutover decisions.
   the live and disposable diagnostic Collector, while `psql` succeeded.
   Disabled the receiver pipeline to stop repeated failures. The deployed
   dashboard file parses, but its database data panels are not accepted.
-- All Deployments report Ready. Helm revision 231 is pending final Fleet
-  reconciliation. Phase 7 remains open; see the
+- All Deployments report Ready. Helm revision 231 is deployed and the last
+  Fleet-applied release reports Ready; forced resync revision 232 is still
+  pending-upgrade. Phase 7 remains open; see the
   [evidence](../observability/evidence/logging-implementation-2026-10-11.md)
   and [plan](../observability/logging-implementation.md).
