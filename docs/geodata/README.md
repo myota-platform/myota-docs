@@ -26,6 +26,7 @@
   ownership and concurrency evidence.
 - [Location enrichment](location-enrichment.md) — provider-backed fields and
   provenance rules.
+- [Entity catalogue editor](../domain/administration/entity-catalogue-editor.md) — Website and Description field semantics, persistence, audit and import precedence.
 - [Maidenhead locators](maidenhead-locators.md) — geometry-derived grid
   coverage.
 - [Ways and line geometry](ways.md)

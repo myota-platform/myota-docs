@@ -1,3 +1,22 @@
+## 11 October 2026 — Geodata Website and Description fields
+
+- Added nullable entity Website and Description columns with additive migration
+  `022_entity_website_description.sql`; legacy entities remain valid and blank.
+- Extended the existing versioned metadata API and the OpenAPI contract. Website
+  accepts absolute HTTP/HTTPS URLs up to 2,048 characters; Description accepts
+  plain text up to 2,000 characters. Omission preserves values; null/blank clears.
+- Manual proposals can provide both fields. Import refreshes preserve curated
+  values on existing entities. Updates pass the existing review authorization,
+  revision check, audit history and transactional outbox, with additive fact
+  `geodata.entity.metadata-updated.v1`.
+- Admin catalogue and detail views display the values; authorized managers can
+  edit or clear them. External links are restricted to HTTP/HTTPS and use
+  `rel="noopener noreferrer"`; descriptions render as escaped text.
+- Detailed behavior and evidence: [entity catalogue editor guide](docs/domain/administration/entity-catalogue-editor.md),
+  [Geodata #3](https://github.com/myota-platform/myota-geodata-service/issues/3),
+  [Contracts #3](https://github.com/myota-platform/myota-contracts/issues/3),
+  [Admin #2](https://github.com/myota-platform/myota-admin-web/issues/2).
+
 ## 11 October 2026 — Geodata TracerProvider warning issues
 
 - Created linked source and deployment issues for the reported

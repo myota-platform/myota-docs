@@ -48,10 +48,29 @@ Retired geometries remain read-only. Leaving a section stops interactive editing
 but retains its draft. Container-size observation fixes map sizing in dialogs
 and when reopening the collapsed catalogue map.
 
+Website and Description are optional entity-owned metadata. Administrators can
+set, edit or clear them through the existing versioned metadata PATCH; omitted
+fields remain unchanged. Website accepts absolute HTTP/HTTPS URLs up to 2,048
+characters. Description is plain text up to 2,000 characters and is rendered as
+text. Both fields appear in the entity detail, catalogue and map feature
+properties. Manual candidate proposals can supply them. Import refreshes retain
+curated values for existing entities, while legacy records remain empty until
+edited. Updates are audited and produce the additive
+`geodata.entity.metadata-updated.v1` fact; no consumer durable is needed because
+there is no current subscriber.
+
 Location metadata retains manual precedence, read-only provider codes, queued
 missing-field enrichment and worker-result polling. Location suggestions now
 use the correct per-field administrative tree, independent of catalogue filters.
 Maidenhead arrays remain automatically calculated and read-only.
+
+## Website and Description data contract
+
+The geodata-owned migration adds nullable `website` and `description` columns;
+old records stay valid with both values null. API clients may omit either field
+to preserve the current value or send null/empty text to clear it. Every update
+uses `If-Match`, the existing review permission boundary and the transactional
+outbox/audit path. Source refreshes cannot overwrite curated values.
 
 ## Deletion and service boundaries
 
@@ -62,12 +81,13 @@ impact lookup, explicit confirmation, continuous polling, QSO cascade/award
 warning, and automatic close on completion. Closing the progress dialog does
 not cancel confirmed server jobs. No real entities are deleted by browser tests.
 
-No new endpoints or contract changes are needed:
+The existing metadata endpoint is extended additively; no new endpoint is
+introduced:
 
 | Action | Existing API resource |
 | --- | --- |
 | Catalogue / focused resource / audit | `GET /v1/geodata/entities`, `GET /v1/geodata/entities/{id}`, `GET /v1/geodata/entities/{id}/audit` |
-| Name and location | `PATCH /v1/geodata/entities/{id}` with `If-Match` |
+| Name, Website, Description and location | `PATCH /v1/geodata/entities/{id}` with `If-Match` |
 | Categories / geometry | `PUT /v1/geodata/entities/{id}/categories`, `PUT /v1/geodata/entities/{id}/geometry` with `If-Match` |
 | Missing location update | `POST /v1/geodata/entities/{id}/location-enrichment-requests` |
 | Protected deletion | Existing entity-deletion-job create/read/confirm resources |
@@ -84,7 +104,8 @@ with public tile requests blocked, not a live load-test dataset. They cover
 draft guards, retained bulk selection/focus, partial saves, real vertex controls,
 replacement drawing, retired restrictions, stacked deletion confirmations,
 bulk completion, unchanged review decisions and a 390px mobile viewport.
-They also cover collapsed-map reveal and manual candidate drawing/submission.
+They also cover collapsed-map reveal, manual candidate fields and drawing/submission,
+plus Website/Description display, validation, persistence and safe external links.
 CI retains desktop/mobile screenshots in `catalogue-browser-evidence`; these
 are presentation evidence, not proof of production queue or database writes.
 
