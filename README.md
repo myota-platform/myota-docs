@@ -126,7 +126,9 @@ Structured logging implementation status on 11 October 2026:
   `psql` checks. The Collector receiver failed with the same Secrets and is
   paused in the active pipeline. Authenticated UI navigation, async correlation,
   Phase 6 hardening, and Phase 7 database metrics remain open. All Deployments
-  are Ready. Helm revision 232 is deployed and is the current Fleet-applied release (Ready=True, sync generation 93). All 67 resources are ready and Deployments meet their requested replica counts.
+  are Ready. Helm revision 234 is deployed; Helm history labels it a rollback to revision
+233. The Fleet BundleDeployment is Ready=True at sync generation 93. All 67
+resources are ready, and all Deployments meet their requested replica counts.
 - See the [logging implementation plan](docs/observability/logging-implementation.md),
   [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md),
   and [logging operations runbook](docs/observability/logging-runbook.md).
