@@ -92,7 +92,8 @@ and worker replicas were Ready. A read-only Identity health request now has a
 matching Loki structured-metadata record and Tempo span. All seven dashboard
 queries passed after removing the incompatible JSON parser. The corrected
 Deploy/Platform datasource and dashboard assets are mounted in Helm revision 225.
-Fleet bundle readiness and UI navigation verification remain open. Phase 6
+Fleet is Ready=True and the corrected dashboard is mounted. Authenticated UI
+navigation verification remains open. Phase 6
 representative retention, growth, capacity, cardinality, and live redaction
 evidence is incomplete; Phase 7 PostgreSQL/PostGIS telemetry remains unimplemented. See the
 [logging implementation plan](../observability/logging-implementation.md),
