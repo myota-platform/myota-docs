@@ -31,8 +31,7 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   telemetry remain open. The PostgreSQL monitor roles and six-panel dashboard
   asset are present, but the Collector receiver is paused after auth errors;
   read-only `psql` checks with the same Secrets succeeded. All Deployments are
-  Ready. Helm revision 231 is deployed and the last Fleet-applied release
-  reports Ready; forced resync revision 232 is still pending-upgrade. See the
+  Ready. Helm revision 232 is deployed and is the current Fleet-applied release (Ready=True, sync generation 93). All 67 resources are ready and Deployments meet their requested replica counts. See the
   [runbook](../observability/logging-runbook.md) and
   [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 
