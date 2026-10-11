@@ -2,23 +2,24 @@
 
 ## 11 October 2026 — NATS Surveyor monitoring implementation
 
-- Verified the live Surveyor 0.9.11 scrape and real JetStream metrics. The
-  ten upstream dashboards are pinned to
-  `nats-io/nats-surveyor@0539d22d7bc7a4574c7f376f1dde37f00bfe2ee9`, with
-  dashboard 16256 adapted to Surveyor metrics. Capacity is being capped at
-  7 GiB file store and 1 GiB memory store; Prometheus retains 15 days.
-- Removed the Admin broker-status page, Operations NATS sampler/API, and
-  Geodata duplicate metrics poller in their owning repositories. Their service
-  CI passed. The Deploy/Platform Compose and Helm sources include Surveyor,
-  eleven NATS dashboards, missing-series alerts, and synchronized retirement.
-- The first NATS limit render was rejected because Helm formatted numeric bytes
-  in scientific notation. Helm revision 202 was rolled back through revision
-  204 to preserve the healthy server. The Deploy source now quotes byte limits
-  and restarts single-replica NATS with `Recreate`; Fleet and live cutover
-  checks are pending. The Operations snapshot table is retained until its new
-  image is live; a verified custom-format backup is held outside source control.
-- See the [monitoring roadmap](docs/observability/nats-surveyor-migration.md)
-  and [evidence record](docs/observability/evidence/2026-10-11-nats-surveyor-cutover.md).
+- Surveyor 0.9.11 and all eleven pinned Grafana dashboards are live. After a
+  temporary exporter restart, Prometheus reported only the active NATS server
+  ID, `up=1`, `nats_up=1`, and the configured 7 GiB file-store capacity. The
+  1 GiB memory cap and 15-day Prometheus retention are active.
+- The Admin NATS page, Operations broker sampler/API, and Geodata duplicate
+  poller are retired in their owning images. Operations migration 003 is
+  mirrored as Deploy/Platform core migration 005; Helm revision 206 applied it.
+  The snapshot table/index are absent; the storage history table and verified
+  external backup remain.
+- A memory-only validation stream received one synthetic message and appeared
+  in Surveyor metrics. The stream and temporary pod were removed. Grafana lists
+  eleven dashboards in folder `NATS`; the old JetStream backlog and PostGIS
+  dashboards are absent, and their two PostGIS panels were not recreated.
+- Fleet still reports `WaitApplied(1)` and stale applied-release metadata even
+  though Helm revision 206 and all MyOTA workloads are healthy. Resolve this
+  GitOps gate before marking Phase 2 complete. See the
+  [monitoring roadmap](docs/observability/nats-surveyor-migration.md) and
+  [evidence record](docs/observability/evidence/2026-10-11-nats-surveyor-cutover.md).
 
 ## 11 October 2026 — Phase 5 observation closure and legacy durable retirement
 
