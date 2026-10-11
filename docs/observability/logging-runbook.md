@@ -1,12 +1,14 @@
 # Structured logging operations runbook
 
 **Status:** Identity LogQL queries are qualified against Loki OTLP structured
-metadata; Tempo stores the matching trace. Helm revision 225 mounted the
-corrected datasource and dashboard, Grafana logged successful provisioning,
-and all seven mounted dashboard queries returned successfully against live Loki.
-Fleet is Ready=True at Deploy commit `904bef2`; Helm revision 227 is deployed
-as a rollback to 226. Authenticated UI link navigation remains unverified. Worker correlation, retention, capacity, redaction, and database gates
-remain open.
+metadata; Tempo stores the matching trace. The seven log dashboard queries
+passed against live Loki. The PostgreSQL/PostGIS dashboard JSON is mounted in
+Grafana, but its database panels have no accepted receiver data. PostgreSQL
+receivers are currently disabled after authentication failures; see the
+[Phase 7 evidence](evidence/logging-implementation-2026-10-11.md). Helm revision
+231 is pending final Fleet reconciliation while all Deployments report Ready.
+Authenticated UI navigation, worker correlation, retention, capacity, redaction,
+and database gates remain open.
 
 Structured logs travel from services through the OpenTelemetry Collector to Loki.
 PostgreSQL and application state remain authoritative; logs are diagnostic
@@ -128,3 +130,32 @@ correlation query, retention expiry, object-growth baseline, or Compose parity
 acceptance has been recorded. See the
 [implementation evidence](evidence/logging-implementation-2026-10-11.md) and
 [phase plan](logging-implementation.md).
+
+
+## PostgreSQL and PostGIS telemetry status
+
+The PostgreSQL receiver is intentionally absent from the active Collector
+metrics pipeline until the authentication discrepancy is resolved. A
+read-only smoke job proved that the three monitor Secrets can query
+`pg_stat_database` with `psql`, while the pinned Collector receiver failed
+authentication with the same Secret references. Do not diagnose this by printing
+or copying credential values.
+
+Before re-enabling the receiver:
+
+1. Reproduce the failure with a disposable Collector using the pinned image and
+   exact mounted configuration, while keeping credentials in Secret references.
+2. Verify the monitor role can query `pg_stat_database` in both the receiver's
+   discovery database and each target database.
+3. Confirm no application-owned relation grants and document extension-owned
+   PostGIS objects visible through default public grants.
+4. Confirm all three receiver series appear in Prometheus and scrape logs contain
+   no authentication/SSL errors.
+5. Run the database dashboard queries against those live series and repeat the
+   check in Compose before marking parity complete.
+
+The dashboard is
+[`myota-postgresql-postgis.json`](../../../myota-deploy/blob/main/observability/grafana/dashboards/myota-postgresql-postgis.json).
+It includes core connection/size/transaction panels and the existing bounded
+Geodata PostGIS query-duration histogram. Empty database panels are expected
+until the receiver is accepted.
