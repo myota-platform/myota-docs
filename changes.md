@@ -1,4 +1,4 @@
-## 12 October 2026 — Admin entity metadata visibility follow-up
+## 11 October 2026 — Admin entity metadata visibility follow-up
 
 - Revisited [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2)
   after the report that Website and Description were not visible in the entity
