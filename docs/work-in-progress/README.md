@@ -28,19 +28,17 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   - **Cleanup:** Both disposable Phase 5 namespaces were deleted and verified
     absent. No production test data or broker messages were created.
 - [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md)
-  — **Status: planned; implementation not started.** The current Admin UI page,
-  Operations broker sampler and seven-day snapshot table, Geodata broker-metric
-  poller, and combined MyOTA JetStream backlog/PostGIS dashboard remain in
-  place. The roadmap proposes Grafana folder `NATS` containing dashboard 16256
-  plus all ten dashboards from a pinned Surveyor provisioning revision, after
-  per-panel compatibility checks. Direct broker comparison and the recorded
-  cutover/rollback checks gate removal of duplicate broker inspection; there is
-  no timed overlap. The two obsolete PostGIS panels are removed from Compose
-  and Helm assets and will not be recreated. Retire the combined dashboard
-  after Surveyor acceptance. Phase 5 event/work migration is complete under its
-  documented early-close waiver; Phase 6 fact-stream retention is separate.
-  The two PostGIS panels were removed from source assets, but live Grafana
-  reload has not been verified; other monitoring components remain deployed.
+  — active cutover: source retirements passed CI; Deploy/Platform have the
+  Surveyor dashboards, capacity caps, and missing-series alerts. Fleet image
+  rollout, dashboard query recheck, and the Operations history migration after
+  the verified backup gate remain. No timed overlap is required. The retired
+  combined dashboard and its two PostGIS panels will not be recreated.
+  - **Current live evidence:** Surveyor is connected and reports `nats_up=1`;
+    no test stream remains. Eleven dashboards are provisioned in folder NATS.
+  - **Pending:** Fleet must apply corrected integer capacity limits and
+    serialized NATS restart; new Admin/Operations/Geodata image rollout and
+    the Operations forward migration are not yet verified.
+
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates

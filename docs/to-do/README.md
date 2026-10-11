@@ -21,16 +21,11 @@ documentation evidence and does not set delivery dates.
   the Interest-retained MYOTA_EVENTS stream remain. Phase 6 fact-stream
   retention work is next. See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 - [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md)
-  — planned, not deployed. Deploy NATS Surveyor and provision Grafana folder
-  `NATS` with dashboard 16256 plus all ten dashboards from Surveyor's pinned
-  Grafana provisioning folder. Validate every panel and the complete set
-  against read-only broker data, then retire the existing Admin NATS page,
-  duplicate broker pollers, and the combined `MyOTA JetStream backlog and
-  PostGIS query performance` dashboard. Its two obsolete PostGIS panels have
-  been removed from Compose and Helm assets and will not be replaced. Retire
-  sampler alerts, Operations snapshot API/history, and its database table/index.
-  Preserve outbox/worker signals and SeaweedFS operations. See the
-  roadmap for owners and gates.
+  — active cutover: source retirements passed CI; Deploy/Platform have the
+  Surveyor dashboards, capacity caps, and missing-series alerts. Fleet image
+  rollout, dashboard query recheck, and the Operations history migration after
+  the verified backup gate remain. No timed overlap is required. The retired
+  combined dashboard and its two PostGIS panels will not be recreated.
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
   Phase 5 remains planned until usage is measured and clients migrate.
 - [Programme configuration gaps](../domain/programmes/configuration-gap-analysis.md)

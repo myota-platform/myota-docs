@@ -13,6 +13,30 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 11 October 2026 — NATS Surveyor retirement implementation
+
+- **Prompt used:** “check implementation of
+  https://github.com/myota-platform/myota-docs/blob/main/docs/observability/nats-surveyor-migration.md,
+  implement missing parts, update documentation, architecture and any other
+  repos with dependencies.”
+- **Service changes:** Operations removed JetStream inspection while retaining
+  storage status and Grafana identity; Admin removed the old page, and Geodata
+  removed duplicate broker polling. CI passed after fixing the Operations
+  startup/formatting and removing the obsolete browser assertion.
+- **Deployment decisions:** Surveyor 0.9.11; ten upstream dashboards pinned at
+  `0539d22d7bc7a4574c7f376f1dde37f00bfe2ee9` plus adapted dashboard 16256;
+  15-second scrape; existing resource limits; 15-day Prometheus retention;
+  JetStream caps 7 GiB file / 1 GiB memory; warning/critical capacity alerts
+  at 80/90% for ten minutes. Keep monitoring cluster-internal.
+- **Recovery:** The initial Helm render emitted scientific-notation byte caps
+  and NATS rejected the replacement. The old server remained healthy. Helm
+  revision 202 was rolled back, the values changed to decimal strings, and
+  `Recreate` was added for the single-replica persistent broker. Current Fleet
+  rollout, image replacement, Grafana panel checks, and forward history-table
+  removal are still open. See the
+  [monitoring evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md)
+  and [roadmap](../observability/nats-surveyor-migration.md).
+
 ## 11 October 2026 — Phase 5 early observation closure and retirement
 
 - **Prompt used:** “Ok, complete the following phase 5 item now: Complete the

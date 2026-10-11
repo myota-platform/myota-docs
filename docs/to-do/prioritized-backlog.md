@@ -60,7 +60,13 @@ See [Geodata horizontal-scaling roadmap](../geodata/horizontal-scaling-roadmap.m
 [Phase 0 production evidence](../geodata/evidence/phase0-production-evidence-2026-10-08.md),
 and the active [Work in progress index](../work-in-progress/README.md).
 
-### 2. Phase 6 fact-stream lifecycle
+### 2. Complete NATS monitoring cutover
+
+**Current evidence:** Surveyor is live, scrapeable, and returns real JetStream metrics. All service source retirements passed CI. The first Helm limit rollout failed on NATS config parsing and was rolled back to the healthy revision; Deploy now uses quoted decimal byte caps and serialized NATS restart. See the [monitoring migration](../observability/nats-surveyor-migration.md).
+
+**Next:** confirm Fleet applies the fixed chart; roll out the Admin, Operations, and Geodata images; validate supported Grafana panels and absent-series handling; apply the Operations-owned forward migration only after the verified backup gate; then verify Fleet and surviving storage/identity behavior.
+
+### 3. Phase 6 fact-stream lifecycle
 
 **Current evidence:** Phases 0–5 are complete within their recorded evidence
 bounds. Phase 5 moved all four Geodata work kinds to the bounded

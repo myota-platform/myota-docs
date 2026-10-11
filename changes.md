@@ -1,39 +1,24 @@
 # MyOTA changes
 
-## 11 October 2026 — NATS Surveyor dashboard scope clarified
+## 11 October 2026 — NATS Surveyor monitoring implementation
 
-- Corrected the proposed Grafana target: create a folder named `NATS` containing
-  dashboard 16256 and all ten dashboard JSON files in Surveyor's Grafana
-  provisioning source. Pin the Surveyor source revision and retain MyOTA's own
-  datasource/provider configuration. Check every dashboard panel against
-  Surveyor metrics before rollout; dashboard 16256 targets the built-in NATS
-  Prometheus exporter.
-- Retire the existing `MyOTA JetStream backlog and PostGIS query performance`
-  dashboard after removing its two obsolete PostGIS panels from the Compose
-  and Helm dashboard assets. Do not migrate or recreate those panels. The timed
-  seven-day overlap was removed: direct broker/dashboard checks, rollback
-  readiness, and a verified pre-migration backup gate retirement. The combined
-  dashboard source remains; its live Grafana reload is not yet verified.
-  See the [NATS monitoring roadmap](docs/observability/nats-surveyor-migration.md).
-
-## 11 October 2026 — NATS Surveyor monitoring consolidation planned
-
-- Added an observability roadmap for a pinned internal NATS Surveyor deployment
-  and Grafana dashboard 16256. Its PromQL must be checked against Surveyor's
-  metrics because the upstream dashboard is documented for the NATS built-in
-  Prometheus exporter.
-- Recorded the current monitoring inventory and source owners: Admin
-  NATS/JetStream page and Operations sampler/history table, Geodata broker
-  poller, current MyOTA Grafana dashboard, sampler alerts, and deployment
-  mirrors.
-- Planned a seven-day overlap before removing duplicate broker-inspection
-  components, database history, and the old Grafana dashboard. The existing
-  combined dashboard's two PostGIS panels must move to the Geodata dashboard.
-  Preserve the Operations SeaweedFS page and app-level outbox/worker metrics.
-- This is documentation and planning only; Surveyor is not deployed and no
-  runtime component or database object was changed. See the
-  [NATS monitoring roadmap](docs/observability/nats-surveyor-migration.md).
-
+- Verified the live Surveyor 0.9.11 scrape and real JetStream metrics. The
+  ten upstream dashboards are pinned to
+  `nats-io/nats-surveyor@0539d22d7bc7a4574c7f376f1dde37f00bfe2ee9`, with
+  dashboard 16256 adapted to Surveyor metrics. Capacity is being capped at
+  7 GiB file store and 1 GiB memory store; Prometheus retains 15 days.
+- Removed the Admin broker-status page, Operations NATS sampler/API, and
+  Geodata duplicate metrics poller in their owning repositories. Their service
+  CI passed. The Deploy/Platform Compose and Helm sources include Surveyor,
+  eleven NATS dashboards, missing-series alerts, and synchronized retirement.
+- The first NATS limit render was rejected because Helm formatted numeric bytes
+  in scientific notation. Helm revision 202 was rolled back through revision
+  204 to preserve the healthy server. The Deploy source now quotes byte limits
+  and restarts single-replica NATS with `Recreate`; Fleet and live cutover
+  checks are pending. The Operations snapshot table is retained until its new
+  image is live; a verified custom-format backup is held outside source control.
+- See the [monitoring roadmap](docs/observability/nats-surveyor-migration.md)
+  and [evidence record](docs/observability/evidence/2026-10-11-nats-surveyor-cutover.md).
 
 ## 11 October 2026 — Phase 5 observation closure and legacy durable retirement
 

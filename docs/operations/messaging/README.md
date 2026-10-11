@@ -7,9 +7,8 @@
   registered subjects/durables, lease and retry behavior, dead-letter recovery,
   schema retirement, and staged rollout checks.
 - [NATS Surveyor monitoring consolidation](../../observability/nats-surveyor-migration.md)
-  — proposed central broker metrics and Grafana dashboard; includes staged
-  removal of the current Admin page, pollers and database history.
-- [Current legacy JetStream administration page](jetstream-admin-status.md) — read-only broker state and sampled history, pending the planned Surveyor cutover.
+  — central broker metrics and Grafana dashboard inventory; tracks live image rollout and the Operations history-table migration.
+- [JetStream administration history](jetstream-admin-status.md) — retired Admin page behavior and cutover evidence.
 - [NATS event migration plan](nats-event-migration-plan.md)
   - **Complete:** Phases 0–5 within their documented evidence bounds. Helm
     revision 193 is deployed; Fleet Ready=True at Deploy commit

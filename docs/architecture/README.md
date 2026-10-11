@@ -6,5 +6,5 @@
   synchronized deployment/bootstrap mirrors.
 - [Architecture decisions](decisions/README.md) — durable decisions and their
   rationale.
-- [Diagrams](diagrams/README.md) — service, data, API, geodata, and operations
+- [Diagrams](diagrams/README.md) — service, data, API, geodata, operations, and observability
   diagrams.
