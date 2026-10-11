@@ -34,7 +34,7 @@ indexes organize open work by delivery status.
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, Surveyor migration plan and current verification.
 - [Structured logging implementation status](observability/logging-implementation.md) —
-  Phase 1–5 source/configuration plus live Identity log/trace and LogQL checks; Grafana rollout and Phase 6–7 gates remain open.
+  Phase 1–5 source/configuration plus live Identity log/trace and all seven dashboard query checks; Fleet readiness, authenticated UI navigation, and Phase 6–7 gates remain open.
 - [Logging implementation evidence](observability/evidence/logging-implementation-2026-10-11.md) —
   CI, K3s, runtime image and end-to-end acceptance evidence.
 - [Logging operations runbook](observability/logging-runbook.md) — current LogQL
