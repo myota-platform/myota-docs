@@ -23,7 +23,10 @@ the central broker observer; its Service and NATS connection stay internal.
 The eleven dashboards (dashboard 16256 plus ten pinned Surveyor dashboards)
 are provisioned in Grafana folder `NATS`. Prometheus keeps 15 days of metrics,
 not broker messages. The single-server deployment leaves cluster, gateway,
-multi-node Raft, and optional service-observation panels without data.
+multi-node Raft, and optional service-observation panels without data. On
+11 October, all thirteen adapted dashboard 16256 PromQL targets returned live
+Grafana data frames without query errors; see the
+[query evidence](../../observability/evidence/2026-10-11-nats-surveyor-cutover.md).
 
 
 **Implementation status (11 October 2026):** Surveyor 0.9.11, the eleven NATS
