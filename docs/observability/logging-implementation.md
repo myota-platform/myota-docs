@@ -322,8 +322,8 @@ Deliverables:
   server-error logs;
 - [ ] links from existing operational dashboards where useful;
 - [x] verify Helm ConfigMap mounting and Grafana provisioning of the dashboard;
-- [x] execute the dashboard LogQL query shapes against live Loki OTLP structured metadata (no JSON parser);
-- [ ] verify provisioned Grafana trace/log links after the metadata-derived-field fix rolls out.
+- [x] execute all seven mounted dashboard LogQL queries against live Loki OTLP structured metadata (no JSON parser);
+- [ ] verify Grafana UI trace/log navigation in both directions; revision 225 mounted the fix, but the authenticated UI links were not exercised.
 
 Implementation prompt:
 [Phase 5 ChatGPT prompt](prompts/logging-phase-5-grafana-correlation.md)
