@@ -4,8 +4,8 @@
 metadata; Tempo stores the matching trace. Helm revision 225 mounted the
 corrected datasource and dashboard, Grafana logged successful provisioning,
 and all seven mounted dashboard queries returned successfully against live Loki.
-Fleet release readiness and authenticated UI link navigation are still being
-verified. Worker correlation, retention, capacity, redaction, and database gates
+Fleet is Ready=True at Deploy commit `904bef2`; Helm revision 227 is deployed
+as a rollback to 226. Authenticated UI link navigation remains unverified. Worker correlation, retention, capacity, redaction, and database gates
 remain open.
 
 Structured logs travel from services through the OpenTelemetry Collector to Loki.
