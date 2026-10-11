@@ -28,12 +28,16 @@ describe current ownership and are authoritative for the present-day system.
   15-second scrape; existing resource limits; 15-day Prometheus retention;
   JetStream caps 7 GiB file / 1 GiB memory; warning/critical capacity alerts
   at 80/90% for ten minutes. Keep monitoring cluster-internal.
-- **Recovery:** The initial Helm render emitted scientific-notation byte caps
-  and NATS rejected the replacement. The old server remained healthy. Helm
-  revision 202 was rolled back, the values changed to decimal strings, and
-  `Recreate` was added for the single-replica persistent broker. Current Fleet
-  rollout, image replacement, Grafana panel checks, and forward history-table
-  removal are still open. See the
+- **Recovery and live checks:** The initial Helm render emitted scientific-
+  notation byte caps and NATS rejected the replacement while the old server
+  remained healthy. Revision 204 restored the prior release; decimal-string
+  limits and `Recreate` were then applied. Helm revision 206 is healthy with
+  7 GiB/1 GiB limits and the replacement Operations, Admin, and Geodata images.
+  Grafana lists eleven NATS dashboards; a synthetic in-memory stream was
+  observed and deleted. Operations migration 003 / core migration 005 removed
+  the snapshot table/index after the verified external backup gate; storage
+  history remains. Fleet still reports `WaitApplied(1)` with stale applied
+  metadata, the sole open Phase 2 gate. See the
   [monitoring evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md)
   and [roadmap](../observability/nats-surveyor-migration.md).
 
