@@ -11,8 +11,9 @@
   pinned Collector receiver still failed authentication with the same Secret
   references in both the live and temporary diagnostic Collector. The receiver
   was removed from the active metrics pipeline to stop repeated failures.
-- All Deployments report Ready. Helm revision 231 remains pending Fleet
-  reconciliation. Phase 7 remains open; no PostgreSQL receiver metrics are
+- All Deployments report Ready. Helm revision 231 is deployed and the last
+  Fleet-applied release reports Ready; forced resync revision 232 is still
+  pending-upgrade. Phase 7 remains open; no PostgreSQL receiver metrics are
   claimed as delivered. See the [evidence](docs/observability/evidence/logging-implementation-2026-10-11.md)
   and [plan](docs/observability/logging-implementation.md).
 
