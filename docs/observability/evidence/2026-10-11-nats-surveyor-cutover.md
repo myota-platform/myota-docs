@@ -57,3 +57,41 @@ Grafana dashboards and query errors, exporter/server health, NATS caps, absence
 of the old Admin route/Operations metrics/Geodata poller, storage and Grafana
 identity paths, and absence of the migrated snapshot table/index. This record
 must be updated with final live evidence before any checkbox is marked complete.
+
+## Final live verification — 11 October 2026
+
+- Deploy main supplied the corrected chart and the migration image digest.
+  Helm revision 206 completed; the replacement Operations, Admin, and Geodata
+  images are Ready at the pinned digests in Deploy main. NATS logs report a
+  7,516,192,768-byte file-store cap and 1,073,741,824-byte memory-store cap.
+  The single NATS pod recovered the existing three streams and eleven durable
+  consumers without changing their state.
+- After restarting the stateless exporter, Prometheus reported one active NATS
+  server ID, `up{job="nats-surveyor"}=1`, `nats_up=1`, and the configured
+  7,516,192,768-byte file-store capacity. The earlier server-ID series expired.
+  Surveyor exposed 84 metric names. The compatibility audit still classifies
+  absent route/gateway, multi-server Raft, and optional latency series as
+  unsupported for this single-server topology.
+- Grafana API search returned all eleven dashboards in folder `NATS` and no
+  `MyOTA JetStream backlog` or `PostGIS query performance` dashboard. Dashboard
+  16256 and the ten pinned Surveyor dashboards are provisioned from Deploy.
+- A disposable `nats-box` pod created the memory-only stream
+  `MYOTA_SURVEYOR_VALIDATION_20261011` (three-minute maximum age), published one
+  synthetic 53-byte payload, and confirmed Surveyor exported its stream label.
+  The stream and pod were deleted immediately afterward. No validation stream or pod
+  remains. Prometheus's normal 15-day metrics retention is unchanged.
+- Operations migration 003 is mirrored as Deploy/Platform core migration 005.
+  The `myota-migrations-206` Job completed. Database inspection confirmed
+  `operations_jetstream_snapshot` and its history index are absent, while
+  `operations_storage_snapshot` contains 6,015 rows. The pre-migration custom
+  format backup remains outside source control with SHA-256
+  `634520fef35d62e647eb34b01d803efa7d77a91bf5e43eba7eda65118e215428`.
+- Fleet still reports `WaitApplied(1)` and an old `status.appliedDeploymentID`
+  although its desired commit is `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`
+  and Helm revision 206 plus the MyOTA workloads are healthy. This is an open
+  GitOps reconciliation gate; it is not represented as Fleet-ready or Phase 2
+  complete.
+- Focused CI: Operations migration commit `9dd93091b9abcb74fb5c047bbbd6a592edffd186`
+  passed run `38097580535`; Deploy migration commit
+  `bada0388a0e684f8fea87b15452f7df87eced170` passed Python quality run
+  `38097585028`; its runtime image build passed run `38097584634`.
