@@ -1,3 +1,24 @@
+## 12 October 2026 — Admin entity metadata visibility follow-up
+
+- Revisited [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2)
+  after the report that Website and Description were not visible in the entity
+  management pop-up. The fields existed but were nested in the Name & categories
+  section; the fix moves them to a dedicated section near the top of the dialog.
+- Added browser assertions for the section, both inputs, and loaded values.
+  Admin CI run [#38183593814](https://github.com/myota-platform/myota-admin-web/actions/runs/38183593814)
+  passed its production build, type check, publish step, and 24 browser tests.
+- Deployed image
+  `ghcr.io/myota-platform/myota-admin-web@sha256:ac82ae5420a5a449a2c5a812d972e62f3f8a291edbae3e7a3f45695388abdb24`
+  from Admin source commit `c4314ba2eef69877219861e24c1220f89801ae3b`.
+  Helm revision 273 is `deployed`; Fleet reports Ready and all 23 Deployments
+  (27 replicas) are Ready. A read-only live bundle inspection confirmed the
+  new management section and fields are served. No test data was created.
+- Deployment pins were committed in Deploy
+  `0dd7de270a111adf2169601c1e8e796ef203fc57` and synchronized to Platform
+  `9cabc46d657e387b5adb2152c294af206dd0342f`. See the [editor guide](docs/domain/administration/entity-catalogue-editor.md),
+  [diagram](docs/architecture/diagrams/entity-catalogue-editor.md), and
+  [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2).
+
 ## 11 October 2026 — Operations Service retirement and OpenTelemetry migration
 
 - Retired the Operations workload, API route/client, image publishing, and
