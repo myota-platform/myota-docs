@@ -33,8 +33,11 @@ describe current ownership and are authoritative for the present-day system.
   latest Python quality and image-build workflows passed after fixing Ruff
   formatting and missing imports. A Grafana LogQL range-selector spacing issue
   was corrected in both Compose and Helm mirrors; dashboard JSON parsing passed.
-  The latest running service image digests still predate the worker logging
-  changes, so this is implementation progress rather than live acceptance.
+  Identity, Programme, Activity, Operations and Deploy worker images have now
+  rolled out. Geodata remains on its prior image because its worker-delivery
+  integration job failed. A safe Identity request generated an API log but the
+  corresponding trace ID was not found in Loki; this remains a live acceptance
+  failure.
 - **Evidence and remaining gates:** Loki/Collector were Ready in K3s and the
   earlier disposable OTLP-to-Loki smoke test passed with test namespace cleanup.
   Compose parity/restart, real application log/trace navigation, asynchronous
