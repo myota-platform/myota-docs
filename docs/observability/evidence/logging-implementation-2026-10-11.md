@@ -188,10 +188,10 @@ added, but PostgreSQL receiver metrics are not currently collected.
   available signal.
 - After receiver removal, the Collector Deployment was Ready 1/1 and its recent
   log window had no PostgreSQL receiver errors. All Deployments were Ready 1/1.
-  Helm revision 231 is deployed and the last Fleet-applied release reports Ready.
-  A subsequent forced resync is Helm revision 232, still `pending-upgrade`.
-  Fleet reports the current source bundle as `WaitApplied` with 67/67 resources
-  ready and 0 not ready; final controller reconciliation is not confirmed.
+  Helm revision 232 is deployed and is the current Fleet-applied release
+  (`Ready=True`, sync generation 93). The current source bundle reports
+  67/67 resources ready and 0 not ready. All Deployments meet their requested
+  replica counts.
 - Temporary diagnostic Jobs were deleted after the checks. The ephemeral
   debug pod was deleted and its Deployment replacement became Ready. No
   database test data was created.
