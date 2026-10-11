@@ -1,6 +1,6 @@
 # Structured logging operations runbook
 
-**Status:** Identity live LogQL queries are qualified against Loki OTLP structured metadata; Tempo stores the matching trace. The Grafana provisioning correction is committed and awaits/undergoes GitOps rollout. Worker correlation, retention, capacity, redaction, and database gates remain open.
+**Status:** Identity live LogQL queries are qualified against Loki OTLP structured metadata; Tempo stores the matching trace. Helm revision 224 mounted the corrected datasource and dashboard, and Grafana logged successful dashboard provisioning. Fleet release readiness and UI link navigation are still being verified. Worker correlation, retention, capacity, redaction, and database gates remain open.
 
 Structured logs travel from services through the OpenTelemetry Collector to Loki.
 PostgreSQL and application state remain authoritative; logs are diagnostic
@@ -30,7 +30,7 @@ Narrow to one service/component:
 Inspect recent warn/error volume without creating high-cardinality labels:
 
 ```logql
-sum by (service_name, severity) (
+sum by (service_name, severity_text) (
   rate({service_namespace="myota"} | severity_text=~"WARN|ERROR" [5m])
 )
 ```
