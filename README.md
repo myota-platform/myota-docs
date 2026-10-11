@@ -72,16 +72,17 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   [Phase 0 evidence inventory](docs/operations/messaging/nats-event-migration-inventory.md),
   [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
   and the selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
-  Phases 0–5 are complete within the recorded evidence bounds. Helm revision
-  193 is deployed and Fleet is Ready=True at Deploy commit
-  cfecd655d9c0eee9d19db26725fb11c99366815a. The four legacy Geodata durables
-  were retired after final checks; the 24-hour observation was explicitly
-  waived and closed early, not reported as a full 24-hour period. Activity and
-  replacement Geodata durables, migration 021, and the Interest-retained
-  MYOTA_EVENTS stream remain. Phase 6 fact-stream retention is separate.
-  NATS monitoring is centralized by the live Surveyor exporter and Grafana
-  dashboards. Helm revision 208 is Fleet Ready; the completed cutover evidence
-  is documented in the [Surveyor/Grafana roadmap](docs/observability/nats-surveyor-migration.md).
+  Phases 0–6 are complete within their recorded evidence bounds. Helm
+  revision 213 is deployed; MyOTA Fleet is Ready=True at Deploy main commit
+  `de01650e19b88bc99a11ede1f25694202c8c8d17`. `MYOTA_EVENTS` is a bounded
+  Limits-retained fact stream; Activity and Geodata work use separate
+  WorkQueue streams. The four legacy Geodata durables were retired after
+  Phase 5 checks; the 24-hour observation was explicitly waived and closed
+  early, not reported as a full-day period. PostgreSQL remains authoritative,
+  previously Interest-expired facts cannot be recovered, and off-node broker
+  recovery is deferred. See the [Phase 6 evidence](docs/operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md),
+  [Phase 5 evidence](docs/operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
+  and [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
 - **Visual references** — [diagram index](docs/architecture/diagrams/README.md).
@@ -93,29 +94,26 @@ imply scale qualification or production readiness.
 
 NATS migration status on 11 October 2026:
 
-- Phases 0–5 are complete within their documented evidence bounds. Phase 5
-  moved all four Geodata work kinds to MYOTA_GEODATA_WORK, applied migration
-  021, deployed the Activity idempotency fix, and retired only the four old
-  Geodata durables after final checks. The 24-hour wait was explicitly waived;
-  this early close is not claimed as a completed 24-hour observation.
-- Helm revision 193 remains deployed. Fleet is Ready=True at Deploy commit
-  cfecd655d9c0eee9d19db26725fb11c99366815a; all MyOTA Deployments were ready
-  at the final check. Activity notification and four target Geodata durables,
-  migration markers and recovery data remain.
-- The isolated delivery suite had a timing-sensitive immediate ACK-counter
-  assertion in each of two runs; focused ACK verification passed, but no clean
-  full-suite pass is claimed. Disposable test namespaces were removed.
-- MYOTA_EVENTS remains file-backed with Interest retention; Phase 6 owns its
-  separate fact-stream retention transition. Off-node recovery remains
-  deferred.
-- NATS Surveyor 0.9.11 and all eleven dashboards in Grafana folder `NATS`
-  are live. Bounded JetStream capacity is configured; replacement service images
-  are healthy; the Operations snapshot table/index were removed by migration
-  005 after backup verification, while storage history remains. A temporary
-  in-memory validation stream was deleted. Fleet is Ready=True on Deploy main
-  commit `d0d2f50846fe2c9e239d46a48809860f4b98d7f5`, with 64/64 resources and
-  matching applied/desired IDs. Phase 2 is complete. See the
-  [monitoring consolidation plan](docs/observability/nats-surveyor-migration.md).
+- Phases 0–6 are complete within their documented evidence bounds. The direct
+  Phase 6 cutover moved `MYOTA_EVENTS` to bounded Limits retention for
+  `myota.events.>`; Activity and Geodata work remain on their separate
+  WorkQueue streams.
+- Helm revision 213 is deployed; the one-time migration flag remains off and
+  all-topology validation is enabled. Fleet is Ready=True at Deploy commit
+  `de01650e19b88bc99a11ede1f25694202c8c8d17`; all MyOTA Deployments have
+  their desired replicas ready.
+- The explicit Phase 5 waiver closed its 24-hour observation early; it is not
+  claimed as a full-day observation. Six pre-existing Geodata database DLQ
+  records remain preserved. No production test data, shadowing, canary, or new
+  metrics baseline was used for Phase 6. No obsolete Phase 6 database schema
+  object required removal.
+- Previously Interest-expired facts remain unavailable. PostgreSQL is the
+  source of truth; JetStream is a bounded transport/replay window, and
+  off-node recovery is deferred.
+- NATS Surveyor 0.9.11 and eleven dashboards in Grafana folder `NATS` remain
+  live. Operations retains its storage inspection and has no NATS dependency.
+  See the [Surveyor migration plan](docs/observability/nats-surveyor-migration.md)
+  and [Phase 6 evidence](docs/operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md).
 
 See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
