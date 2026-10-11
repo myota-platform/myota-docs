@@ -94,9 +94,7 @@ PostgreSQL/PostGIS dashboard asset is mounted. Dedicated monitor roles and
 external Secrets are provisioned, and read-only `psql` checks queried
 `pg_stat_database` across all three databases. The pinned Collector receiver
 still fails authentication with those same Secrets, so its receivers are paused
-in the active pipeline. All Deployments report Ready. Helm revision 231 is deployed and the last
-Fleet-applied release reports Ready; forced resync revision 232 is still
-pending-upgrade. Authenticated UI navigation remains open.
+in the active pipeline. All Deployments report Ready. Helm revision 232 is deployed and is the current Fleet-applied release (Ready=True, sync generation 93). All 67 resources are ready and Deployments meet their requested replica counts. Authenticated UI navigation remains open.
 Phase 6 retention, growth, capacity, cardinality, and live redaction evidence
 is incomplete. See the [logging implementation plan](../observability/logging-implementation.md),
 [11 October evidence](../observability/evidence/logging-implementation-2026-10-11.md),
