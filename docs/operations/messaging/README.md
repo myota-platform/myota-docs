@@ -12,7 +12,7 @@
 - [NATS event migration plan](nats-event-migration-plan.md)
   — Phases 0–6 are complete within their documented evidence bounds.
   Helm revision 213 is deployed; MyOTA Fleet is Ready=True at Deploy commit
-  `de01650e19b88bc99a11ede1f25694202c8c8d17`. `MYOTA_EVENTS` uses bounded
+  `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. `MYOTA_EVENTS` uses bounded
   Limits retention and captures only registered facts; Activity and Geodata
   work remain on separate WorkQueue streams. The migration flag is disabled
   and topology drift validation remains enabled. The user explicitly waived
