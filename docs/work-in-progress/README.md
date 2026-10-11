@@ -4,28 +4,6 @@ This index points to active delivery and verification threads. Completed
 components may appear here when their evidence still defines an open rollout or
 qualification gate. Broader unstarted items are listed in [To do](../to-do/README.md).
 
-- [NATS migration evidence and implementation](../operations/messaging/nats-event-migration-plan.md)
-  — **Status:** Phases 0–6 are complete within their recorded evidence bounds.
-  Helm revision 213 is deployed; the MyOTA Fleet bundle is Ready=True on Deploy
-  main commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`, and every MyOTA
-  Deployment has its desired replicas ready. `MYOTA_EVENTS` is a bounded,
-  file-backed Limits fact stream with only `myota.events.>`; Activity and
-  Geodata work remain on their separate WorkQueue streams. The one-time
-  migration flag is disabled and regular topology drift validation remains on.
-  - **Phase 6 verification:** Deploy Python quality and Helm validation passed
-    (runs 38099669717 and 38099669405). The disposable host-K3s migration
-    and idempotent-rerun check passed without publishing a message; its
-    namespace was removed. All live stream, durable, relay/outbox, migration
-    flag, and Deployment checks passed.
-  - **Preserved limits:** Six existing Geodata database DLQ records remain
-    unchanged. The 24-hour Phase 5 observation was explicitly waived and
-    closed early, not represented as a completed 24-hour window. Previously
-    Interest-expired facts cannot be recovered from JetStream; PostgreSQL
-    remains authoritative and off-node recovery is deferred. No production
-    test data, metrics baseline, shadow traffic, or canary was used. See the
-    [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md),
-    [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md),
-    and [live diagram](../architecture/diagrams/nats-event-migration.md).
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 2 upload/API/SeaweedFS restart recovery is verified for the recorded
   image digest. Phase 3 bounded parser/RSS, snapshot, and worker recovery gates
