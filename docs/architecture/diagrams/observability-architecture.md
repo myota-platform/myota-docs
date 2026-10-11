@@ -30,7 +30,7 @@ multi-node Raft, and optional service-observation panels without data.
 folder dashboards, bounded JetStream capacities, and replacement Admin,
 Operations, and Geodata images are live. Helm revision 207 applied the
 Operations snapshot retirement migration; storage history remains. Fleet is
-Ready=True on Deploy main commit `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`
+Ready=True on Deploy main commit `f43d600380803e86292e7e0010bfc1655b1a5d2a`
 with 64/64 resources ready. The monitoring retirement phase is complete. See
 the [NATS monitoring roadmap](../../observability/nats-surveyor-migration.md)
 and [live evidence](../../observability/evidence/2026-10-11-nats-surveyor-cutover.md).
