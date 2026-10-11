@@ -26,11 +26,12 @@ flowchart LR
   Prom --> Grafana
   Tempo --> Grafana
   Loki --> Grafana
-  DB -->|proposed PostgreSQL receiver; dedicated pg_monitor role required| Collector
+  DB -.->|proposed only: paused pending live auth validation; dedicated read-only role| Collector
 ```
 
 The current structured-logging rollout uses the existing Collector, Tempo, and
-Prometheus plus Loki. Identity, Programme, Activity, and Geodata logging images
+Prometheus plus Loki. The PostgreSQL receiver path in the diagram is proposed
+and paused; no PostgreSQL receiver metrics are currently active. Identity, Programme, Activity, and Geodata logging images
 are live. A safe Identity health request has a matching Loki structured-metadata
 record and Tempo span; dashboard LogQL query shapes pass against live Loki.
 Helm revision 227 is deployed after rollback to 226; the resulting ConfigMap
