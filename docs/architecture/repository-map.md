@@ -9,9 +9,9 @@ The following split is justified and intentionally small:
 | `myota-programme-service` | programmes, shared entity category master data and programme assignments, programme-owned rules and themes | `programmes.py`, `run_programmes.py` |
 | `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, staged dataset intake, source decoding and durable domain workers | `geodata.py`, `relational_state.py`, `relational_queries.py`, `geodata_import_worker.py`, `migrations/` |
 | `myota-activity-service` | activations, normalized/indexed QSOs, COPY/ADIF ingestion, activity aggregates, corrections, programme-owned award definitions and versioned progress, object-storage assets, requests, rendering, notifications, statistics and issuance records | `activity.py`, `awards.py`, `activity_repository.py`, `activity_worker.py`, `migrations/` |
-| `myota-operations-service` | Current authenticated NATS/JetStream and SeaweedFS inspection, sampled history, and current-identity Grafana role resolution; no business-domain queue processing. NATS-specific inspection is planned for retirement after Surveyor cutover. | `operations.py`, `storage_observability.py`, operations-owned core migrations |
+| `myota-operations-service` | Domain-neutral SeaweedFS status/history, PostgreSQL/PostGIS metrics, and current-identity Grafana role resolution; no NATS connection or business-domain queue processing. Surveyor owns broker monitoring. | `operations.py`, `postgres_observability.py`, `storage_observability.py`, operations-owned core migrations |
 | `myota-web` | universal programme UI, published award progress and participant requests | `web/` |
-| `myota-admin-web` | Vue 3/TypeScript administration, programme context, grouped workspaces, resumable import intake, review queues, award designer, asset management, and operational views. The current JetStream status page is planned for retirement. | `src/`, `public/vendor/` |
+| `myota-admin-web` | Vue 3/TypeScript administration, programme context, grouped workspaces, resumable import intake, review queues, award designer, asset management, and operational views. The JetStream status page has been retired. | `src/`, `public/vendor/` |
 | `myota-deploy` | Helm charts, environments, migration orchestration, Compose, worker deployments, observability | `deploy/helm/myota/`, `db/migrations/`, `compose.yaml` |
 | `myota-docs` | architecture, ADRs, operator and migration docs | `docs/` |
 | `myota-platform` | integration bootstrap and synchronized runtime, migration and contract mirrors; not domain ownership | `services/`, `db/migrations/`, `contracts/`, `tests/` |
@@ -36,12 +36,14 @@ not shared across database boundaries. This keeps schema
 review close to the owning service without making every service perform
 cluster migration orchestration.
 
-The NATS monitoring consolidation plan in
-[observability](../observability/nats-surveyor-migration.md) assigns Surveyor
-and Grafana provisioning to Deploy, service monitoring retirement to each
-owning service, and the synchronized deployment/bootstrap copies to Platform.
-The existing Operations and Admin UI NATS inspection paths remain current until
-that plan's rollout and overlap gates pass.
+The NATS monitoring consolidation in
+[observability](../observability/nats-surveyor-migration.md) is complete within
+its recorded evidence bounds. Surveyor and Grafana provisioning are Deploy
+owned; retired service monitoring and synchronized Platform copies are tracked
+by their respective owners. Operations has no NATS connection, and the Admin
+UI no longer exposes the JetStream status page. See the
+[cross-repository architecture review](../../REVIEW.md) for remaining contract
+and source/mirror parity findings.
 
 The physical storage split is intentional: `myota_core` and
 `myota_activity` use plain PostgreSQL; only `myota_geo` uses PostGIS. Local

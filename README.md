@@ -55,6 +55,9 @@ pre-fixture plans, and evidence limits are recorded in the [Phase 0 evidence
 record](docs/geodata/evidence/phase0-production-evidence-2026-10-08.md) and
 [representative query review](docs/geodata/evidence/phase0-representative-query-review-2026-10-08.md).
 
+A read-only [cross-repository architecture review](REVIEW.md) records source,
+contract, duplication, and API findings with a phased implementation plan.
+
 Other outstanding platform work is tracked explicitly in the
 [charter gap analysis](docs/governance/charter-gap-analysis.md),
 [programme configuration gap analysis](docs/domain/programmes/configuration-gap-analysis.md),

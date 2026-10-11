@@ -9,6 +9,9 @@ indexes organize open work by delivery status.
 
 - [Architecture and decisions](architecture/README.md) — system boundaries,
   repository ownership, ADRs, and diagrams.
+- [Cross-repository architecture review](../REVIEW.md) — confirmed contract and
+  mirror inconsistencies, code/API duplication, open roadmap phases, and
+  copyable implementation prompts.
 - [Domain, API, and client contracts](domain/README.md) — API migration,
   programmes, identity, administration, and awards.
 - [Geodata](geodata/README.md) — entity lifecycle, scaling, upload, and query

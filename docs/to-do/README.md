@@ -8,6 +8,10 @@ For a recommended execution order and the reasons behind it, see the
 [prioritized backlog](prioritized-backlog.md). Priority is based on the current
 documentation evidence and does not set delivery dates.
 
+- [Cross-repository architecture remediation](../REVIEW.md) — begin with the
+  duplicate destructive OpenAPI definition and owner-to-Deploy/Platform source
+  parity; later phases cover shared helpers, Geodata complexity, and measured
+  REST alias retirement.
 - [Future award-condition model](../domain/awards/future-condition-model-roadmap.md)
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.

@@ -1,5 +1,16 @@
 # MyOTA changes
 
+## 11 October 2026 — Cross-repository architecture review
+
+- Reviewed the service owners, Contracts, Deploy, Platform, both web clients,
+  Docs, and the shared GitHub workflow on main.
+- Recorded a duplicate destructive OpenAPI path, Operations source-to-runtime
+  mirror drift, retired NATS API entries, shared helper duplication, Geodata
+  complexity hotspots, and remaining roadmap gates in [REVIEW.md](REVIEW.md).
+- Added phased copyable prompts and updated architecture, To do, and backlog
+  links. No runtime code or deployed state changed.
+
+
 ## 11 October 2026 — Phase 7 database observability work
 
 - Added dedicated non-superuser PostgreSQL monitor-role provisioning and

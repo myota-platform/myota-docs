@@ -22,6 +22,26 @@ new operational evidence.
 
 ## P0 — close before the affected rollout or capability expansion
 
+### Reconcile destructive API contract and runtime source parity
+
+**Current evidence:** the canonical OpenAPI file defines the Geodata load-test
+cleanup path twice with conflicting identifier constraints. Operations source
+contains a PostgreSQL sampler module that is absent from the Deploy and
+Platform runtime copies, although the latest logging evidence records the
+fallback as active. This is a source/image provenance gap; the current running
+image was not independently inspected during this review.
+
+**Why first:** duplicate contract keys can generate inconsistent clients or
+validation, and runtime copies are the input to deployment images. Resolve both
+before further releases that depend on these paths.
+
+**Next:** follow [Phase 0 and Phase 1 of the architecture review](../REVIEW.md):
+make the cleanup contract unique and fail-closed, audit route/client references
+for retired Operations JetStream endpoints, synchronize owner files into
+Deploy/Platform, and tie the built image digest to its source commit. Do not
+manually patch mirrors or claim live behavior without digest evidence.
+
+
 ### 1. Qualify geodata upload and worker recovery before scaling
 
 **Current evidence:** Phase 2 API/session recovery across API and SeaweedFS
