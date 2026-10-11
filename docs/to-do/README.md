@@ -14,7 +14,7 @@ documentation evidence and does not set delivery dates.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
   — Phases 0–6 are complete within their recorded evidence bounds. Helm
   revision 211 is deployed; the MyOTA Fleet bundle is Ready=True at Deploy
-  commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`. The fact stream now uses
+  commit `de01650e19b88bc99a11ede1f25694202c8c8d17`. The fact stream now uses
   bounded Limits retention and captures only `myota.events.>`; Activity and
   Geodata work remain on their separate WorkQueue streams. The explicit waiver
   closed Phase 5's 24-hour observation early; it is not represented as a full
