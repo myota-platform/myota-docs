@@ -39,7 +39,7 @@ does not prove that its image is deployed; deployed image digests are separate.
 | [Platform](https://github.com/myota-platform/myota-platform) | `b3d77e84db7cc8eb591315b66d70397629ef16e4` |
 | [Participant web](https://github.com/myota-platform/myota-web) | `0e6cb4cb03a1bdfac03c288d90af540fba917279` |
 | [Admin web](https://github.com/myota-platform/myota-admin-web) | `9d54cc635b7d5411fee6b18d963dc6788a92a43c` |
-| [.github](https://github.com/myota-platform/.github) | `60256b1ebcc27245369123e522477e30545df402` |
+| [.github](https://github.com/myota-platform/.github) | `7d064aff6f3d01119b75c80af4b5bfcc4d5fd056` |
 
 ### First-party images observed in K3s
 
