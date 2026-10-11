@@ -80,17 +80,18 @@ Documentation and phase evidence are owned by `myota-docs`.
   The record's other OTLP attributes are queryable structured metadata. This is
   evidence about the current indexed-label set, not a representative cardinality
   or sensitive-field/redaction audit.
-- The dashboard query shapes were executed against live Loki with the JSON
-  parser removed and `severity_text` used. Log streams and metric aggregations
-  returned success. The prior parser generated `JSONParserErr` because the
-  OTLP body is an event string while attributes are separate structured
-  metadata. Deploy and Platform now contain the correction: direct structured
-  metadata filters and a label-type `trace_id` derived field. These commits
-  have not yet been observed in a new Helm revision; UI trace/log navigation
-  stays open until the corrected config is provisioned and exercised.
-- Grafana logged successful dashboard provisioning from Helm revision 221; the
-  dashboard ConfigMap and mount were also verified. Revision 223 subsequently
-  rolled out the Geodata digest. Loki and Collector were Ready during the live
+- All seven LogQL queries from the dashboard mounted in the Grafana pod were
+  executed against live Loki. All returned HTTP/API success; the warning/error,
+  retry, and 5xx panels returned zero matching results in the sampled window,
+  not query errors. The prior parser generated `JSONParserErr` because the OTLP
+  body is an event string while attributes are separate structured metadata.
+  Deploy and Platform now contain direct structured-metadata filters and a
+  label-type `trace_id` derived field; Helm revision 225 mounted the corrected
+  config and Grafana logged dashboard provisioning. The actual authenticated UI
+  links in both directions have not yet been clicked/verified.
+- The dashboard ConfigMap, mount, and Grafana provisioning logs were checked
+  after Helm revision 225. The service images and Geodata digest were already
+  deployed by revision 223. Loki and Collector were Ready during the live
   query checks.
 - The temporary disposable-broker smoke test remains cleaned up. No production
   business data was injected.
