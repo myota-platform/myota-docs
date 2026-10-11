@@ -1,3 +1,14 @@
+## 11 October 2026 — Geodata TracerProvider warning issues
+
+- Created linked source and deployment issues for the reported
+  `Overriding of current TracerProvider is not allowed` warning. The Geodata
+  issue tracks root-cause analysis and an idempotent provider fix; the Deploy
+  issue tracks configuration audit, image rollout, and live verification.
+- The current Geodata source calls the process-global provider setter inside
+  `telemetry_for()`; this is an investigation lead, not a confirmed root cause.
+  See [Geodata #7](https://github.com/myota-platform/myota-geodata-service/issues/7)
+  and [Deploy #14](https://github.com/myota-platform/myota-deploy/issues/14).
+
 ## 11 October 2026 — Observability dashboard issues
 
 - Created linked Deploy issues for K3s workload health/capacity, application
