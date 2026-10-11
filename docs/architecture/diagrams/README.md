@@ -1,8 +1,14 @@
 # Diagram index
 
-The diagrams use Mermaid and describe the current target architecture. A
-diagram is explanatory, not proof that every pictured capability is deployed;
-the linked implementation/evidence document is authoritative for status.
+These Mermaid diagrams explain current ownership and selected architecture.
+They do not prove that every pictured capability is deployed. The
+[current-state snapshot](../current-state.md) summarizes the latest live checks;
+linked plans and evidence remain authoritative for their scope. Sections labeled
+historical or proposed are snapshots or decisions, not current runtime claims.
+
+## Current platform snapshot
+
+- [Current system state](../current-state.md)
 
 ## Platform and domain data
 

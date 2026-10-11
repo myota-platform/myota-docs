@@ -8,14 +8,15 @@ See the [migration plan](../../operations/messaging/nats-event-migration-plan.md
 [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md), and the [recovery runbook](../../operations/messaging/jetstream-recovery.md).
 
-## Current deployed topology — Phase 6 cutover, Helm 213
+## Current deployed topology — Phase 6 cutover, Helm 246
 
 The direct cutover changed `MYOTA_EVENTS` to Limits retention and removed
-the legacy Geodata subject capture after an empty-stream preflight. Helm 211
-disabled the one-time migration flag; current Helm revision 213 is deployed
-with drift validation enabled. The MyOTA Fleet bundle is Ready=True on Deploy
-commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. The four legacy Geodata
-durables retired during Phase 5 remain absent.
+the legacy Geodata subject capture after an empty-stream preflight. Helm
+revision 246 is deployed with the one-time migration flag disabled. The MyOTA
+Fleet bundle is Ready=True with 67/67 resources at Deploy main commit
+`f7d2e65edd5248d70376cf99ccc98c836b7f95e3`. The four legacy Geodata durables
+retired during Phase 5 remain absent. Operations no longer connects to NATS;
+Surveyor owns broker monitoring.
 
 ```mermaid
 flowchart LR
@@ -24,7 +25,7 @@ flowchart LR
     A[Activity outbox and activity_job]
     G[Geodata outbox and recovery rows]
   end
-  subgraph DEPLOY[Deploy owner: Helm 213]
+  subgraph DEPLOY[Deploy owner: Helm 246]
     IMG[First-party images pinned by digest]
   end
   C --> RC[Core relay]
@@ -43,7 +44,7 @@ flowchart LR
   GS --> GW[Geodata JetStream workers]
   A -. scheduled/recovery only .-> AR[Activity maintenance]
   G -. bounded row repair .-> GR[Geodata recovery loops]
-  E -. read-only metadata .-> O[Operations observer]
+  E -. broker metrics .-> S[NATS Surveyor]
 ```
 
 ## Historical Phase 2 relay behavior — 10 October 2026
@@ -104,7 +105,7 @@ flowchart LR
   GS --> GC[Four independent Geodata work durables]
   AW -. scheduled/recovery only .-> AR[Activity maintenance/recovery]
   GW -. scheduled/recovery only .-> GR[Geodata reconciliation]
-  ES -. inspect only .-> O[Operations observer]
+  ES -. broker metrics .-> S[NATS Surveyor]
 ```
 
 **Historical Phase 5 snapshot (10 October 2026):** This view records Helm

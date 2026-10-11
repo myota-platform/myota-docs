@@ -1,7 +1,8 @@
 # MyOTA logical data model
 
 This is the logical model for the current vertical slice and planned
-programme-configuration completion work. It shows the important aggregates,
+programme-configuration completion work. For the latest deployed state and
+open gates, see [Current system state](../current-state.md). It shows the important aggregates,
 not every audit, outbox, job, or index table. The service boundary is more
 important than a single physical database: cross-service links such as
 `entity_id`, `programme_slug`, and `subject_id` are API-level references.
@@ -12,7 +13,7 @@ The physical database ownership is:
 flowchart LR
   Core[(myota_core\nPostgreSQL)] --> Identity[Identity]
   Core --> Programme[Programmes + configuration]
-  Core --> Operations[Operational JetStream samples]
+  Core --> Operations[Storage history and Grafana role mapping]
   Activity[(myota_activity\nPostgreSQL)] --> Execution[Activations + QSOs]
   Activity --> Awards[Awards + aggregates]
   Geo[(myota_geo\nPostgreSQL + PostGIS)] --> Entities[Entities + categories]
@@ -289,7 +290,8 @@ erDiagram
   readability but remain part of the implementation boundary.
 
 
-The NATS monitoring roadmap proposes dropping OPERATIONS_JETSTREAM_SNAPSHOT
-and its history index after Surveyor/Grafana cutover and the verified overlap.
-This remains current schema until the owner migration is implemented. See the
-[NATS monitoring consolidation plan](../../observability/nats-surveyor-migration.md).
+The Operations-owned JetStream snapshot table and history index were removed
+by the forward migration after Surveyor became the broker observer. Operations
+storage history remains. No overlap period is required. See the
+[NATS monitoring consolidation plan](../../observability/nats-surveyor-migration.md)
+and [cutover evidence](../../observability/evidence/2026-10-11-nats-surveyor-cutover.md).

@@ -1,8 +1,11 @@
 # MyOTA observability
 
-Status: observability services and dashboards are implemented for local Compose
-and Helm. Live K3s verification on 2026-10-08 found incomplete service-metric
-coverage for identity and programmes; see [current verification and gaps](#live-k3s-verification-and-known-gap).
+For the latest deployment and repository snapshot, see
+[Current system state](../architecture/current-state.md). The last read-only
+K3s reconciliation (11 October 2026) found Helm revision 246 deployed, Fleet
+Ready with 67/67 resources, and 23/23 MyOTA Deployments Ready. Observability
+implementation is active, but acceptance gates remain open; see the
+[logging roadmap](logging-implementation.md).
 
 ## What was confirmed
 

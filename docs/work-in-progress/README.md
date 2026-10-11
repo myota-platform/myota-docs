@@ -1,5 +1,7 @@
 # Work in progress
 
+The latest verified runtime and repository snapshot is [Current system state](../architecture/current-state.md). This index tracks active delivery and evidence gates.
+
 This index points to active delivery and evidence gates. Completed implementation
 does not close independent rollout or acceptance work. Broader unstarted work
 is listed in [To do](../to-do/README.md).

@@ -1,5 +1,23 @@
 # MyOTA changes
 
+## 11 October 2026 — Current system documentation and diagrams
+
+- Added a single current-state snapshot from GitHub main heads and read-only
+  K3s/Fleet/Helm evidence. It records release and image digests, ownership, NATS
+  streams, completed migrations, open work, and evidence limits.
+- Corrected current service, data, NATS, and observability diagrams. Operations
+  is no longer shown as a JetStream observer; NATS Surveyor owns broker
+  monitoring. Removed stale Interest-retention and old Helm/Fleet status claims
+  from current-status sections while preserving historical snapshots.
+- Simplified the root README and documentation indexes. Roadmaps retain task
+  checklists, dated evidence remains historical, and compatibility pages remain
+  available for existing links.
+- Documentation-only change; runtime and cluster were not modified. See
+  [Current system state](docs/architecture/current-state.md) and the
+  [implementation timeline](docs/history/implementation-timeline.md).
+
+# MyOTA changes
+
 ## 11 October 2026 — Cross-repository architecture review and mitigation
 
 - Reviewed the service owners, Contracts, Deploy, Platform, both web clients,

@@ -2,9 +2,9 @@
 
 **Status:** Phases 0–6 are complete within their recorded evidence bounds.
 Phase 6's bounded fact-stream cutover and retirement checks are complete.
-Helm revision 213 is deployed with the one-time migration flag disabled; Fleet is Ready=True for Deploy main commit
-`dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. All MyOTA Deployments are
-ready. The old Interest-retained `MYOTA_EVENTS` definition and four legacy
+Helm revision 246 is deployed with the one-time migration flag disabled; Fleet is Ready=True with 67/67 resources for Deploy main commit
+`f7d2e65edd5248d70376cf99ccc98c836b7f95e3`. All 23 MyOTA Deployments
+were ready at the 11 October read-only check. The old Interest-retained `MYOTA_EVENTS` definition and four legacy
 Geodata durables are retired. The 24-hour Phase 5 observation was explicitly
 waived and closed early; it is not recorded as a completed 24-hour window.
 Six unresolved Geodata application DLQ records remain preserved. See the
@@ -137,10 +137,11 @@ distinction:
    failures/dead letters, consumer pending/ack-pending/redeliveries/oldest age,
    handler outcomes, and end-to-end event age. Do not label metrics with event
    IDs, aggregate IDs, or other unbounded values.
-10. Keep the consumer APIs/web clients out of direct NATS access. NATS is
+10. Keep consumer APIs/web clients out of direct NATS access. NATS is
     cluster-internal through a ClusterIP service; the accepted trust boundary
     assumes any pod able to reach that service is trusted. Do not expose NATS
-    outside the cluster. Operations remains read-only for broker inspection.
+    outside the cluster. Surveyor owns read-only broker monitoring; Operations
+    has no NATS connection.
 
 ### Selected topology — ADR-0008
 
@@ -162,7 +163,8 @@ per-event JSON Schemas and the subject/consumer registry in `myota-contracts`.
 Do not migrate the synthetic Activity `NOTIFICATION_SEND` state-only job; if
 external delivery is introduced, define a separate provider-backed command.
 Keep scheduled maintenance and database reconciliation as scheduler/recovery
-paths. Keep Operations read-only for broker inspection.
+paths. Keep broker inspection in Surveyor; Operations remains outside the NATS
+boundary.
 
 Delivery is at least once. `Nats-Msg-Id` deduplication is a short-window
 optimization; database idempotency and checkpoint state define correctness.
@@ -926,12 +928,12 @@ retired, cleanup, and any remaining evidence gap.
 ### Phase 6 — bounded fact-stream cutover and retirement
 
 **Status: complete.** The gated fact-stream migration completed in Helm
-revision 210. Helm revision 211 disabled the one-time migration flag; the
-current Helm revision 213 is deployed with the flag still disabled and
-all-topology drift validation enabled. The MyOTA Fleet bundle is
-Ready=True at Deploy main commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`;
-all MyOTA Deployments are ready. See the
-[Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md).
+revision 210; revision 211 disabled the one-time migration flag. The latest
+read-only check found Helm revision 246 deployed with that flag disabled and
+Fleet Ready=True at Deploy main commit
+`f7d2e65edd5248d70376cf99ccc98c836b7f95e3`; 23/23 MyOTA Deployments were
+ready. See the [Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md)
+and [current system state](../../architecture/current-state.md).
 
 **Decision:** Use one direct, coordinated cutover. No shadow traffic, canary
 rollout, synthetic production messages, or new metrics baseline. Phases 2–5

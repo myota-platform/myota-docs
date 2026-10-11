@@ -1,115 +1,85 @@
 # MyOTA service and data ownership
 
-This diagram is the practical ownership view for the current repository split.
-The admin web is a control plane and does not own domain data. Cross-service
-references are exchanged as IDs, slugs, and versioned API/event payloads; they
-are not cross-database foreign keys.
+This current-state view summarizes service boundaries. The admin web
+coordinates APIs but does not own domain data. Cross-service references are
+IDs, slugs, and versioned API/event payloads, never cross-database foreign keys.
 
 ```mermaid
 flowchart LR
-  Participant[Participant web / Android / iOS]
+  Participant[Participant web and mobile]
   Admin[Admin web]
-  Grafana[Grafana dashboards]
+  Gateway[Ingress and API gateway]
+  Identity[Identity service]
+  Programme[Programme service]
+  Activity[Activity API and workers]
+  Geodata[Geodata API and workers]
+  Operations[Operations service]
+  Core[(myota_core)]
+  ActivityDB[(myota_activity)]
+  GeoDB[(myota_geo and PostGIS)]
+  Objects[(SeaweedFS S3)]
+  Events[(MYOTA_EVENTS<br/>bounded fact stream)]
+  ActivityWork[(MYOTA_ACTIVITY_WORK<br/>competing-consumer jobs)]
+  GeoWork[(MYOTA_GEODATA_WORK<br/>competing-consumer jobs)]
+  Surveyor[NATS Surveyor]
   Prometheus[(Prometheus)]
-  Alertmanager[Alertmanager]
-  Gateway[Ingress / API gateway]
-  Events[(NATS / durable outbox events)]
-  Core[(myota_core\nPostgreSQL)]
-  ActivityDB[(myota_activity\nPostgreSQL)]
-  GeoDB[(myota_geo\nPostgreSQL + PostGIS)]
-  Objects[(SeaweedFS / S3 object storage)]
-  SeaweedMetrics[SeaweedFS metrics listener]
   Collector[OpenTelemetry Collector]
+  Grafana[Grafana]
 
   Participant --> Gateway
   Admin --> Gateway
-  Admin -->|JWT-checked /observability proxy| Grafana
-  Admin -. auth subrequest .-> Gateway
-  Grafana --> Prometheus
-  Grafana --> Alertmanager
-  Gateway --> Identity[Identity service\naccounts, callsigns, roles, OIDC]
-  Gateway --> Programme[Programme service\nprogramme config, policies, locales, jurisdictions]
-  Gateway --> Geodata[Geodata service\nentities, imports, provenance, review]
-  Gateway --> Activity[Activity service\nactivations, QSOs, awards, statistics]
-  Gateway --> Operations[Operations service\nJetStream status and sampled history]
+  Gateway --> Identity
+  Gateway --> Programme
+  Gateway --> Activity
+  Gateway --> Geodata
+  Gateway --> Operations
 
   Identity --> Core
   Programme --> Core
   Operations --> Core
-  Operations -->|Read-only broker inspection| Events
-  Geodata --> GeoDB
   Activity --> ActivityDB
+  Geodata --> GeoDB
   Geodata --> Objects
   Activity --> Objects
-  SeaweedMetrics -. private S3/master metrics ports .-> Collector
+
+  Identity -. committed facts .-> Events
+  Programme -. committed facts .-> Events
+  Activity -. committed facts .-> Events
+  Geodata -. committed facts .-> Events
+  Activity --> ActivityWork
+  Geodata --> GeoWork
+  ActivityWork --> Activity
+  GeoWork --> Geodata
+  Events --> Activity
+
+  Surveyor --> Prometheus
   Collector --> Prometheus
-
-  Identity -. publishes/consumes .-> Events
-  Programme -. publishes/consumes .-> Events
-  Geodata -. publishes/consumes .-> Events
-  Activity -. publishes/consumes .-> Events
-  Events -. geodata jobs and location enrichment .-> GeoWorkers[Geodata-owned workers]
-  GeoWorkers --> GeoDB
-  GeoWorkers --> Objects
-  GeoWorkers -->|Deletion cascade API| Activity
-  ActivityWorkers[Activity-owned execution and notification workers] --> ActivityDB
-  Events -. activity events .-> ActivityWorkers
+  Operations -. storage status and role resolution .-> Admin
+  Grafana --> Prometheus
 ```
 
-The runtime uses three database containers in local development and three
-independently addressable database targets in Kubernetes. `myota_core` holds
-identity, programmes, configuration, and shared control-plane data;
-`myota_activity` holds activations, QSOs, aggregates, awards, jobs and
-notifications; `myota_geo` holds PostGIS geometry, imports, provenance and
-review data. Only `myota_geo` requires PostGIS. Cross-service references are
-IDs, slugs and events rather than database foreign keys.
+NATS is cluster-internal. Surveyor is the broker observer; Operations has no
+NATS connection and retains storage status/history and Grafana role resolution.
+PostgreSQL remains authoritative for domain state, job state, outbox delivery,
+and recovery.
 
-## Ownership rules
+## Ownership
 
-- `myota-programme-service` owns programme metadata, published policy
-  versions, locale and jurisdiction configuration, and the shared category
-  catalogue/assignment APIs.
-- `myota-identity-service` owns accounts, callsigns, authentication sessions,
-  roles, scopes, and OIDC provider mappings.
-- `myota-geodata-service` owns geometries, entity lifecycle, imports, source
-  provenance, conflation, review, and geodata audit history.
-- `myota-activity-service` owns activations, normalized QSOs, corrections,
-  aggregates, award definitions/progress/issuance, statistics, and activity
-  notifications. Activity and awards share one API deployment.
-- `myota-admin-web` coordinates these APIs; it does not write database tables
-  directly.
-- `myota-operations-service` owns read-only stream/consumer inspection and
-  sampled history in `myota_core`; it never consumes business deliveries.
-- Geodata-owned workers execute preprocessing, promotion, confirmed deletion,
-  and location enrichment with durable pull consumers. Import/deletion jobs use
-  recoverable database leases; enrichment uses request-ID and geometry-hash
-  guards and preserves manual location fields. Activity workers remain in the
-  activity domain. See the
-  [latest delivery evidence and remaining scaling gates](../../geodata/horizontal-scaling-roadmap.md#latest-delivery-and-evidence--8-october-2026).
-- `myota-deploy` owns runtime wiring, migration orchestration, workers,
-  secrets, object storage, NATS, telemetry collection, and
-  Kubernetes/Compose configuration.
+- Identity owns accounts, callsigns, authentication sessions, roles, scopes,
+  and OIDC provider mappings.
+- Programme owns programme metadata, policy versions, locale and jurisdiction
+  configuration, and category catalogue/assignment APIs.
+- Activity owns activations, QSOs, corrections, aggregates, award definitions,
+  progress, issuance, and activity notifications.
+- Geodata owns geometries, entity lifecycle, imports, provenance, conflation,
+  review, and geodata audit history.
+- Operations owns read-only storage status/history and Grafana role resolution;
+  it does not inspect or consume JetStream.
+- Deploy owns runtime wiring and deployment configuration. Platform copies of
+  Deploy assets are synchronized mirrors; service repositories remain
+  authoritative for service code and contracts.
 
-## Request and event flow
-
-```mermaid
-sequenceDiagram
-  participant U as User or admin
-  participant W as Web/mobile client
-  participant G as Gateway
-  participant S as Owning service
-  participant DB as Service database
-  participant O as Outbox/NATS
-  participant B as Worker
-
-  U->>W: Submit API request
-  W->>G: Versioned API call + access token
-  G->>S: Authenticated request
-  S->>DB: Transaction + idempotency check
-  DB-->>S: Durable result
-  S->>O: Transactional domain event
-  S-->>G: API response
-  G-->>W: Result
-  O->>B: Retry-safe event delivery
-  B->>S: Recalculation, import, PDF, or notification job
-```
+For the latest live deployment revision and evidence limits, see
+[Current system state](../current-state.md). The
+[NATS diagram](nats-event-migration.md) distinguishes the current topology from
+historical rollout snapshots.

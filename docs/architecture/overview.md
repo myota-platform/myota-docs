@@ -1,6 +1,6 @@
 # MyOTA platform architecture
 
-Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diagrams/service-boundaries.md), [`diagrams/programme-configuration-lifecycle.md`](diagrams/programme-configuration-lifecycle.md), and [`diagrams/data-model.md`](diagrams/data-model.md). This document remains the narrative architecture reference; the diagrams intentionally show the major ownership and lifecycle relationships without replacing detailed API or migration documentation.
+Start with the [current system state](current-state.md) for the latest verified deployment, source revisions, and open work. Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diagrams/service-boundaries.md), [`diagrams/programme-configuration-lifecycle.md`](diagrams/programme-configuration-lifecycle.md), and [`diagrams/data-model.md`](diagrams/data-model.md). Diagrams show ownership and lifecycle relationships; linked evidence remains authoritative for implementation claims.
 
 The deployed NATS event/work topology is shown in the
 [NATS migration diagram](diagrams/nats-event-migration.md). Phases 0–6 are
@@ -270,14 +270,11 @@ materializes a source document and catalogue compatibility state in worker
 memory; truly streaming feature batches and multi-replica data-state
 reconciliation remain explicit open work in the horizontal-scaling roadmap.
 
-The shared `MYOTA_EVENTS` JetStream stream uses Interest retention rather than
-acting as an event archive. The outbox relay provisions the Activity durable
-and all four geodata work durables before publishing; messages remain until
-every matching consumer acknowledges them, then are removed. Explicit geodata
-subjects are allow-listed to those queues. A 30-day `max_age` remains a safety
-bound for stalled, unconsumed work; service-owned PostgreSQL remains the
-durable recovery source. See [JetStream retention and rollout
-operations](../operations/runbooks.md#jetstream-event-retention).
+`MYOTA_EVENTS` uses bounded Limits retention for registered committed facts.
+Activity and Geodata commands use separate WorkQueue streams with one durable
+per work kind. These are delivery and bounded replay windows, not archives;
+PostgreSQL remains the durable source of truth and recovery. Operations no
+longer inspects NATS; Surveyor owns broker monitoring. See [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md), the [migration plan](../operations/messaging/nats-event-migration-plan.md), and the [current-state snapshot](current-state.md).
 
 ### Shared category selection and persistence
 

@@ -6,9 +6,10 @@ paths are on replacement images, the Operations JetStream history table and
 index have been dropped by the forward migration, and storage history remains
 healthy. A temporary in-memory validation stream was observed and deleted. On
 11 October at 00:35:46 UTC, all thirteen dashboard 16256 expressions also
-returned live Grafana data frames without query errors. Helm revision 208 is deployed and Fleet reports Ready for Deploy main commit
-`d0d2f50846fe2c9e239d46a48809860f4b98d7f5`. Its bundle reports all 64 resources
-ready and the applied deployment ID matches the desired ID. The implementation
+returned live Grafana data frames without query errors. Helm revision 246 is deployed and Fleet reports Ready for Deploy main commit
+`f7d2e65edd5248d70376cf99ccc98c836b7f95e3`. Its bundle reports all 67 resources
+ready and the applied deployment ID matches the desired ID. See the
+[current-state snapshot](../architecture/current-state.md) for the live scope. The implementation
 and Phase 2 exit criteria are complete.
 
 **Owners:** Volker Kerkhoff and Codex, the MyOTA platform team.

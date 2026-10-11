@@ -1,10 +1,11 @@
-Status: source, configuration, and the new logging images are implemented.
-Helm has applied the new image digests and all Deployments are Ready, but its
-revision 242 remains `pending-upgrade`; Fleet still reports the prior revision
-241 as Ready with 67/67 resources. Treat the Helm release state as an open
-rollout item until the controller reports a stable deployed revision.
-PostgreSQL metrics and SQL-scrubbed Psycopg spans are active. Remaining
-acceptance is listed below; this roadmap does not claim full completion.
+Status: source, configuration, and logging images are implemented. The
+read-only K3s reconciliation on 11 October 2026 found Helm revision 246
+deployed and Fleet Ready with 67/67 resources at Deploy main commit
+`f7d2e65edd5248d70376cf99ccc98c836b7f95e3`; 23/23 MyOTA Deployments were
+Ready. This reconciles older revision numbers in dated evidence below.
+Authenticated Grafana navigation, initiating HTTP-to-worker correlation, Loki
+prohibited-field/cardinality review, full Compose runtime parity, and complete
+Identity/Programme metrics coverage remain open.
 
 [Current evidence and remaining gaps](evidence/logging-implementation-2026-10-11.md).
 Parent: [MyOTA observability](overview.md)

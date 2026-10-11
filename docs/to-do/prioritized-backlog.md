@@ -1,5 +1,7 @@
 # Prioritized backlog
 
+For the latest verified deployment, completed migrations, and open gates, see [Current system state](../architecture/current-state.md). The ordering below is based on the linked roadmaps and does not replace them.
+
 **Reviewed:** 2026-10-11
 
 This page orders the currently listed open work using evidence in the linked

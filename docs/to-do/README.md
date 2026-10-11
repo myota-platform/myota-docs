@@ -1,5 +1,7 @@
 # To do
 
+For current deployment and completed/open workstream status, see [Current system state](../architecture/current-state.md). This index lists accepted work that has not started or still needs a decision.
+
 This index lists accepted work that has not started or still needs a decision.
 The linked roadmap is the source of detailed scope and evidence. This page is
 only a navigation index.

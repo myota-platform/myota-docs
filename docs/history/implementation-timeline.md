@@ -1413,3 +1413,24 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
 - Added a stable relay correlation fallback (`correlationId` → `workId` → `eventId`) to the NATS header and bound that value into consumer log context across the five owning services. Payload schemas remain unchanged.
 - Service source CI, worker tests, Deploy validation, and Platform tests passed. Updated images are running and all Deployments are ready.
 - The Helm release still reports revision 242 as `pending-upgrade` while Fleet reports revision 241 Ready. The originating HTTP correlation remains unavailable for outbox producers that did not persist it; live request-to-worker correlation is not claimed.
+
+## 11 October 2026 — Current system and documentation reconciliation
+
+- **Prompt used:** “Update the myota-docs repository with the current state of
+  the system, including updated diagrams. Summarize evidence and task documents,
+  and improve and simplify the overall documentation structure.”
+- **Scope:** reconciled Docs against GitHub `main` heads for service, contract,
+  deployment, platform, client, and organization repositories; inspected current
+  MyOTA K3s Helm/Fleet/Deployment readiness read-only; corrected current-state
+  status and architecture diagrams; consolidated root and subject navigation.
+- **Evidence:** Helm `myota` revision 246 is deployed. Fleet reports Ready,
+  Deployed, and Monitored with 67/67 resources at Deploy commit
+  `f7d2e65edd5248d70376cf99ccc98c836b7f95e3`; 23/23 MyOTA Deployments were
+  Ready. The single-node limitation and outstanding acceptance gates are
+  explicit in [Current system state](../architecture/current-state.md).
+- **Documentation decisions:** the new current-state page is the single dated
+  snapshot; plans own checklists and dated evidence owns test results. Historical
+  records remain snapshots. Canonical diagrams and subject indexes point to the
+  snapshot. Compatibility pages remain for published links.
+- **Runtime impact:** none. Checks were read-only; no tests, test data, or
+  cluster changes were made.
