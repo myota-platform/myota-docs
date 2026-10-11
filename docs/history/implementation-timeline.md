@@ -38,7 +38,7 @@ describe current ownership and are authoritative for the present-day system.
 - **Rollout:** Deploy focused Python quality and Helm validation passed
   (runs 38099669717 and 38099669405). Helm revision 213 is deployed with the
   migration flag off. Fleet is Ready=True at Deploy main commit
-  `de01650e19b88bc99a11ede1f25694202c8c8d17`; every MyOTA Deployment has its
+  `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`; every MyOTA Deployment has its
   desired replicas ready. No shadowing, canary, new metrics baseline, or
   production test data was used. No Phase 6 database object was obsolete.
 - **Limits:** Previously Interest-expired facts remain unrecoverable from NATS.
