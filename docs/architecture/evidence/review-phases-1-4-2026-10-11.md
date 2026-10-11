@@ -121,14 +121,14 @@ regenerated and checked in.
 
 ## Final decision and remaining work
 
-Phases 1–4 are complete for their recorded scope. The only open item from the
-original review is Phase 0's duplicate-YAML-key safety check for the current
-destructive Geodata cleanup operation. The route inventory does not detect
-duplicate YAML mapping keys, so that safeguard remains explicit in
-[REVIEW.md](../../../REVIEW.md) and [To do](../../to-do/README.md).
-
-The existing Geodata handler hotspot is documented for future measured
-refactoring. It does not block the current API, mirror, or ownership decisions.
+Phases 1–4 are complete for their recorded scope. The separate Phase 0
+duplicate-key and handler/mirror gate is also complete; see the
+[Phase 0 closure record](review-phase-0-2026-10-11.md). Contracts CI now
+self-tests duplicate-key rejection, checks the canonical OpenAPI and mirrors,
+and regenerates a 131-operation inventory against 170 service route
+registrations with no missing routes or duplicate operation IDs. The existing
+Geodata handler hotspot is documented for future measured refactoring; it does
+not block the current API, mirror, or ownership decisions.
 
 
 ## Final verification matrix
