@@ -122,9 +122,8 @@ Structured logging implementation status on 11 October 2026:
   dashboard query shapes work against structured metadata.
 - Deploy and Platform contain metadata-aware Grafana query and trace-link fixes.
   Helm revision 225 mounted them, Grafana provisioning completed, and all seven
-  dashboard queries passed against Loki. Fleet readiness and authenticated UI
-  navigation, async correlation, Phase 6 hardening, and Phase 7 PostgreSQL/PostGIS
-  telemetry remain open.
+  dashboard queries passed against Loki. Authenticated UI navigation, async correlation, Phase 6 hardening, and Phase 7
+  PostgreSQL/PostGIS telemetry remain open. Fleet is Ready=True.
 - See the [logging implementation plan](docs/observability/logging-implementation.md),
   [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md),
   and [logging operations runbook](docs/observability/logging-runbook.md).
