@@ -26,7 +26,7 @@ indexes organize open work by delivery status.
   and [Phase 6 plan](operations/messaging/nats-event-migration-plan.md#phase-6).
 - [NATS Surveyor monitoring consolidation](observability/nats-surveyor-migration.md) —
   live Surveyor, dashboard, alert and bounded capacity decisions. Fleet is Ready
-  on Deploy main at Helm revision 207; the replacement images and forward-only
+  on Deploy main at Helm revision 208; the replacement images and forward-only
   Operations history migration are deployed. The retired combined dashboard
   and its two PostGIS panels are not recreated.
 - [Observability](observability/README.md) — telemetry architecture, logging
