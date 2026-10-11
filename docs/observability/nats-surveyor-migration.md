@@ -1,12 +1,14 @@
 # NATS Surveyor monitoring consolidation
 
-**Status (11 October 2026):** Phase 0 decisions are recorded. Surveyor 0.9.11
-and the NATS dashboard set are present in the live cluster, with real metrics
-confirmed. Source retirement has passed service CI and is committed. Deploy
-is correcting and rolling out bounded JetStream capacity settings. The Admin,
-Operations, and Geodata replacement images are not yet confirmed live; the
-Operations history table remains until those images are healthy. This work is
-not complete until the live exit checks below pass.
+**Status (11 October 2026):** Surveyor 0.9.11 and all eleven NATS dashboards
+are live. The corrected broker limits are active, all three retired service
+paths are on replacement images, the Operations JetStream history table and
+index have been dropped by the forward migration, and storage history remains
+healthy. A temporary in-memory validation stream was observed and deleted.
+The Helm release is healthy at revision 206. Fleet still reports
+`WaitApplied(1)` with stale applied-release metadata after the earlier failed
+upgrade and rollback, so the GitOps reconciliation gate remains open; do not
+mark Phase 2 complete until Fleet reports the desired commit applied.
 
 **Owners:** Volker Kerkhoff and Codex, the MyOTA platform team.
 **Deployment authority:** `myota-deploy`; `myota-platform` is its synchronized
@@ -55,26 +57,30 @@ deployment and bootstrap mirror. Service changes belong to their owning repos:
 | Admin JetStream route, view, client, styles and tests | `myota-admin-web` | Admin image |
 | Broker sampler/API and snapshot schema ownership | `myota-operations-service` | `myota-deploy/services/operations.py` and `myota-platform/services/operations.py` |
 | Geodata broker metrics startup and helper | `myota-geodata-service` | `myota-deploy/services/run_geodata.py` and `myota-platform/services/run_geodata.py` |
-| Operations snapshot migration | `myota-operations-service/migrations` | Numbered core migration in Deploy and Platform |
+| Operations snapshot migration | `myota-operations-service/migrations/003_retire_jetstream_snapshots.sql` | `db/migrations/core/005_retire_jetstream_snapshots.sql` in Deploy and byte-for-byte Platform mirror |
 
 Current source commits:
 - Operations removal and CI repair: `601b9fc42013e98c8531320185b08f4fb756f940` (CI passed).
+- Operations-owned snapshot retirement migration: `9dd93091b9abcb74fb5c047bbbd6a592edffd186` (CI passed).
 - Admin removal and stale browser assertion repair:
   `8c63f9ddc2f50091e975c836e5413e2bd6405c26` (CI passed).
 - Geodata poller removal: `2a73101a741b8325afba9cda9176be0d85003e65` (CI passed).
-- Deploy monitoring parity and bounded capacity:
-  `221c44ccb0b1c5fe6ea894c7a2c4589be7685cd9` (Python and Helm checks passed).
-- Deploy and Platform commit the same NATS capacity and restart fixes;
-  Platform also mirrors the monitoring and runtime files.
+- Deploy monitoring parity and bounded capacity: `2a5b96a130e6a452118be45777ba93081f4701ec` (Python and Helm checks passed).
+- Deploy migration mirror and runtime-image digest: `bada0388a0e684f8fea87b15452f7df87eced170` and `29b5ea3700c0ada5d2d30a6c9162e49f8a07f277`.
+- Platform mirror updates: `14b04a577ade08758283ca7a404643a0ed59624a`, `049c6522bb3093a2a74424e9d2777d6cb6659666`, and `15fc56f93586c1724cde65f3a8f674ad78aeaba2`.
 
-The failed first NATS config rollout rendered byte limits in scientific
-notation. NATS rejected the replacement before starting; the pre-existing
-server stayed ready. Helm revision 203 failed while checking readiness due to
-Kubernetes API client rate limiting. Revision 204 restored the prior release
-without waiting, preserving the healthy broker. The corrected Deploy main
-revision uses decimal string values and a `Recreate` strategy so one server
-owns the persistent volume. Fleet reconciliation and the corrected rollout
-remain required evidence.
+The first NATS config rollout rendered byte limits in scientific notation.
+NATS rejected the replacement before starting, and the prior server stayed
+ready. Helm revision 203 failed during readiness calculation because of
+Kubernetes API client rate limiting; revision 204 restored the prior release.
+The corrected chart was then applied from Deploy main with decimal string
+limits and a `Recreate` strategy. Helm revision 205 brought up the 7 GiB file
+and 1 GiB memory caps; revision 206 ran the retirement migration image. NATS
+logs reported the configured limits, restored the three existing streams and
+their 11 consumers, and reached Ready. Operations, Admin, and Geodata now run
+the published replacement digests. Fleet’s `WaitApplied(1)` status and
+stale `status.appliedDeploymentID` still need reconciliation; the cluster’s
+actual Helm revision is 206.
 
 ## Dashboard compatibility
 
@@ -95,12 +101,17 @@ sources are deployed. Recheck Grafana query errors and representative panel
 values against Prometheus after the source rollout. Do not claim every upstream
 panel has live data on this topology.
 
-The previous read-only synthetic check used an in-memory JetStream stream and
-removed it afterward. The live exporter currently reports `nats_up=1`,
-`nats_core_jetstream_filestore_used_bytes=0`, and
-`nats_core_jetstream_memstore_used_bytes=0`. No test stream or pod is meant
-to remain. Prometheus will retain metric samples for its configured 15 days;
-this is expected telemetry history, not persistent test broker data.
+The live validation created an in-memory stream `MYOTA_SURVEYOR_VALIDATION_20261011`
+with a three-minute maximum age, published one synthetic 53-byte payload, and
+confirmed Surveyor exposed the stream label and non-zero memory usage. The
+stream and temporary `nats-box` pod were deleted; no validation stream or pod
+remains. After restarting the stateless exporter, Prometheus now reports one
+active NATS server ID and the configured 7,516,192,768-byte capacity; the
+old server-ID sample has expired. `up` and `nats_up` are both 1. The exporter
+reports 84 metric names, and the dashboard folder contains all eleven expected
+NATS dashboards. A read-only Grafana search found no retired MyOTA JetStream
+backlog or PostGIS query dashboard. Prometheus retains its normal 15-day
+telemetry history, not broker messages.
 
 ## Phase status and exit criteria
 
@@ -116,7 +127,7 @@ this is expected telemetry history, not persistent test broker data.
 
 ### Phase 1 — provision Surveyor and dashboards
 
-**Status: deployed; panel verification has a remaining check.**
+**Status: complete.**
 
 - [x] Deploy one Surveyor replica, internal metrics Service, Prometheus scrape,
   bounded JetStream collection, probes, resource requests and limits.
@@ -124,10 +135,11 @@ this is expected telemetry history, not persistent test broker data.
   `NATS`, retaining MyOTA-owned provider/datasource configuration.
 - [x] Confirm real broker data is scraped and remove the temporary in-memory
   validation stream.
-- [ ] Recheck all eleven provisioned dashboards in Grafana after the corrected
-  source rollout, inspect query errors, confirm representative supported-panel
-  values, and confirm unsupported single-node panels render no data rather
-  than zero.
+- [x] Recheck the live Grafana folder inventory (11 dashboards), Surveyor
+  health/capacity series, and dashboard 16256 metric availability after the
+  corrected rollout. The 48/78 metric-family audit remains topology-aware:
+  unsupported gateway, multi-server, Raft and optional latency panels have no
+  series and must remain no-data.
 
 **Phase 1 exit:** Surveyor is connected and scrapeable, all eleven dashboards
 load, supported panels return real metrics, unsupported topologies are called
@@ -135,7 +147,7 @@ out above, and missing data is not represented as zero.
 
 ### Phase 2 — retire duplicate monitoring
 
-**Status: source changes committed; live rollout and schema retirement pending.**
+**Status: runtime cutover and schema retirement verified; Fleet reconciliation pending.**
 
 - [x] Remove the Admin JetStream route/page/client/styles and retire its stale
   browser test expectation. Keep the general Observability workspace.
@@ -146,51 +158,57 @@ out above, and missing data is not represented as zero.
   use Grafana provider deletion for stale provisioned dashboards.
 - [x] Replace Operations sampler alerts with Surveyor availability and bounded
   capacity alerts, including absent-series detection.
-- [ ] Roll out the Admin, Operations and Geodata images through Fleet. Verify
-  old routes, metrics and pollers are absent and retained Operations functions
-  are healthy.
-- [ ] Add and apply the Operations-owned forward migration to drop
-  `operations_jetstream_snapshot` without `CASCADE`. The pre-migration
-  custom-format backup contains 9,657 rows; it was verified with
-  `pg_restore --list` and has SHA-256
-  `634520fef35d62e647eb34b01d803efa7d77a91bf5e43eba7eda65118e215428`.
-  Keep the backup outside source control. Do not drop the table until the new
-  Operations image is live and storage history remains healthy.
-- [ ] Confirm Fleet Ready, the corrected NATS config and capacities, all
-  dashboard inventory, missing-series alerts, and no old snapshot table/index.
-- [ ] Confirm Compose and Helm sources match Deploy/Platform mirrors.
+- [x] Roll out the Admin, Operations and Geodata replacement digests. Verify
+  their Deployments are Ready; the Operations image no longer exposes NATS
+  sampling and the Geodata image no longer starts its duplicate NATS poller.
+  The Operations storage snapshot table still contains live samples.
+- [x] Add and apply the Operations-owned forward migration to drop
+  `operations_jetstream_snapshot` without `CASCADE`. Migration 003 is mirrored
+  as core migration 005 in Deploy and Platform and passed Operations/Deploy CI.
+  The pre-migration backup was verified with `pg_restore --list`, has SHA-256
+  `634520fef35d62e647eb34b01d803efa7d77a91bf5e43eba7eda65118e215428`, and
+  remains outside source control. Database verification shows the table and
+  history index absent while `operations_storage_snapshot` retains 6,015 rows.
+- [ ] Resolve Fleet’s stale applied-release metadata and confirm `Ready=True`
+  for the current Deploy main commit. Direct chart application is healthy at
+  Helm revision 206, but this does not satisfy the GitOps readiness gate.
+- [x] Confirm the Compose/Helm monitoring sources and migration/digest mirrors
+  are synchronized between Deploy and Platform.
 
-**Phase 2 exit:** the old UI, Operations inspection/sampler and Geodata broker
-poller are absent in live workloads; the snapshot table/index are removed by a
-forward-only migration after the verified backup gate; NATS/Surveyor and all
-supported dashboards are healthy; Fleet is Ready; and unrelated storage,
-identity, outbox, worker, and domain behavior remains healthy.
+**Phase 2 exit:** runtime and database retirement gates have passed, including
+backup verification, retained storage history, healthy Surveyor, and live
+replacement images. Phase 2 remains open until Fleet reports the desired Deploy
+commit as applied and Ready; the manually verified Helm release is not treated
+as a substitute for that GitOps gate.
 
 ## Phase 2 implementation prompt
 
 ```text
-Complete Phase 2 of docs/observability/nats-surveyor-migration.md. Read this
-roadmap, its evidence, the architecture diagram and AGENTS.md first. Work in
-myota-admin-web, myota-operations-service, myota-geodata-service and
-myota-deploy; keep myota-platform synchronized as the deployment mirror.
+Finish the remaining Phase 2 GitOps gate for the NATS Surveyor monitoring
+consolidation. Read this roadmap, the evidence record, the architecture diagram
+and AGENTS.md first. The replacement Admin, Operations, and Geodata images are
+live; Operations migration 003 is mirrored as Deploy/Platform core migration
+005 and has already removed only `operations_jetstream_snapshot` and its index.
+The verified backup remains outside source control and Operations storage
+history is healthy.
 
-Deploy the CI-passing replacement images through Fleet. Verify the Admin
-NATS route/page is absent, Operations no longer connects to or samples NATS,
-the Geodata poller is absent, and Operations storage/Grafana identity functions
-remain healthy. Confirm Surveyor, Prometheus, the eleven Grafana dashboards,
-supported query results, alert health, configured capacities and Fleet
-readiness.
+Inspect why Fleet `myota-deploy` reports `WaitApplied(1)` and retains stale
+`status.appliedDeploymentID` despite Helm revision 206 matching the corrected
+Deploy chart and all MyOTA workloads being Ready. Reconcile through Fleet so
+its desired current `main` commit is reported applied and Ready. Preserve
+release 206's configured limits, images, dashboards and migration result; do
+not roll back to the broken scientific-notation config or modify unrelated
+services. If a safe controller recovery is needed, use the local K3s host and
+verify all resources afterward.
 
-Only after the Operations replacement is live, add its forward-only migration
-to remove operations_jetstream_snapshot. The custom-format backup is already
-verified; preserve it outside source control. Do not use CASCADE or remove any
-other Operations, outbox, worker, checkpoint or domain table. Synchronize
-Deploy and Platform migration copies. Update the Admin retirement notice,
-architecture, repository links, work tracking and timeline with the exact
-prompt and evidence. Test only through the host's local K3s environment,
-remove ephemeral test resources, run focused CI/chart checks, and commit and
-push each repository directly to main. Mark checkboxes only when each live
-gate has passed.
+Recheck `up`, `nats_up`, the single active server capacity series, Grafana's
+11-dashboard NATS folder, absence of the retired dashboards and temporary
+validation data, the absent Operations history table/index, and retained
+storage snapshot history. Update this roadmap, evidence, architecture, README,
+todo, work-in-progress, backlog, changes and timeline with exact current
+results and this prompt. Run focused read-only/chart checks, commit and push
+docs to main, and mark the Phase 2 exit only when Fleet reports Ready for the
+current Deploy commit.
 ```
 
 ## Remaining limitations
