@@ -4,8 +4,9 @@
 are live. The corrected broker limits are active, all three retired service
 paths are on replacement images, the Operations JetStream history table and
 index have been dropped by the forward migration, and storage history remains
-healthy. A temporary in-memory validation stream was observed and deleted.
-Helm revision 208 is deployed and Fleet reports Ready for Deploy main commit
+healthy. A temporary in-memory validation stream was observed and deleted. On
+11 October at 00:35:46 UTC, all thirteen dashboard 16256 expressions also
+returned live Grafana data frames without query errors. Helm revision 208 is deployed and Fleet reports Ready for Deploy main commit
 `d0d2f50846fe2c9e239d46a48809860f4b98d7f5`. Its bundle reports all 64 resources
 ready and the applied deployment ID matches the desired ID. The implementation
 and Phase 2 exit criteria are complete.
@@ -105,9 +106,13 @@ deployment. Those panels must show no data; they must never convert missing
 series to zero. Dashboard 16256's 13 core metric expressions are available.
 The cluster, gateway, multi-node Raft, snapshot, and service-observation panels
 are explicitly not applicable until those server features or observation
-sources are deployed. Recheck Grafana query errors and representative panel
-values against Prometheus after the source rollout. Do not claim every upstream
-panel has live data on this topology.
+sources are deployed. At 00:35:46 UTC on 11 October, all thirteen expressions
+in dashboard 16256 were executed through Grafana's live /api/ds/query endpoint
+against the provisioned Prometheus datasource. Each returned HTTP 200, one data
+frame, and no query error; representative values are recorded in the
+evidence record. This closes the post-rollout query check. Do not claim every
+upstream panel has live data on this topology or represent absent series as
+zero.
 
 The live validation created an in-memory stream `MYOTA_SURVEYOR_VALIDATION_20261011`
 with a three-minute maximum age, published one synthetic 53-byte payload, and
@@ -145,9 +150,11 @@ telemetry history, not broker messages.
   validation stream.
 - [x] Recheck the live Grafana folder inventory (11 dashboards), Surveyor
   health/capacity series, and dashboard 16256 metric availability after the
-  corrected rollout. The 48/78 metric-family audit remains topology-aware:
-  unsupported gateway, multi-server, Raft and optional latency panels have no
-  series and must remain no-data.
+  corrected rollout. All thirteen dashboard 16256 expressions returned a
+  successful Grafana data frame with no query error at 00:35:46 UTC on 11
+  October. The 48/78 metric-family audit remains topology-aware: unsupported
+  gateway, multi-server, Raft and optional latency panels have no series and
+  must remain no-data.
 
 **Phase 1 exit:** Surveyor is connected and scrapeable, all eleven dashboards
 load, supported panels return real metrics, unsupported topologies are called
