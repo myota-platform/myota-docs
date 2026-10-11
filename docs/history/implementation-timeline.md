@@ -13,6 +13,36 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 11 October 2026 — Structured logging rollout, Phases 1–5
+
+- **Prompt used:** “Implement observability as per
+  https://github.com/myota-platform/myota-docs/blob/main/docs/observability/logging-implementation.md.
+  Usual iterative approach, take decisions autonomously, proceed phase-by-phase,
+  check off individual tasks and deliverables (change to checkmarks) and document
+  all evidence. Update all relevant documentation.”
+- **Phase prompt basis:** the plan's [Phase 1](../observability/prompts/logging-phase-1-shared-foundation.md),
+  [Phase 2](../observability/prompts/logging-phase-2-loki-platform.md),
+  [Phase 3](../observability/prompts/logging-phase-3-http-tracing.md),
+  [Phase 4](../observability/prompts/logging-phase-4-workers-nats.md),
+  and [Phase 5](../observability/prompts/logging-phase-5-grafana-correlation.md)
+  prompt files. The current run also reviewed the linked [Phase 6](../observability/prompts/logging-phase-6-production-hardening.md)
+  and [Phase 7](../observability/prompts/logging-phase-7-database-observability.md)
+  acceptance requirements.
+- **Implementation and decision:** Source logging/tracing and Loki/Grafana
+  assets are present across the five service owners and Deploy. Deploy's
+  latest Python quality and image-build workflows passed after fixing Ruff
+  formatting and missing imports. A Grafana LogQL range-selector spacing issue
+  was corrected in both Compose and Helm mirrors; dashboard JSON parsing passed.
+  The latest running service image digests still predate the worker logging
+  changes, so this is implementation progress rather than live acceptance.
+- **Evidence and remaining gates:** Loki/Collector were Ready in K3s and the
+  earlier disposable OTLP-to-Loki smoke test passed with test namespace cleanup.
+  Compose parity/restart, real application log/trace navigation, asynchronous
+  end-to-end correlation, observed Loki object growth/retention, and all Phase 7
+  database telemetry remain open. See [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md),
+  [phase prompts](../observability/prompts/README.md), and
+  [implementation plan](../observability/logging-implementation.md).
+
 ## 11 October 2026 — NATS migration Phase 6 fact-stream cutover
 
 - **Prompt used:** “Finish implementing phase 6 of
