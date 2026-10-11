@@ -115,6 +115,15 @@ NATS migration status on 11 October 2026:
   See the [Surveyor migration plan](docs/observability/nats-surveyor-migration.md)
   and [Phase 6 evidence](docs/operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md).
 
+Structured logging implementation status on 11 October 2026:
+
+- Phase 1–5 source/configuration work is recorded; Phase 6 hardening and Phase 7
+  PostgreSQL/PostGIS telemetry remain open.
+- Loki and the OpenTelemetry Collector are Ready in K3s, but service image
+  digests still need to advance before live worker logging can be accepted.
+- See the [logging implementation plan](docs/observability/logging-implementation.md)
+  and [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md).
+
 See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 completion evidence](docs/operations/messaging/evidence/phase1-completion-2026-10-10.md),
