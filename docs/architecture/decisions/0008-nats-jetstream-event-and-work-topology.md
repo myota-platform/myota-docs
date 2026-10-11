@@ -2,25 +2,26 @@
 
 ## Status
 
-Accepted for the target design by the workspace owner. Phase 0 inventory,
-decision, and evidence-owner assignments are complete. Phase 1 decisions
-cover schema disposition, the cluster-internal NATS trust boundary, provisional
-capacity, restore/replay policy, and relay-side provisioning ownership. Runtime
-implementation and production qualification remain open; the live topology has
-not changed. See the [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md)
-and [Phase 1 evidence record](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md).
+Accepted and implemented through Phase 6 on 11 October 2026. The current host
+deployment uses the selected three-stream topology. The shared fact-stream
+migration passed an empty-stream guard, and Helm/Fleet deployed the bounded
+Limits configuration. See the [Phase 6 evidence](../../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md),
+[Phase 0 inventory](../../operations/messaging/nats-event-migration-inventory.md),
+[Phase 1 joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
+and [migration plan](../../operations/messaging/nats-event-migration-plan.md).
 
 ## Context
 
-The current deployment publishes database outbox rows through three instances
-of one relay into a shared, file-backed `MYOTA_EVENTS` stream. That stream
-captures both `myota.events.>` and `myota.geodata.>`, currently uses Interest
-retention, and provisions one Activity notification durable plus four Geodata
-work durables. Activity also accepts asynchronous jobs from PostgreSQL and
-polls them with a worker. Interest retention makes consumer provisioning part
-of publish correctness, while the current broad Activity durable acknowledges
-many events as no-ops. JetStream is not the authoritative store for domain
-state or a permanent event archive.
+The Phase 0 baseline published database outbox rows through three instances
+of one relay into a shared `MYOTA_EVENTS` stream capturing both
+`myota.events.>` and `myota.geodata.>` with Interest retention. At that time
+the stream also held Activity notification and four Geodata work durables, and
+Activity accepted asynchronous jobs through a database poller. Phases 2–5
+moved accepted work to dedicated WorkQueue streams and retired the Geodata
+durables. Phase 6 changed the shared stream to bounded Limits retention and
+removed the legacy Geodata subject capture. JetStream remains delivery
+infrastructure, not the authoritative store for domain state or a permanent
+event archive.
 
 The source scan and row-level evidence are in the
 [Phase 0 inventory](../../operations/messaging/nats-event-migration-inventory.md).
@@ -39,12 +40,14 @@ Create three streams with disjoint subject namespaces:
 | `MYOTA_ACTIVITY_WORK` | `myota.work.activity.>` | WorkQueue | Competing Activity worker commands |
 | `MYOTA_GEODATA_WORK` | `myota.work.geodata.>` | WorkQueue | Competing Geodata worker commands |
 
-Use file storage. Set finite `MaxAge`, `MaxBytes`, `MaxMsgs`, and
-`MaxMsgSize` on all streams, with `DiscardNew` so capacity pressure rejects
-new publishes and allows database outbox relays to apply backpressure. Select
-numeric limits from measured traffic, allocated storage, maximum job duration,
-and recovery service objectives before implementation. Do not leave limits
-unbounded.
+Use file storage. All streams use finite `MaxAge`, `MaxBytes`, `MaxMsgs`,
+and `MaxMsgSize`, with `DiscardNew` so capacity pressure rejects new
+publishes and allows database outbox relays to apply backpressure. The accepted
+single-node caps are Events 1 GiB/500,000 messages/1 MiB, Activity work
+1 GiB/250,000/1 MiB, and Geodata work 3 GiB/500,000/1 MiB, all with a 30-day
+age and one replica. These are conservative initial caps, not a claim of
+measured peak or outage capacity. Do not raise them without representative
+30-day serialized traffic and outage-backlog evidence.
 
 Facts use `myota.events.<eventType>`, preserving the dotted event type and
 version suffix. For example,
@@ -129,15 +132,15 @@ protects against node loss but adds storage and write load and does not improve
 write throughput.
 
 Use one controlled, drift-checked provisioner for stream and durable
-configuration; relay replicas must not race to mutate broker topology. Stop
-relays and inspect stream state before changing the current
-`MYOTA_EVENTS` retention from Interest to Limits because the transition
-applies immediately and cannot restore messages already removed. Create the two
-WorkQueue streams on their new disjoint subjects; WorkQueue is not a live
-retention conversion. Provision durables before routing producers. Move pending
-legacy Geodata outbox rows through one publish path without dual-publishing.
-Drain legacy messages and consumers only after rollback and database recovery
-checks pass.
+configuration; relay replicas do not mutate broker topology. The Phase 6
+pre-upgrade hook changed the existing `MYOTA_EVENTS` stream from Interest to
+Limits only after verifying its exact legacy config, zero messages/bytes, and
+one drained Activity notification durable. The legacy Geodata subject capture
+had no remaining durable or message. The existing disjoint WorkQueue streams
+and ten durables were validated in the same hook. No event or work path was
+dual-published. The one-time migration flag is disabled after cutover, while
+ordinary all-topology validation stays enabled. The change cannot recover
+facts already expired under Interest; PostgreSQL remains authoritative.
 
 ## Consequences
 
