@@ -1,6 +1,10 @@
 # Structured logging implementation plan
 
-Status: in progress; Phase 1–5 source/configuration work is recorded and a live Identity log/trace smoke has passed. Dashboard query and trace-link fixes are mounted in Helm revision 225 and Grafana logged dashboard provisioning; Fleet release readiness and UI link navigation remain open. Async acceptance, Phase 6 hardening, and Phase 7 database observability remain open.
+Status: in progress; Phase 1–5 source/configuration work is recorded and a live
+Identity log/trace smoke has passed. Dashboard query and trace-link fixes are
+mounted in Helm revision 225, and Grafana logged dashboard provisioning. Fleet
+release readiness and UI link navigation remain open. Async acceptance, Phase 6
+hardening, and Phase 7 database observability remain open.
 
 Parent: [MyOTA observability](overview.md)
 
