@@ -11,8 +11,8 @@
 - [JetStream administration history](jetstream-admin-status.md) — retired Admin page behavior and cutover evidence.
 - [NATS event migration plan](nats-event-migration-plan.md)
   — Phases 0–6 are complete within their documented evidence bounds.
-  Helm revision 211 is deployed; MyOTA Fleet is Ready=True at Deploy commit
-  `16af2edf6b8e868904f9284e481d971ae7d6d38c`. `MYOTA_EVENTS` uses bounded
+  Helm revision 213 is deployed; MyOTA Fleet is Ready=True at Deploy commit
+  `de01650e19b88bc99a11ede1f25694202c8c8d17`. `MYOTA_EVENTS` uses bounded
   Limits retention and captures only registered facts; Activity and Geodata
   work remain on separate WorkQueue streams. The migration flag is disabled
   and topology drift validation remains enabled. The user explicitly waived
