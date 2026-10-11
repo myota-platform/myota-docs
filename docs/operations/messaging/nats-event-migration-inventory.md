@@ -790,7 +790,7 @@ Geodata durables had already been retired by Phase 5. Helm revision 211 disabled
 the one-time migration flag; current Helm revision 213 is deployed with that
 flag off and all-topology drift validation enabled. MyOTA Fleet is Ready=True
 at Deploy main commit
-`de01650e19b88bc99a11ede1f25694202c8c8d17`; all MyOTA Deployments have their
+`dfc423d26bd79a82b1177b9e5d51e2d1196580c9`; all MyOTA Deployments have their
 desired replicas ready. Operations continues read-only metadata inspection.
 Existing NATS Surveyor dashboards and alerts remain in use; Phase 6 added no
 metrics, shadow traffic, or canary work.
