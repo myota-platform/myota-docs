@@ -110,7 +110,8 @@ sources are deployed. At 00:35:46 UTC on 11 October, all thirteen expressions
 in dashboard 16256 were executed through Grafana's live /api/ds/query endpoint
 against the provisioned Prometheus datasource. Each returned HTTP 200, one data
 frame, and no query error; representative values are recorded in the
-evidence record. This closes the post-rollout query check. Do not claim every
+[evidence record](evidence/2026-10-11-nats-surveyor-cutover.md). This closes
+the post-rollout query check. Do not claim every
 upstream panel has live data on this topology or represent absent series as
 zero.
 
