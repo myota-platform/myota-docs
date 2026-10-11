@@ -80,7 +80,7 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   replacement Geodata durables, migration 021, and the Interest-retained
   MYOTA_EVENTS stream remain. Phase 6 fact-stream retention is separate.
   NATS monitoring is centralized by the live Surveyor exporter and Grafana
-  dashboards. Helm revision 207 is Fleet Ready; the completed cutover evidence
+  dashboards. Helm revision 208 is Fleet Ready; the completed cutover evidence
   is documented in the [Surveyor/Grafana roadmap](docs/observability/nats-surveyor-migration.md).
 - Track accepted backlog in [To do](docs/to-do/README.md) and active delivery
   and verification in [Work in progress](docs/work-in-progress/README.md).
@@ -113,7 +113,7 @@ NATS migration status on 11 October 2026:
   are healthy; the Operations snapshot table/index were removed by migration
   005 after backup verification, while storage history remains. A temporary
   in-memory validation stream was deleted. Fleet is Ready=True on Deploy main
-  commit `f43d600380803e86292e7e0010bfc1655b1a5d2a`, with 64/64 resources and
+  commit `d0d2f50846fe2c9e239d46a48809860f4b98d7f5`, with 64/64 resources and
   matching applied/desired IDs. Phase 2 is complete. See the
   [monitoring consolidation plan](docs/observability/nats-surveyor-migration.md).
 
