@@ -233,11 +233,10 @@ Deliverables:
 - [x] OTel Collector Loki exporter path;
 - [x] Grafana Loki datasource provisioning;
 - [x] configurable 14-day Loki retention, enforced by the Loki compactor;
-- [ ] no separate MyOTA or SeaweedFS cleanup worker or object-store lifecycle policy
+- [x] no separate MyOTA or SeaweedFS cleanup worker or object-store lifecycle policy
   for Loki retention;
 - [x] Focused OTLP-to-Loki smoke check and SeaweedFS configuration check.
-- [ ] Restart, retention-expiry, and Compose/Helm parity acceptance checks.
-  and Compose/Helm parity.
+- [ ] Restart, retention-expiry, and full Compose/Helm parity acceptance checks.
 
 Implementation prompt:
 [Phase 2 ChatGPT prompt](prompts/logging-phase-2-loki-platform.md)
@@ -255,7 +254,7 @@ Deliverables:
 - [x] W3C `traceparent` / `tracestate` handling;
 - [x] consistent server spans rather than isolated manual spans;
 - [x] error classification without leaking request bodies;
-- [ ] tests for 2xx, 4xx, 5xx and propagated trace context.
+- [x] tests for 2xx, 4xx, 5xx and propagated trace context.
 
 Implementation prompt:
 [Phase 3 ChatGPT prompt](prompts/logging-phase-3-http-tracing.md)
@@ -289,6 +288,17 @@ job.failed
 
 Standard messaging fields should include `messaging.system=nats`, destination,
 message/event ID, operation, and delivery attempt where available.
+
+Deliverables:
+
+- [x] lifecycle logs for Activity work and notification consumers;
+- [x] lifecycle logs for Geodata import processing;
+- [x] lifecycle logs for Identity maintenance and Deploy outbox relay;
+- [x] NATS consumer/producer spans and W3C header propagation helpers, with focused helper tests;
+- [x] Activity ADIF retention lifecycle logs;
+- [ ] Geodata import-retention source-owner coverage and validation;
+- [ ] deployed-worker retry/ACK and asynchronous end-to-end correlation acceptance;
+- [ ] stable `correlation_id` evidence for event types whose source envelopes currently omit it.
 
 Implementation prompt:
 [Phase 4 ChatGPT prompt](prompts/logging-phase-4-workers-nats.md)
