@@ -30,9 +30,11 @@ flowchart LR
 ```
 
 The current structured-logging rollout uses the existing Collector, Tempo, and
-Prometheus plus Loki. Phase 1–5 source/configuration work is recorded, but
-current service image digests and live request-to-worker correlation still need
-acceptance. The PostgreSQL-to-Collector edge is **proposed** and remains disabled
+Prometheus plus Loki. Phase 1–5 source/configuration work is recorded. Identity, Programme,
+Activity, Operations and Deploy worker images are rolled out, while Geodata
+remains on its prior digest after a failing worker integration job. A live
+Identity request trace was not found in Loki, so request-to-worker correlation
+still needs acceptance. The PostgreSQL-to-Collector edge is **proposed** and remains disabled
 until a dedicated read-only monitoring login and Phase 7 verification exist. See
 the [logging implementation plan](../../observability/logging-implementation.md)
 and [evidence](../../observability/evidence/logging-implementation-2026-10-11.md).
