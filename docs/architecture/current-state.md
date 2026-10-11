@@ -12,8 +12,8 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 | Area | Verified state |
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
-| Helm/Fleet | Release `myota`, chart `myota-0.2.14`, revision `249`, status `deployed`. Fleet GitRepo is Ready 1/1 at Deploy commit `12251ff0ccea4c01ac039cc85cd1ee44e29d1b95`; applied and desired deployment IDs match. All 67/67 resources and 23/23 Deployments are Ready. |
-| MyOTA Deployments | 23/23 report desired replicas ready. The admin web is deployed; `myota-web` participant client is not a Deployment in this namespace. |
+| Helm/Fleet | Release `myota`, chart `myota-0.2.14`, revision `257`, status `deployed`. Fleet GitRepo is Ready 1/1 at Deploy commit `f37a1fa8b5f3f5c0eb639c7125fcc9ab0fe323b8`; the MyOTA bundle is deployed and monitored. All 23 Deployments and 27/27 desired replicas are Ready. |
+| MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas). The admin web is deployed; `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
 | Monitoring | NATS Surveyor 0.9.11, Prometheus 2.55.1, Grafana 11.2.2, Alertmanager 0.28.1, OTel Collector 0.135.0, Tempo 2.6.1, and Loki 3.7.8. Eleven NATS dashboards are in Grafana folder `NATS`. |
@@ -30,17 +30,17 @@ does not prove that its image is deployed; deployed image digests are separate.
 
 | Repository | `main` commit |
 |---|---|
-| [Identity](https://github.com/myota-platform/myota-identity-service) | `a503fbeffdc4d8a3ae9aeeee3607d81e5ea891fc` |
-| [Programme](https://github.com/myota-platform/myota-programme-service) | `ae65e0e9b80173e710e1265da804c3bd9cd3cbdc` |
-| [Activity](https://github.com/myota-platform/myota-activity-service) | `3095559cac35f3c0c9a8d021c387e298ac0cf95b` |
-| [Geodata](https://github.com/myota-platform/myota-geodata-service) | `09022bef0a57b392372100afabbd268db58149bc` (bounded load-test harness only; deployed image unchanged) |
-| [Operations](https://github.com/myota-platform/myota-operations-service) | `1b528971b2a60aab1206d51709853df13bec64c7` |
+| [Identity](https://github.com/myota-platform/myota-identity-service) | `88fe60d7a4e867124d646a381931e7a8172988ce` |
+| [Programme](https://github.com/myota-platform/myota-programme-service) | `079bbea397ed6f35aa307f98c3e2bf1dd2f2c059` |
+| [Activity](https://github.com/myota-platform/myota-activity-service) | `13cdef14b2da78bd55d8ce3c06a202cb9fffcebc` |
+| [Geodata](https://github.com/myota-platform/myota-geodata-service) | `e0e5326376e3c7549113b69f7e5cbdfa3867e7ae` |
+| [Operations](https://github.com/myota-platform/myota-operations-service) | `b3851dddc80a2186f29738cafad74532dac64f74` |
 | [Contracts](https://github.com/myota-platform/myota-contracts) | `cce166ab6f7efef053bc395213fb2d9e2f9583de` |
-| [Deploy](https://github.com/myota-platform/myota-deploy) | `12251ff0ccea4c01ac039cc85cd1ee44e29d1b95` |
-| [Platform](https://github.com/myota-platform/myota-platform) | `eb79df05b6760902e2e88d3cc2c7d9fc8bf8e503` |
+| [Deploy](https://github.com/myota-platform/myota-deploy) | `f37a1fa8b5f3f5c0eb639c7125fcc9ab0fe323b8` |
+| [Platform](https://github.com/myota-platform/myota-platform) | `5924f3dc7e32b7396efba46a180ef96cd082af9e` |
 | [Participant web](https://github.com/myota-platform/myota-web) | `0e6cb4cb03a1bdfac03c288d90af540fba917279` |
 | [Admin web](https://github.com/myota-platform/myota-admin-web) | `9d54cc635b7d5411fee6b18d963dc6788a92a43c` |
-| [.github](https://github.com/myota-platform/.github) | `3bfe081b6b39bfc725fdb086c206a4b12c1b978f` |
+| [.github](https://github.com/myota-platform/.github) | `ab0d945edd534de28343b2a6c5d1192cf1e8cb81` |
 
 ### First-party images observed in K3s
 
@@ -49,11 +49,11 @@ does not prove that its image is deployed; deployed image digests are separate.
 | Identity | `ghcr.io/myota-platform/myota-identity-service@sha256:aaf698323ffa791f1ea27cec257a88bb5f5183bab7ca247fb96cad26097d9cd2` |
 | Programme | `ghcr.io/myota-platform/myota-programme-service@sha256:a1d5bd214248c82f41524286a41c82aacb778d36d0f75899421cd60ecc3ec7e2` |
 | Activity API and workers | `ghcr.io/myota-platform/myota-activity-service@sha256:557d2a3ad82ecde994cec9793da56ad3cf830e50aaf986a14cfab81f67ccf1b7` |
-| Geodata API and workers | `ghcr.io/myota-platform/myota-geodata-service@sha256:7599c09acecf9cbffd8d4f147af04ea2dc2ff95886464d1e08c047ef1daedd58` |
+| Geodata API and workers | `ghcr.io/myota-platform/myota-geodata-service@sha256:6b8fc171db83883da8cad0fc8739b6188d07777f3f3bb071fd09e443e5c27111` |
 | Operations | `ghcr.io/myota-platform/myota-operations-service@sha256:88078ff3aae873aa820ed40c04916e3b9aa4ac106404c1916179a26aeb07bfc8` |
 | Admin web | `ghcr.io/myota-platform/myota-admin-web@sha256:95e8279247d61f8395907c57294d4e1102615554766ecff9768ac41f40388fb5` |
 | Gateway | `ghcr.io/myota-platform/myota-gateway@sha256:cebd69cf7bfde4dbfe65c16dd1d17e9ac25b8f0c9b894797de0dc392f398b6cf` |
-| Shared runtime | `ghcr.io/myota-platform/myota-service@sha256:b2a71773f4fd4281e3cd55f314ddbd101d5a1a2b22df7a3ac8c0c4cef2ae4ca8` |
+| Shared runtime | `ghcr.io/myota-platform/myota-service@sha256:8050be67423e234c2fad94e5beb6179e34bb692d0b49274d30dc5f7966333f0b` |
 
 ## NATS streams and ownership
 

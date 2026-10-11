@@ -126,6 +126,14 @@ above the configured slow-query threshold. A guarded non-production tool
 captures actual `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` plans; see the
 [geodata load and query-evidence runbook](../geodata/evidence/load-test-and-query-evidence.md).
 
+Each Geodata process initializes one tracing provider during logging startup.
+HTTP telemetry reuses that provider and a process-wide metrics instance;
+repeated access cannot register another global provider. Telemetry exporter
+setup remains best-effort: a safe warning identifies setup failures while the
+API continues to serve requests. See the
+[TracerProvider repair evidence](evidence/geodata-tracerprovider-2026-10-11.md)
+for the duplicate initialization path and deployed verification.
+
 SeaweedFS exposes master and S3 request metrics together on its private
 Prometheus listener (Helm default: 9324). A live check confirmed S3 counters
 and request-duration histograms on this endpoint; the previously configured

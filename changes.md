@@ -19,12 +19,19 @@
 
 ## 11 October 2026 — Geodata TracerProvider warning issues
 
-- Created linked source and deployment issues for the reported
-  `Overriding of current TracerProvider is not allowed` warning. The Geodata
-  issue tracks root-cause analysis and an idempotent provider fix; the Deploy
-  issue tracks configuration audit, image rollout, and live verification.
-- The current Geodata source calls the process-global provider setter inside
-  `telemetry_for()`; this is an investigation lead, not a confirmed root cause.
+- Confirmed two process-global tracing provider registrations: startup
+  `configure_logging()` installs the provider through `configure_tracing()`,
+  then the first HTTP request previously created and registered another
+  provider in `otel.telemetry_for()`. Repeated access under another service
+  name could repeat that attempt.
+- Geodata now uses one process-wide telemetry object and reuses the existing
+  tracing API provider. Setup failures are logged with bounded diagnostics
+  and leave HTTP handling available. Deploy and Platform runtime mirrors and
+  all copies of the shared logger are synchronized; immutable images were
+  built and pinned for Fleet.
+- The startup/request regression checks, repository workflows, host readiness,
+  and a non-mutating `/healthz` trace are recorded in the
+  [TracerProvider repair evidence](docs/observability/evidence/geodata-tracerprovider-2026-10-11.md).
   See [Geodata #7](https://github.com/myota-platform/myota-geodata-service/issues/7)
   and [Deploy #14](https://github.com/myota-platform/myota-deploy/issues/14).
 
