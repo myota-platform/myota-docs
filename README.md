@@ -117,12 +117,12 @@ NATS migration status on 11 October 2026:
 
 Structured logging implementation status on 11 October 2026:
 
-- Phase 1–5 source/configuration work is recorded; Phase 6 hardening and Phase 7
-  PostgreSQL/PostGIS telemetry remain open.
-- Loki and the OpenTelemetry Collector are Ready. Identity, Programme, Activity,
-  Operations and Deploy worker images rolled out. Geodata image publication is
-  blocked by its worker-delivery integration tests, and an Identity trace probe
-  did not appear in Loki, so live trace/log acceptance remains open.
+- Identity, Programme, Activity, and Geodata logging images are live. A safe
+  Identity health request has a matching Loki record and Tempo span; live
+  dashboard query shapes work against structured metadata.
+- Deploy and Platform contain metadata-aware Grafana query and trace-link fixes.
+  Fleet rollout and UI navigation, async correlation, Phase 6 hardening, and
+  Phase 7 PostgreSQL/PostGIS telemetry remain open.
 - See the [logging implementation plan](docs/observability/logging-implementation.md),
   [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md),
   and [logging operations runbook](docs/observability/logging-runbook.md).
