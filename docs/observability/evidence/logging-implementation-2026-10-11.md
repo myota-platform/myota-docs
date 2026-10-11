@@ -19,7 +19,7 @@ Documentation and phase evidence are owned by `myota-docs`.
 | 2 — Loki platform | Deploy-owned Loki uses TSDB and SeaweedFS bucket `myota-loki`, 14-day compactor retention, a bounded working volume, and the existing Collector OTLP logs path. Grafana Loki datasource is provisioned. Loki and Collector are Ready in K3s. A disposable OTLP-to-Loki smoke test passed and its namespace was removed. | Compose was not started for parity/restart qualification. Long-term object-store growth and production retention behavior have not been observed. |
 | 3 — HTTP tracing | Shared HTTP path emits completion events, normalizes routes, extracts/injects W3C trace context, and adds response trace IDs. Tests cover success, authorization failure, server error, and propagation. A live Identity health request now has a matching structured-metadata log and Tempo server span. | Exercise the Grafana link after its corrected datasource provision is deployed; qualify HTTP-to-worker correlation across services. |
 | 4 — workers and NATS | Activity worker, notification consumer, Geodata worker, Identity maintenance, and Deploy outbox relay have structured lifecycle logs and messaging spans/headers. Sensitive payloads and exception text remain excluded. Helper propagation tests passed. | Worker retry/ACK integration and end-to-end async correlation have not been accepted against the live images. Some event/outbox envelopes do not carry a `correlation_id`; no synthetic business ID is added. Verify the Geodata Deploy mirror against its authoritative implementation. |
-| 5 — Grafana correlation | Dashboard queries without `| json` and with `severity_text` returned successfully against live Loki structured metadata. Helm ConfigMap/mount and dashboard provisioning were observed. Deploy/Platform now provision a `trace_id` metadata-derived field. | The corrected datasource/dashboard revisions have not yet rolled out. Verify actual Grafana log-to-trace and trace-to-log navigation after Fleet applies them; useful links from other dashboards remain open. |
+| 5 — Grafana correlation | All seven queries from the mounted dashboard returned successfully against live Loki structured metadata. Helm ConfigMap/mount, Grafana dashboard provisioning, and the label-type `trace_id` derived-field config were observed in revision 225. | Authenticated Grafana log-to-trace and trace-to-log clicks remain unverified; links from other operational dashboards remain open. |
 
 ## Phase 1–5 implementation references
 
@@ -48,10 +48,10 @@ Documentation and phase evidence are owned by `myota-docs`.
 ## Host and CI evidence
 
 - K3s namespace: `myota`; Deploy is authoritative for Helm and Platform is
-  its synchronized mirror. At the latest check, Helm revision 223 was deployed;
-  all application, worker, Loki, Collector, Grafana, and Tempo workloads were
-  Ready. Fleet had applied Deploy commit
-  `0bd491fa5ffd92a0a46c9aaf0978fad88bd4d872`.
+  its synchronized mirror. Helm revision 223 deployed the service image digests; revision 225 mounted the
+  corrected Grafana assets. All application, worker, Loki, Collector, Grafana,
+  and Tempo workloads were Ready. Grafana logged dashboard provisioning, while
+  Fleet still reported `WaitApplied(1)` at the final check.
 - Running service digests:
 
 | Owner | Running image digest | Build evidence |
@@ -100,6 +100,12 @@ Documentation and phase evidence are owned by `myota-docs`.
 
 Phase 6 is **not complete**. The following decisions apply until the live
 acceptance gates are run:
+
+- Initial Loki counter sample at 2026-10-11 02:37:48 UTC: since Loki pod start
+  at 01:25:13 UTC, distributor counters recorded 1,759,104 OTLP bytes, including
+  1,710,086 structured-metadata bytes and 2,185 log lines. This is a single,
+  roughly 73-minute post-restart sample, not a representative daily rate or a
+  capacity threshold. SeaweedFS bucket growth has not yet been measured.
 
 - Keep Loki labels restricted to `service_name`, `service_namespace`,
   `deployment_environment`, `severity`, and `component`. Request, trace,
