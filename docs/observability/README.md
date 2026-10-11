@@ -5,7 +5,7 @@
 - [Metrics, traces, dashboards, and alerts](overview.md)
 - [Geodata and PostGIS query evidence](../geodata/evidence/load-test-and-query-evidence.md)
 - [NATS Surveyor and Grafana monitoring consolidation](nats-surveyor-migration.md)
-  — live cluster monitoring set and dashboard compatibility limits; Phase 2 awaits Fleet reconciliation.
+  — live cluster monitoring set and dashboard compatibility limits; Phase 2 retirement is complete.
 - [Retired JetStream status page](../operations/messaging/jetstream-admin-status.md)
   — historical behavior and current migration status.
 - [SeaweedFS storage page and Grafana role mapping](../operations/storage/seaweedfs-admin-status.md)
