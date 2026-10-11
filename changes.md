@@ -1,3 +1,17 @@
+## 11 October 2026 — Operations Service retirement and OpenTelemetry migration
+
+- Retired the Operations workload, API route/client, image publishing, and
+  snapshot tables. Direct least-privilege Collector receivers own PostgreSQL
+  metrics; Gateway and Identity own Grafana authorization.
+- Normalized monitor credentials and synchronized PostgreSQL roles. Live
+  metrics were verified for all databases; unauthenticated Grafana auth
+  returns 401 and `Cache-Control: no-store`.
+- Helm 0.2.20 revision 272 is deployed and Fleet Ready with 23 Deployments
+  and 27 replicas. Operations snapshot tables are absent.
+- Repository archival remains pending because the connector exposes no archive
+  operation. See [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3)
+  and [retirement evidence](docs/operations/evidence/operations-service-retirement-2026-10-11.md).
+
 ## 11 October 2026 — Observability dashboard enhancements
 
 - Added a Helm-only K3s workload dashboard using namespace-scoped

@@ -1,5 +1,5 @@
 Status: Structured logging and bounded request correlation are implemented.
-As of 11 October 2026 21:36 UTC, Helm revision 261 is deployed from Deploy
+As of 11 October 2026 22:53 UTC, Helm revision 272 is deployed from Deploy
 main `26d13abaef55f1c545d0fff3b8003f2572bd5483`; Fleet is reconciling the
 same chart and all 23 Deployments and 27/27 replicas are Ready. Identity and
 Programme request metrics now return successfully and are visible in
@@ -46,13 +46,9 @@ flowchart LR
   OTel --> Tempo
   OTel --> Loki
   Postgres[PostgreSQL + PostGIS]
-  Operations[Operations service
-only for unsupported DB-specific telemetry]
   Postgres -->|PostgreSQL receiver metrics| OTel
   Postgres -->|database logs via OTLP/filelog| OTel
   Services -->|instrumented database client spans| OTel
-  Postgres -.->|fallback for unsupported signals| Operations
-  Operations -->|OTLP / existing scrape path| OTel
   Grafana --> Prom
   Grafana --> Tempo
   Grafana --> Loki
@@ -78,8 +74,7 @@ the first implementation.
    logs are used for investigation and exceptional-event alerts.
 8. Compose and Helm must remain functionally aligned.
 9. Prefer direct OpenTelemetry collection/instrumentation for PostgreSQL and
-   PostGIS telemetry; use the operations service only for database signals that
-   cannot be collected safely and reliably through direct integrations.
+   PostGIS telemetry; using least-privilege database roles. Keep authentication and authorization at service boundaries.
 
 ## Correlation model
 
@@ -388,41 +383,34 @@ Implementation prompt:
 
 ### Phase 7 - PostgreSQL and PostGIS database observability
 
-Add bounded database health and workload telemetry through the existing
-OpenTelemetry and Prometheus stack. Direct Collector PostgreSQL receivers were
-tested and failed authentication with the same Secret that worked for read-only
-psql. The accepted implementation uses the Operations service as a bounded,
-read-only adapter. Do not add query sampling or statement logging.
+**Status:** Complete on 11 October 2026. The Deploy-owned Collector reads
+bounded health metrics from Core, Activity, and Geo through separate
+least-privilege roles. DB images do not enable TLS, so traffic remains
+cluster-internal plaintext. Query samples, top queries, raw statement logs,
+and high-cardinality database measurements remain disabled.
 
-Deliverables:
+- [x] Database-scoped monitor roles have catalog-only grants.
+- [x] Trailing newlines were removed from monitor credentials, PostgreSQL
+  roles synchronized, and Collector restarted.
+- [x] Non-empty backend, database-size, commits, rollbacks, and deadlock
+  series were verified for all DBs; authentication failures stopped.
+- [x] Operations sampler, routes, workload, image reference, and snapshot
+  tables are retired; Activity and Geo have no Operations tables.
+- [x] Gateway's internal `/_internal/grafana/auth` checks live Identity
+  sessions/roles; unauthenticated requests return 401 and `no-store`.
+- [x] Database spans are scrubbed of SQL statements, query text, and parameters.
+- [x] Dashboards use live Collector metrics and disclose unavailable
+  transaction-age, cache, and vacuum/freeze measurements.
 
-- [x] Read-only monitor roles provisioned for core, Activity, and Geo; the
-  Operations sampler uses fixed database names and read-only transactions.
-- [x] PostgreSQL availability, connection use, database size, commit/rollback,
-  blocks-read, and deadlock metrics are active in Prometheus for all three
-  databases.
-- [x] Psycopg client spans use pinned instrumentation with parameter capture
-  and SQL commenter disabled; the Collector removes SQL-bearing attributes
-  before Tempo export. A live read-only span check found no SQL statement,
-  query text, or parameter attributes.
-- [x] Geo PostGIS extension presence and bounded version are reported. Existing
-  Geodata application instrumentation remains the owner of query-performance
-  measurements; no database-wide spatial index scans are added.
-- [x] The PostgreSQL/PostGIS dashboard reads the live Operations metrics and is
-  provisioned in Compose and Helm.
-- [x] Decision: do not collect raw PostgreSQL server statement logs. They can
-  include SQL literals and user data. Aggregate DB counters plus sanitized
-  application and Operations error logs provide the required operational
-  signal without adding a second sensitive log path.
-- [ ] Full Compose runtime parity remains open because Docker/Compose is not
-  installed on the host. YAML parsing, Helm validation, Collector validation,
-  and the live Helm rollout passed.
+Helm 0.2.20 revision 272 is deployed; Fleet is Ready with 23 Deployments and
+27 replicas. Compose source removes Operations and has static checks; runtime
+Compose could not be tested because Docker/Podman are not installed.
 
-Do not expose SQL literals, bind parameters, user data, or complete geometry
-payloads. Do not duplicate database measurements already owned by applications.
+See [retirement evidence](../operations/evidence/operations-service-retirement-2026-10-11.md)
+and [Deploy issue #9](https://github.com/myota-platform/myota-deploy/issues/9).
 
 Implementation prompt:
-[Phase 7 ChatGPT prompt](prompts/logging-phase-7-database-observability.md)
+[Phase 7 prompt](prompts/logging-phase-7-database-observability.md)
 
 ## Phase dependencies
 

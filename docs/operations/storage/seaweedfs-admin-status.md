@@ -46,8 +46,7 @@ detail. A panel is retained only when its query is backed by a deployed metric.
 dashboard JSON, alerts, Compose and Helm configuration. `myota-platform` carries
 synchronized bootstrap mirrors. The private SeaweedFS metrics endpoint remains
 scraped by the existing Collector; no separate Operations polling path or
-database history is used. Operations retains bounded read-only PostgreSQL/PostGIS metrics and
-current-identity Grafana role resolution. It has no NATS connection or
+database history is used. Operations is retired. Collector owns PostgreSQL metrics; Gateway and Identity own Grafana authorization. Repository archive remains in [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). It has no NATS connection or
 SeaweedFS monitoring API.
 
 The dashboard source is

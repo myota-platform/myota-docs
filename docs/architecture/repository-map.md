@@ -5,11 +5,11 @@ The following split is justified and intentionally small:
 | Repository | Owns | Current implementation / artifacts |
 |---|---|---|
 | `myota-contracts` | OpenAPI, event schemas, compatibility rules, generated client release | `contracts/` |
-| `myota-identity-service` | accounts, callsigns, auth claims, OIDC mappings and assignable operations permissions | `identity.py`, `run_identity.py` |
+| `myota-identity-service` | accounts, callsigns, auth claims, OIDC mappings and live roles and derived scopes | `identity.py`, `run_identity.py` |
 | `myota-programme-service` | programmes, shared entity category master data and programme assignments, programme-owned rules and themes | `programmes.py`, `run_programmes.py` |
 | `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, staged dataset intake, source decoding and durable domain workers | `geodata.py`, `geodata_routes.py`, `relational_state.py`, `relational_queries.py`, `geodata_import_worker.py`, `migrations/` |
 | `myota-activity-service` | activations, normalized/indexed QSOs, COPY/ADIF ingestion, activity aggregates, corrections, programme-owned award definitions and versioned progress, object-storage assets, requests, rendering, notifications, statistics and issuance records | `activity.py`, `awards.py`, `activity_repository.py`, `activity_worker.py`, `migrations/` |
-| `myota-operations-service` | bounded read-only PostgreSQL/PostGIS metrics and current-identity Grafana role resolution; no SeaweedFS sampler/history, NATS connection, or business-domain queue processing. Surveyor owns broker monitoring. | `operations.py`, `postgres_observability.py`, operations-owned core migrations |
+| `myota-operations-service` | Retired historical implementation; not deployed and no longer publishes images. Repository archive pending issue #3. | historical source; archive tracked in [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) |
 | `myota-web` | universal programme UI, published award progress and participant requests | `web/` |
 | `myota-admin-web` | Vue 3/TypeScript administration, programme context, grouped workspaces, resumable import intake, review queues, award designer, asset management, and operational views | `src/`, `public/vendor/` |
 | `myota-deploy` | Helm charts, environments, migration orchestration, Compose, worker deployments, observability | `deploy/helm/myota/`, `db/migrations/`, `compose.yaml` |
@@ -27,12 +27,7 @@ geodata repository is the source of truth for its complete ordered migration
 set in `migrations/`; `myota-platform/db/migrations/geo/` is the synchronized
 vertical-slice bootstrap mirror and `myota-deploy/db/migrations/geo/` is the
 synchronized deployment mirror. The mirrors must not be edited independently.
-Operational history is owned by `myota-operations-service/migrations/001_operations.sql`
-and mirrored as core deployment migration `002_operations.sql`. The retired
-SeaweedFS snapshot table is dropped by Operations migration
-`migrations/003_retire_storage_snapshots.sql`, mirrored as core migration
-`006_retire_storage_snapshots.sql`; the original creation migration remains
-unchanged. SeaweedFS monitoring is owned by Deploy's OpenTelemetry Collector
+The historical Operations schema originated in `myota-operations-service/migrations/001_operations.sql` and was mirrored as core migration `002_operations.sql`. Forward-only Deploy migrations retired both snapshot tables; they are absent from live Core. Creation migrations remain unchanged for integrity. SeaweedFS monitoring is owned by Deploy's OpenTelemetry Collector
 and Grafana provisioning, with synchronized Platform mirrors. Geodata-local
 idempotency, audit and outbox tables belong to its physical database; they are
 not shared across database boundaries. This keeps schema
@@ -43,9 +38,7 @@ The NATS monitoring consolidation in
 [observability](../observability/nats-surveyor-migration.md) is complete within
 its recorded evidence bounds. Surveyor and Grafana provisioning are Deploy
 owned; retired service monitoring and synchronized Platform copies are tracked
-by their respective owners. Operations has no NATS connection; Surveyor owns
-broker monitoring. Operations no longer samples SeaweedFS and retains only
-bounded PostgreSQL/PostGIS metrics and Grafana identity/role resolution. See the
+by their respective owners. Operations is retired from Compose, Helm/Fleet, API routes, and image publishing. Deploy's Collector owns database telemetry; Gateway and Identity own Grafana authorization. Platform mirrors Deploy configuration. Repository archive remains in [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). See the
 [cross-repository architecture review](../../REVIEW.md) for the completed
 Phases 1–4 and the remaining duplicate-YAML-key check. Detailed CI and K3s
 results are in the [phase evidence record](evidence/review-phases-1-4-2026-10-11.md).

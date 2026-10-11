@@ -13,7 +13,6 @@ The physical database ownership is:
 flowchart LR
   Core[(myota_core\nPostgreSQL)] --> Identity[Identity]
   Core --> Programme[Programmes + configuration]
-  Core --> Operations[Storage history and Grafana role mapping]
   Activity[(myota_activity\nPostgreSQL)] --> Execution[Activations + QSOs]
   Activity --> Awards[Awards + aggregates]
   Geo[(myota_geo\nPostgreSQL + PostGIS)] --> Entities[Entities + categories]
@@ -174,7 +173,7 @@ erDiagram
     jsonb event
     timestamptz occurred_at
   }
-  OPERATIONS_JETSTREAM_SNAPSHOT {
+  RETIRED_OPERATIONS_JETSTREAM_SNAPSHOT {
     bigint id PK
     bigint capture_slot UK
     timestamptz captured_at
@@ -291,7 +290,6 @@ erDiagram
 
 
 The Operations-owned JetStream snapshot table and history index were removed
-by the forward migration after Surveyor became the broker observer. Operations
-storage history remains. No overlap period is required. See the
+by the forward migration after Surveyor became the broker observer. Operations storage history is retired; both snapshot tables are absent. No overlap period is required. See the
 [NATS monitoring consolidation plan](../../observability/nats-surveyor-migration.md)
 and [cutover evidence](../../observability/evidence/2026-10-11-nats-surveyor-cutover.md).

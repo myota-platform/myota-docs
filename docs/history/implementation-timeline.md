@@ -1,3 +1,22 @@
+## 11 October 2026 — Operations Service retirement and OpenTelemetry migration
+
+- **Prompt used:** “Work on and complete all issues related to Operations
+  Service retirement and OpenTelemetry migration in
+  https://github.com/myota-platform/.github/blob/main/profile/README.md.”
+- **Scope:** Operations, Deploy, Contracts, Admin UI, Identity, Platform mirror,
+  Docs, and local K3s. Repository archive remains pending in issue #3.
+- **Decisions:** direct least-privilege Collector receivers with query capture
+  disabled; internal plaintext because DB images do not enable TLS; Grafana
+  authorization remains in Gateway and Identity.
+- **Result:** Operations is absent from runtime, API clients, deployment
+  manifests, image publishing, and Operations-only schema.
+- **Verification:** Helm 0.2.20 revision 272 is deployed and Fleet Ready with
+  23 Deployments and 27 replicas. Collector metrics for all databases are
+  non-empty; auth failures stopped after credential normalization and role
+  synchronization. Gateway auth returns 401 and `Cache-Control: no-store`
+  without credentials. See
+  [retirement evidence](../operations/evidence/operations-service-retirement-2026-10-11.md).
+
 Warning: truncated output (original token count: 26439)
 Total output lines: 1515
 

@@ -1,5 +1,7 @@
 # Operations
 
+The Operations runtime is retired. Collector owns PostgreSQL telemetry, Gateway and Identity own Grafana authorization, and Surveyor owns NATS monitoring. Repository archive remains pending [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). See [retirement evidence](evidence/operations-service-retirement-2026-10-11.md).
+
 - [Operations runbooks](runbooks.md) — local/production operation, JetStream,
   recovery, storage, and deployment procedures.
 - [Production core setup](production-core.md)

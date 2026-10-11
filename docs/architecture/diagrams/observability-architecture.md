@@ -3,7 +3,6 @@
 ```mermaid
 flowchart LR
   UI[Admin UI]
-  Ops[Operations service]
   DB[(Core, Activity and Geo databases)]
   SW[SeaweedFS]
   NATS[NATS JetStream]
@@ -20,9 +19,10 @@ internal HTTPS]
   Grafana[Grafana]
   InfraRBAC[Infra-owned node metrics RBAC]
 
-  UI -->|Grafana role resolution| Ops
+  UI -->|Grafana auth check| Gateway[API Gateway]
+  Gateway -->|live session and roles| Identity[Identity service]
   SW -->|private S3/master metrics| Collector
-  Ops -->|bounded read-only DB metrics| DB
+  DB -->|least-privilege PostgreSQL receiver| Collector
   NATS -->|internal broker monitoring| Surveyor
   Surveyor -->|15 second scrape| Prom
   KSM -->|30 second scrape| Prom
@@ -61,8 +61,7 @@ private Collector scrape to Prometheus and Grafana; Operations no longer
 samples SeaweedFS or retains its history. The forward migration drops the
 retired `operations_storage_snapshot` table and owned index. Operations
 retains bounded read-only PostgreSQL/PostGIS metrics and Grafana role
-resolution. Direct Collector PostgreSQL receivers remain disabled after
-authentication failures. The active bounded database telemetry path and
+resolution. Direct Collector receivers now collect bounded database metrics with least-privilege credentials; Gateway and Identity own Grafana authorization. The active bounded database telemetry path and
 remaining coverage gaps are documented in the
 [logging roadmap](../../observability/logging-implementation.md).
 
@@ -72,8 +71,8 @@ metrics, not broker messages. Panels that require a multi-server cluster,
 gateway, or multi-node Raft have no corresponding signals in this single-server
 deployment.
 
-The latest verified snapshot is [Helm 0.2.20 revision 265, Fleet deployed, and
-24/24 MyOTA Deployments ready](../current-state.md). Logging acceptance remains
+The latest verified snapshot is [Helm 0.2.20 revision 272, Fleet Ready, and
+23/23 MyOTA Deployments ready](../current-state.md). Logging acceptance remains
 open for authenticated Grafana navigation, request-to-worker correlation,
 Loki privacy/cardinality review, Compose parity, and retention/recovery
 evidence. Readiness is not acceptance closure. See

@@ -26,8 +26,9 @@ canonical/root/Platform mirrors are reconciled.
   capacity, independent writes, node/storage failure, canary, rollback, and
   scaling above three replicas remain unverified; reopen these gates before
   expanding capacity. See the [closure record](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md).
+- [Operations Service retirement](../operations/evidence/operations-service-retirement-2026-10-11.md) — runtime and observability replacements are verified; repository archive remains in [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) because this connector has no archive operation.
 - [Structured logging acceptance](../observability/logging-implementation.md) —
-  Helm revision 265 is deployed and Fleet is ready. Identity
+  Helm revision 272 is deployed and Fleet is Ready with 23 Deployments and 27 replicas. Identity
   request-to-worker correlation and Identity/Programme metrics scraping are
   verified. Programme/Activity/Geodata producer-specific live correlation,
   authenticated Grafana navigation, Loki field privacy, alerts/retention/

@@ -33,7 +33,6 @@ flowchart LR
   G --> P[Programme service\nconfiguration, rules, themes]
   G --> Geo[Geodata service\nPostGIS, imports, review]
   G --> A[Activity service\nactivations, QSOs, awards]
-  G --> Ops[Operations service\nstorage status, metrics, Grafana identity]
   I -. events .-> Bus[(NATS JetStream)]
   P -. events .-> Bus
   Geo -. events .-> Bus
@@ -42,7 +41,6 @@ flowchart LR
   Surveyor --> Prometheus[Broker metrics]
   I --> C[(myota_core\nPostgreSQL)]
   P --> C
-  Ops --> C
   A --> ADB[(myota_activity\nPostgreSQL)]
   Geo --> D[(myota_geo\nPostgreSQL + PostGIS)]
   Admin[QGIS / browser map editor] --> Geo
@@ -64,8 +62,7 @@ retention from service-owned work queues. See
 [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md) and the
 [NATS migration plan](../operations/messaging/nats-event-migration-plan.md).
 
-The Operations service owns storage status, storage history, and Grafana role
-resolution; it has no NATS connection. Broker/server metrics come from the
+Operations is retired from runtime. The Collector reads bounded database statistics through least-privilege roles; Gateway checks live Identity session and role data for Grafana authorization. Repository archival remains pending [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). Broker/server metrics come from the
 cluster-local Surveyor exporter and Prometheus, with eleven dashboards in the
 Grafana `NATS` folder. See the
 [NATS Surveyor monitoring evidence](../observability/nats-surveyor-migration.md).
@@ -79,8 +76,7 @@ Prometheus, Alertmanager, Tempo and the OpenTelemetry Collector are exposed as
 cluster-internal Services only. Grafana is reverse-proxied at
 `/observability/` by the Admin UI web server, not by a separate public
 IngressRoute. The Vue UI mirrors its short-lived MyOTA access token into a
-path-limited, SameSite=Strict cookie; the proxy sends that token to the identity
-API through an Nginx `auth_request` check for every Grafana request. Grafana
+path-limited, SameSite=Strict cookie; Nginx sends that token to Gateway's internal `/_internal/grafana/auth` endpoint; Gateway checks the live Identity session and role. Grafana
 anonymous access and its own login form are disabled, and successful proxy
 authentication maps to a read-only Viewer. Prometheus, Alertmanager and Tempo
 are only reached through Grafana's server-side data sources. See the

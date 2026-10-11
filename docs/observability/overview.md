@@ -1,10 +1,10 @@
 # MyOTA observability
 
 For the latest deployment and repository snapshot, see the
-[Current system state](../architecture/current-state.md). On 11 October 2026 22:07 UTC,
-Helm release `myota` was deployed at revision 265 with chart 0.2.20.
+[Current system state](../architecture/current-state.md). On 11 October 2026 22:53 UTC,
+Helm release `myota` was deployed at revision 272 with chart 0.2.20.
 Fleet reported the MyOTA bundle deployed and monitored at Deploy commit
-`226d9f63cc08ce1852dbf2c04856feb45a9f0966`. The workload, workflow, and
+`ced2df0d35c869b93c3b5fe1943f1c1eeed59e43`. The workload, workflow, and
 database dashboard enhancements are documented in the
 [dashboard evidence record](evidence/dashboard-enhancements-2026-10-12.md).
 Identity and Programme metrics coverage is verified; other logging and
@@ -53,8 +53,7 @@ represented as zero.
 
 Structured logging and bounded database telemetry are deployed. Helm revision
 265 is active with chart 0.2.20; Fleet reports the MyOTA bundle deployed and
-monitored. The remaining logging acceptance work is tracked separately. Operations exposes read-only
-PostgreSQL metrics for all three databases, and Psycopg client spans are scrubbed
+monitored. The remaining logging acceptance work is tracked separately. Operations is retired. Collector directly scrapes all databases with least-privilege credentials and live metrics; Gateway checks live Identity roles for Grafana. PostgreSQL metrics and Psycopg client spans are scrubbed
 of SQL attributes before Tempo export. A safe Identity
 `GET /healthz` record was found in Loki by its OTLP structured-metadata
 `trace_id`, and the matching Tempo server span was retrieved. The Grafana
@@ -261,7 +260,7 @@ ten pinned Surveyor dashboards. Surveyor exports broker/server metrics and
 does not retain JetStream messages. Its supported metrics were verified
 against live NATS data, while route/gateway, multi-server Raft, and optional
 latency panels have no series on the current single-server topology.
-Operations PostgreSQL/PostGIS metrics and Grafana identity remain service-owned;
+PostgreSQL metrics are Collector-owned; Grafana authorization belongs to Gateway and Identity.
 SeaweedFS metrics are Collector-owned.
 
 - A missing series is not converted to a made-up value.

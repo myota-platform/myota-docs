@@ -1,5 +1,7 @@
 # Observability
 
+Operations is retired. Collector owns PostgreSQL collection; Gateway and Identity own Grafana authorization. See [retirement evidence](../operations/evidence/operations-service-retirement-2026-10-11.md).
+
 The [current system state](../architecture/current-state.md) is the entry point
 for the latest verified deployment and open acceptance gates.
 
