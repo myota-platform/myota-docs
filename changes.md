@@ -24,6 +24,13 @@
   [monitoring roadmap](docs/observability/nats-surveyor-migration.md) and
   [evidence record](docs/observability/evidence/2026-10-11-nats-surveyor-cutover.md).
 
+- Follow-up live query validation executed all thirteen dashboard 16256
+  expressions through Grafana's Prometheus datasource API; every expression
+  returned HTTP 200 and a data frame with no query error. The NATS folder
+  contains eleven dashboards and no NATS alerts are firing. Five unrelated
+  application alerts were active at the same snapshot; they are recorded for
+  separate follow-up in the evidence.
+
 ## 11 October 2026 — Phase 5 observation closure and legacy durable retirement
 
 - Helm revision 193 remained deployed. Fleet was Ready=True at Deploy commit
