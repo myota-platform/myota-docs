@@ -27,7 +27,7 @@ documentation evidence and does not set delivery dates.
   rollback qualification. See the [Phase 5 evidence](../geodata/evidence/phase5-staged-rollout-2026-10-09.md),
   [Phase 4 evidence](../geodata/evidence/phase4-infrastructure-scaling-2026-10-09.md)
   and [roadmap](../geodata/horizontal-scaling-roadmap.md).
-- [Structured logging and database telemetry acceptance](../observability/logging-implementation.md) — Phase 1–5 source/configuration work is present; live runtime acceptance, production hardening, and Phase 7 PostgreSQL/PostGIS implementation remain open. See [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+- [Structured logging and database telemetry acceptance](../observability/logging-implementation.md) — Identity has a live Loki/Tempo request trace and dashboard query shapes pass; Grafana UI link rollout, asynchronous correlation, Phase 6 hardening, and Phase 7 PostgreSQL/PostGIS remain open. See [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 - [Observability coverage gap](../observability/overview.md#live-k3s-verification-and-known-gap)
   — Identity and Programme `/metrics` coverage needs remediation and live
   verification.
