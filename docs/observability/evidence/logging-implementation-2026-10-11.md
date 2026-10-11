@@ -99,7 +99,12 @@ producer-specific or platform-wide gates.
   `deploy/helm/myota/` mirrors in Deploy and Platform.
 - The dashboard uses Loki OTLP structured metadata rather than parsing its string event body as JSON. The live query run is recorded below.
 
-## Host and CI evidence
+## Earlier host and CI evidence — revisions 223–225
+
+This is a historical snapshot from before the later Helm rollouts documented
+above. Its image digests and acceptance status are not current; use the
+correction and current rollout evidence at the top of this page.
+
 
 - K3s namespace: `myota`; Deploy is authoritative for Helm and Platform is
   its synchronized mirror. Helm revision 223 deployed the service image digests; revision 225 mounted the
@@ -292,7 +297,7 @@ Do not mark the overall plan complete until all items below have evidence:
    runbooks, and dashboard queries have passed.
 
 
-## Current implementation update — 11 October 2026
+## Prior implementation snapshot — 11 October 2026 (superseded above)
 
 This update supersedes earlier revision, image-digest, and Phase 7 status snapshots.
 
@@ -319,7 +324,7 @@ This update supersedes earlier revision, image-digest, and Phase 7 status snapsh
 - Full Compose runtime parity. No retention waiting period is required for this pre-live system; the configured 14-day compactor policy and object-store ownership are verified as configuration, not by waiting 14 days for expiry.
 - Do not use an empty broker or short log sample as evidence of production capacity. No test business data was created during these checks.
 
-## Async correlation source update — 11 October 2026
+## Prior async correlation source snapshot — 11 October 2026 (superseded above)
 
 - Deploy and Platform relays now set the `Myota-Correlation-Id` NATS header to
   the envelope `correlationId`, then `workId`, then `eventId`. This gives
