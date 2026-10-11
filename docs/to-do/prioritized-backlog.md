@@ -87,23 +87,23 @@ and the [administration workflows index](../domain/administration/README.md).
 
 ### Structured logging and database observability acceptance
 
-**Current evidence:** Phase 1–5 source/configuration changes exist on main and the
-Loki/Collector workloads are Ready in K3s. Latest Deploy Python quality and image
-build runs passed. Identity, Programme, Activity, Operations and Deploy worker images now run the
-logging changes, but Geodata remains on its prior digest after a failing image
-workflow. An Identity trace probe was not found in Loki, and no live
-request-to-worker trace/log proof is recorded.
-Phase 6 capacity, retention, alert, and runbook gates remain open; Phase 7
-PostgreSQL/PostGIS telemetry has not been implemented. Geodata's latest image
-build is also blocked by seven worker-delivery timeouts and a row-authoritative
-writer mismatch, so that service cannot yet roll out its logging changes. See the
-[logging implementation plan](../observability/logging-implementation.md) and
-[11 October evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+**Current evidence:** the current service digests are running and all application
+and worker replicas were Ready. A read-only Identity health request now has a
+matching Loki structured-metadata record and Tempo span. Live dashboard query
+shapes succeed after removing the incompatible JSON parser. The corrected
+Deploy/Platform Grafana datasource and dashboard assets still need GitOps rollout
+and UI navigation verification. Phase 6 representative retention, growth,
+capacity, cardinality, and live redaction evidence is incomplete; Phase 7
+PostgreSQL/PostGIS telemetry remains unimplemented. See the
+[logging implementation plan](../observability/logging-implementation.md),
+[11 October evidence](../observability/evidence/logging-implementation-2026-10-11.md),
+and [runbook](../observability/logging-runbook.md).
 
-**Recommended next work:** complete safe runtime rollout and Phase 7 with a
-separate `pg_monitor` login before closing Phase 6. Keep this ahead of optional
-observability polish; do not enable a database receiver with app/superuser
-credentials or infer capacity limits from an empty/short observation window.
+**Recommended next work:** verify Fleet rolls out the metadata-aware Grafana
+provisioning, test both trace/log directions, and continue the asynchronous
+correlation and Phase 6/7 gates. Measure retention and storage growth before
+setting capacity thresholds. Do not use application/superuser credentials for a
+database receiver.
 
 
 ### 3. Restore Identity and Programme metrics coverage
