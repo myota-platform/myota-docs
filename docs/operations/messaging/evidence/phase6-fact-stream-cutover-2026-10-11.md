@@ -79,7 +79,12 @@ Helm revision 210 applied the cutover. Follow-up revision 211 disables the
 one-time migration environment flag while keeping the all-topology
 drift-validation hook enabled. The current revision 213 is deployed, and Fleet reports Ready=True at Deploy
 main commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`.
-All MyOTA Deployment desired replicas are ready.
+All 22 MyOTA Deployments have their desired replicas ready. The latest
+provisioner Job completed and logged validation for all three streams and ten
+work durables. Helm history describes revision 213 as a rollback to revision
+212; its effective values still have the migration flag disabled, and the
+validated topology remains deployed. Startup probe connection-refused events
+during pod replacement resolved before the final Ready check.
 
 ## Isolated migration qualification and cleanup
 
