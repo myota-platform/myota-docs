@@ -1,5 +1,21 @@
 # MyOTA changes
 
+## 11 October 2026 — Structured logging implementation progress
+
+- Phases 1–5 source/configuration changes are recorded in the logging roadmap.
+  Shared structured logging, HTTP trace propagation, worker lifecycle logs,
+  Loki/Collector pipeline, and Grafana correlation assets exist on main.
+- Fixed Deploy Ruff formatting and missing trace-helper imports; the latest
+  Deploy Python quality and image-build workflows passed. Corrected LogQL range
+  selector spacing in the Compose/Helm dashboard mirrors and parsed dashboard
+  JSON successfully.
+- K3s Loki and Collector are Ready. The current service image digests have not
+  yet advanced to the latest worker logging commits, so live end-to-end logging
+  is not accepted. Phase 6 hardening and Phase 7 database observability remain
+  open. See the [logging plan](docs/observability/logging-implementation.md)
+  and [evidence](docs/observability/evidence/logging-implementation-2026-10-11.md).
+
+
 ## 11 October 2026 — NATS migration Phase 6 fact-stream cutover
 
 - Completed the direct, fail-closed `MYOTA_EVENTS` migration from Interest to
