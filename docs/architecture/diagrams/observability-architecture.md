@@ -28,9 +28,9 @@ multi-node Raft, and optional service-observation panels without data.
 
 **Implementation status (11 October 2026):** Surveyor 0.9.11, the eleven NATS
 folder dashboards, bounded JetStream capacities, and replacement Admin,
-Operations, and Geodata images are live. Helm revision 207 applied the
+Operations, and Geodata images are live. Helm revision 208 applied the
 Operations snapshot retirement migration; storage history remains. Fleet is
-Ready=True on Deploy main commit `f43d600380803e86292e7e0010bfc1655b1a5d2a`
+Ready=True on Deploy main commit `d0d2f50846fe2c9e239d46a48809860f4b98d7f5`
 with 64/64 resources ready. The monitoring retirement phase is complete. See
 the [NATS monitoring roadmap](../../observability/nats-surveyor-migration.md)
 and [live evidence](../../observability/evidence/2026-10-11-nats-surveyor-cutover.md).
