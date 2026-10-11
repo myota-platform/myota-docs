@@ -10,8 +10,7 @@ flowchart LR
   Surveyor[NATS Surveyor]
   Prom[Prometheus]
   Tempo[Tempo]
-  Loki[Loki\\nOTLP log storage]
-  Loki[Loki]
+  Loki[Loki\nOTLP log storage]
   Collector[OpenTelemetry Collector]
   Services[Identity, Programme, Activity, Geodata, Operations]
   Grafana[Grafana]
@@ -24,7 +23,6 @@ flowchart LR
   Collector -->|metrics| Prom
   Collector -->|traces| Tempo
   Collector -->|structured logs| Loki
-  Collector -->|logs| Loki
   Prom --> Grafana
   Tempo --> Grafana
   Loki --> Grafana
