@@ -46,8 +46,9 @@ describe current ownership and are authoritative for the present-day system.
   matching Loki log and Tempo `GET /healthz` span; live LogQL dashboard query
   shapes succeeded. No business data was created. Helm revision 225 mounted the corrected datasource/dashboard, and Grafana
   logged successful provisioning. All seven mounted dashboard queries returned
-  successfully against live Loki. Fleet still reported `WaitApplied(1)`, and
-  authenticated UI links in both directions have not yet been verified.
+  successfully against live Loki. Fleet later returned to Ready=True on Deploy commit `904bef2`; Helm revision
+  227 is deployed after rollback to 226. Authenticated UI links in both
+  directions have not yet been verified.
   Phase 6 retention/growth/capacity/privacy and Phase 7 PostgreSQL/PostGIS work
   remain incomplete. See [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md),
   [phase prompts](../observability/prompts/README.md), and
