@@ -1,6 +1,6 @@
 # Current system state
 
-**Verified:** 11 October 2026 22:53 UTC  
+**Verified:** 11 October 2026 23:07 UTC  
 **Scope:** GitHub `main` repository heads and a inspection and controlled retirement rollout in the
 MyOTA namespace on the local single-node K3s host. This is a snapshot, not a
 production-readiness declaration. Authoritative owner repositories remain the
@@ -34,7 +34,7 @@ does not prove that its image is deployed; deployed image digests are separate.
 | [Activity](https://github.com/myota-platform/myota-activity-service) | `fe804ddc0b0b5dca3bb0ad0faa1429fdb6ecec18` |
 | [Geodata](https://github.com/myota-platform/myota-geodata-service) | `08e416ab746863602c2024f1961c6f66aaec2023` |
 | [Operations](https://github.com/myota-platform/myota-operations-service) | `5952738366824a1a9cc494fd2e68737553d73f5e` |
-| [Contracts](https://github.com/myota-platform/myota-contracts) | `3581a19a60e1b6f1f723592df63fbdcf7339d4d0` |
+| [Contracts](https://github.com/myota-platform/myota-contracts) | `fb564e3fed6ef4482c29a56b9d194332f5804ee7` |
 | [Deploy](https://github.com/myota-platform/myota-deploy) | `ced2df0d35c869b93c3b5fe1943f1c1eeed59e43` |
 | [Platform](https://github.com/myota-platform/myota-platform) | `38bb3f5d7ce3e7ffe534b787261745e057ec0474` |
 | [Participant web](https://github.com/myota-platform/myota-web) | `0e6cb4cb03a1bdfac03c288d90af540fba917279` |

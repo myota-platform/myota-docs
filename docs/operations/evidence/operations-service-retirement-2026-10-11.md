@@ -52,8 +52,9 @@ validation passed before a final UTC-only dashboard edit. Platform mirror is
 `c563ecc0ee43b8623c4646da3bfcd021b53abc87` passed Ruff/build. Admin
 `09f8e1db5b160cc2ef1458378f98217e3f4b6035` passed browser checks/build.
 Operations `5952738366824a1a9cc494fd2e68737553d73f5e` passed quality checks
-and removed image publishing. Contracts `3581a19a60e1b6f1f723592df63fbdcf7339d4d0`
-removed routes and clients; record final CI in its issue.
+and removed image publishing. Contracts `fb564e3fed6ef4482c29a56b9d194332f5804ee7` removed routes and clients;
+Contract Freeze run [#138](https://github.com/myota-platform/myota-contracts/actions/runs/38182971884)
+passed on 11 October 2026 at 23:06 UTC.
 
 The repository remains unarchived because the available GitHub connector
 does not expose archival. Keep [Operations issue #3](https://github.com/myota-platform/myota-operations-service/issues/3)
