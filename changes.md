@@ -1,3 +1,13 @@
+## 11 October 2026 — Service metrics scrape repair
+
+- Restored bounded aggregate Prometheus endpoints for Identity and Programme,
+  aligned Helm's Activity notification scrape target with Compose, and
+  synchronized the Deploy-owned changes to Platform.
+- Verified all 12 configured scrape endpoints returned HTTP 200 with metric
+  samples on host K3s; the Collector's latest log check showed no failed
+  scrapes. See [Deploy issue #10](https://github.com/myota-platform/myota-deploy/issues/10)
+  for commits, CI runs, deployed digests, and verification details.
+
 # MyOTA changes
 
 ## 11 October 2026 — Geodata Phase 5 owner-accepted closure
