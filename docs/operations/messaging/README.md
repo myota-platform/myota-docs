@@ -10,19 +10,17 @@
   — central broker metrics and Grafana dashboard inventory; tracks live image rollout and the Operations history-table migration.
 - [JetStream administration history](jetstream-admin-status.md) — retired Admin page behavior and cutover evidence.
 - [NATS event migration plan](nats-event-migration-plan.md)
-  - **Complete:** Phases 0–5 within their documented evidence bounds. Helm
-    revision 193 is deployed; Fleet Ready=True at Deploy commit
-    cfecd655d9c0eee9d19db26725fb11c99366815a.
-  - **Phase 5:** The four legacy Geodata durables were retired after the final
-    filter, backlog, migration, owner-row recovery-age and Fleet checks. The
-    user waived the 24-hour elapsed-time requirement; closure was early and
-    is not reported as a full 24-hour observation. Activity and target
-    durables, migration 021, work/outbox state and the Interest-retained
-    MYOTA_EVENTS stream remain.
-  - **Next:** Phase 6 fact-stream retention work. NATS monitoring consolidation
-    is a separate planned observability item. See [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md)
-    and [the monitoring plan](../../observability/nats-surveyor-migration.md).
-- [JetStream recovery and replay runbook]- [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
+  — Phases 0–6 are complete within their documented evidence bounds.
+  Helm revision 211 is deployed; MyOTA Fleet is Ready=True at Deploy commit
+  `16af2edf6b8e868904f9284e481d971ae7d6d38c`. `MYOTA_EVENTS` uses bounded
+  Limits retention and captures only registered facts; Activity and Geodata
+  work remain on separate WorkQueue streams. The migration flag is disabled
+  and topology drift validation remains enabled. The user explicitly waived
+  Phase 5's 24-hour observation; it closed early, not as a full-day observation.
+  See the [Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md),
+  [Phase 5 evidence](evidence/phase5-geodata-work-2026-10-10.md), and
+  [NATS monitoring plan](../../observability/nats-surveyor-migration.md).
+- [JetStream recovery and replay runbook](jetstream-recovery.md) — selected
   PostgreSQL recovery authority, isolated restore/replay procedure, and remaining
   qualification evidence.
 - [Phase 0 event and work inventory](nats-event-migration-inventory.md) —
