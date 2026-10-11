@@ -1,6 +1,6 @@
 # NATS JetStream event and work-queue migration plan
 
-**Status:** Phases 0–5 are complete within their recorded evidence bounds.
+**Status:** Phases 0–5 are complete within their recorded evidence bounds. Phase 6's fact-stream cutover is applied; its revision 211 Fleet closeout remains open.
 Phase 5's four Geodata work consumers, migration 021, retry-safe partial
 deletion recovery, and Activity idempotency fix are live. Helm revision 193 is
 deployed; Fleet is Ready=True at Deploy commit
@@ -52,15 +52,15 @@ contracts and lifecycle guarantees, and qualify rollout and recovery.
 | Geodata / `myota_geo` | Import lifecycle, validation/promotion, entity review/change/deletion, location enrichment, cancellation, recovery, and operational events. | `geo-outbox` relay. Generic events use `myota.events.<event_type with dots replaced by underscores>`; work dispatch uses allowlisted `payload.natsSubject`. | `geodata_import_worker.py` has durable pull consumers: `geodata-preprocessing-v1`, `geodata-import-processing-v2`, `geodata-entity-deletion-v1`, and `geodata-location-enrichment-v1`, plus stale-cancellation and pending-deletion database reconcilers. Keep reconciliation as recovery, not a second normal work queue. |
 | Operations / `myota_core` | The shared state adapter has an outbox/event helper, but the Phase 0 source scan found no Operations event-producing call sites; do not treat helper support as emitted events. | Shared `core-outbox` relay can read the core database outbox; no Operations-specific event stream was identified. | Operations reads JetStream stream/consumer status and stores samples; it is deliberately read-only and is not a business-event consumer. Preserve this boundary. |
 
-The relay is currently shared code in `myota-deploy/services/outbox_worker.py`
-and is deployed once per physical database (`core`, `activity`, `geo`). It
-provisions one shared file-backed `MYOTA_EVENTS` stream with Interest retention
-and known durable filters before publishing. The durable set currently includes
-Activity notifications plus the four Geodata work filters. The selected target
-is `MYOTA_EVENTS` with Limits retention for bounded domain-fact replay, plus
-separate `MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` streams with WorkQueue
-retention for competing work. PostgreSQL domain state, outbox/dead-letter
-records, and consumer idempotency/checkpoint state remain authoritative.
+The relay is shared code in `myota-deploy/services/outbox_worker.py` and is
+deployed once per physical database (`core`, `activity`, `geo`). It validates
+the file-backed `MYOTA_EVENTS` fact stream with Limits retention and the exact
+`myota.events.>` subject capture. The stream retains bounded domain-fact replay;
+`MYOTA_ACTIVITY_WORK` and `MYOTA_GEODATA_WORK` are separate WorkQueue streams
+for competing work. Activity notifications is the only fact durable; the ten
+work durables are split six Activity and four Geodata. PostgreSQL domain state,
+outbox/dead-letter records, and consumer idempotency/checkpoint state remain
+authoritative.
 
 ### Event/work inventory evidence
 
@@ -147,11 +147,11 @@ distinction:
 
 ### Selected topology — ADR-0008
 
-The following target is selected for implementation. It does not describe the
-current deployment, and its implementation and production qualification remain
-open. See [ADR-0008](../../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md)
-and the [event/work inventory](nats-event-migration-inventory.md) for rationale
-and evidence.
+The selected topology is now deployed in the host's single-node K3s environment.
+See the [Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md),
+[ADR-0008](../../architecture/decisions/0008-nats-jetstream-event-and-work-topology.md),
+and [event/work inventory](nats-event-migration-inventory.md) for rationale,
+current live settings, and bounded evidence.
 
 | Stream | Subject capture | Retention and storage | Use |
 |---|---|---|---|
@@ -178,13 +178,13 @@ replicas at one on today's single-server topology; configure three only after a
 three-server JetStream cluster exists. Use one deployment-owned, drift-checked
 provisioner rather than concurrent mutation from the three relay instances.
 
-Rollout must account for the current mixed `MYOTA_EVENTS` stream. Stop relays and
-inspect retained messages/consumer state before changing its retention from
-Interest to Limits; this live change cannot restore messages already deleted.
-Create the two WorkQueue streams on the disjoint `myota.work.*` subjects, provision
-their durables, and route pending legacy Geodata work through one publish path.
-Do not dual-publish. Drain old work and remove old filters/routes only after
-rollback and database recovery checks pass.
+The Phase 6 cutover is complete under the verified empty-stream gate. The
+one-time provisioner changed `MYOTA_EVENTS` from Interest to Limits, removed the
+legacy `myota.geodata.>` capture, and validated the already-provisioned WorkQueue
+streams and durables. Its production migration flag is now disabled; the
+all-topology drift-validation hook remains enabled. Do not restore Interest
+retention or the removed legacy subject during rollback. Use owner-database
+state, outbox, DLQ, and stable work IDs for recovery.
 
 ## Phased implementation
 
@@ -926,65 +926,123 @@ SHAs, checks/results, live route and image/schema evidence, objects retained or
 retired, cleanup, and any remaining evidence gap.
 ```
 
-### Phase 6 — Shadow, canary, cutover, and retirement
+### Phase 6 — bounded fact-stream cutover and retirement
+
+**Status:** The shared fact-stream migration completed in Helm revision 210.
+The one-time migration flag is disabled in the revision 211 chart values; the
+Fleet reconciliation for that cleanup is still in progress. Keep Phase 6 exit
+criteria open until revision 211 is deployed and Fleet reports Ready=True on
+the latest Deploy commit. See the
+[Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md).
+
+**Decision:** Use one direct, coordinated cutover. No shadow traffic, canary
+rollout, synthetic production messages, or new metrics baseline. Phases 2–5
+already moved selected producer and consumer paths. Existing Surveyor
+dashboards, alerts, runbooks, and recovery controls remain in service.
 
 **Work**
 
-- [ ] Establish baseline metrics: accepted-to-published latency, outbox oldest
-      age/depth, publish retries, broker storage, consumer pending/ack-pending,
-      redelivery, oldest event age, handler duration/failure, DLQ volume, and
-      business completion latency.
-- [ ] Run shadow validation by comparing event/job IDs and resulting state without
-      executing duplicate side effects. Prefer replay/verification tooling or
-      non-mutating observers. Never dual-consume a mutating command without shared
-      idempotency protection.
-- [ ] Canary one producer/consumer group or environment, then expand by service.
-      Gate promotion on no unexplained event-count divergence, bounded lag, no
-      unexpected DLQ growth, and successful restart/recovery drills.
-- [ ] Cut over producers atomically to the registered route; disable old dispatch
-      only after JetStream path proves healthy. Drain existing DB queue rows and
-      outbox backlog before removing old worker claims. Keep rollback switches
-      time-bounded and observable.
-- [ ] Remove retired code/config/durables only after confirming all versions are
-      drained, documenting archived evidence, and checking no stale consumer can
-      compete with the new durable.
+- [x] Reconfirm the live preflight: the legacy fact stream contained zero
+      messages and bytes; the Activity notification durable was the only
+      remaining consumer and had zero pending/ack-pending/redeliveries; each
+      owner outbox had zero unpublished rows. Preserve Geodata's six existing
+      unresolved application DLQ records.
+- [x] Add a Deploy-owned, explicitly gated Interest-to-Limits migration. It
+      accepts only the exact reviewed legacy stream configuration and refuses
+      non-empty stream state, unexpected consumer count, missing notification
+      durable, or non-zero consumer counters. Keep ordinary topology
+      provisioning drift-checked and non-mutating.
+- [x] Change all three relay copies to require the exact registered
+      `myota.events.>` fact capture, file storage, one replica, finite caps,
+      Limits retention, and `DiscardNew`. Work remains on the two separate
+      WorkQueue streams.
+- [x] Configure production capacity from the accepted single-node decision:
+      Events 1 GiB/500,000/1 MiB; Activity work 1 GiB/250,000/1 MiB; Geodata
+      work 3 GiB/500,000/1 MiB; all three use 30-day age and one replica.
+- [x] Execute the gated direct cutover through the Helm pre-upgrade hook.
+      The hook converted `MYOTA_EVENTS`, removed the legacy
+      `myota.geodata.>` subject capture, and validated all streams and ten
+      work durables. No test message or database row was inserted in production.
+- [x] Verify the live Activity notification durable's exact 21 fact filters,
+      all six Activity and four Geodata work filters, zero stream messages,
+      zero consumer counters, and zero unpublished rows in all three outboxes.
+      Keep the six existing Geodata database DLQ records unchanged.
+- [x] Qualify migration and idempotent rerun in disposable host-K3s namespace
+      `phase6-nats-migration` using the published Deploy image; no message was
+      published and the namespace was removed.
+- [ ] Complete Helm revision 211 with the one-time migration flag disabled,
+      all-topology drift validation enabled, every Deployment ready, and Fleet
+      Ready=True at the applied Deploy main commit.
 
 **Exit criteria**
 
-- [ ] All producers and required consumers use JetStream according to the registry;
-      remaining exceptions have named owner, rationale, and review date.
-- [ ] Rollback and recovery have been rehearsed; no event or job was lost during
-      cutover and no business effect duplicated.
-- [ ] Production operations accept dashboards, alerts, runbooks, backup/restore, and
-      backlog/DLQ ownership.
+- [ ] Every registered producer and selected consumer uses the registered
+      fact/work subject and intended durable. The exact Activity notification
+      group and ten work durables are live; Operations remains read-only.
+- [ ] `MYOTA_EVENTS` is Limits-retained, bounded to the approved 30-day window,
+      captures only `myota.events.>`, and uses the approved file/replica/limit/
+      discard settings. The Activity and Geodata WorkQueue streams remain
+      disjoint and correctly provisioned.
+- [ ] Live outbox, stream, durable, Deployment, Helm, and Fleet checks confirm
+      the handoff completed without lost or duplicated business effects.
+- [ ] Recovery/rollback boundaries and the loss of previously Interest-expired
+      facts are recorded. PostgreSQL remains authoritative; JetStream remains
+      a bounded transport and replay window, not an archive.
+- [ ] Existing Surveyor dashboards, alerts, Operations boundary, and runbooks
+      remain valid. No new metrics baseline, shadow traffic, or canary rollout
+      was run or added.
 
 **ChatGPT prompt — Phase 6**
 
 ```text
-Prepare and execute the approved Phase 6 shadow/canary/cutover/retirement plan for
-the MyOTA NATS migration. Before changing deployment or runtime switches, read every
-prior phase's completion evidence and the production rollout approval documented by
-the user/team. If any exit gate is unverified, do not cut over that service;
-complete independent safe preparation and report the exact blocker.
+Finish implementing Phase 6 of the MyOTA NATS migration in the authoritative
+repositories. Read this plan, ADR-0008, Phase 0 inventory, all Phase 1–5
+evidence, the recovery runbook, repository AGENTS.md instructions, and the
+latest deployed status first.
 
-Build a per-service rollout matrix for Identity, Programme, Activity, Geodata,
-Operations, and shared deployment: old path, new subject/durable, baseline counts,
-canary scope, success thresholds, rollback trigger, drain condition, responsible
-owner, and observed evidence. Shadow comparison must not execute duplicate mutating
-work. Never dual-consume a command unless both paths share proven idempotency and a
-bounded migration window. Canary progressively, measure event/job ID reconciliation,
-accepted-to-published delay, consumer lag/oldest age, retries, DLQ, worker errors,
-business completion and broker capacity. Verify Operations continues read-only
-access.
+Scope is the final shared MYOTA_EVENTS fact-stream cutover and retirement
+checks. myota-deploy owns the relay, migration guard, topology provisioner,
+Helm, and host deployment. myota-platform is a synchronized mirror.
+myota-docs owns cross-repository decisions and evidence. Do not change event
+schemas or service business logic unless a verified Phase 6 blocker requires
+it; if so, update only the owning source and its mirrors. Keep contracts and
+all unrelated repositories unchanged.
 
-Only after gates pass, perform the authorized cutover: switch producers, stop old
-claims after acceptance is confirmed, drain legacy queues, reconcile
-outbox/DLQ/backlog, then retire obsolete code and durables. Keep a tested rollback
-route until the agreed observation window ends. Update runbooks, service READMEs,
-contracts, deployment docs, central plan status, and mirrors with actual evidence
-and dates. Do not state complete based on deployment success alone. End with a
-signed-off event/consumer coverage matrix, any exceptions with owner/review date,
-and recovery/rollback evidence.
+Use a single direct, coordinated cutover. Do not add or run shadow traffic,
+canary rollout, synthetic production events, or a new metrics baseline. Keep
+existing Surveyor dashboards, alerts, runbooks, and operating controls. Do
+not dual-publish. Preserve PostgreSQL ownership, stable IDs, idempotent
+effects, explicit acknowledgement after committed effects, durable recovery,
+and Operations' read-only broker inspection boundary.
+
+Before mutation, verify exact stream/consumer configuration, zero retained
+messages and pending notifications, drained owner outboxes, work durables,
+current Deploy/Fleet release, and unresolved database dead letters. Preserve
+all source, outbox, DLQ, checkpoint, and migration records. The one-time
+migration must fail closed on any unexpected config, non-empty stream,
+unexpected durable, or non-zero pending state. Convert the existing fact
+stream only through the deployment-owned Helm hook. Provisioner validation
+must remain enabled after the one-time migration flag is disabled.
+
+Set finite capacity to the accepted production values, validate the exact
+fact and work stream subjects, and confirm the target retention semantics.
+Do not roll back by restoring Interest retention or reintroducing the old
+Geodata subject; recovery keeps the new topology and replays from authoritative
+database state. Off-node restore remains deferred as already accepted.
+
+Run focused Deploy CI and a migration/idempotent-rerun check in a disposable
+namespace on this host; use no production test messages and delete the
+namespace and all test data afterward. Deploy through local Helm/Fleet, wait
+for every required Deployment and Fleet to become ready, and verify live
+stream configs, exact durable filters/counters, outbox backlog, migration
+flag state, and app image references. Update the plan, Phase 6 evidence,
+ADR/architecture diagrams, deployment topology docs, changes, timeline with
+this exact prompt, To do, Work in progress, prioritized backlog, READMEs, and
+any affected .github links. Keep Deploy/Platform mirrors synchronized.
+Check boxes only after evidence. Commit directly to main with explicit
+messages. Report exact commits, workflow results, Helm/Fleet revision and
+readiness, live topology, preserved exceptions, test cleanup, and remaining
+gaps. Do not claim completion until every Phase 6 exit criterion is verified.
 ```
 
 ## Cross-phase verification and rollout gates
