@@ -121,8 +121,9 @@ Structured logging implementation status on 11 October 2026:
   PostgreSQL/PostGIS telemetry remain open.
 - Loki and the OpenTelemetry Collector are Ready in K3s, but service image
   digests still need to advance before live worker logging can be accepted.
-- See the [logging implementation plan](docs/observability/logging-implementation.md)
-  and [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md).
+- See the [logging implementation plan](docs/observability/logging-implementation.md),
+  [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md),
+  and [logging operations runbook](docs/observability/logging-runbook.md).
 
 See the
 [joint review](docs/operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
