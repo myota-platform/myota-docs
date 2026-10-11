@@ -35,7 +35,7 @@ image was not independently inspected during this review.
 validation, and runtime copies are the input to deployment images. Resolve both
 before further releases that depend on these paths.
 
-**Next:** follow [Phase 0 and Phase 1 of the architecture review](../REVIEW.md):
+**Next:** follow [Phase 0 and Phase 1 of the architecture review](../../REVIEW.md):
 make the cleanup contract unique and fail-closed, audit route/client references
 for retired Operations JetStream endpoints, synchronize owner files into
 Deploy/Platform, and tie the built image digest to its source commit. Do not

@@ -8,7 +8,7 @@ For a recommended execution order and the reasons behind it, see the
 [prioritized backlog](prioritized-backlog.md). Priority is based on the current
 documentation evidence and does not set delivery dates.
 
-- [Cross-repository architecture remediation](../REVIEW.md) — begin with the
+- [Cross-repository architecture remediation](../../REVIEW.md) — begin with the
   duplicate destructive OpenAPI definition and owner-to-Deploy/Platform source
   parity; later phases cover shared helpers, Geodata complexity, and measured
   REST alias retirement.
