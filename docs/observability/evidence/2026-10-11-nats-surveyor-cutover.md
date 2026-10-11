@@ -61,7 +61,7 @@ must be updated with final live evidence before any checkbox is marked complete.
 ## Final live verification — 11 October 2026
 
 - Deploy main supplied the corrected chart and the migration image digest.
-  Helm revision 206 completed; the replacement Operations, Admin, and Geodata
+  Helm revision 208 completed; the replacement Operations, Admin, and Geodata
   images are Ready at the pinned digests in Deploy main: Operations
   `sha256:b50b4666919e1f4046067129abd95993d371093088ea5e5f7633fd5ced163af4`,
   Admin `sha256:0134f7a6f30edf8aa15ed7f7123c1a2a678767e63f812a59bead3b0414a35023`,
@@ -81,10 +81,10 @@ must be updated with final live evidence before any checkbox is marked complete.
 - A disposable `nats-box` pod created the memory-only stream
   `MYOTA_SURVEYOR_VALIDATION_20261011` (three-minute maximum age), published one
   synthetic 53-byte payload, and confirmed Surveyor exported its stream label.
-  The stream and pod were deleted immediately afterward. No validation stream or pod
-  remains. Prometheus's normal 15-day metrics retention is unchanged.
+  The stream and pod were deleted immediately afterward. No validation stream
+  or pod remains. Prometheus's normal 15-day metrics retention is unchanged.
 - Operations migration 003 is mirrored as Deploy/Platform core migration 005.
-  The `myota-migrations-207` Job completed. Database inspection confirmed
+  The `myota-migrations-208` Job completed. Database inspection confirmed
   `operations_jetstream_snapshot` and its history index are absent, while
   `operations_storage_snapshot` contains 6,046 rows at the final check. The pre-migration custom
   format backup remains outside source control with SHA-256
@@ -100,4 +100,4 @@ must be updated with final live evidence before any checkbox is marked complete.
   `38097585028`; its runtime image build passed run `38097584634`. Operations
   README/image refresh run `38098411907` passed; Deploy digest commit
   `d0d2f50846fe2c9e239d46a48809860f4b98d7f5` passed Helm run `38098476536`
-  and Python run `38098477081`.
+  and Python run `38098477081`. Prometheus reported no firing NATS alerts.
