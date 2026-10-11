@@ -62,9 +62,9 @@ and the active [Work in progress index](../work-in-progress/README.md).
 
 ### 2. Complete NATS monitoring cutover
 
-**Current evidence:** Surveyor is live, scrapeable, and returns real JetStream metrics. All service source retirements passed CI. The first Helm limit rollout failed on NATS config parsing and was rolled back to the healthy revision; Deploy now uses quoted decimal byte caps and serialized NATS restart. See the [monitoring migration](../observability/nats-surveyor-migration.md).
+**Current evidence:** Surveyor 0.9.11, the eleven Grafana NATS dashboards, bounded 7 GiB/1 GiB broker capacities, and all three replacement service images are live. The ephemeral memory-stream test was deleted. Operations migration 003 / Deploy migration 005 removed the snapshot table and index after the verified-backup gate; storage history remains healthy. Helm revision 206 is healthy. See the [monitoring migration](../observability/nats-surveyor-migration.md) and [live evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md).
 
-**Next:** confirm Fleet applies the fixed chart; roll out the Admin, Operations, and Geodata images; validate supported Grafana panels and absent-series handling; apply the Operations-owned forward migration only after the verified backup gate; then verify Fleet and surviving storage/identity behavior.
+**Next:** reconcile Fleet's stale `status.appliedDeploymentID` and `WaitApplied(1)` state to the current Deploy main commit, then verify Fleet Ready. Do not close Phase 2 until this GitOps gate passes.
 
 ### 3. Phase 6 fact-stream lifecycle
 
@@ -149,42 +149,6 @@ coverage from the running cluster.
 
 See [Observability live verification and known gap](../observability/overview.md#live-k3s-verification-and-known-gap)
 and the [observability evidence](../observability/evidence/2026-10-09.md).
-
-### 5. Consolidate broker monitoring with NATS Surveyor
-
-**Current evidence:** the current Admin UI/Operations path samples broker
-metadata into seven-day PostgreSQL history; Geodata has a separate broker
-metrics poller; and Grafana provisions a MyOTA dashboard that combines NATS
-backlog with two PostGIS query panels. These current paths and exact owning
-repositories are inventoried in the
-[NATS Surveyor monitoring plan](../observability/nats-surveyor-migration.md).
-NATS Surveyor is not deployed yet.
-
-**Why here:** broker state is observed through duplicate service-owned polling
-paths and a custom history table. A single Prometheus exporter and source-managed
-Grafana dashboards can centralize broker metrics, while application outbox and
-worker metrics remain service-owned. The target `NATS` folder is proposed to
-contain dashboard 16256 and all ten JSON dashboards from Surveyor's Grafana
-provisioning folder. Dashboard 16256 is written for the NATS built-in
-Prometheus exporter, so its queries must be validated against Surveyor before
-cutover; validate every upstream dashboard panel as well. The current NATS deployment also does not
-configure a system account; monitoring access needs a compatibility review
-before deployment.
-
-**Next:** qualify pinned Surveyor metrics, least-privilege system monitoring
-access, compatibility of the complete dashboard set, and verification that the
-two obsolete PostGIS panels remain absent from dashboard assets. Deploy
-internally, compare Surveyor and Grafana directly with read-only broker
-metadata, then retire the Admin page, duplicate broker pollers, combined MyOTA
-JetStream backlog/PostGIS dashboard, and history table/index through a forward
-migration. The two PostGIS panels from the combined dashboard are not needed and must not
-be migrated or recreated. Preserve Operations SeaweedFS
-functionality, Geodata service instrumentation, and app-level outbox/worker
-telemetry.
-
-See [NATS Surveyor monitoring consolidation](../observability/nats-surveyor-migration.md),
-[observability overview](../observability/overview.md), and the
-[current legacy NATS status page](../operations/messaging/jetstream-admin-status.md).
 
 ## P2 — sequence after the rollout and operational gates
 
