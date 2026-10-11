@@ -35,7 +35,9 @@ dashboard query shapes also succeeded against live Loki. Helm revision 225
 mounted the corrected metadata-aware dashboard and datasource files, Grafana
 logged dashboard provisioning, and all seven dashboard LogQL queries returned
 successfully against live Loki. Fleet later applied logging/dashboard changes;
-Helm revision 232 is deployed and is the current Fleet-applied release (Ready=True, sync generation 93). All 67 resources are ready and Deployments meet their requested replica counts. The PostgreSQL/PostGIS dashboard asset is mounted in Grafana, but
+Helm revision 234 is deployed; Helm history labels it a rollback to revision
+233. The Fleet BundleDeployment is Ready=True at sync generation 93. All 67
+resources are ready, and all Deployments meet their requested replica counts. The PostgreSQL/PostGIS dashboard asset is mounted in Grafana, but
 its Collector receiver is paused after authentication failures that were not
 reproduced by read-only `psql` checks with the same Secrets. UI trace/log
 navigation remains open, as do asynchronous correlation and Phase 6 hardening. See the
