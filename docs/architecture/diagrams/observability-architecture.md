@@ -9,14 +9,33 @@ flowchart LR
   NATS[NATS JetStream]
   Surveyor[NATS Surveyor]
   Prom[Prometheus]
+  Tempo[Tempo]
+  Loki[Loki]
+  Collector[OpenTelemetry Collector]
+  Services[Identity, Programme, Activity, Geodata, Operations]
   Grafana[Grafana]
   UI -->|Grafana auth subrequest| Ops
   Ops -->|read-only storage status| SW
   Ops -->|storage history only| DB
   NATS -->|cluster-local system monitoring| Surveyor
   Surveyor -->|15 second scrape| Prom
+  Services -->|OTLP logs, traces, metrics| Collector
+  Collector -->|metrics| Prom
+  Collector -->|traces| Tempo
+  Collector -->|logs| Loki
   Prom --> Grafana
+  Tempo --> Grafana
+  Loki --> Grafana
+  DB -->|proposed PostgreSQL receiver; dedicated pg_monitor role required| Collector
 ```
+
+The current structured-logging rollout uses the existing Collector, Tempo, and
+Prometheus plus Loki. Phase 1–5 source/configuration work is recorded, but
+current service image digests and live request-to-worker correlation still need
+acceptance. The PostgreSQL-to-Collector edge is **proposed** and remains disabled
+until a dedicated read-only monitoring login and Phase 7 verification exist. See
+the [logging implementation plan](../../observability/logging-implementation.md)
+and [evidence](../../observability/evidence/logging-implementation-2026-10-11.md).
 
 Operations no longer needs a NATS connection for broker metrics. Surveyor is
 the central broker observer; its Service and NATS connection stay internal.
