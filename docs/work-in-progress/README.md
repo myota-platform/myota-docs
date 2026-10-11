@@ -20,6 +20,7 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
 - [Geodata Phase 0 evidence set](../geodata/evidence/phase0-production-evidence-2026-10-08.md)
   — current measured 2,875-entity baseline, with explicit limits on broader
   capacity claims.
+- [Structured logging rollout](../observability/logging-implementation.md) — Phase 1–5 source/configuration progress is recorded. Loki/Collector are live, but service image digests, real logs and trace links, redaction/cardinality, retention growth, and Phase 7 database telemetry are not accepted yet. See [current evidence and gates](../observability/evidence/logging-implementation-2026-10-11.md).
 - [Observability live status](../observability/overview.md#live-k3s-verification-and-known-gap)
   — track service metrics remediation and current K3s verification.
 - [Observability and storage verification](../observability/evidence/2026-10-09.md)
