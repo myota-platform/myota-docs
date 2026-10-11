@@ -25,27 +25,27 @@ describe current ownership and are authoritative for the present-day system.
   [Phase 3](../observability/prompts/logging-phase-3-http-tracing.md),
   [Phase 4](../observability/prompts/logging-phase-4-workers-nats.md),
   and [Phase 5](../observability/prompts/logging-phase-5-grafana-correlation.md)
-  prompt files. The current run also reviewed the linked [Phase 6](../observability/prompts/logging-phase-6-production-hardening.md)
-  and [Phase 7](../observability/prompts/logging-phase-7-database-observability.md)
-  acceptance requirements.
-- **Implementation and decision:** Source logging/tracing and Loki/Grafana
-  assets are present across the five service owners and Deploy. Deploy's
-  latest Python quality and image-build workflows passed after fixing Ruff
-  formatting and missing imports. A Grafana LogQL range-selector spacing issue
-  was corrected in both Compose and Helm mirrors; dashboard JSON parsing passed.
-  Identity, Programme, Activity, Operations and Deploy worker images have now
-  rolled out. Geodata remains on its prior image because its worker-delivery
-  integration job failed. A safe Identity request generated an API log but the
-  corresponding trace ID was not found in Loki; this remains a live acceptance
-  failure.
-- **Evidence and remaining gates:** Loki/Collector were Ready in K3s and the
-  earlier disposable OTLP-to-Loki smoke test passed with test namespace cleanup.
-  Compose parity/restart, real application log/trace navigation, asynchronous
-  end-to-end correlation, observed Loki object growth/retention, and all Phase 7
-  database telemetry remain open. The [operations runbook](../observability/logging-runbook.md)
-  now contains bounded LogQL examples and ingestion troubleshooting. Geodata's
-  current image publication is blocked by an existing worker-delivery test
-  failure; this is recorded as a rollout gate, not waived. See [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md),
+  prompts; Phase 6 and 7 acceptance requirements were reviewed.
+- **Follow-up prompt used:** “Continue with the implementation of phase 3, decide
+  any blocker based on best criteria and established best practices, verify exit
+  conditions.” Work then proceeded through the remaining prompt chain; the latest
+  execution prompt was “Implement observability as per
+  `logging-implementation.md`, iteratively phase-by-phase, mark verified tasks,
+  document evidence, and update all relevant documentation.”
+- **Implementation and decision:** fixed the four service runner entrypoints
+  that bypassed shared logging initialization, published and deployed their
+  successful CI image digests, and confirmed all application/worker replicas
+  Ready. Geodata boundary, load-harness, and upload-recovery checks passed.
+  Loki stores OTLP event strings as the log body and attributes as structured
+  metadata; the Grafana JSON parser and JSON-regex trace link did not match this
+  representation. Deploy and Platform now query metadata directly and use a
+  label-type `trace_id` derived field.
+- **Live evidence:** a non-mutating Identity `/healthz` request produced a
+  matching Loki log and Tempo `GET /healthz` span; live LogQL dashboard query
+  shapes succeeded. No business data was created. The updated Grafana
+  provisioning has not yet rolled out, so the actual UI links are still open.
+  Phase 6 retention/growth/capacity/privacy and Phase 7 PostgreSQL/PostGIS work
+  remain incomplete. See [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md),
   [phase prompts](../observability/prompts/README.md), and
   [implementation plan](../observability/logging-implementation.md).
 
