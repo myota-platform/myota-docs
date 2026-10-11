@@ -13,7 +13,7 @@
   Grafana dashboard queries and runbook; the trace link now selects the
   `trace_id` metadata field.
 - Deploy and its Platform mirror contain the dashboard/datasource correction.
-  Fleet/Grafana rollout and UI link navigation still require verification.
+  Helm revision 225 mounted the corrected datasource/dashboard, Grafana logged successful provisioning, and all seven mounted dashboard queries returned successfully against live Loki. Fleet bundle readiness and actual authenticated UI navigation remain open.
   Retention growth, safe live redaction, representative cardinality, async
   request-to-worker correlation, and PostgreSQL/PostGIS observability remain
   open. See the [plan](docs/observability/logging-implementation.md),
