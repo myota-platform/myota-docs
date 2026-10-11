@@ -12,14 +12,14 @@ documentation evidence and does not set delivery dates.
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
 - [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phases 0–5 are complete within their recorded evidence bounds. Helm
-  revision 193 remains deployed; Fleet is Ready=True at Deploy commit
-  cfecd655d9c0eee9d19db26725fb11c99366815a. The four legacy Geodata durables
-  were retired after final checks. The 24-hour elapsed-time requirement was
-  explicitly waived, so this is early closure rather than a completed 24-hour
-  observation. Activity and target durables, migration 021, recovery data and
-  the Interest-retained MYOTA_EVENTS stream remain. Phase 6 fact-stream
-  retention work is next. See [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
+  — Phases 0–6 are complete within their recorded evidence bounds. Helm
+  revision 211 is deployed; the MyOTA Fleet bundle is Ready=True at Deploy
+  commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`. The fact stream now uses
+  bounded Limits retention and captures only `myota.events.>`; Activity and
+  Geodata work remain on their separate WorkQueue streams. The explicit waiver
+  closed Phase 5's 24-hour observation early; it is not represented as a full
+  24-hour window. See [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md)
+  and [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
   Phase 5 remains planned until usage is measured and clients migrate.
 - [Programme configuration gaps](../domain/programmes/configuration-gap-analysis.md)
