@@ -36,7 +36,8 @@ flowchart LR
   OTel --> Tempo
   OTel --> Loki
   Postgres[PostgreSQL + PostGIS]
-  Operations[Operations service\nonly for unsupported DB-specific telemetry]
+  Operations[Operations service
+only for unsupported DB-specific telemetry]
   Postgres -->|PostgreSQL receiver metrics| OTel
   Postgres -->|database logs via OTLP/filelog| OTel
   Services -->|instrumented database client spans| OTel
@@ -254,7 +255,8 @@ Deliverables:
 - [x] W3C `traceparent` / `tracestate` handling;
 - [x] consistent server spans rather than isolated manual spans;
 - [x] error classification without leaking request bodies;
-- [x] tests for 2xx, 4xx, 5xx and propagated trace context;\n- [x] live Identity `/healthz` request produced a matching Loki log record and Tempo trace.
+- [x] tests for 2xx, 4xx, 5xx and propagated trace context;
+- [x] live Identity `/healthz` request produced a matching Loki log record and Tempo trace.
 
 Implementation prompt:
 [Phase 3 ChatGPT prompt](prompts/logging-phase-3-http-tracing.md)
@@ -320,7 +322,8 @@ Deliverables:
   server-error logs;
 - [ ] links from existing operational dashboards where useful;
 - [x] verify Helm ConfigMap mounting and Grafana provisioning of the dashboard;
-- [x] execute the dashboard LogQL query shapes against live Loki OTLP structured metadata (no JSON parser);\n- [ ] verify provisioned Grafana trace/log links after the metadata-derived-field fix rolls out.
+- [x] execute the dashboard LogQL query shapes against live Loki OTLP structured metadata (no JSON parser);
+- [ ] verify provisioned Grafana trace/log links after the metadata-derived-field fix rolls out.
 
 Implementation prompt:
 [Phase 5 ChatGPT prompt](prompts/logging-phase-5-grafana-correlation.md)
@@ -400,15 +403,22 @@ Implementation prompt:
 
 ```mermaid
 flowchart LR
-  P1[Phase 1\nShared foundation] --> P3[Phase 3\nHTTP + trace context]
-  P1 --> P4[Phase 4\nWorkers + NATS]
-  P2[Phase 2\nLoki platform] --> P5[Phase 5\nGrafana correlation]
+  P1[Phase 1
+Shared foundation] --> P3[Phase 3
+HTTP + trace context]
+  P1 --> P4[Phase 4
+Workers + NATS]
+  P2[Phase 2
+Loki platform] --> P5[Phase 5
+Grafana correlation]
   P3 --> P5
   P4 --> P5
-  P3 --> P7[Phase 7\nPostgreSQL + PostGIS]
+  P3 --> P7[Phase 7
+PostgreSQL + PostGIS]
   P2 --> P7
   P1 --> P7
-  P5 --> P6[Phase 6\nProduction hardening]
+  P5 --> P6[Phase 6
+Production hardening]
   P7 --> P6
 ```
 
