@@ -28,7 +28,6 @@ multi-node Raft, and optional service-observation panels without data. On
 Grafana data frames without query errors; see the
 [query evidence](../../observability/evidence/2026-10-11-nats-surveyor-cutover.md).
 
-
 **Implementation status (11 October 2026):** Surveyor 0.9.11, the eleven NATS
 folder dashboards, bounded JetStream capacities, and replacement Admin,
 Operations, and Geodata images are live. Helm revision 208 applied the
