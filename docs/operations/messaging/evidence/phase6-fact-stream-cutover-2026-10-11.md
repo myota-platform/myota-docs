@@ -2,8 +2,8 @@
 
 **Date:** 11 October 2026  
 **Status:** Complete. The migration succeeded in Helm revision 210.
-Helm revision 211 is deployed with the one-time migration flag disabled and
-all-topology validation enabled. The MyOTA Fleet bundle is Ready=True at Deploy
+The one-time migration flag was disabled in Helm revision 211; the current
+Helm release is revision 213 with all-topology validation enabled. The MyOTA Fleet bundle is Ready=True at Deploy
 main commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`; every MyOTA Deployment
 has all desired replicas ready.
 
@@ -128,7 +128,7 @@ scope.
 - [x] Existing NATS Surveyor dashboards, alerts, recovery docs, and redrive
   ownership remain in operation. No new metrics baseline, shadow traffic, or
   canary rollout was run or added.
-- [x] Helm revision 211 is deployed, its one-time migration flag is disabled,
-  all-topology drift validation remains enabled, every MyOTA Deployment is ready,
+- [x] The current Helm revision 213 is deployed with its one-time migration flag
+  disabled and all-topology drift validation enabled; every MyOTA Deployment is ready,
   and the MyOTA Fleet bundle is Ready=True at Deploy commit
   `16af2edf6b8e868904f9284e481d971ae7d6d38c`.
