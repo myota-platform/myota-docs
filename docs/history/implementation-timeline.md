@@ -31,13 +31,13 @@ describe current ownership and are authoritative for the present-day system.
 - **Recovery and live checks:** The initial Helm render emitted scientific-
   notation byte caps and NATS rejected the replacement while the old server
   remained healthy. Revision 204 restored the prior release; decimal-string
-  limits and `Recreate` were then applied. Helm revision 207 is deployed with
+  limits and `Recreate` were then applied. Helm revision 208 is deployed with
   7 GiB/1 GiB limits and the replacement Operations, Admin, and Geodata images.
   Grafana lists eleven NATS dashboards; a synthetic in-memory stream was
   observed and deleted. Operations migration 003 / core migration 005 removed
   the snapshot table/index after the verified external backup gate; storage
   history remains. Fleet is Ready=True on Deploy main commit
-  `f43d600380803e86292e7e0010bfc1655b1a5d2a`, with 64/64 resources ready and
+  `d0d2f50846fe2c9e239d46a48809860f4b98d7f5`, with 64/64 resources ready and
   matching applied/desired IDs; Phase 2 is complete. See the
   [monitoring evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md)
   and [roadmap](../observability/nats-surveyor-migration.md).
