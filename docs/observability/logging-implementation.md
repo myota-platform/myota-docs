@@ -1,11 +1,15 @@
 # Structured logging implementation plan
 
-Status: in progress; Phase 1–5 source/configuration work is recorded and a live
-Identity log/trace smoke has passed. Dashboard query and trace-link fixes are
-mounted in Helm revision 225, and Grafana logged dashboard provisioning. Fleet
-is Ready=True at Deploy commit `904bef2`; revision 227 is deployed after rollback
-to 226. Authenticated UI link navigation remains open. Async acceptance, Phase 6
-hardening, and Phase 7 database observability remain open.
+Status: in progress. Phases 1–5 source/configuration work and the live Identity
+log/trace smoke are recorded. The six-panel PostgreSQL/PostGIS dashboard asset
+is in Compose and Helm and its mounted JSON was parsed in Grafana. Phase 7's
+read-only monitor roles and secret wiring are present, but the Collector
+PostgreSQL receivers were removed from the active pipeline after live
+authentication failures. The same three Secrets passed read-only `psql`
+checks, so receiver metrics are not accepted. All K3s Deployments were Ready
+after Helm revision 231's changes; Fleet/Helm still reports revision 231 as
+pending reconciliation. UI link navigation, async acceptance, Phase 6
+hardening, and Phase 7 database signals remain open.
 
 Parent: [MyOTA observability](overview.md)
 
@@ -381,8 +385,10 @@ through its existing observability path.
 Deliverables:
 
 - [ ] PostgreSQL server/database metrics collected through the OpenTelemetry
-  Collector's PostgreSQL receiver where supported by the pinned Collector
-  distribution;
+  Collector's PostgreSQL receiver. Initial live receiver attempts failed
+  authentication although read-only `psql` checks with the same Kubernetes
+  Secrets succeeded. The receiver is paused in the active Collector pipeline;
+  see the [current evidence](evidence/logging-implementation-2026-10-11.md).
 - [ ] database client spans from instrumented service queries, using OpenTelemetry
   database semantic conventions and existing trace propagation;
 - [ ] PostgreSQL server logs collected through the Collector's supported file/OTLP
@@ -393,11 +399,16 @@ Deliverables:
   safely;
 - [ ] an explicit operations-service fallback for any PostgreSQL/PostGIS metrics,
   traces, or logs that cannot be collected directly and reliably;
-- [ ] least-privilege monitoring credentials, existing secret handling, and no
-  public database or telemetry endpoint;
-- [ ] Grafana database/PostGIS views and useful trace/log links;
-- [ ] Compose and Helm parity, retention, redaction, cardinality and operational
-  runbook updates.
+- [x] dedicated non-superuser monitor roles and externally supplied passwords
+  are wired through the Compose and Helm provisioning paths. A read-only smoke
+  queried `pg_stat_database` in all three databases; see evidence for the
+  PostgreSQL extension-owned public relations visible in the Geo database.
+- [ ] Grafana database/PostGIS views and useful trace/log links. The six-panel
+  dashboard asset is present and mounted, but database panels have no accepted
+  receiver metrics yet.
+- [ ] Compose and Helm telemetry parity, retention, redaction, cardinality and
+  operational runbook updates. Role provisioning and dashboard asset paths
+  exist in both; the database telemetry path is not active or parity-qualified.
 
 Do not expose raw SQL values, bind parameters, user data, or complete geometry
 payloads. Avoid high-cardinality query text and expensive database-wide scans.
