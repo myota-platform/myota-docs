@@ -89,8 +89,10 @@ and the [administration workflows index](../domain/administration/README.md).
 
 **Current evidence:** Phase 1–5 source/configuration changes exist on main and the
 Loki/Collector workloads are Ready in K3s. Latest Deploy Python quality and image
-build runs passed. The running service digests still predate the latest worker
-logging changes, and no live request-to-worker trace/log proof is recorded.
+build runs passed. Identity, Programme, Activity, Operations and Deploy worker images now run the
+logging changes, but Geodata remains on its prior digest after a failing image
+workflow. An Identity trace probe was not found in Loki, and no live
+request-to-worker trace/log proof is recorded.
 Phase 6 capacity, retention, alert, and runbook gates remain open; Phase 7
 PostgreSQL/PostGIS telemetry has not been implemented. Geodata's latest image
 build is also blocked by seven worker-delivery timeouts and a row-authoritative
