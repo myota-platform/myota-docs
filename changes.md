@@ -11,8 +11,8 @@
   1 GiB/250,000/1 MiB, and Geodata work 3 GiB/500,000/1 MiB. Each stream is
   file-backed, one replica, 30-day max age, and DiscardNew. The one-time
   migration flag is disabled; topology validation remains enabled.
-- Helm revision 211 is deployed and MyOTA Fleet is Ready=True on Deploy main
-  commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`; all MyOTA Deployment
+- Helm revision 213 is deployed and MyOTA Fleet is Ready=True on Deploy main
+  commit `de01650e19b88bc99a11ede1f25694202c8c8d17`; all MyOTA Deployment
   replicas are ready. Deploy Python quality and Helm validation passed
   (runs 38099669717 and 38099669405).
 - A no-message disposable K3s migration/idempotency check passed and its
