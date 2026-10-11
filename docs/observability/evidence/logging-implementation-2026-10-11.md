@@ -28,11 +28,13 @@ Documentation and phase evidence are owned by `myota-docs`.
 | 6 — hardening | Loki labels are low-cardinality; retention is configured; initial ingestion/object size and capacity guardrails are documented. | Representative Loki prohibited-field audit and alert-rule decision remain open; short sample is not a production growth rate. |
 | 7 — PostgreSQL/PostGIS | Operations read-only sampling exposes bounded PostgreSQL counters and Geo PostGIS presence/version; Psycopg spans are SQL-scrubbed before Tempo; the dashboard reads active metrics. | Dynamic Compose execution parity remains open. Direct Collector receiver is intentionally disabled after repeatable authentication failure. |
 
-Current rollout state: Helm revision 259 is `deployed` from Deploy commit
-`cd13e2ce8396025c84b89eb4e9e3c153ca5a8489`. Fleet's GitRepo and MyOTA
-BundleDeployment are ready. All 23 Deployments and 27/27 desired replicas are
-Ready. The Activity notification worker runs
+Current rollout state: Helm revision 261 is `deployed` from Deploy commit
+`26d13abaef55f1c545d0fff3b8003f2572bd5483`. Fleet's MyOTA BundleDeployment
+is ready with 67/67 resources. All 23 Deployments and 27/27 desired replicas
+are Ready. The Activity notification worker runs
 `myota-activity-service@sha256:33e7b42f68544b569d621f93bae8fdeec5f696408f0527bc484be6a648673bbc`.
+Identity and Programme metrics verification is documented in the
+[metrics evidence](identity-programme-metrics-2026-10-11.md).
 
 ## 11 October 2026 — Activity consumer correction and live Identity path
 

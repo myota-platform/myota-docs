@@ -174,14 +174,12 @@ should move Alertmanager storage to a persistent volume.
 Service endpoints expose these real aggregates without participant names,
 emails, callsigns, or entity identifiers:
 
-- Identity (intended aggregate set): users by status and participation type,
-  callsigns, verified callsigns, roles, role definitions, security events, and
-  locked accounts. **Not currently visible in K3s Prometheus** because the
-  configured `/metrics` URL returns 404; see the live gap above.
-- Programme (intended aggregate set): programme totals and status, shared
-  entity-category catalogue, and category-to-programme assignments. **Not
-  currently visible in K3s Prometheus** because the configured `/metrics` URL
-  returns 404; see the live gap above.
+- Identity: users by fixed participation type, callsigns, active roles,
+  retained security-event count, and locked-account count. The `/metrics`
+  endpoint also exposes bounded HTTP request counters and duration histograms.
+- Programme: programme count, entity-type catalogue count, and category
+  assignments. The `/metrics` endpoint also exposes bounded HTTP request
+  counters and duration histograms.
 - Geodata: entities by lifecycle status and GeoJSON geometry, categories,
   import runs by status, and pre-processing candidates by validation state.
 - Activity: valid and void QSOs, activations by status, participants,
