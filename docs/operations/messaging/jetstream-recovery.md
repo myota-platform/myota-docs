@@ -23,9 +23,10 @@ for administrative actions.
 1. Confirm broker health, free PVC space, stream names, storage and retention
    settings, limits, stream sequence range, and each durable's acknowledged and
    delivered sequence.
-2. Confirm no migration or relay cutover is in progress. For the legacy shared
-   MYOTA_EVENTS stream, record its Interest retention and current consumers;
-   do not change its retention as part of backup.
+2. Confirm no migration or relay cutover is in progress. The Phase 6 cutover
+   changed MYOTA_EVENTS to Limits retention with only myota.events.> capture.
+   Record the deployed stream/consumer state; do not switch retention or
+   subjects as part of backup.
 3. For local qualification, use a disposable PVC snapshot/copy and record tool
    and server versions, UTC start and finish times, stream metadata, and
    checksums. The 10 October drill completed this step.
@@ -48,8 +49,9 @@ databases or external side-effecting services.
 1. Restore the selected stream snapshot and verify stream name, subjects,
    retention policy, storage type, limits, replica count, first/last sequence,
    message count, and byte count.
-2. Run the deploy-owned create-only provisioner with the reviewed topology.
-   Confirm it validates existing configuration and recreates missing durables;
+2. Run the deploy-owned drift-checked topology provisioner with the reviewed
+   topology. The one-time Interest-to-Limits migration flag must remain off.
+   Confirm existing configuration validates and missing durables are recreated;
    any configuration drift must fail closed.
 3. Compare a sample of restored message IDs and sequence positions with the
    owning service's source outbox records. Compare durable ACK floors and
@@ -79,6 +81,26 @@ During an outage, leave accepted source rows pending and let the relay retry
 through its bounded retry/dead-letter policy. Before replay or re-drive, inspect
 the relevant database row and idempotency checkpoint. Do not rewind a
 production side-effecting durable.
+
+
+## Phase 6 fact-stream retention state
+
+The host deployment now uses `MYOTA_EVENTS` with Limits retention,
+`myota.events.>` capture, file storage, one replica, 30-day max age,
+1 GiB/500,000-message/1 MiB caps, and `DiscardNew`. Activity work and
+Geodata work remain in their separate WorkQueue streams. The one-time
+migration flag is disabled; the all-topology hook remains enabled for
+drift validation.
+
+A retention rollback to Interest is not supported: it may discard
+acknowledged or unmatched facts and would reintroduce the earlier dependency
+between durable filters and publication. Roll back application code only
+while keeping the deployed stream topology. Rebuild facts/projections from
+service-owned authoritative state when a fact is older than the 30-day
+transport window. For accepted work, reconcile from owner rows, outboxes,
+database DLQs, and stable work IDs. See the
+[Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md) and
+[NATS migration plan](nats-event-migration-plan.md).
 
 ## Outbox dead-letter inspection and redrive
 
@@ -110,9 +132,11 @@ reason, prior attempt count, and prior error in `outbox_redrive_audit`. A later
 successful publish resolves the dead-letter entry. Never redrive an unresolved
 failure repeatedly without investigating it.
 
-Under the current Interest-retained legacy stream, messages already removed
-after all interested durables acknowledged them cannot be recovered from a
-snapshot taken later. At cutover, stop relays, inspect and snapshot the current
+Under the former Interest-retained stream, messages already removed after all
+interested durables acknowledged them cannot be recovered from a snapshot
+taken later. Phase 6 cut over the stream only after confirming it contained
+zero messages and bytes; the current bounded Limits stream retains facts for
+up to 30 days. At cutover, stop relays, inspect and snapshot the current
 stream, reconcile remaining events against database outboxes, and preserve the
 legacy stream until its consumer and replay needs are resolved.
 
