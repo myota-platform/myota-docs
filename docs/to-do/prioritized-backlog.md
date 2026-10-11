@@ -90,9 +90,9 @@ and the [administration workflows index](../domain/administration/README.md).
 **Current evidence:** the current service digests are running and all application
 and worker replicas were Ready. A read-only Identity health request now has a
 matching Loki structured-metadata record and Tempo span. Live dashboard query
-shapes succeed after removing the incompatible JSON parser. The corrected
-Deploy/Platform Grafana datasource and dashboard assets still need GitOps rollout
-and UI navigation verification. Phase 6 representative retention, growth,
+shapes succeed after removing the incompatible JSON parser. The corrected Deploy/Platform Grafana datasource and dashboard assets are mounted
+in Helm revision 225 and all seven dashboard queries passed against live Loki.
+Fleet bundle readiness and UI navigation verification remain open. Phase 6 representative retention, growth,
 capacity, cardinality, and live redaction evidence is incomplete; Phase 7
 PostgreSQL/PostGIS telemetry remains unimplemented. See the
 [logging implementation plan](../observability/logging-implementation.md),
