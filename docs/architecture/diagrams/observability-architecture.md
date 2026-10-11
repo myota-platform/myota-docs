@@ -30,13 +30,15 @@ flowchart LR
 ```
 
 The current structured-logging rollout uses the existing Collector, Tempo, and
-Prometheus plus Loki. Phase 1–5 source/configuration work is recorded. Identity, Programme,
-Activity, Operations and Deploy worker images are rolled out, while Geodata
-remains on its prior digest after a failing worker integration job. A live
-Identity request trace was not found in Loki, so request-to-worker correlation
-still needs acceptance. The PostgreSQL-to-Collector edge is **proposed** and remains disabled
-until a dedicated read-only monitoring login and Phase 7 verification exist. See
-the [logging implementation plan](../../observability/logging-implementation.md)
+Prometheus plus Loki. Identity, Programme, Activity, and Geodata logging images
+are live. A safe Identity health request has a matching Loki structured-metadata
+record and Tempo span; dashboard LogQL query shapes pass against live Loki.
+Helm revision 224 mounted the corrected datasource/dashboard and Grafana logged
+dashboard provisioning. Fleet release readiness and UI link navigation,
+request-to-worker correlation, Phase 6 hardening, and Phase 7 database
+observability remain open. The PostgreSQL-to-Collector edge is **proposed** and
+remains disabled until a dedicated read-only monitoring login and Phase 7
+verification exist. See the [logging implementation plan](../../observability/logging-implementation.md)
 and [evidence](../../observability/evidence/logging-implementation-2026-10-11.md).
 
 Operations no longer needs a NATS connection for broker metrics. Surveyor is
