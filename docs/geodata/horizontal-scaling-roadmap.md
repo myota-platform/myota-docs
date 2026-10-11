@@ -514,15 +514,18 @@ See the [Phase 4 evidence](evidence/phase4-infrastructure-scaling-2026-10-09.md)
 ### Phase 5 — staged rollout and operational proof
 
 Phase 3 bounded parsing and worker termination/reclaim, and Phase 4 bounded API
-replica add/remove, are complete for their stated evidence. Phase 5 now has
-live evidence for API rolling replacement during an accepted 22.5 MB import,
+replica add/remove, are complete for their stated evidence. Phase 5 has live
+evidence for API rolling replacement during an accepted 22.5 MB import,
 CPU-triggered HPA scale-up/down within the charted 2–3 replicas, and read/write
-performance at two and three replicas. The measured gain is modest, and
+performance at two and three replicas. The measured write gain is modest, and
 same-row edit contention produced lock waits and a two-replica p95 threshold
-miss. Phase 5 is therefore still open: node/storage failure, broader sustained
-load, independent-row edit consistency, canary proof, and end-to-end rollback
-are not qualified. The API-session and SeaweedFS container restart gate remains
-covered by the separate Phase 2 evidence.
+miss. An 11 October read-only check at 2, 10, and 50 VUs passed against the
+ten-entity catalogue, but did not test writes or broad catalogue scale. Phase 5
+remains open: node/storage failure, broader sustained load, independent-row
+write consistency, canary proof, and end-to-end rollback are not qualified.
+The API-session and SeaweedFS container restart gate remains covered by the
+separate Phase 2 evidence. See the [read-only follow-up
+evidence](evidence/phase5-read-only-follow-up-2026-10-11.md).
 
 ChatGPT implementation prompt: [complete staged rollout and operational proof](prompts/scaling/phase-5-rollout.md).
 
@@ -542,7 +545,12 @@ ChatGPT implementation prompt: [complete staged rollout and operational proof](p
   bottleneck: the two-replica concurrent-edit p95 exceeded 2.00 s and the
   deliberately shared-row edit profile exposed PostgreSQL lock waits; at three
   replicas, p95 passed but throughput improvement was modest on ten entities.
-  Broader catalogue and independent-row results are still needed.
+  The 11 October read-only 2/10/50-VU check used the same ten-entity catalogue
+  and does not satisfy this gate. Broader-catalogue and independent-row write
+  results are still needed. The bounded independent-edits profile and its
+  18/18 local harness tests are in
+  [myota-geodata-service/loadtests/geodata-workloads.js](https://github.com/myota-platform/myota-geodata-service/blob/09022bef0a57b392372100afabbd268db58149bc/loadtests/geodata-workloads.js)
+  and its adjacent test file.
 - [x] Replace API pods one at a time while a resumable 22.5 MB import was
   accepted and processing; confirm the import reached terminal state and its
   exact-tag cleanup removed the upload session, source object, and import.
@@ -578,10 +586,13 @@ storage; and measured tests show the intended throughput/latency improvement.
 bounded upload/rollout and HPA checks passed on the one-node deployment, and the
 read comparison showed lower p95 but only a 0.8% throughput increase on ten
 entities. The write test deliberately contended on one row, exposed lock waits,
-and slightly exceeded the two-replica p95 target. Multi-node rescheduling,
-stateful failure, broader catalogue scale, independent-row consistency, a new
-image canary, and a drilled rollback remain open. See the [Phase 5 evidence
-report](evidence/phase5-staged-rollout-2026-10-09.md).
+and slightly exceeded the two-replica p95 target. The 11 October read-only
+follow-up passed at 2/10/50 VUs but sampled only ten catalogue entities and
+created no data; it adds no write or broader-scale qualification. Multi-node
+rescheduling, stateful failure, broader catalogue scale, independent-row write
+consistency, a new image canary, and a drilled rollback remain open. See the
+[Phase 5 evidence report](evidence/phase5-staged-rollout-2026-10-09.md) and
+[read-only follow-up](evidence/phase5-read-only-follow-up-2026-10-11.md).
 
 ## Ownership and sequencing
 

@@ -1,5 +1,7 @@
 # Geodata evidence
 
+- [Phase 5 read-only capacity follow-up (11 October 2026)](phase5-read-only-follow-up-2026-10-11.md)
+  — 2/10/50-VU read-path results, exact runtime state, and gates that remain open.
 - [Phase 5 staged rollout and operational proof](phase5-staged-rollout-2026-10-09.md)
   — bounded live upload during API rollout, CPU HPA up/down, 2-vs-3 replica
   read/write results, shared-service telemetry, exact cleanup, and remaining

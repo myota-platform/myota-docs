@@ -11,7 +11,8 @@ For the recommended execution order, see the
 
 - [Geodata scale qualification](../geodata/horizontal-scaling-roadmap.md) —
   Phase 5 retains broader capacity, independent-row consistency, node/storage
-  failure, canary, and rollback evidence gates.
+  failure, canary, and rollback evidence gates. See the [11 October
+  read-only evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md).
 - [Structured logging acceptance](../observability/logging-implementation.md) —
   Helm/Fleet state reconciliation, authenticated Grafana navigation,
   request-to-worker correlation, Loki field privacy review, and Compose parity

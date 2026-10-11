@@ -13,6 +13,29 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 11 October 2026 — Geodata Phase 5 scale qualification follow-up
+
+- **Prompt used:** “Finish the geodata scale qualifications.”
+- **Scope:** ran a bounded read-only 2/10/50-VU check against the current
+  ten-entity catalogue, added a bounded independent-row edit profile and its
+  local harness tests, and reconciled the open-gate indexes. Runtime code,
+  deployment settings, and database state were not changed.
+- **Evidence:** all read profiles passed with 0% request failures and 100%
+  checks; the 50-VU run reached 95.07 requests/s with 22.94 ms p95. The
+  Geodata API remained 2/2 Ready, its worker 1/1 Ready, and HPA at 2 replicas
+  after the run. No fixture or test data was created.
+- **Qualification limits:** the catalogue contained only ten entities, so
+  these read results do not establish broad capacity. Independent-row writes,
+  large-catalogue performance, a new-image canary, rollback and node/storage
+  failure remain open. The live write credentials were unavailable, and the
+  single-node stateful failure tests remain unsafe on this host.
+- **Harness verification:** 18/18 local Node tests passed for the new
+  independent-edits setup, row assignment, bounds, and exact-run cleanup.
+  No release image was built or redeployed.
+- See the [Phase 5 evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md)
+  and [scaling roadmap](../geodata/horizontal-scaling-roadmap.md).
+
+
 ## 11 October 2026 — Cross-repository architecture review
 
 - **Prompt used:** “Review the entire architecture. Check the individual

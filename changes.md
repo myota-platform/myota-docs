@@ -1,5 +1,17 @@
 # MyOTA changes
 
+## 11 October 2026 — Geodata Phase 5 scale qualification follow-up
+
+- The read-only 2/10/50-VU catalogue profiles passed with 0% request failures
+  and 100% checks; the 50-VU profile measured 95.07 requests/s and 22.94 ms
+  p95 on ten entities. No test data or runtime changes were made.
+- Added and locally verified a bounded independent-row edit profile for future
+  qualification. The write, broad-catalogue, canary, rollback, and
+  node/storage gates remain open.
+- See the [dated evidence](docs/geodata/evidence/phase5-read-only-follow-up-2026-10-11.md)
+  and [Geodata scaling roadmap](docs/geodata/horizontal-scaling-roadmap.md).
+
+
 ## 11 October 2026 — Current system documentation and diagrams
 
 - Added a single current-state snapshot from GitHub main heads and read-only

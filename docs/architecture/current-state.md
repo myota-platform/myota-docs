@@ -33,7 +33,7 @@ does not prove that its image is deployed; deployed image digests are separate.
 | [Identity](https://github.com/myota-platform/myota-identity-service) | `a503fbeffdc4d8a3ae9aeeee3607d81e5ea891fc` |
 | [Programme](https://github.com/myota-platform/myota-programme-service) | `ae65e0e9b80173e710e1265da804c3bd9cd3cbdc` |
 | [Activity](https://github.com/myota-platform/myota-activity-service) | `3095559cac35f3c0c9a8d021c387e298ac0cf95b` |
-| [Geodata](https://github.com/myota-platform/myota-geodata-service) | `ad28632723765463fa683ac175cf430045c769f0` |
+| [Geodata](https://github.com/myota-platform/myota-geodata-service) | `09022bef0a57b392372100afabbd268db58149bc` (bounded load-test harness only; deployed image unchanged) |
 | [Operations](https://github.com/myota-platform/myota-operations-service) | `91b5c2ffdb7bc82419e556d3dc9604624d218972` |
 | [Contracts](https://github.com/myota-platform/myota-contracts) | `36cf244bedaf6071e50d7c5aef973ccd890128c4` |
 | [Deploy](https://github.com/myota-platform/myota-deploy) | `f7d2e65edd5248d70376cf99ccc98c836b7f95e3` |
@@ -83,7 +83,7 @@ is explicitly deferred; the local file store is not a backup.
 | Cross-repository architecture review | Phases 0–4 complete, including duplicate-YAML-key rejection, handler/mirror check, and route inventory evidence. | [Review](../../REVIEW.md), [Phase 0 evidence](evidence/review-phase-0-2026-10-11.md), [Phases 1–4 evidence](evidence/review-phases-1-4-2026-10-11.md) |
 | NATS event/work migration | Phases 0–6 complete within evidence bounds. Phase 5's 24-hour observation was waived and closed early, not completed as a full-day window. Six application DLQ records remain preserved. | [Migration plan](../operations/messaging/nats-event-migration-plan.md), [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md) |
 | NATS monitoring consolidation | Surveyor, dashboards, capacity settings, and Operations retirement are implemented; single-host broker and Prometheus limits still apply. | [Surveyor plan](../observability/nats-surveyor-migration.md), [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md) |
-| Geodata scale qualification | Phase 5 remains open: broader capacity, independent-row consistency, node/storage failure, canary, and rollback gates remain. | [Scaling roadmap](../geodata/horizontal-scaling-roadmap.md) |
+| Geodata scale qualification | Phase 5 remains open. A read-only 2/10/50-VU follow-up passed on ten catalogue entities; it does not close broad-capacity or write gates. | [Scaling roadmap](../geodata/horizontal-scaling-roadmap.md), [11 October evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md) |
 | Logging and observability | Implementation has live evidence; acceptance remains open for authenticated Grafana navigation, request-to-worker correlation, Loki prohibited-field/cardinality review, Compose parity, and Identity/Programme metrics coverage. | [Logging roadmap](../observability/logging-implementation.md), [evidence](../observability/evidence/logging-implementation-2026-10-11.md) |
 | Product/domain backlog | Programme configuration, Admin UI internationalization, award-condition modeling, and charter gaps remain planned work. | [To do](../to-do/README.md), [prioritized backlog](../to-do/prioritized-backlog.md) |
 
