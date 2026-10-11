@@ -1,6 +1,6 @@
 # Structured logging operations runbook
 
-**Status:** Identity live LogQL queries are qualified against Loki OTLP structured metadata; Tempo stores the matching trace. Helm revision 224 mounted the corrected datasource and dashboard, and Grafana logged successful dashboard provisioning. Fleet release readiness and UI link navigation are still being verified. Worker correlation, retention, capacity, redaction, and database gates remain open.
+**Status:** Identity live LogQL queries are qualified against Loki OTLP structured metadata; Tempo stores the matching trace. Helm revision 225 mounted the corrected datasource and dashboard, Grafana logged successful dashboard provisioning, and all seven mounted dashboard LogQL queries returned successfully against live Loki. Fleet release readiness and authenticated UI link navigation are still being verified. Worker correlation, retention, capacity, redaction, and database gates remain open.
 
 Structured logs travel from services through the OpenTelemetry Collector to Loki.
 PostgreSQL and application state remain authoritative; logs are diagnostic
