@@ -34,8 +34,8 @@ worker replicas were Ready at the latest K3s check. A safe Identity
 dashboard query shapes also succeeded against live Loki. Helm revision 225
 mounted the corrected metadata-aware dashboard and datasource files, Grafana
 logged dashboard provisioning, and all seven dashboard LogQL queries returned
-successfully against live Loki. Fleet release readiness and UI trace/log
-navigation remain open, as do asynchronous correlation, Phase 6 production
+successfully against live Loki. Fleet is Ready=True at Deploy commit `904bef2`, with Helm revision 227
+following a rollback to 226. UI trace/log navigation remains open, as do asynchronous correlation, Phase 6 production
 hardening, and Phase 7 PostgreSQL/PostGIS telemetry. See the
 [implementation plan](logging-implementation.md), [evidence](evidence/logging-implementation-2026-10-11.md),
 and [runbook](logging-runbook.md).
