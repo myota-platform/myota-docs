@@ -25,10 +25,10 @@ indexes organize open work by delivery status.
   cfecd655d9c0eee9d19db26725fb11c99366815a. See [Phase 5 evidence](operations/messaging/evidence/phase5-geodata-work-2026-10-10.md)
   and [Phase 6 plan](operations/messaging/nats-event-migration-plan.md#phase-6).
 - [NATS Surveyor monitoring consolidation](observability/nats-surveyor-migration.md) —
-  current Surveyor, dashboard, alert and bounded capacity decisions. Service
-  source retirements passed CI; live image rollout and the verified-backup
-  Operations history migration are still being completed. The retired combined
-  dashboard and its two PostGIS panels are not recreated.
+  live Surveyor, dashboard, alert and bounded capacity decisions. The replacement
+  images and forward-only Operations history migration are deployed; Fleet
+  reconciliation remains open. The retired combined dashboard and its two
+  PostGIS panels are not recreated.
 - [Observability](observability/README.md) — telemetry architecture, logging
   roadmap, Surveyor migration plan and current verification.
 - [Governance](governance/README.md) — charter, gap analysis, and MPOTA
