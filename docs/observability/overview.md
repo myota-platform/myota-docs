@@ -36,9 +36,15 @@ been verified to contain the latest logging code. See the
 The plan adds Loki behind the existing OpenTelemetry Collector, standardizes
 structured service and worker logging, propagates trace and business correlation
 context through HTTP and NATS/JetStream, adds PostgreSQL/PostGIS database
-metrics, traces and logs, and connects Grafana metrics, traces and logs. It is
-split into independently executable phases, each with a linked
-ChatGPT/Work/Codex implementation prompt.
+metrics, traces and logs, and connects Grafana metrics, traces and logs. Phases
+1–5 source/configuration work is recorded, and Identity, Programme, Activity,
+Operations, and Deploy worker images have rolled out. Geodata remains on its
+prior image because its current worker integration suite failed. A live Identity
+request reached the API but its trace was not found in Loki, so trace/log
+navigation is not accepted. Phase 6 hardening and Phase 7 database telemetry
+remain open. Each phase has a linked implementation prompt; see the [current
+evidence](evidence/logging-implementation-2026-10-11.md) and [operations
+runbook](logging-runbook.md).
 
 ## Collection architecture
 
