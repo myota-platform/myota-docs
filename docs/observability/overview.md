@@ -1,17 +1,40 @@
 # MyOTA observability
 
 For the latest deployment and repository snapshot, see the
-[Current system state](../architecture/current-state.md). The 11 October 2026
-reconciliation found Helm revision 261 deployed, Fleet Ready with 67/67
-resources, and 23/23 MyOTA Deployments Ready. Identity and Programme metrics
-coverage is verified; other logging and observability acceptance gates remain
-open. See the [logging roadmap](logging-implementation.md).
+[Current system state](../architecture/current-state.md). On 11 October 2026 22:07 UTC,
+Helm release `myota` was deployed at revision 265 with chart 0.2.20.
+Fleet reported the MyOTA bundle deployed and monitored at Deploy commit
+`226d9f63cc08ce1852dbf2c04856feb45a9f0966`. The workload, workflow, and
+database dashboard enhancements are documented in the
+[dashboard evidence record](evidence/dashboard-enhancements-2026-10-12.md).
+Identity and Programme metrics coverage is verified; other logging and
+observability acceptance gates remain open. See the
+[logging roadmap](logging-implementation.md).
 
-## What was confirmed
+## Dashboard enhancement delivery
 
-All five provisioned dashboards explicitly use UTC, and Grafana's Compose/Helm
-default is UTC for new/ad-hoc dashboards. Operational NATS history displays also identify UTC. The last-30-minutes and 30-second refresh defaults
-are unchanged; see the [system-wide UTC policy](../platform/utc-time-policy.md).
+The Deploy-owned Grafana configuration now includes a K3s workload health and
+capacity dashboard, an application workflow dashboard, and expanded
+PostgreSQL/PostGIS health panels. The Platform Helm copies match the Deploy
+source byte-for-byte. The K3s dashboard is Helm-only; Compose does not invent
+cluster metrics.
+
+K3s panels use kube-state-metrics and internal HTTPS Kubelet metrics, scoped
+to the MyOTA namespace. The workflow dashboard combines available outbox,
+Activity, Geodata, and JetStream stream/server measurements. JetStream per-
+durable pending, acknowledgement-pending, redelivery, and oldest-message-age
+series are not available from the current Surveyor/custom application metric
+sources; the dashboard marks this gap and links to broker-level NATS views
+instead of displaying fabricated zeroes. The PostgreSQL/PostGIS dashboard
+uses bounded read-only metrics and states which transaction-age, cache, and
+vacuum/freeze measurements are not collected.
+
+All dashboard defaults use UTC, a last-30-minutes time range, and a 30-second
+refresh. Grafana's Compose/Helm default is UTC for new/ad-hoc dashboards; see
+the [system-wide UTC policy](../platform/utc-time-policy.md). Metric sources,
+permissions, scrape interval, live query results, deployment status, and
+remaining limits are in the
+[dashboard evidence record](evidence/dashboard-enhancements-2026-10-12.md).
 
 The original Grafana panels were not seeded with fabricated business values.
 They were incomplete: request counters lived in each process and reset on a
@@ -20,16 +43,17 @@ measurements behind them. The only consistently visible value was gateway
 health traffic. The old dashboard therefore did not provide a trustworthy
 project-wide view.
 
-The current dashboards use measurements derived from persisted service state,
-live API/database execution, or direct JetStream consumer state. A zero is a
-real zero; a missing value indicates that the source service or collector is
-unavailable.
+Current dashboards use measurements derived from persisted service state,
+live API/database execution, or cluster/broker telemetry. A zero is a real
+zero; a missing or unsupported measurement is called out rather than
+represented as zero.
 
 
 ## Structured logging implementation roadmap
 
 Structured logging and bounded database telemetry are deployed. Helm revision
-241 is active with 67/67 Fleet resources ready. Operations exposes read-only
+265 is active with chart 0.2.20; Fleet reports the MyOTA bundle deployed and
+monitored. The remaining logging acceptance work is tracked separately. Operations exposes read-only
 PostgreSQL metrics for all three databases, and Psycopg client spans are scrubbed
 of SQL attributes before Tempo export. A safe Identity
 `GET /healthz` record was found in Loki by its OTLP structured-metadata
@@ -185,13 +209,12 @@ emails, callsigns, or entity identifiers:
 - Activity: valid and void QSOs, activations by status, participants,
   activators, hunters, aggregate callsign/entity rows, award definitions and
   progress, ADIF imports, jobs, corrections, and queue lag.
-- JetStream: per-stream/consumer pending and ack-pending messages, broker
-  redeliveries, oldest outstanding message age, and metrics-poller health are
-  currently provided by the custom Geodata poller. The age lookup is marked
-  unavailable if the broker no longer retains the target sequence. These are
-  broker-side measurements, distinct from outbox/import database counts. The
-  [NATS Surveyor plan](nats-surveyor-migration.md) proposes centralizing these
-  broker metrics and retiring the duplicate poller after validation.
+- JetStream: NATS Surveyor provides broker/server and stream-level metrics
+  used by the NATS folder dashboards. The retired custom Geodata poller no
+  longer supplies per-durable pending, ack-pending, redelivery, or oldest
+  message-age series. Those values are shown as unavailable in the workflow
+  dashboard; they are not inferred from outbox or database work counts.
+  PostgreSQL remains authoritative for application recovery.
 
 All service-specific values are read from the service's durable store at scrape
 time. Request counters and distributed request histograms are emitted through

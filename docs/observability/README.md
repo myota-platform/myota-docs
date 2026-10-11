@@ -5,6 +5,9 @@ for the latest verified deployment and open acceptance gates.
 
 - [Observability overview](overview.md) — collection architecture, data
   sources, dashboards, alerts, and known gaps.
+- [Dashboard enhancement evidence](evidence/dashboard-enhancements-2026-10-12.md) —
+  K3s, workflow, and PostgreSQL/PostGIS dashboards with live verification and
+  metric limitations.
 - [Logging implementation roadmap](logging-implementation.md) — phases,
   acceptance criteria, and remaining work.
 - [Logging evidence](evidence/logging-implementation-2026-10-11.md) — dated

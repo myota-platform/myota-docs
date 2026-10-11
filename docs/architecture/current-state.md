@@ -1,6 +1,6 @@
 # Current system state
 
-**Verified:** 11 October 2026 21:36 UTC  
+**Verified:** 11 October 2026 22:07 UTC  
 **Scope:** GitHub `main` repository heads and a read-only inspection of the
 MyOTA namespace on the local single-node K3s host. This is a snapshot, not a
 production-readiness declaration. Authoritative owner repositories remain the
@@ -12,8 +12,8 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 | Area | Verified state |
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
-| Helm/Fleet | Release `myota`, chart `myota-0.2.14`, revision `261`, status `deployed`. Fleet's MyOTA BundleDeployment is ready at Deploy commit `26d13abaef55f1c545d0fff3b8003f2572bd5483`; all 23 Deployments and 27/27 desired replicas are Ready. |
-| MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas). The admin web is deployed; `myota-web` participant client is not a Deployment in this namespace. |
+| Helm/Fleet | Release `myota`, chart `myota-0.2.20`, revision `265`, status `deployed`. Fleet's `myota-deploy-deploy-helm-myota` BundleDeployment is deployed and monitored at Deploy commit `226d9f63cc08ce1852dbf2c04856feb45a9f0966`; all 24 Deployments and 28/28 desired replicas are Ready. |
+| MyOTA Deployments | 24/24 report desired replicas ready (28/28 replicas), including the namespace-scoped kube-state-metrics Deployment. The admin web is deployed; `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
 | Monitoring | NATS Surveyor 0.9.11, Prometheus 2.55.1, Grafana 11.2.2, Alertmanager 0.28.1, OTel Collector 0.135.0, Tempo 2.6.1, and Loki 3.7.8. Eleven NATS dashboards are in Grafana folder `NATS`. |
@@ -35,8 +35,8 @@ does not prove that its image is deployed; deployed image digests are separate.
 | [Geodata](https://github.com/myota-platform/myota-geodata-service) | `08e416ab746863602c2024f1961c6f66aaec2023` |
 | [Operations](https://github.com/myota-platform/myota-operations-service) | `b3851dddc80a2186f29738cafad74532dac64f74` |
 | [Contracts](https://github.com/myota-platform/myota-contracts) | `d6445586580a70c155a4797f1122f9b3ddf44eaa` |
-| [Deploy](https://github.com/myota-platform/myota-deploy) | `26d13abaef55f1c545d0fff3b8003f2572bd5483` |
-| [Platform](https://github.com/myota-platform/myota-platform) | `45437c64ee4f52559b434ede65797e08b8395ac9` |
+| [Deploy](https://github.com/myota-platform/myota-deploy) | `226d9f63cc08ce1852dbf2c04856feb45a9f0966` |
+| [Platform](https://github.com/myota-platform/myota-platform) | `388e67e6777c6e680f747fc4a38a0bf68ebf0819` |
 | [Participant web](https://github.com/myota-platform/myota-web) | `0e6cb4cb03a1bdfac03c288d90af540fba917279` |
 | [Admin web](https://github.com/myota-platform/myota-admin-web) | `9d54cc635b7d5411fee6b18d963dc6788a92a43c` |
 | [.github](https://github.com/myota-platform/.github) | `6129d75f06ff9fcba713e5f716d9c46b7de76121` |
@@ -83,17 +83,19 @@ is explicitly deferred; the local file store is not a backup.
 | Cross-repository architecture review | Phases 0–4 complete, including duplicate-YAML-key rejection, handler/mirror check, and route inventory evidence. | [Review](../../REVIEW.md), [Phase 0 evidence](evidence/review-phase-0-2026-10-11.md), [Phases 1–4 evidence](evidence/review-phases-1-4-2026-10-11.md) |
 | NATS event/work migration | Phases 0–6 complete within evidence bounds. Six application DLQ records remain preserved. Seven migration evidence/readiness issues are closed (Operations #1 was superseded); the 24-hour observation was waived and closed early, not completed as a full-day window. Off-node recovery and representative 30-day capacity qualification remain accepted limits. | [Migration plan](../operations/messaging/nats-event-migration-plan.md), [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md), [issue closeout](../operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md) |
 | NATS monitoring consolidation | Surveyor, dashboards, capacity settings, and broker-sampler retirement are implemented; single-host broker and Prometheus limits still apply. | [Surveyor plan](../observability/nats-surveyor-migration.md), [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md) |
-| SeaweedFS monitoring retirement | Admin page, Operations sampler/API, and sampled-history table are retired; Collector scrape and Grafana dashboard remain. All runtime Deployments are Ready on Helm revision 261 and Fleet's current bundle. | [Deploy issue #8](https://github.com/myota-platform/myota-deploy/issues/8), [monitoring guide](../operations/storage/seaweedfs-admin-status.md) |
+| SeaweedFS monitoring retirement | Admin page, Operations sampler/API, and sampled-history table are retired; Collector scrape and Grafana dashboard remain. All 24 runtime Deployments and 28 replicas are Ready on Helm revision 265 and Fleet's current bundle. | [Deploy issue #8](https://github.com/myota-platform/myota-deploy/issues/8), [monitoring guide](../operations/storage/seaweedfs-admin-status.md) |
 | Geodata scale qualification | Phase 5 was administratively closed by owner acceptance on 11 October; broad capacity, independent writes, node/storage failure, canary, rollback, and >3 replicas remain unverified and were accepted for closure. | [Scaling roadmap](../geodata/horizontal-scaling-roadmap.md), [closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md), [read-only evidence](../geodata/evidence/phase5-read-only-follow-up-2026-10-11.md) |
-| Logging and observability | Helm 261 is deployed and all 23 Deployments/27 replicas are Ready. Identity request-to-worker correlation and Identity/Programme metrics coverage are verified; metrics issues #4, #3, and #7 are closed. Programme/Activity/Geodata producer-specific live correlation, authenticated Grafana navigation, Loki privacy/cardinality review, alert/runbook and retention/recovery evidence, and Compose parity remain open. | [Logging roadmap](../observability/logging-implementation.md), [evidence](../observability/evidence/logging-implementation-2026-10-11.md), [metrics verification](../observability/evidence/identity-programme-metrics-2026-10-11.md) |
+| Observability dashboard enhancements | The Deploy-owned K3s workload, application workflow, and PostgreSQL/PostGIS dashboards are deployed; Platform mirrors match. Per-durable JetStream and several PostgreSQL maintenance metrics remain unavailable and are explicitly disclosed. | [Dashboard evidence](../observability/evidence/dashboard-enhancements-2026-10-12.md) |
+| Logging and observability | Helm 265 is deployed and all 24 Deployments/28 replicas are Ready. Identity request-to-worker correlation and Identity/Programme metrics coverage are verified; metrics issues #4, #3, and #7 are closed. Programme/Activity/Geodata producer-specific live correlation, authenticated Grafana navigation, Loki privacy/cardinality review, alert/runbook and retention/recovery evidence, and Compose parity remain open. | [Logging roadmap](../observability/logging-implementation.md), [evidence](../observability/evidence/logging-implementation-2026-10-11.md), [metrics verification](../observability/evidence/identity-programme-metrics-2026-10-11.md) |
 | Product/domain backlog | Programme configuration, Admin UI internationalization, award-condition modeling, and charter gaps remain planned work. | [To do](../to-do/README.md), [prioritized backlog](../to-do/prioritized-backlog.md) |
 
 ## Evidence and method
 
-The deployment snapshot used read-only `k3s kubectl` and Helm inspection with
-the explicit K3s kubeconfig. It checked node readiness, Helm release status,
-Deployment replica counts, and MyOTA Fleet BundleDeployment conditions and
-resource counts. Repository heads came from GitHub `main`; image digests came
+The deployment snapshot used read-only `k3s kubectl`, Helm, and Prometheus query inspection with
+the explicit K3s kubeconfig. It checked node readiness, Helm release status, Deployment replica counts,
+MyOTA Fleet BundleDeployment status, dashboard ConfigMap provisioning, and
+live metric samples. Dashboard enhancement query and mirror evidence is in
+[the dated record](../observability/evidence/dashboard-enhancements-2026-10-12.md). Repository heads came from GitHub `main`; image digests came
 from running Pod specifications. SeaweedFS retirement changes runtime deployments and schema through forward-only
 migrations; focused checks and live validation will be recorded in the linked
 implementation issues after the rollout. This page is a state summary, not the detailed change log.

@@ -1,3 +1,20 @@
+## 11 October 2026 — Observability dashboard enhancements
+
+- Added a Helm-only K3s workload dashboard using namespace-scoped
+  kube-state-metrics and internal, TLS-verified Kubelet resource/volume
+  metrics. Infra-owned RBAC grants only the node metrics reads required by
+  Prometheus.
+- Added a unified application workflow dashboard and expanded PostgreSQL/
+  PostGIS health panels. Unsupported per-durable JetStream delivery signals
+  and unavailable database maintenance metrics are called out instead of
+  rendered as zero.
+- Synchronized Deploy-owned dashboard sources to Platform, deployed chart
+  0.2.20 at Helm revision 265, and verified live metrics on K3s. See the
+  [evidence record](docs/observability/evidence/dashboard-enhancements-2026-10-12.md)
+  and closed Deploy issues [#11](https://github.com/myota-platform/myota-deploy/issues/11),
+  [#12](https://github.com/myota-platform/myota-deploy/issues/12), and
+  [#13](https://github.com/myota-platform/myota-deploy/issues/13).
+
 ## 11 October 2026 — Identity and Programme metrics coverage
 
 - Added bounded HTTP request counters and duration histograms to Identity and

@@ -16,6 +16,25 @@ the state at that point in time; later entries may replace an earlier design.
 The [repository map](../architecture/repository-map.md) and [architecture](../architecture/overview.md)
 describe current ownership and are authoritative for the present-day system.
 
+## 11 October 2026 — Observability dashboard enhancements
+
+- **Prompt used:** “Work on and close all issues related to Observability
+  dashboard enhancements in
+  https://github.com/myota-platform/.github/blob/main/profile/README.md.”
+- **Scope:** completed Deploy issues #11–13 across the Deploy-owned Grafana
+  and Helm configuration, synchronized Platform mirror, and Docs evidence.
+  No application runtime code changed.
+- **Result:** deployed K3s workload/capacity, application workflow, and
+  PostgreSQL/PostGIS dashboards. The K3s panels use namespace-scoped
+  kube-state-metrics and private TLS-verified Kubelet scraping. Unsupported
+  per-durable JetStream delivery and PostgreSQL maintenance metrics are
+  disclosed.
+- **Verification:** Helm 0.2.20 revision 265 deployed; Fleet's MyOTA bundle
+  was deployed and monitored; 24 Deployments and 28 replicas were ready.
+  Prometheus returned live K3s, application workflow, database, and Surveyor
+  series. Deploy/Platform dashboard blobs match. See the
+  [dashboard evidence](../observability/evidence/dashboard-enhancements-2026-10-12.md).
+
 ## 11 October 2026 — Geodata Phase 5 owner-directed closure
 
 - **Prompt used:** “Assume the phase 5 gates passed and close it.”

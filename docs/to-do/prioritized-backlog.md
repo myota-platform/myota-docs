@@ -2,7 +2,7 @@
 
 For the latest verified deployment and workstream status, see [Current system state](../architecture/current-state.md). This page lists unfinished work only; completed milestones remain in their source plans and evidence.
 
-**Reviewed:** 2026-10-11
+**Reviewed:** 2026-10-11 22:07 UTC
 
 This is a recommended order, not a delivery schedule. It records no due dates,
 staffing commitments, external deadlines, or production incidents. Roadmaps own
@@ -61,8 +61,8 @@ Admin UI controls.
 
 ### 3. Complete logging acceptance
 
-**Current position:** Helm revision 261 is deployed and Fleet is ready with all
-23 Deployments and 27/27 replicas. Identity request-to-worker correlation has
+**Current position:** Helm revision 265 is deployed and Fleet is ready with all
+24 Deployments and 28/28 replicas. Identity request-to-worker correlation has
 passed a sanitized live request, worker completion, and JetStream ACK check;
 Identity issue #3 is closed. Identity and Programme metrics coverage is also
 complete; see the [metrics evidence](../observability/evidence/identity-programme-metrics-2026-10-11.md).
