@@ -13,7 +13,7 @@
   Grafana dashboard queries and runbook; the trace link now selects the
   `trace_id` metadata field.
 - Deploy and its Platform mirror contain the dashboard/datasource correction.
-  Helm revision 225 mounted the corrected datasource/dashboard, Grafana logged successful provisioning, and all seven mounted dashboard queries returned successfully against live Loki. Fleet bundle readiness and actual authenticated UI navigation remain open.
+  Helm revision 225 mounted the corrected datasource/dashboard, Grafana logged successful provisioning, and all seven mounted dashboard queries returned successfully against live Loki. Fleet is Ready=True on Deploy commit `904bef2`; authenticated UI navigation remains open. Helm revision 227 is deployed after rollback to 226.
   Retention growth, safe live redaction, representative cardinality, async
   request-to-worker correlation, and PostgreSQL/PostGIS observability remain
   open. See the [plan](docs/observability/logging-implementation.md),
