@@ -74,7 +74,7 @@ organization’s [profile roadmap](https://github.com/myota-platform/.github/tre
   and the selected design in [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md).
   Phases 0–6 are complete within their recorded evidence bounds. Helm
   revision 213 is deployed; MyOTA Fleet is Ready=True at Deploy main commit
-  `de01650e19b88bc99a11ede1f25694202c8c8d17`. `MYOTA_EVENTS` is a bounded
+  `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. `MYOTA_EVENTS` is a bounded
   Limits-retained fact stream; Activity and Geodata work use separate
   WorkQueue streams. The four legacy Geodata durables were retired after
   Phase 5 checks; the 24-hour observation was explicitly waived and closed
@@ -100,7 +100,7 @@ NATS migration status on 11 October 2026:
   WorkQueue streams.
 - Helm revision 213 is deployed; the one-time migration flag remains off and
   all-topology validation is enabled. Fleet is Ready=True at Deploy commit
-  `de01650e19b88bc99a11ede1f25694202c8c8d17`; all MyOTA Deployments have
+  `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`; all MyOTA Deployments have
   their desired replicas ready.
 - The explicit Phase 5 waiver closed its 24-hour observation early; it is not
   claimed as a full-day observation. Six pre-existing Geodata database DLQ
