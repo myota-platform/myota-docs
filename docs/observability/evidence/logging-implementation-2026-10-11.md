@@ -3,8 +3,10 @@
 ## Overall status
 
 **In progress; Phases 1–5 have source/configuration work on main, but their
-production acceptance gates are not all closed. Phases 6 and 7 remain open.**
-No claim of implementation completion is made.
+production acceptance gates are not all closed. Phase 6 remains open. Phase 7
+has monitor-role provisioning and a database dashboard asset, while its active
+PostgreSQL receiver is paused after authentication failures.** No claim of
+implementation completion is made.
 
 Authoritative application code is owned by the five service repositories:
 Identity, Programme, Activity, Geodata, and Operations. Deployment behavior is
@@ -20,6 +22,7 @@ Documentation and phase evidence are owned by `myota-docs`.
 | 3 — HTTP tracing | Shared HTTP path emits completion events, normalizes routes, extracts/injects W3C trace context, and adds response trace IDs. Tests cover success, authorization failure, server error, and propagation. A live Identity health request now has a matching structured-metadata log and Tempo server span. | Exercise the Grafana link after its corrected datasource provision is deployed; qualify HTTP-to-worker correlation across services. |
 | 4 — workers and NATS | Activity worker, notification consumer, Geodata worker, Identity maintenance, and Deploy outbox relay have structured lifecycle logs and messaging spans/headers. Sensitive payloads and exception text remain excluded. Helper propagation tests passed. | Worker retry/ACK integration and end-to-end async correlation have not been accepted against the live images. Some event/outbox envelopes do not carry a `correlation_id`; no synthetic business ID is added. Verify the Geodata Deploy mirror against its authoritative implementation. |
 | 5 — Grafana correlation | All seven queries from the mounted dashboard returned successfully against live Loki structured metadata. Helm ConfigMap/mount, Grafana dashboard provisioning, and the label-type `trace_id` derived-field config were observed in revision 225. | Authenticated Grafana log-to-trace and trace-to-log clicks remain unverified; links from other operational dashboards remain open. |
+| 7 — PostgreSQL/PostGIS | Dedicated non-superuser monitor roles and external secret references exist. Read-only smoke jobs queried `pg_stat_database` in core, Activity, and Geo. The six-panel PostgreSQL/PostGIS dashboard JSON is mounted and parses in Grafana. | The Collector PostgreSQL receivers failed authentication despite successful `psql` checks with the same Secrets. They have been removed from the active pipeline. Client spans, safe DB logs, PostGIS direct/fallback signals, dashboard data, and Compose parity remain open. |
 
 ## Phase 1–5 implementation references
 
@@ -130,43 +133,92 @@ acceptance gates are run:
 
 ## Phase 7 — PostgreSQL and PostGIS
 
-Phase 7 is **not implemented or deployed**. No Collector PostgreSQL receiver,
-monitoring login, server-log pipeline, database dashboard, or database tracing
-acceptance is claimed.
+Phase 7 is **in progress and not complete**. Deployment-owned assets have been
+added, but PostgreSQL receiver metrics are not currently collected.
 
-Decision: use the pinned contrib Collector PostgreSQL receiver with a
-monitoring login granted only `SELECT` on `pg_stat_database`. The pinned
-receiver documentation identifies this grant as sufficient for its basic
-metrics. Do not grant `pg_monitor`, use application/superuser credentials, or
-enable query sample/top-query collection, which require broader access and can
-expose query text. The receiver's metrics are beta in contrib 0.135.0,
-so start with a small metric set and monitor receiver overhead. PostgreSQL
-server logs must not be enabled with statement/parameter logging; capture only a
-supported redacted log path if the collection and rotation behavior can be
-qualified. Existing Geodata PostGIS query-duration metrics remain the direct
-application-owned spatial workload signal. Use the Operations service only for
-bounded PostGIS signals that lack a supported direct integration, preserving
-its read-only adapter boundary.
+### Decisions and source changes
 
-The receiver assessment follows the pinned [Collector contrib v0.135.0
-PostgreSQL receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.135.0/receiver/postgresqlreceiver/README.md).
+- Use separate non-superuser `myota_observability` logins and externally
+  provisioned passwords. Explicit grants are limited to database connection and
+  `SELECT` on `pg_catalog.pg_stat_database`. Do not grant `pg_monitor`,
+  use application/superuser credentials, or enable query sample/top-query
+  collection.
+- Compose role bootstrap is in
+  `myota-deploy/compose.yaml`. Helm role provisioning and Collector Secret
+  references are in `myota-deploy/deploy/helm/myota/templates/observability.yaml`.
+  The monitor passwords are not committed.
+- PostgreSQL receiver configuration is in
+  `myota-deploy/observability/otel-collector.yaml` and
+  `myota-deploy/deploy/helm/myota/observability/otel-collector.yaml`.
+  The same configuration is mirrored by `myota-platform`. The database
+  receiver blocks were removed from the active metrics pipeline after live
+  authentication failures; do not count this as metric delivery.
+- The six-panel dashboard is
+  `myota-deploy/observability/grafana/dashboards/myota-postgresql-postgis.json`
+  and the Helm asset under
+  `myota-deploy/deploy/helm/myota/observability/grafana/dashboards/`.
+  Matching assets exist in the Platform mirror.
 
-Required follow-up implementation and evidence:
+### Live checks on 11 October 2026
 
-- provision a separate monitoring credential through the host's secret process;
-  never commit its value;
-- apply an idempotent `SELECT` grant on `pg_stat_database` to the monitoring
-  role in core, Activity, and PostGIS databases;
-- configure equivalent Compose and Helm receivers with bounded collection
-  intervals/metrics;
-- add privacy-safe Psycopg database client spans without SQL text, values, or
-  geometry;
-- add supported redacted PostgreSQL log ingestion, or explicitly document why it
-  remains unsupported;
-- add PostGIS extension/index/workload views with a bounded query plan and
-  interval;
-- prove read-only permissions, collector outage/unavailable behavior, dashboard
-  data, and Compose/Helm parity.
+- The PostgreSQL monitor role hook completed successfully in Helm revision 229.
+  A temporary read-only job connected to all three services and queried
+  `pg_stat_database`; a separate check queried the receiver discovery
+  database. No business rows were inserted or changed.
+- The effective privilege inspection found no Core or Activity application
+  relations readable by the monitor role. In Geo, the readable non-system
+  relations were PostGIS-owned public metadata/reference objects:
+  `public.geography_columns`, `public.geometry_columns`,
+  `public.spatial_ref_sys`, `tiger.*`, and `topology.*`. These are visible
+  through extension/default public grants; no explicit application-table grant
+  was made. Confirm application-owner ACLs as part of the remaining review.
+- The pinned contrib 0.135.0 receiver failed with PostgreSQL password
+  authentication errors in all three databases, including in a temporary
+  diagnostic Collector using the same ConfigMap and Kubernetes Secrets. The
+  temporary `psql` job using those same Secrets succeeded. The discrepancy
+  remains unexplained; credentials were not printed.
+- To stop repeated failed scrapes in the live Collector, Deploy commit
+  [`c7da003`](https://github.com/myota-platform/myota-deploy/commit/c7da00343134992a019b35f923287741bfa3e339)
+  removes the PostgreSQL receivers from its active metrics pipeline. The
+  matching Platform mirror commit is
+  [`a4336a9`](https://github.com/myota-platform/myota-platform/commit/a4336a9b3b6f8d24989920bc7aa432b9f2bf0eed).
+- The mounted Grafana dashboard JSON parsed successfully and contains six
+  panels. Database receiver query data has not been accepted or verified. The
+  existing Geodata application-owned PostGIS query histogram remains a separate
+  available signal.
+- After receiver removal, the Collector Deployment was Ready 1/1 and its recent
+  log window had no PostgreSQL receiver errors. All other Deployments were
+  Ready 1/1. Helm revision 231 remained pending in the Helm CLI while Fleet
+  reported its prior release Ready and the current source bundle as
+  `WaitApplied` (67 ready, 0 not ready); final controller reconciliation is
+  not confirmed.
+- Temporary diagnostic Jobs were deleted after the checks. The ephemeral
+  debug pod was deleted and its Deployment replacement became Ready. No
+  database test data was created.
+
+The least-privilege decision follows the pinned
+[Collector contrib v0.135.0 PostgreSQL receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.135.0/receiver/postgresqlreceiver/README.md),
+which requires `SELECT` on `pg_stat_database` for monitoring and reserves
+`pg_monitor` for optional query sampling. Query sample/top-query stay disabled
+because query text and plans can reveal sensitive information.
+
+### Remaining Phase 7 work
+
+- Resolve the receiver-versus-`psql` authentication discrepancy with a
+  reproducible isolated test, then enable the receiver only after live metrics
+  appear for all three databases without scrape errors.
+- Audit effective ACLs against application-owned relations and extension
+  defaults.
+- Add privacy-safe database client spans and qualify trace attributes.
+- Add safe PostgreSQL server logs, or document an accepted limitation and
+  owner.
+- Add supported bounded PostGIS health/workload signals; use Operations only
+  for signals that have no safe direct integration.
+- Execute and document Grafana queries against real metrics, retention,
+  redaction, cardinality and resource behavior.
+- Validate the full database telemetry path in Compose and Helm; do not treat
+  the prepared assets as parity evidence.
+
 
 ## Phase 6–7 exit criteria
 
