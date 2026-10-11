@@ -87,24 +87,26 @@ and the [administration workflows index](../domain/administration/README.md).
 
 ### Structured logging and database observability acceptance
 
-**Current evidence:** the current service digests are running and all application
-and worker replicas were Ready. A read-only Identity health request now has a
-matching Loki structured-metadata record and Tempo span. All seven dashboard
-queries passed after removing the incompatible JSON parser. The corrected
-Deploy/Platform datasource and dashboard assets are mounted in Helm revision 225.
-Fleet is Ready=True and the corrected dashboard is mounted. Authenticated UI
-navigation verification remains open. Phase 6
-representative retention, growth, capacity, cardinality, and live redaction
-evidence is incomplete; Phase 7 PostgreSQL/PostGIS telemetry remains unimplemented. See the
-[logging implementation plan](../observability/logging-implementation.md),
+**Current evidence:** a read-only Identity health request has a matching
+Loki structured-metadata record and Tempo span; all seven log dashboard queries
+passed after removing the incompatible JSON parser. The six-panel
+PostgreSQL/PostGIS dashboard asset is mounted. Dedicated monitor roles and
+external Secrets are provisioned, and read-only `psql` checks queried
+`pg_stat_database` across all three databases. The pinned Collector receiver
+still fails authentication with those same Secrets, so its receivers are paused
+in the active pipeline. All Deployments report Ready, while Helm revision 231
+awaits final Fleet reconciliation. Authenticated UI navigation remains open.
+Phase 6 retention, growth, capacity, cardinality, and live redaction evidence
+is incomplete. See the [logging implementation plan](../observability/logging-implementation.md),
 [11 October evidence](../observability/evidence/logging-implementation-2026-10-11.md),
 and [runbook](../observability/logging-runbook.md).
 
-**Recommended next work:** verify Fleet rolls out the metadata-aware Grafana
-provisioning, test both trace/log directions, and continue the asynchronous
-correlation and Phase 6/7 gates. Measure retention and storage growth before
-setting capacity thresholds. Do not use application/superuser credentials for a
-database receiver.
+**Recommended next work:** resolve the Collector-versus-`psql` authentication
+discrepancy in an isolated test, enable the receiver only after all three
+database series appear without errors, and execute the dashboard queries against
+live data. Then test both trace/log directions and async correlation. Measure
+retention and storage growth before setting capacity thresholds. Do not use
+application/superuser credentials or grant `pg_monitor` for basic metrics.
 
 
 ### 3. Restore Identity and Programme metrics coverage
