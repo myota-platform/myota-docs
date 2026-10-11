@@ -2,6 +2,7 @@
 
 - [Structured logging implementation roadmap](logging-implementation.md) — Phase 1–5 source/configuration progress; Phases 6–7 and live acceptance remain open.
 - [Logging implementation evidence (11 October 2026)](evidence/logging-implementation-2026-10-11.md) — current checks, image rollout status, and phase exit gates.
+- [Logging operations runbook](logging-runbook.md) — LogQL queries, trace/log navigation, ingestion troubleshooting and capacity observations.
 - [Logging phase prompts](prompts/README.md)
 - [Metrics, traces, dashboards, and alerts](overview.md)
 - [Geodata and PostGIS query evidence](../geodata/evidence/load-test-and-query-evidence.md)
