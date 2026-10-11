@@ -1,18 +1,20 @@
 # NATS event and work topology
 
-The diagrams distinguish observed live behavior from the selected target.
-They describe ownership and delivery class; they are not evidence that the
-target is deployed. See the [migration plan](../../operations/messaging/nats-event-migration-plan.md),
+The diagrams distinguish the Phase 0–5 historical states from the Phase 6
+live topology. The lower current-state diagrams are grounded in the live
+read-only K3s checks recorded in the
+[Phase 6 evidence](../../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md).
+See the [migration plan](../../operations/messaging/nats-event-migration-plan.md),
 [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md), and the [recovery runbook](../../operations/messaging/jetstream-recovery.md).
 
-## Current deployed topology — observed after immutable Phase 5 rollout, Helm 192, 10 October 2026
+## Current deployed topology — Phase 6 fact-stream cutover, Helm 210
 
-Fleet is Ready=True at deploy commit `6443473828305ab9d02a918bbe990d01abe97f6a` with 60/60 resources ready.
-First-party workload references and live Activity, Geodata and shared-runtime
-pod ImageIDs match configured immutable digests. The 24-hour Geodata rollback
-observation ends no earlier than 21:39:22 UTC on 11 October 2026; the four old durables remain visible
-below, inactive and empty.
+The direct cutover changed `MYOTA_EVENTS` to Limits retention and removed
+the legacy Geodata subject capture after an empty-stream preflight. Helm 211
+disables the one-time migration flag while retaining topology drift validation;
+record its latest Fleet Ready=True result in the Phase 6 evidence. The four
+Phase 5 Geodata legacy durables are already retired.
 
 ```mermaid
 flowchart LR
@@ -21,7 +23,7 @@ flowchart LR
     A[Activity outbox and activity_job]
     G[Geodata outbox and recovery rows]
   end
-  subgraph DEPLOY[Deploy owner: Helm 192]
+  subgraph DEPLOY[Deploy owner: Helm 210/211]
     IMG[First-party images pinned by digest]
   end
   C --> RC[Core relay]
@@ -30,7 +32,7 @@ flowchart LR
   IMG -. deploys .-> RC
   IMG -. deploys .-> RA
   IMG -. deploys .-> RG
-  RC --> E[MYOTA_EVENTS<br/>file, Interest retention<br/>registered facts and legacy subjects]
+  RC --> E[MYOTA_EVENTS<br/>file, Limits, 30-day bounded facts<br/>myota.events.&gt; only]
   RA --> E
   RG --> E
   E --> N[Activity notifications<br/>activity-notifications-v1<br/>21 exact fact subjects]
@@ -81,7 +83,7 @@ is not claimed; isolated PostgreSQL/JetStream qualification processed all six
 registered command types. See the [Phase 4 evidence](../../operations/messaging/evidence/phase4-activity-work-2026-10-10.md)
 and [work queue runbook](../../operations/messaging/activity-work-queues.md).
 
-## Remaining target — ADR-0008; Geodata/Activity work streams are live
+## Selected topology — now live after Phase 6
 
 ```mermaid
 flowchart LR
