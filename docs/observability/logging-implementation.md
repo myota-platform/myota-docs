@@ -1,8 +1,15 @@
 # Structured logging implementation plan
 
-Status: planned extension to the implemented MyOTA observability stack.
+Status: in progress; Phase 1–5 source/configuration work is recorded, while production acceptance, Phase 6 hardening, and Phase 7 database observability remain open.
 
 Parent: [MyOTA observability](overview.md)
+
+Current evidence: [logging implementation evidence, 2026-10-11](evidence/logging-implementation-2026-10-11.md).
+
+**Acceptance boundary:** checked deliverables below mean the source or deployment
+asset is present and its stated focused check passed. They do not close a phase
+whose live, Compose/Helm, capacity, privacy, or end-to-end exit evidence remains
+open. See the linked evidence record for exact gates.
 
 ## Objective
 
@@ -196,13 +203,13 @@ services.
 
 Deliverables:
 
-- shared logging configuration;
-- JSON/structured log records;
-- OpenTelemetry logging provider/handler;
-- stable field names and resource attributes;
-- trace/span context enrichment;
-- tests for redaction and correlation fields;
-- removal of duplicated logging setup where practical.
+- [x] shared logging configuration;
+- [x] JSON/structured log records;
+- [x] OpenTelemetry logging provider/handler;
+- [x] stable field names and resource attributes;
+- [x] trace/span context enrichment;
+- [x] tests for redaction and correlation fields;
+- [x] removal of duplicated logging setup where practical.
 
 Implementation prompt:
 [Phase 1 ChatGPT prompt](prompts/logging-phase-1-shared-foundation.md)
@@ -217,18 +224,19 @@ already used by MyOTA.
 
 Deliverables:
 
-- Loki TSDB and SeaweedFS S3 configuration for bucket `myota-loki`;
-- Compose observability service and a small local writable working volume;
-- Helm Loki workload/service and a small local writable working volume, without
+- [x] Loki TSDB and SeaweedFS S3 configuration for bucket `myota-loki`;
+- [x] Compose observability service and a small local writable working volume;
+- [x] Helm Loki workload/service and a small local writable working volume, without
   a 10-20 GiB Loki data PV;
-- local working storage limited to active TSDB/WAL/index/cache and compactor
+- [x] local working storage limited to active TSDB/WAL/index/cache and compactor
   working data; object storage is the durable store;
-- OTel Collector Loki exporter path;
-- Grafana Loki datasource provisioning;
-- configurable 14-day Loki retention, enforced by the Loki compactor;
-- no separate MyOTA or SeaweedFS cleanup worker or object-store lifecycle policy
+- [x] OTel Collector Loki exporter path;
+- [x] Grafana Loki datasource provisioning;
+- [x] configurable 14-day Loki retention, enforced by the Loki compactor;
+- [ ] no separate MyOTA or SeaweedFS cleanup worker or object-store lifecycle policy
   for Loki retention;
-- smoke checks for OTLP ingestion, object-store configuration, restart behavior,
+- [x] Focused OTLP-to-Loki smoke check and SeaweedFS configuration check.
+- [ ] Restart, retention-expiry, and Compose/Helm parity acceptance checks.
   and Compose/Helm parity.
 
 Implementation prompt:
@@ -241,13 +249,13 @@ trace-context extraction/injection.
 
 Deliverables:
 
-- `http.request.completed` events;
-- normalized route, method, status and duration;
-- request/correlation IDs in logs and responses;
-- W3C `traceparent` / `tracestate` handling;
-- consistent server spans rather than isolated manual spans;
-- error classification without leaking request bodies;
-- tests for 2xx, 4xx, 5xx and propagated trace context.
+- [x] `http.request.completed` events;
+- [x] normalized route, method, status and duration;
+- [x] request/correlation IDs in logs and responses;
+- [x] W3C `traceparent` / `tracestate` handling;
+- [x] consistent server spans rather than isolated manual spans;
+- [x] error classification without leaking request bodies;
+- [ ] tests for 2xx, 4xx, 5xx and propagated trace context.
 
 Implementation prompt:
 [Phase 3 ChatGPT prompt](prompts/logging-phase-3-http-tracing.md)
@@ -292,14 +300,14 @@ signals.
 
 Deliverables:
 
-- Loki datasource in Compose and Helm provisioning;
-- Loki derived field linking `trace_id` to Tempo;
-- Tempo trace-to-logs configuration;
-- service/environment/severity/component filters;
-- a MyOTA Logs / Failures dashboard;
-- panels for errors by service, recent failures, worker failures/retries and HTTP
+- [x] Loki datasource in Compose and Helm provisioning;
+- [x] Loki derived field linking `trace_id` to Tempo;
+- [x] Tempo trace-to-logs configuration;
+- [x] service/environment/severity/component filters;
+- [x] a MyOTA Logs / Failures dashboard;
+- [x] panels for errors by service, recent failures, worker failures/retries and HTTP
   server-error logs;
-- links from existing operational dashboards where useful.
+- [ ] links from existing operational dashboards where useful.
 
 Implementation prompt:
 [Phase 5 ChatGPT prompt](prompts/logging-phase-5-grafana-correlation.md)
@@ -320,14 +328,14 @@ reserved for discrete exceptional events such as:
 
 Deliverables:
 
-- production retention settings;
-- storage sizing notes and capacity signals;
-- log cardinality checks;
-- redaction/security tests;
-- exceptional-event alert rules;
-- verification/runbook updates;
-- Compose/Helm parity check;
-- end-to-end test: request -> trace -> log -> async worker correlation.
+- [ ] production retention settings;
+- [ ] storage sizing notes and capacity signals;
+- [ ] log cardinality checks;
+- [ ] redaction/security tests;
+- [ ] exceptional-event alert rules;
+- [ ] verification/runbook updates;
+- [ ] Compose/Helm parity check;
+- [ ] end-to-end test: request -> trace -> log -> async worker correlation.
 
 Implementation prompt:
 [Phase 6 ChatGPT prompt](prompts/logging-phase-6-production-hardening.md)
@@ -343,23 +351,23 @@ through its existing observability path.
 
 Deliverables:
 
-- PostgreSQL server/database metrics collected through the OpenTelemetry
+- [ ] PostgreSQL server/database metrics collected through the OpenTelemetry
   Collector's PostgreSQL receiver where supported by the pinned Collector
   distribution;
-- database client spans from instrumented service queries, using OpenTelemetry
+- [ ] database client spans from instrumented service queries, using OpenTelemetry
   database semantic conventions and existing trace propagation;
-- PostgreSQL server logs collected through the Collector's supported file/OTLP
+- [ ] PostgreSQL server logs collected through the Collector's supported file/OTLP
   path, or emitted through the operations service when direct collection is not
   feasible;
-- bounded PostGIS-specific health and workload metrics, including extension
+- [ ] bounded PostGIS-specific health and workload metrics, including extension
   availability/version and spatial index/query signals that can be measured
   safely;
-- an explicit operations-service fallback for any PostgreSQL/PostGIS metrics,
+- [ ] an explicit operations-service fallback for any PostgreSQL/PostGIS metrics,
   traces, or logs that cannot be collected directly and reliably;
-- least-privilege monitoring credentials, existing secret handling, and no
+- [ ] least-privilege monitoring credentials, existing secret handling, and no
   public database or telemetry endpoint;
-- Grafana database/PostGIS views and useful trace/log links;
-- Compose and Helm parity, retention, redaction, cardinality and operational
+- [ ] Grafana database/PostGIS views and useful trace/log links;
+- [ ] Compose and Helm parity, retention, redaction, cardinality and operational
   runbook updates.
 
 Do not expose raw SQL values, bind parameters, user data, or complete geometry
