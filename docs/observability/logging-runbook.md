@@ -6,7 +6,7 @@ passed against live Loki. The PostgreSQL/PostGIS dashboard JSON is mounted in
 Grafana, but its database panels have no accepted receiver data. PostgreSQL
 receivers are currently disabled after authentication failures; see the
 [Phase 7 evidence](evidence/logging-implementation-2026-10-11.md). Helm revision
-231 is pending final Fleet reconciliation while all Deployments report Ready.
+231 is deployed and the last Fleet-applied release reports Ready. A subsequent forced resync is Helm revision 232, still pending-upgrade; all Deployments report Ready.
 Authenticated UI navigation, worker correlation, retention, capacity, redaction,
 and database gates remain open.
 
