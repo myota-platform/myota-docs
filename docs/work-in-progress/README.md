@@ -25,7 +25,8 @@ qualification gate. Broader unstarted items are listed in [To do](../to-do/READM
   `/healthz` has a matching Loki structured-metadata record and Tempo span.
   Helm revision 225 mounted the metadata-aware dashboard and datasource;
   Grafana logged provisioning, and all seven dashboard queries passed against
-  live Loki. Fleet is Ready=True; authenticated UI link acceptance remains open.
+  live Loki. Helm revision 227 is deployed after rollback to 226; Fleet is
+  Ready=True. Authenticated UI link acceptance remains open.
   Retention/growth, live redaction, async correlation, and Phase 7 database
   telemetry remain open. See the [runbook](../observability/logging-runbook.md)
   and [evidence](../observability/evidence/logging-implementation-2026-10-11.md).
