@@ -11,15 +11,6 @@ documentation evidence and does not set delivery dates.
 - [Future award-condition model](../domain/awards/future-condition-model-roadmap.md)
   — define and implement typed POTA-like, worked-entity, Maidenhead, geographic,
   and diversity awards.
-- [NATS event migration](../operations/messaging/nats-event-migration-plan.md)
-  — Phases 0–6 are complete within their recorded evidence bounds. Helm
-  revision 211 is deployed; the MyOTA Fleet bundle is Ready=True at Deploy
-  commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. The fact stream now uses
-  bounded Limits retention and captures only `myota.events.>`; Activity and
-  Geodata work remain on their separate WorkQueue streams. The explicit waiver
-  closed Phase 5's 24-hour observation early; it is not represented as a full
-  24-hour window. See [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md)
-  and [Phase 5 evidence](../operations/messaging/evidence/phase5-geodata-work-2026-10-10.md).
 - [REST API alias retirement](../domain/api/rest-consolidation-plan.md) —
   Phase 5 remains planned until usage is measured and clients migrate.
 - [Programme configuration gaps](../domain/programmes/configuration-gap-analysis.md)
