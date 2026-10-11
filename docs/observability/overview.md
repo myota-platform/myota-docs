@@ -26,9 +26,12 @@ unavailable.
 
 ## Structured logging implementation roadmap
 
-Durable application and worker logging is the next observability extension. The
-implementation is specified in the
-[structured logging implementation plan](logging-implementation.md).
+Structured application and worker logging is in progress. Phase 1–5 source and
+configuration work is recorded; live acceptance, production hardening, and
+PostgreSQL/PostGIS observability remain open. Loki and the OpenTelemetry
+Collector are Ready in K3s, but the deployed service image digests have not yet
+been verified to contain the latest logging code. See the
+[implementation plan](logging-implementation.md) and [11 October evidence](evidence/logging-implementation-2026-10-11.md).
 
 The plan adds Loki behind the existing OpenTelemetry Collector, standardizes
 structured service and worker logging, propagates trace and business correlation
