@@ -1,5 +1,32 @@
 # MyOTA changes
 
+## 11 October 2026 — NATS migration Phase 6 fact-stream cutover
+
+- Completed the direct, fail-closed `MYOTA_EVENTS` migration from Interest to
+  bounded Limits retention after verifying the stream and Activity durable were
+  empty/drained and all three owner outboxes had no unpublished rows. Removed
+  the legacy `myota.geodata.>` capture; the six Activity and four Geodata work
+  durables remain on their separate WorkQueue streams.
+- Set finite one-node caps: Events 1 GiB/500,000/1 MiB, Activity work
+  1 GiB/250,000/1 MiB, and Geodata work 3 GiB/500,000/1 MiB. Each stream is
+  file-backed, one replica, 30-day max age, and DiscardNew. The one-time
+  migration flag is disabled; topology validation remains enabled.
+- Helm revision 211 is deployed and MyOTA Fleet is Ready=True on Deploy main
+  commit `16af2edf6b8e868904f9284e481d971ae7d6d38c`; all MyOTA Deployment
+  replicas are ready. Deploy Python quality and Helm validation passed
+  (runs 38099669717 and 38099669405).
+- A no-message disposable K3s migration/idempotency check passed and its
+  namespace was removed. No production test records were created. Preserved
+  all six existing Geodata database DLQ records; previously Interest-expired
+  facts remain unavailable. PostgreSQL remains authoritative, and off-node
+  broker recovery remains deferred. No Phase 6 schema purge was applicable.
+  No metrics baseline, shadow traffic, or canary was added.
+- See the [Phase 6 evidence](docs/operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md),
+  [migration plan](docs/operations/messaging/nats-event-migration-plan.md),
+  [ADR-0008](docs/architecture/decisions/0008-nats-jetstream-event-and-work-topology.md),
+  and [topology diagram](docs/architecture/diagrams/nats-event-migration.md).
+
+
 ## 11 October 2026 — NATS Surveyor monitoring implementation
 
 - Surveyor 0.9.11 and all eleven pinned Grafana dashboards are live. After a
