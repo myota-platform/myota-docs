@@ -3,7 +3,8 @@
 Status: in progress; Phase 1–5 source/configuration work is recorded and a live
 Identity log/trace smoke has passed. Dashboard query and trace-link fixes are
 mounted in Helm revision 225, and Grafana logged dashboard provisioning. Fleet
-release readiness and UI link navigation remain open. Async acceptance, Phase 6
+is Ready=True at Deploy commit `904bef2`; revision 227 is deployed after rollback
+to 226. Authenticated UI link navigation remains open. Async acceptance, Phase 6
 hardening, and Phase 7 database observability remain open.
 
 Parent: [MyOTA observability](overview.md)
