@@ -3,7 +3,7 @@
 **Status:** Phases 0–6 are complete within their recorded evidence bounds.
 Phase 6's bounded fact-stream cutover and retirement checks are complete.
 Helm revision 213 is deployed with the one-time migration flag disabled; Fleet is Ready=True for Deploy main commit
-`de01650e19b88bc99a11ede1f25694202c8c8d17`. All MyOTA Deployments are
+`dfc423d26bd79a82b1177b9e5d51e2d1196580c9`. All MyOTA Deployments are
 ready. The old Interest-retained `MYOTA_EVENTS` definition and four legacy
 Geodata durables are retired. The 24-hour Phase 5 observation was explicitly
 waived and closed early; it is not recorded as a completed 24-hour window.
@@ -929,7 +929,7 @@ retired, cleanup, and any remaining evidence gap.
 revision 210. Helm revision 211 disabled the one-time migration flag; the
 current Helm revision 213 is deployed with the flag still disabled and
 all-topology drift validation enabled. The MyOTA Fleet bundle is
-Ready=True at Deploy main commit `de01650e19b88bc99a11ede1f25694202c8c8d17`;
+Ready=True at Deploy main commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`;
 all MyOTA Deployments are ready. See the
 [Phase 6 evidence](evidence/phase6-fact-stream-cutover-2026-10-11.md).
 
@@ -970,7 +970,7 @@ dashboards, alerts, runbooks, and recovery controls remain in service.
       published and the namespace was removed.
 - [x] Complete the post-cutover Helm reconciliation with the one-time migration
       flag disabled, all-topology drift validation enabled, every Deployment
-      ready, and Fleet Ready=True at the applied Deploy main commit `de01650e19b88bc99a11ede1f25694202c8c8d17`.
+      ready, and Fleet Ready=True at the applied Deploy main commit `dfc423d26bd79a82b1177b9e5d51e2d1196580c9`.
 
 **Exit criteria**
 
