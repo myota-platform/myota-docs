@@ -8,13 +8,13 @@ See the [migration plan](../../operations/messaging/nats-event-migration-plan.md
 [joint review](../../operations/messaging/evidence/phase1-joint-review-2026-10-10.md),
 [Phase 1 evidence](../../operations/messaging/evidence/phase1-contract-topology-2026-10-09.md), and the [recovery runbook](../../operations/messaging/jetstream-recovery.md).
 
-## Current deployed topology — Phase 6 cutover, Helm 211
+## Current deployed topology — Phase 6 cutover, Helm 213
 
 The direct cutover changed `MYOTA_EVENTS` to Limits retention and removed
 the legacy Geodata subject capture after an empty-stream preflight. Helm 211
-disables the one-time migration flag while retaining topology drift validation.
-The MyOTA Fleet bundle is Ready=True on Deploy commit
-`16af2edf6b8e868904f9284e481d971ae7d6d38c`. The four legacy Geodata
+disabled the one-time migration flag; current Helm revision 213 is deployed
+with drift validation enabled. The MyOTA Fleet bundle is Ready=True on Deploy
+commit `de01650e19b88bc99a11ede1f25694202c8c8d17`. The four legacy Geodata
 durables retired during Phase 5 remain absent.
 
 ```mermaid
@@ -24,7 +24,7 @@ flowchart LR
     A[Activity outbox and activity_job]
     G[Geodata outbox and recovery rows]
   end
-  subgraph DEPLOY[Deploy owner: Helm 211]
+  subgraph DEPLOY[Deploy owner: Helm 213]
     IMG[First-party images pinned by digest]
   end
   C --> RC[Core relay]
