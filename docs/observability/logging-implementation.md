@@ -1,11 +1,10 @@
-Status: implementation is deployed in K3s and core Phase 1–3 and 7
-capabilities are active. Phases 4–6 have accepted source and deployment work,
-with remaining acceptance gaps recorded below. Helm revision 241 is deployed;
-the MyOTA Fleet release has 67/67 resources ready. Operations supplies bounded,
-read-only PostgreSQL metrics for core, Activity, and Geo. Psycopg client spans
-are enabled with parameter capture disabled, and Collector processing removes
-SQL attributes before Tempo export. These are not yet a claim that every
-logging exit criterion is complete.
+Status: source, configuration, and the new logging images are implemented.
+Helm has applied the new image digests and all Deployments are Ready, but its
+revision 242 remains `pending-upgrade`; Fleet still reports the prior revision
+241 as Ready with 67/67 resources. Treat the Helm release state as an open
+rollout item until the controller reports a stable deployed revision.
+PostgreSQL metrics and SQL-scrubbed Psycopg spans are active. Remaining
+acceptance is listed below; this roadmap does not claim full completion.
 
 [Current evidence and remaining gaps](evidence/logging-implementation-2026-10-11.md).
 Parent: [MyOTA observability](overview.md)
@@ -305,9 +304,18 @@ Deliverables:
 - [x] NATS consumer/producer spans and W3C header propagation helpers, with
   focused helper tests;
 - [x] Activity ADIF retention lifecycle logs;
-- [ ] Geodata import-retention source-owner coverage and validation;
-- [ ] deployed-worker retry/ACK and asynchronous end-to-end correlation acceptance;
-- [ ] stable `correlation_id` evidence for event types whose source envelopes currently omit it.
+- [x] Geodata import-retention source-owner coverage and validation: the
+  authoritative worker and retention implementation are in
+  `myota-geodata-service/geodata_retention_worker.py` and
+  `myota-geodata-service/import_retention.py`; focused tests and the scheduled
+  deployed job succeeded.
+- [ ] deployed-worker retry/ACK and request-to-worker correlation acceptance;
+  the initiating HTTP correlation ID is still not persisted by every outbox
+  producer.
+- [x] Stable NATS correlation header source for work/fact events: the relay
+  selects `correlationId`, then `workId`, then `eventId`, and consumer log
+  context inherits `Myota-Correlation-Id`. Focused CI tests pass; live
+  request-to-worker acceptance remains open.
 
 Implementation prompt:
 [Phase 4 ChatGPT prompt](prompts/logging-phase-4-workers-nats.md)

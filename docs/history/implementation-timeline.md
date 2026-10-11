@@ -1327,3 +1327,9 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
 - **Decision:** retain bounded PostgreSQL metrics through the Operations read-only adapter after the direct Collector receiver failed authentication. Keep PostgreSQL statement logs out of the telemetry pipeline because they may contain SQL literals and user data. Use Psycopg instrumentation with parameter capture disabled and Collector removal of SQL attributes.
 - Operations database metrics, Psycopg spans, Loki capacity scrape/panels, and synced Compose/Helm source are deployed. Helm revision 241 is active with 67/67 Fleet resources ready. Live database metrics and SQL-free Tempo span attributes are documented in the [logging evidence](../observability/evidence/logging-implementation-2026-10-11.md).
 - The roadmap remains open for authenticated Grafana navigation, request-to-worker correlation, Loki prohibited-field audit, and dynamic Compose runtime parity. No transition period was added; retention configuration was accepted by config and runtime checks without waiting 14 days.
+## 11 October 2026 — Stable NATS logging correlation
+
+- **Prompt used:** Continue the implementation of structured logging, decide on remaining gaps using best practices, and avoid transition or verification periods because the system is pre-live.
+- Added a stable relay correlation fallback (`correlationId` → `workId` → `eventId`) to the NATS header and bound that value into consumer log context across the five owning services. Payload schemas remain unchanged.
+- Service source CI, worker tests, Deploy validation, and Platform tests passed. Updated images are running and all Deployments are ready.
+- The Helm release still reports revision 242 as `pending-upgrade` while Fleet reports revision 241 Ready. The originating HTTP correlation remains unavailable for outbox producers that did not persist it; live request-to-worker correlation is not claimed.

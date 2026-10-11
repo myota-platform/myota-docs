@@ -582,3 +582,14 @@ evidence page for commits, workflow links, image digest and verification limits.
   correlation, Loki field privacy audit, and Compose runtime parity. See
   [current evidence](docs/observability/evidence/logging-implementation-2026-10-11.md)
   and the [plan](docs/observability/logging-implementation.md).
+## 11 October 2026 — Stable NATS correlation context
+
+- Outbox relays now propagate a stable message correlation header using the
+  envelope correlation ID, work ID, or event ID. Consumer log context inherits
+  the header; focused tests and service/deployment CI passed.
+- The five service images and shared Deploy workers were rebuilt and rolled
+  out at the digest values recorded in the
+  [logging evidence](docs/observability/evidence/logging-implementation-2026-10-11.md).
+- All Deployments are Ready. Helm revision 242 still reports `pending-upgrade`
+  while Fleet reports revision 241 Ready with 67/67 resources. Request-to-worker
+  correlation remains open where the source outbox does not store the HTTP ID.

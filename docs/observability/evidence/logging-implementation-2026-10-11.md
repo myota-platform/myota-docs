@@ -2,11 +2,13 @@
 
 ## Overall status
 
-**In progress; Phases 1–5 have source/configuration work on main, but their
-production acceptance gates are not all closed. Phase 6 remains open. Phase 7
-has monitor-role provisioning and a database dashboard asset, while its active
-PostgreSQL receiver is paused after authentication failures.** No claim of
-implementation completion is made.
+**In progress.** The bounded Operations PostgreSQL/PostGIS telemetry path and
+SQL-scrubbed Psycopg traces are active. Async NATS correlation now uses stable
+work/event IDs and consumer log context. Remaining gaps include the originating
+HTTP ID on some outbox rows, authenticated Grafana navigation, Loki field
+privacy audit, full Compose runtime parity, and stable Helm release state.
+Evidence below distinguishes the earlier receiver failure from the current
+Operations fallback.
 
 Authoritative application code is owned by the five service repositories:
 Identity, Programme, Activity, Geodata, and Operations. Deployment behavior is
@@ -267,3 +269,31 @@ This update supersedes earlier revision, image-digest, and Phase 7 status snapsh
 - A representative Loki record audit proving prohibited payload/credential fields are absent.
 - Full Compose runtime parity. No retention waiting period is required for this pre-live system; the configured 14-day compactor policy and object-store ownership are verified as configuration, not by waiting 14 days for expiry.
 - Do not use an empty broker or short log sample as evidence of production capacity. No test business data was created during these checks.
+
+## Async correlation source update — 11 October 2026
+
+- Deploy and Platform relays now set the `Myota-Correlation-Id` NATS header to
+  the envelope `correlationId`, then `workId`, then `eventId`. This gives
+  retries and consumer lifecycle logs a stable work/event join key without
+  changing fact or command payload schemas.
+- All five service-owned `myota_logging.py` copies bind the extracted header
+  into the consumer log context. Focused logging tests assert that a consumer
+  log record receives the header value. Source CI, Geodata relational/load/
+  recovery checks, Activity notification checks, and Deploy/Platform checks
+  passed. Main commits: Identity `0f8934c`, Programme `13ca71c`, Activity
+  `62fa907`, Geodata `27de8cf`, Operations `c3ab025`, Deploy `b3cda16`, and
+  Platform `a745659` (test corrections are included in later main commits).
+- Updated images are running: Identity `sha256:30c0b657498a32fd980835335b5fbf41332f82afd7a2ed8e2ce9455e390fee85`,
+  Programme `sha256:35883c6010007fc54d56ec9dd03d1280f498682f9482a36be4ab048389b20175`,
+  Activity `sha256:0c7a78967432a59edf2f6a4ef7b6eb51775c9b7da007164d19084790e823e470`,
+  Geodata `sha256:09e9f7fc867b1b48d4fa403656bf6c2216cebb20dd392c4230a6317933caff10`,
+  Operations `sha256:2945f1d08d170f2267a695d2c778ecd4ef86eaa550632ca893544ef3adc96eb8`,
+  and shared Deploy workers `sha256:bc111d0fa5fa5b0042570d3f57ee51ed0270f128ef3f4f557623c4a18cd120c0`.
+- All Deployments report desired replicas ready at those image digests. Helm
+  revision 242 remains `pending-upgrade` with description `Preparing upgrade`;
+  Fleet's BundleDeployment reports Ready=True for revision 241 and 67/67
+  resources. This is a controller/release bookkeeping discrepancy despite
+  ready workloads; the rollout gate remains open until Helm/Fleet agree.
+- This stable work/event correlation does not restore the original HTTP
+  correlation ID where a producer outbox row never stored it. A live
+  request-to-worker trace/log workflow check is therefore still open.

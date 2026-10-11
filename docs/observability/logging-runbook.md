@@ -1,6 +1,6 @@
 # Structured logging operations runbook
 
-**Status:** Helm revision 241 is deployed with 67/67 Fleet resources ready.
+**Status:** Helm revision 242 is pending-upgrade while all Deployments are Ready; Fleet still reports revision 241 with 67/67 Fleet resources ready.
 The PostgreSQL/PostGIS dashboard uses live read-only metrics from the Operations
 adapter. Psycopg spans are visible in Tempo after Collector SQL-attribute
 removal. Remaining acceptance items are authenticated UI navigation, a

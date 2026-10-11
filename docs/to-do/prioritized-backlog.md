@@ -87,14 +87,14 @@ and the [administration workflows index](../domain/administration/README.md).
 
 ### Structured logging and database observability acceptance
 
-**Current evidence:** Helm revision 241 is deployed with 67/67 Fleet resources
+**Current evidence:** Helm revision 242 is pending-upgrade while all Deployments are Ready; Fleet still reports revision 241 with 67/67 Fleet resources
 ready. The Operations fallback samples the three databases using a read-only
 non-superuser role; Prometheus shows all three up and bounded connection, size,
 transaction, deadlock, and PostGIS presence metrics. Psycopg spans are live and
 Collector processing removes SQL attributes before Tempo. The dashboard now
-reads these active metrics. Remaining acceptance is authenticated Grafana
-navigation, representative request-to-worker correlation, a Loki prohibited-
-field audit, and full Compose runtime parity. The current Loki growth sample is
+reads these active metrics. Remaining acceptance is a stable Helm/Fleet release state, authenticated
+Grafana navigation, a live request-to-worker correlation check, a Loki
+prohibited-field audit, and full Compose runtime parity. The current Loki growth sample is
 short and does not establish a production rate. See the
 [plan](../observability/logging-implementation.md),
 [evidence](../observability/evidence/logging-implementation-2026-10-11.md),
