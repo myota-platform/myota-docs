@@ -4,7 +4,7 @@
 flowchart LR
   UI[Admin UI]
   Ops[Operations service]
-  DB[(Core PostgreSQL)]
+  DB[(Core, Activity and PostGIS databases)]
   SW[SeaweedFS]
   NATS[NATS JetStream]
   Surveyor[NATS Surveyor]
