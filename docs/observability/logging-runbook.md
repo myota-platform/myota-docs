@@ -1,7 +1,6 @@
 # Structured logging operations runbook
 
-**Status:** queries and troubleshooting guidance are implemented; live query
-qualification remains open until the updated service images are running.
+**Status:** Identity live LogQL queries are qualified against Loki OTLP structured metadata; Tempo stores the matching trace. The Grafana provisioning correction is committed and awaits/undergoes GitOps rollout. Worker correlation, retention, capacity, redaction, and database gates remain open.
 
 Structured logs travel from services through the OpenTelemetry Collector to Loki.
 PostgreSQL and application state remain authoritative; logs are diagnostic
@@ -9,34 +8,30 @@ telemetry and are not an audit archive.
 
 ## Query examples
 
-Run these in Grafana Explore with the **MyOTA Loki** datasource. The examples
-assume `service_namespace` is a Loki label and remaining fields are parsed from
-the structured JSON body. Do not turn request IDs, trace IDs, correlation IDs,
+Run these in Grafana Explore with the **MyOTA Loki** datasource. The examples use `service_namespace` as the indexed Loki label. OTLP fields such as `severity_text`, `trace_id`, `event`, and `correlation_id` are Loki structured metadata, not JSON in the log line; filter them directly without a `| json` parser. Do not turn request IDs, trace IDs, correlation IDs,
 URLs, user/domain IDs, or exception messages into Loki labels.
 
 ### Service errors
 
 ```logql
 {service_namespace="myota"}
-  | json
-  | severity="ERROR"
+  | severity_text="ERROR"
 ```
 
 Narrow to one service/component:
 
 ```logql
 {service_namespace="myota"}
-  | json
   | service_name="myota-geodata"
   | component="api"
-  | severity=~"ERROR|FATAL"
+  | severity_text=~"ERROR|FATAL"
 ```
 
 Inspect recent warn/error volume without creating high-cardinality labels:
 
 ```logql
 sum by (service_name, severity) (
-  rate({service_namespace="myota"} | json | severity=~"WARN|ERROR" [5m])
+  rate({service_namespace="myota"} | severity_text=~"WARN|ERROR" [5m])
 )
 ```
 
@@ -48,7 +43,6 @@ or synthesize a new workflow ID during investigation.
 
 ```logql
 {service_namespace="myota"}
-  | json
   | correlation_id="<correlation-id>"
 ```
 
@@ -56,7 +50,6 @@ Filter worker lifecycle records:
 
 ```logql
 {service_namespace="myota"}
-  | json
   | correlation_id="<correlation-id>"
   | event=~"job.received|job.started|job.completed|job.retry|job.failed"
 ```
@@ -65,7 +58,6 @@ Inspect repeated retry or permanent-failure classifications:
 
 ```logql
 {service_namespace="myota"}
-  | json
   | event=~"job.retry|job.failed"
   | error_type!=""
 ```
@@ -82,9 +74,7 @@ They do not emit full payloads or raw exception text.
 - A trace ID joins one distributed execution. A business `correlation_id`
   joins asynchronous work across separate traces and retries.
 
-These links are provisioned in the Deploy-owned Compose and Helm datasource
-files. Confirm they open correctly after the latest Grafana configuration and
-application images roll out.
+The Deploy-owned datasource config links the `trace_id` structured-metadata field to Tempo using Grafana's label-type derived field. The matching Identity trace exists in Tempo, but the corrected provisioning must roll out before the UI link itself is accepted.
 
 ## Loki or Collector ingestion failure
 
