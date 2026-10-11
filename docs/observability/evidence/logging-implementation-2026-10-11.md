@@ -51,7 +51,7 @@ Documentation and phase evidence are owned by `myota-docs`.
   its synchronized mirror. Helm revision 223 deployed the service image digests; revision 225 mounted the
   corrected Grafana assets. All application, worker, Loki, Collector, Grafana,
   and Tempo workloads were Ready. Grafana logged dashboard provisioning, while
-  Fleet still reported `WaitApplied(1)` at the final check.
+  Fleet is Ready=True at Deploy main commit `904bef2a874e480d30b14ba2c6371b817b387d02`.
 - Running service digests:
 
 | Owner | Running image digest | Build evidence |
@@ -134,10 +134,12 @@ Phase 7 is **not implemented or deployed**. No Collector PostgreSQL receiver,
 monitoring login, server-log pipeline, database dashboard, or database tracing
 acceptance is claimed.
 
-Decision: use the pinned contrib Collector PostgreSQL receiver only with a
-dedicated login granted `pg_monitor`, never the application or superuser
-credential. Keep table/index/query-name metrics disabled unless a measured,
-bounded need is approved. The receiver's metrics are beta in contrib 0.135.0,
+Decision: use the pinned contrib Collector PostgreSQL receiver with a
+monitoring login granted only `SELECT` on `pg_stat_database`. The pinned
+receiver documentation identifies this grant as sufficient for its basic
+metrics. Do not grant `pg_monitor`, use application/superuser credentials, or
+enable query sample/top-query collection, which require broader access and can
+expose query text. The receiver's metrics are beta in contrib 0.135.0,
 so start with a small metric set and monitor receiver overhead. PostgreSQL
 server logs must not be enabled with statement/parameter logging; capture only a
 supported redacted log path if the collection and rotation behavior can be
@@ -147,13 +149,14 @@ bounded PostGIS signals that lack a supported direct integration, preserving
 its read-only adapter boundary.
 
 The receiver assessment follows the pinned [Collector contrib v0.135.0
-PostgreSQL receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.135.0/receiver/postgresqlreceiver/documentation.md).
+PostgreSQL receiver documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.135.0/receiver/postgresqlreceiver/README.md).
 
 Required follow-up implementation and evidence:
 
 - provision a separate monitoring credential through the host's secret process;
   never commit its value;
-- apply an idempotent role grant to core, Activity, and PostGIS databases;
+- apply an idempotent `SELECT` grant on `pg_stat_database` to the monitoring
+  role in core, Activity, and PostGIS databases;
 - configure equivalent Compose and Helm receivers with bounded collection
   intervals/metrics;
 - add privacy-safe Psycopg database client spans without SQL text, values, or
