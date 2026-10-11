@@ -1,4 +1,4 @@
-## 12 October 2026 — Admin entity metadata visibility follow-up
+## 11 October 2026 — Admin entity metadata visibility follow-up
 
 - **Prompt used:** “Revisit issue
   https://github.com/myota-platform/myota-admin-web/issues/2.”
