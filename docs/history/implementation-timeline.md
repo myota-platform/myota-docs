@@ -37,7 +37,7 @@ describe current ownership and are authoritative for the present-day system.
   observed and deleted. Operations migration 003 / core migration 005 removed
   the snapshot table/index after the verified external backup gate; storage
   history remains. Fleet is Ready=True on Deploy main commit
-  `fa4e0127af2cc7d29851f1f76b3bb8303655ad46`, with 64/64 resources ready and
+  `f43d600380803e86292e7e0010bfc1655b1a5d2a`, with 64/64 resources ready and
   matching applied/desired IDs; Phase 2 is complete. See the
   [monitoring evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md)
   and [roadmap](../observability/nats-surveyor-migration.md).
