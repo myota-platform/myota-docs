@@ -1,3 +1,14 @@
+## 12 October 2026 — Observability dashboard issue recheck
+
+- Rechecked closed Deploy issues [#11](https://github.com/myota-platform/myota-deploy/issues/11),
+  [#12](https://github.com/myota-platform/myota-deploy/issues/12), and
+  [#13](https://github.com/myota-platform/myota-deploy/issues/13). The active
+  Helm 0.2.20 revision 275 is Fleet Ready at Deploy commit c7b6956, with 71/71
+  resources and all 23 Deployments/27 replicas ready. K3s workload, application
+  workflow, and PostgreSQL/PostGIS dashboards remain provisioned; no test data
+  was created. Original query results and known metric gaps remain documented
+  in the [evidence record](docs/observability/evidence/dashboard-enhancements-2026-10-12.md).
+
 ## 12 October 2026 — Admin entity details save follow-up
 
 - Revisited [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2)

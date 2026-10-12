@@ -96,3 +96,30 @@ alert thresholds, or close the separate structured-logging acceptance work.
 - [Deploy #11 — K3s workload health and capacity](https://github.com/myota-platform/myota-deploy/issues/11)
 - [Deploy #12 — application workflow and JetStream delivery](https://github.com/myota-platform/myota-deploy/issues/12)
 - [Deploy #13 — PostgreSQL and PostGIS database health](https://github.com/myota-platform/myota-deploy/issues/13)
+
+## Current deployment recheck — 12 October 2026 01:26 UTC
+
+This read-only recheck confirms the dashboard rollout remains healthy on the
+current Deploy main revision. It supplements the original 11 October query
+verification above; it does not claim fresh per-panel Prometheus query results.
+
+- Helm release `myota` is chart `myota-0.2.20`, revision 275, status
+  `deployed`.
+- Fleet BundleDeployment `myota-deploy-deploy-helm-myota` is Ready,
+  Deployed, and Monitored at Deploy commit
+  [`c7b6956`](https://github.com/myota-platform/myota-deploy/commit/c7b6956ebd23a220eb359a9814d749d2b2d94b58).
+  Fleet reports 71/71 resources ready, with zero missing, modified, or not-ready
+  resources.
+- The namespace has 23/23 Deployments and 27/27 desired replicas ready.
+  Grafana is 1/1 Ready.
+- The provisioned observability ConfigMap contains the K3s workload,
+  application workflow, and PostgreSQL/PostGIS dashboard JSON. The separate
+  NATS dashboards ConfigMap also remains present.
+- No test workload, business data, or NATS message was created.
+
+Deploy issues [#11](https://github.com/myota-platform/myota-deploy/issues/11),
+[#12](https://github.com/myota-platform/myota-deploy/issues/12), and
+[#13](https://github.com/myota-platform/myota-deploy/issues/13) were already
+closed as completed. Their original implementation and live-query evidence
+remains in the verification section above; this recheck confirms the active
+Helm/Fleet deployment still includes the three dashboards.

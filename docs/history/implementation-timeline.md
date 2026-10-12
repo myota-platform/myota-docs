@@ -1,3 +1,31 @@
+## 12 October 2026 — Dashboard enhancement issue closeout recheck
+
+- **Prompt used:** “Complete and close Deploy issues #11, #12, and #13 as
+  instructed in `./AGENTS.md`.”
+- **Scope:** verify the Deploy-owned K3s workload, application workflow, and
+  PostgreSQL/PostGIS dashboards in the current Helm/Fleet deployment; confirm
+  issue status; update detailed issue comments and Docs evidence. Deploy owns
+  the source and Platform is its synchronized Helm mirror.
+- **Finding:** all three issues were already closed as completed, with their
+  implementation and original live Prometheus query evidence recorded in the
+  issue bodies and
+  [dashboard evidence](../observability/evidence/dashboard-enhancements-2026-10-12.md).
+  No dashboard source changes were needed.
+- **Live check:** Helm chart `myota-0.2.20`, revision 275, is deployed. Fleet is
+  Ready, Deployed, and Monitored at Deploy commit
+  [`c7b6956`](https://github.com/myota-platform/myota-deploy/commit/c7b6956ebd23a220eb359a9814d749d2b2d94b58),
+  with 71/71 resources ready. All 23 Deployments and 27/27 replicas are Ready.
+  Grafana is 1/1 Ready and its dashboard ConfigMap contains all three dashboard
+  assets. No test workload or data was created.
+- **Documentation and issue records:** the evidence page now distinguishes
+  its original live-query checks from this later deployment recheck. Detailed
+  criteria, accepted metric gaps, and links to the evidence were added to
+  [Deploy #11](https://github.com/myota-platform/myota-deploy/issues/11),
+  [#12](https://github.com/myota-platform/myota-deploy/issues/12), and
+  [#13](https://github.com/myota-platform/myota-deploy/issues/13). All three
+  remain closed. The current Deploy main revision is c7b6956; dashboard sources
+  were unchanged, so no new Helm upgrade was necessary.
+
 ## 12 October 2026 — Admin geodata details save follow-up
 
 - **Prompt used:** “Revisit issue
