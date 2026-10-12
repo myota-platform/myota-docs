@@ -123,6 +123,25 @@ The local workspace copy still contains the retired Operations workload, so it
 was not used for a full run. Compose runtime parity remains unverified; this
 attempt does not satisfy the acceptance gate.
 
+## Subsequent image rollout — 2026-10-12 07:56 UTC
+
+After the 07:43 snapshot, Deploy published
+[commit 9d80741](https://github.com/myota-platform/myota-deploy/commit/9d80741f4f9ff637f652a8607264f5815cc3b268)
+to roll out newly published service images. Helm revision 281 is now
+`deployed`. The MyOTA Fleet GitRepo is Ready 1/1 at commit 9d80741; its
+BundleDeployment has sync generation 94/94 and matching staged/applied
+deployment IDs. All 23 Deployments and 27/27 replicas are ready. The rollout
+updated Gateway to
+`sha256:071096c3b3108fcaa23f765eb4530e579721afc35de80c81e3128612b52ce909`
+and the shared runtime image used by relays/maintenance to
+`sha256:c7585d61e11697fa47076ffffde7839c0eb36e3d94262a540bfd0aa636956d34`.
+Activity, Programme, Geodata, Identity, and observability images remain at the
+digests listed in the [current system state](../../architecture/current-state.md).
+
+This rollout does not close the three Deploy #6 acceptance gates below. No
+Compose parity, representative capacity/recovery, or authenticated Grafana UI
+navigation test was performed by the rollout.
+
 ## Remaining Deploy issue #6 gates
 
 - Exercise authenticated Grafana trace-to-log and log-to-trace navigation in
