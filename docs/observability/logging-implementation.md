@@ -1,9 +1,9 @@
 Status: Shared structured logging and bounded request-to-worker correlation
 are implemented and deployed. All four producer-owned correlation issues are
-closed with live evidence. As of 12 October 2026 07:43 UTC, Helm revision 280
+closed with live evidence. As of 12 October 2026 07:56 UTC, Helm revision 281
 is `deployed`; Prometheus and Grafana are 1/1, all 23 Deployments / 27 replicas
-are ready, and the MyOTA Fleet GitRepo and BundleDeployment are Ready at sync
-generation 94/94 with matching deployment IDs.
+are ready, and the MyOTA Fleet GitRepo is Ready at Deploy commit `9d80741`; the
+BundleDeployment is Ready at sync generation 94/94 with matching staged/applied IDs.
 
 The 33 Prometheus alerts load with runbook URLs, Grafana mounts two alert
 runbook links and three Logs / Failures dashboard links, and dashboard
