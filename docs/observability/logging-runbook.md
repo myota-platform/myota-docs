@@ -79,7 +79,7 @@ They do not emit full payloads or raw exception text.
 - A trace ID joins one distributed execution. A business `correlation_id`
   joins asynchronous work across separate traces and retries.
 
-The Deploy-owned datasource config links the `trace_id` structured-metadata field to Tempo using Grafana's label-type derived field. The matching Identity trace exists in Tempo, but the corrected provisioning must roll out before the UI link itself is accepted.
+The Deploy-owned datasource config links the `trace_id` structured-metadata field to Tempo using Grafana's label-type derived field. The corrected datasource and dashboard provisioning are live on Helm revision 280. Authenticated browser navigation in both directions remains unverified; do not treat the provisioned link as proof of an authorized UI path.
 
 ## Loki or Collector ingestion failure
 
@@ -120,36 +120,26 @@ the owner for availability, latency, rate and queue-depth alerts. Loki alerts
 should be limited to discrete exceptional events only after the deployed
 producer emits a reliable, privacy-safe event.
 
-As of 2026-10-11, Loki and the Collector are Ready, but the live service images
-have not advanced to all logging commits. Geodata image publication is blocked
-by its JetStream worker integration test failures. No live request-to-worker
-correlation query, retention expiry, object-growth baseline, or Compose parity
-acceptance has been recorded. See the
-[implementation evidence](evidence/logging-implementation-2026-10-11.md) and
-[phase plan](logging-implementation.md).
+As of 2026-10-12, Identity, Programme, Activity, and Geodata request-to-worker
+correlation paths have deployed evidence and their service-owned issues are
+closed. Loki's live configuration reports 14-day retention and compactor
+activity; actual expiry is not claimed. Representative capacity/recovery and
+Compose runtime parity remain open in Deploy #6. See the
+[12 October implementation evidence](evidence/logging-implementation-2026-10-12.md)
+and [phase plan](logging-implementation.md).
 
 
 ## PostgreSQL and PostGIS telemetry status
 
-The PostgreSQL receiver is intentionally absent from the active Collector
-metrics pipeline until the authentication discrepancy is resolved. A
-read-only smoke job proved that the three monitor Secrets can query
-`pg_stat_database` with `psql`, while the pinned Collector receiver failed
-authentication with the same Secret references. Do not diagnose this by printing
-or copying credential values.
-
-Before re-enabling the receiver:
-
-1. Reproduce the failure with a disposable Collector using the pinned image and
-   exact mounted configuration, while keeping credentials in Secret references.
-2. Verify the monitor role can query `pg_stat_database` in both the receiver's
-   discovery database and each target database.
-3. Confirm no application-owned relation grants and document extension-owned
-   PostGIS objects visible through default public grants.
-4. Confirm all three receiver series appear in Prometheus and scrape logs contain
-   no authentication/SSL errors.
-5. Run the database dashboard queries against those live series and repeat the
-   check in Compose before marking parity complete.
+PostgreSQL receiver metrics are active in the deployed Collector. Separate
+least-privilege monitor roles expose bounded health and workload series for Core,
+Activity, and Geo; live evidence records non-empty backend, database-size,
+commit, rollback, and deadlock metrics, with authentication failures resolved.
+The query-duration histogram remains Geodata-owned. Transaction-age, cache, and
+vacuum/freeze panels remain unavailable rather than inferred. Database spans
+exclude SQL statements, query text, and bind parameters. See the
+[Operations retirement evidence](../operations/evidence/operations-service-retirement-2026-10-11.md)
+and [current system state](../architecture/current-state.md).
 
 The dashboard is
 [`myota-postgresql-postgis.json`](https://github.com/myota-platform/myota-deploy/blob/main/observability/grafana/dashboards/myota-postgresql-postgis.json).
