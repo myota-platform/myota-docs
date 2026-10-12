@@ -1,3 +1,42 @@
+## 12 October 2026 — Admin geodata details save follow-up
+
+- **Prompt used:** “Revisit issue
+  https://github.com/myota-platform/myota-admin-web/issues/2.”
+- **Scope:** Admin Web management dialog and browser regression; Deploy-owned
+  image pin and Platform mirror; Admin workflow guide; Docs guide, diagram,
+  change log, and current-state record; local K3s rollout verification.
+- **Finding and decision:** the earlier visibility fix put Website and
+  Description near the dialog top, outside the Entity name and Entity
+  categories fields. Users edited one logical details set but had to save its
+  pieces separately. The fields now appear after Entity name and Entity
+  categories in the Name & categories tab. One **Save details** action sends
+  metadata through the existing versioned PATCH and categories through the
+  existing versioned PUT, refreshing the entity version between requests.
+  Partial failure is reported and a remaining category draft stays available
+  for retry; no new API or database path was introduced.
+- **Source and automated evidence:** Admin commits
+  [d833f5d](https://github.com/myota-platform/myota-admin-web/commit/d833f5dc26ca351684222ec2971e3ea6e4470d4c)
+  and [daecbdd](https://github.com/myota-platform/myota-admin-web/commit/daecbddb6537a71517bfc76049701fbd2b346d1e).
+  Workflow [#38187013011](https://github.com/myota-platform/myota-admin-web/actions/runs/38187013011)
+  passed 29 unit tests, type checking, production build, six browser tests,
+  and image publication.
+- **Deployment evidence:** immutable Admin image
+  `sha256:23f4466f743d7f41d4a3549510926effe71e797aacc1a67c22aff85a6cafec54`
+  is pinned in Deploy
+  [3b6acef](https://github.com/myota-platform/myota-deploy/commit/3b6acef8e45e83e40f6283accfaf52c40902bdb8)
+  and synchronized to Platform
+  [c51a95e](https://github.com/myota-platform/myota-platform/commit/c51a95ed80a9dd7b702e0b6a3212572b5266bbef).
+  The Admin Deployment observes generation 41 and is Ready 1/1; the served
+  bundle contains the Save details control and field labels in the expected
+  order. All 23 Deployments are ready.
+- **Release status:** Helm revision 274 is deployed and Fleet reports Ready with 71/71 resources
+  ready. All 23 Deployments and 27/27 replicas are ready. No test data was
+  created.
+- **Documentation and issue:** the Admin workflow guide, Docs editor guide and
+  diagram were updated. The complete implementation steps and evidence are in
+  [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2),
+  which is closed after live verification.
+
 ## 11 October 2026 — Admin entity metadata visibility follow-up
 
 - **Prompt used:** “Revisit issue

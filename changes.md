@@ -1,3 +1,27 @@
+## 12 October 2026 — Admin entity details save follow-up
+
+- Revisited [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2)
+  after the report that Website and Description were not saved by **Save Name**.
+  Moved both fields below Entity name and Entity categories and replaced the
+  separate saves with one **Save details** action.
+- The action uses the existing versioned metadata PATCH and category PUT,
+  refreshing the entity version between calls. If the second call fails after
+  metadata has saved, the UI reports partial completion and retains the category
+  draft for retry.
+- Admin commit [d833f5d](https://github.com/myota-platform/myota-admin-web/commit/d833f5dc26ca351684222ec2971e3ea6e4470d4c)
+  and test commit [daecbdd](https://github.com/myota-platform/myota-admin-web/commit/daecbddb6537a71517bfc76049701fbd2b346d1e)
+  passed Admin workflow [#38187013011](https://github.com/myota-platform/myota-admin-web/actions/runs/38187013011):
+  29 unit tests, typecheck, production build, six browser tests, and image publish.
+- Deploy pins image `sha256:23f4466f743d7f41d4a3549510926effe71e797aacc1a67c22aff85a6cafec54`
+  in [commit 3b6acef](https://github.com/myota-platform/myota-deploy/commit/3b6acef8e45e83e40f6283accfaf52c40902bdb8);
+  Platform mirrors it in [commit c51a95e](https://github.com/myota-platform/myota-platform/commit/c51a95ed80a9dd7b702e0b6a3212572b5266bbef).
+  K3s serves the new bundle, Admin is Ready 1/1, and all 23 Deployments are ready.
+  Helm revision 274 is deployed; Fleet reports 71/71 resources ready. The current
+  release state is recorded in [current system state](docs/architecture/current-state.md).
+- The [editor guide](docs/domain/administration/entity-catalogue-editor.md)
+  and [diagram](docs/architecture/diagrams/entity-catalogue-editor.md) describe
+  the final behavior.
+
 ## 11 October 2026 — Admin entity metadata visibility follow-up
 
 - Revisited [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2)

@@ -22,10 +22,14 @@ opening candidate creation.
 3. Use **Name & categories**, **Location**, **Geometry**, **Source comparison**
    and **Audit & deletion** sections. **Previous entity / Next entity** browse
    only the loaded page; close the editor to change catalogue pages or filters.
-4. Each editable section has an explicit Save action. Saving refreshes the
-   selected entity/revision and audit via APIs without resetting other drafts.
-   Concurrent changes still produce a conflict with an explicit discard/reload
-   action; they are not silently overwritten.
+4. The **Name & categories** tab groups Entity name, Entity categories, Website,
+   and Description in that order. One **Save details** action persists the
+   whole details form, then refreshes the selected entity revision before each
+   version-checked API write. Other tabs keep their own Save actions. If a
+   later category write fails after name/public metadata succeeded, the dialog
+   reports the partial result and preserves the remaining category draft.
+   Concurrent changes produce a conflict with an explicit discard/reload action;
+   they are not silently overwritten.
 5. Closing with **Close** or Escape, changing entity or navigating away asks
    before discarding unsaved drafts. Section changes retain drafts. Saves block
    entity navigation/closing until their request and refresh finish. Native
@@ -49,10 +53,12 @@ but retains its draft. Container-size observation fixes map sizing in dialogs
 and when reopening the collapsed catalogue map.
 
 Website and Description are optional entity-owned metadata. In the management
-dialog they appear together in a dedicated **Website and description** section
-near the top, before the editing tabs, so they are immediately visible when an
-entity is selected. Administrators can set, edit or clear them through the
-existing versioned metadata PATCH; omitted fields remain unchanged. Website accepts absolute HTTP/HTTPS URLs up to 2,048
+dialog they appear below Entity name and Entity categories in the **Name &
+categories** tab, and the shared **Save details** action saves them with the
+other fields in that form. Name and public metadata use the existing versioned
+metadata PATCH; categories use the existing versioned category PUT. The client
+refreshes the entity revision between these calls and reports a partial result
+if a later request fails. Website accepts absolute HTTP/HTTPS URLs up to 2,048
 characters. Description is plain text up to 2,000 characters and is rendered as
 text. Both fields appear in the entity detail, catalogue and map feature
 properties. Manual candidate proposals can supply them. Import refreshes retain
