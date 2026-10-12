@@ -10,7 +10,7 @@ The 33 Prometheus alerts load with runbook URLs, the two Grafana alert URLs and
 three Logs / Failures dashboard links are mounted, and Grafana reports that
 dashboard provisioning finished. The remaining acceptance gates are
 authenticated Grafana trace/log navigation, full Compose runtime parity,
-representative capacity/recovery, and Helm/Fleet status convergence. See the
+representative capacity/recovery. See the
 [12 October evidence](evidence/logging-implementation-2026-10-12.md).
 
 **Acceptance boundary:** checked deliverables below mean that their focused
