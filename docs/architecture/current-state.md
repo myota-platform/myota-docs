@@ -1,6 +1,6 @@
 # Current system state
 
-**Verified:** 12 October 2026 07:43 UTC
+**Verified:** 12 October 2026 07:56 UTC
 **Scope:** GitHub `main` repository heads and a read-only inspection and controlled rollout in the
 MyOTA namespace on the local single-node K3s host. This is a snapshot, not a
 production-readiness declaration. Authoritative owner repositories remain the
@@ -12,8 +12,8 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 | Area | Verified state |
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
-| Helm/Fleet | Release `myota`, chart `myota-0.2.20`, revision `280` (`deployed`). Prometheus and Grafana are 1/1; all 23 Deployments / 27 replicas are ready. MyOTA Fleet GitRepo is Ready 1/1; BundleDeployment sync is 94/94 with matching applied/desired IDs. The wider local Fleet cluster has unrelated non-ready bundles; see the MyOTA-specific status and evidence. |
-| MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas), including the namespace-scoped kube-state-metrics Deployment. The Admin web runs image `sha256:23f4466f743d7f41d4a3549510926effe71e797aacc1a67c22aff85a6cafec54`; its Name & categories tab places Website and Description after Entity name and Entity categories and saves the full section with one action. The live bundle exposes `Save details`. See [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2). `myota-web` participant client is not a Deployment in this namespace. |
+| Helm/Fleet | Release `myota`, chart `myota-0.2.20`, revision `281` (`deployed`). Prometheus and Grafana are 1/1; all 23 Deployments / 27 replicas are ready. MyOTA Fleet GitRepo is Ready 1/1 at Deploy commit `9d80741`; its BundleDeployment sync is 94/94 with matching staged/applied IDs. The wider local Fleet cluster has unrelated non-ready bundles; see the MyOTA-specific status and evidence. |
+| MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas), including the namespace-scoped kube-state-metrics Deployment. The Admin web runs image `sha256:52de069757c0f259f7ad22e86309227d6b2558f689029615b47cbf45b7b362c0`; its Name & categories tab places Website and Description after Entity name and Entity categories and saves the full section with one action. The live bundle exposes `Save details`. See [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2). `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
 | Monitoring | NATS Surveyor 0.9.11, Prometheus 2.55.1, Grafana 11.2.2, Alertmanager 0.28.1, OTel Collector 0.135.0, Tempo 2.6.1, and Loki 3.7.8. Eleven NATS dashboards are in Grafana folder `NATS`. |
@@ -35,11 +35,11 @@ does not prove that its image is deployed; deployed image digests are separate.
 | [Geodata](https://github.com/myota-platform/myota-geodata-service) | `08e416ab746863602c2024f1961c6f66aaec2023` |
 | [Operations](https://github.com/myota-platform/myota-operations-service) | `5952738366824a1a9cc494fd2e68737553d73f5e` |
 | [Contracts](https://github.com/myota-platform/myota-contracts) | `fb564e3fed6ef4482c29a56b9d194332f5804ee7` |
-| [Deploy](https://github.com/myota-platform/myota-deploy) | `3b6acef8e45e83e40f6283accfaf52c40902bdb8` |
-| [Platform](https://github.com/myota-platform/myota-platform) | `c51a95ed80a9dd7b702e0b6a3212572b5266bbef` |
+| [Deploy](https://github.com/myota-platform/myota-deploy) | `9d80741f4f9ff637f652a8607264f5815cc3b268` |
+| [Platform](https://github.com/myota-platform/myota-platform) | `5555541c8be02891f91afee9c7e0898e9bff428f` |
 | [Participant web](https://github.com/myota-platform/myota-web) | `0e6cb4cb03a1bdfac03c288d90af540fba917279` |
 | [Admin web](https://github.com/myota-platform/myota-admin-web) | `cb0e9d855daede65a2383ef1a57b52e6f4d13f87` |
-| [.github](https://github.com/myota-platform/.github) | `266dbee495ef9063c6d22c412a6fa6420b93abd4` |
+| [.github](https://github.com/myota-platform/.github) | `c57e75eb842831efd2a1293f97363da48835e887` |
 
 ### First-party images observed in K3s
 
@@ -50,8 +50,8 @@ does not prove that its image is deployed; deployed image digests are separate.
 | Activity API and workers | `ghcr.io/myota-platform/myota-activity-service@sha256:33e7b42f68544b569d621f93bae8fdeec5f696408f0527bc484be6a648673bbc` |
 | Geodata API and workers | `ghcr.io/myota-platform/myota-geodata-service@sha256:2f88ec1e48657f751b562ff928c8dd2574289217cda50f086806d5420a51a14a` |
 | Admin web | `ghcr.io/myota-platform/myota-admin-web@sha256:23f4466f743d7f41d4a3549510926effe71e797aacc1a67c22aff85a6cafec54` |
-| Gateway | `ghcr.io/myota-platform/myota-gateway@sha256:ae6e0f04b0a1935f0a63dd68b1ef2b24fd9db9fff8035a4173b577866a0b8943` |
-| Shared runtime | `ghcr.io/myota-platform/myota-service@sha256:8050be67423e234c2fad94e5beb6179e34bb692d0b49274d30dc5f7966333f0b` |
+| Gateway | `ghcr.io/myota-platform/myota-gateway@sha256:071096c3b3108fcaa23f765eb4530e579721afc35de80c81e3128612b52ce909` |
+| Shared runtime | `ghcr.io/myota-platform/myota-service@sha256:c7585d61e11697fa47076ffffde7839c0eb36e3d94262a540bfd0aa636956d34` |
 
 ## NATS streams and ownership
 
