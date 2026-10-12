@@ -42,11 +42,12 @@ The runbook-link rollout exposed a malformed Prometheus annotation that passed
 Helm rendering but failed live Prometheus rule loading. Deploy commit 4910201 and Platform commit 5555541 fix the Prometheus YAML;
 Deploy commit b460a69 fixes Grafana alert YAML. Deploy Python quality runs
 38217037536 and 38218406097 and Helm chart validation run 38217036883 passed.
-PyYAML checks pass all six Prometheus/Grafana source/chart copies. Helm revision 279 rolled back
-to revision 277 source and restored Prometheus. All 23 Deployments and 27
-replicas are ready. Fleet has commit 4910201 staged, but its applied deployment
-ID and sync generation 92 versus desired 94 have not advanced, so new runbook/dashboard links are
-not yet live. The correction and exact release state are in the
+PyYAML checks pass all six Prometheus/Grafana source/chart copies. Helm revision 279 rolled back to revision 277 source and restored
+Prometheus. The corrected revision 280 ConfigMap is now loaded: Prometheus
+validated 33 rules, Grafana mounted two alert runbook links and three Logs /
+Failures dashboard links, and Grafana logged successful dashboard provisioning.
+All 23 Deployments / 27 replicas are ready. Helm 280 remains `pending-upgrade`;
+Fleet reports `WaitApplied` 0/1 and sync generation 92 versus desired 94. The correction and exact release state are in the
 [12 October evidence](../observability/evidence/logging-implementation-2026-10-12.md).
 
 ## 12 October 2026 — Dashboard enhancement issue closeout recheck

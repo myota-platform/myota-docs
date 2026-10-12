@@ -1,15 +1,16 @@
-Status: Shared structured logging and bounded request-to-worker
-correlation are implemented and deployed. All four producer-owned correlation
-issues are closed with live evidence. As of 12 October 2026 07:27 UTC, Helm revision 279 is deployed after a
-rollback to the last valid source; Prometheus and all 23 Deployments / 27
-replicas are ready. Fleet has corrected Deploy commit b460a69 staged but the
-BundleDeployment still reports the earlier applied ID and sync generation 92
-versus desired 94. The GitRepo reports `WaitApplied` (0/1). The newly committed alert runbook and dashboard links are
-not yet live. All four producer-owned correlation issues are closed.
+Status: Shared structured logging and bounded request-to-worker correlation
+are implemented and deployed. All four producer-owned correlation issues are
+closed with live evidence. As of 12 October 2026 07:40 UTC, Helm revision 280
+is `pending-upgrade`; Prometheus and Grafana are 1/1, and all 23 Deployments /
+27 replicas are ready. Fleet has the corrected Deploy source at b460a69 and
+force-sync generation 94, but reports `WaitApplied` (0/1) with sync generation
+92 versus desired 94.
 
-The remaining Deploy-owned gates are authenticated Grafana trace/log
-navigation, full Compose runtime parity, representative capacity/recovery,
-and Fleet application of the latest chart. See the
+The 33 Prometheus alerts load with runbook URLs, the two Grafana alert URLs and
+three Logs / Failures dashboard links are mounted, and Grafana reports that
+dashboard provisioning finished. The remaining acceptance gates are
+authenticated Grafana trace/log navigation, full Compose runtime parity,
+representative capacity/recovery, and Helm/Fleet status convergence. See the
 [12 October evidence](evidence/logging-implementation-2026-10-12.md).
 
 **Acceptance boundary:** checked deliverables below mean that their focused
