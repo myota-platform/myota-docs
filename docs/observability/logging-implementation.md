@@ -1,25 +1,26 @@
-Status: Structured logging and bounded request correlation are implemented.
-As of 11 October 2026 22:53 UTC, Helm revision 272 is deployed from Deploy
-main `26d13abaef55f1c545d0fff3b8003f2572bd5483`; Fleet is reconciling the
-same chart and all 23 Deployments and 27/27 replicas are Ready. Identity and
-Programme request metrics now return successfully and are visible in
-Prometheus under distinct service labels. The three metrics-coverage issues
-are closed with evidence. Remaining logging acceptance includes authenticated
-Grafana navigation, Programme/Activity/Geodata producer-specific live
-correlation evidence, Loki privacy/cardinality review, alert/runbook acceptance,
-capacity/retention/recovery evidence, and full Compose runtime parity.
+Status: Shared structured logging and bounded request-to-worker
+correlation are implemented and deployed. All four producer-owned correlation
+issues are closed with live evidence. As of 12 October 2026 07:16 UTC, the MyOTA Fleet bundle
+is Ready with 71/71 resources and 23 Deployments / 27 replicas ready. Helm
+revision 278 reports `pending-upgrade` after Deploy commit 7cd6ac2, while Fleet
+reports that commit applied and Ready.
 
-[Current evidence and remaining gaps](evidence/logging-implementation-2026-10-11.md).
+The remaining Deploy-owned gates are authenticated Grafana trace/log
+navigation, full Compose runtime parity, and representative capacity/recovery
+evidence. Loki's three indexed labels, sampled payload exclusion, 14-day
+retention configuration, compactor activity, and alert runbook links are
+verified at the bounds described in the
+[12 October evidence](evidence/logging-implementation-2026-10-12.md).
+Do not treat the single-node sample as production capacity qualification.
+
+Current evidence:
+[12 October 2026](evidence/logging-implementation-2026-10-12.md) |
+[11 October 2026 historical rollout](evidence/logging-implementation-2026-10-11.md).
 Parent: [MyOTA observability](overview.md)
-[Current evidence and remaining gaps](evidence/logging-implementation-2026-10-11.md).
-Parent: [MyOTA observability](overview.md)
 
-Current evidence: [logging implementation evidence, 2026-10-11](evidence/logging-implementation-2026-10-11.md).
-
-**Acceptance boundary:** checked deliverables below mean the source or deployment
-asset is present and its stated focused check passed. They do not close a phase
-whose live, Compose/Helm, capacity, privacy, or end-to-end exit evidence remains
-open. See the linked evidence record for exact gates.
+**Acceptance boundary:** checked deliverables below mean that their focused
+source, CI, or live checks passed. They do not close remaining end-to-end
+acceptance gates unless the linked evidence says so.
 
 ## Objective
 

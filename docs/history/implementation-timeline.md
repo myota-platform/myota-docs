@@ -1,3 +1,40 @@
+## 12 October 2026 — Structured logging correlation and acceptance recheck
+
+- **Prompt used:** “Work on and close all issues under ‘Structured logging and
+  request-to-worker correlation’ in the organization issue index as instructed
+  in `./AGENTS.md`.”
+- **Scope:** closed the Programme, Activity, and Geodata producer-owned
+  correlation issues after live evidence; repaired and deployed the Activity
+  NATS header-access crash; added production OTLP identity to shared workers;
+  linked bounded alerts to the operator runbook. Deploy issue #6 remains open
+  for authenticated Grafana navigation, full Compose runtime parity, and
+  representative capacity/recovery evidence.
+- **Evidence:** the sanitized Programme fact reached `MYOTA_EVENTS` with its
+  request correlation and has no consumer group. Activity and Geodata jobs
+  completed with matching correlation in Loki, durable ACK floors advanced,
+  and probe database/object/queue rows were removed. A unique synthetic path
+  marker was absent from the normalized Geodata error log.
+- **Loki review:** the live indexed label set contains only
+  `deployment_environment`, `service_name`, and `service_namespace`.
+  Correlation/trace/request IDs remain structured metadata. The live config
+  enables `2w` retention; compactor metrics showed 119 successful retention
+  applications. This does not claim actual 14-day expiry or representative
+  capacity.
+- **Alert links:** Deploy
+  [7cd6ac2](https://github.com/myota-platform/myota-deploy/commit/7cd6ac233715ceedae25dd049441ed0ce080bee5)
+  and Platform
+  [07eeb86](https://github.com/myota-platform/myota-platform/commit/07eeb863330223f426234b32d3078a044d8f65f3)
+  add the shared runbook URL to 33 Prometheus rules and two Grafana API alerts.
+  Fleet's bundle is Ready at 71/71 resources and the 23 Deployments / 27
+  replicas are ready. Helm revision 278 remains `pending-upgrade`, so this
+  snapshot does not claim Helm release reconciliation.
+- **Remaining gates:** no authorized browser session was used to exercise
+  Grafana navigation. Docker and Podman are absent on the host, so Compose
+  runtime/restart parity was not executed. No representative load or actual
+  14-day expiration test is claimed. See the
+  [12 October evidence](../observability/evidence/logging-implementation-2026-10-12.md)
+  and [Deploy #6](https://github.com/myota-platform/myota-deploy/issues/6).
+
 ## 12 October 2026 — Dashboard enhancement issue closeout recheck
 
 - **Prompt used:** “Complete and close Deploy issues #11, #12, and #13 as

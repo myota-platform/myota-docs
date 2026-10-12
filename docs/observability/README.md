@@ -12,8 +12,10 @@ for the latest verified deployment and open acceptance gates.
   metric limitations.
 - [Logging implementation roadmap](logging-implementation.md) — phases,
   acceptance criteria, and remaining work.
-- [Logging evidence](evidence/logging-implementation-2026-10-11.md) — dated
-  rollout and verification record.
+- [Logging evidence, 12 October](evidence/logging-implementation-2026-10-12.md) —
+  current deployed correlation, Loki, retention, alert/runbook, and remaining-gate evidence.
+- [Logging evidence, 11 October](evidence/logging-implementation-2026-10-11.md) —
+  historical rollout and verification record.
 - [Identity and Programme metrics evidence](evidence/identity-programme-metrics-2026-10-11.md) —
   bounded instrumentation, scrape, dashboard, CI, and live K3s verification.
 - [Geodata TracerProvider repair evidence](evidence/geodata-tracerprovider-2026-10-11.md) —

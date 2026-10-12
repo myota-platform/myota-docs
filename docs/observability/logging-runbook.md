@@ -1,15 +1,15 @@
 # Structured logging operations runbook
 
-**Status:** Helm revision 242 is pending-upgrade while all Deployments are Ready; Fleet still reports revision 241 with 67/67 Fleet resources ready.
-The PostgreSQL/PostGIS dashboard uses live read-only metrics from the Operations
-adapter. Psycopg spans are visible in Tempo after Collector SQL-attribute
-removal. Remaining acceptance items are authenticated UI navigation, a
-representative async correlation check, a Loki prohibited-field audit, and full
-Compose runtime parity.
+The logging stack is deployed through the existing OpenTelemetry Collector,
+Loki, Tempo, Prometheus, and Grafana services. This runbook covers bounded
+application and worker telemetry. PostgreSQL remains authoritative for domain
+and job state; logs are diagnostic evidence, not an audit archive.
 
-Structured logs travel from services through the OpenTelemetry Collector to Loki.
-PostgreSQL and application state remain authoritative; logs are diagnostic
-telemetry and are not an audit archive.
+As of 12 October 2026, alert rules link here using the
+[`runbook_url`](#alert-response) annotation. Read the
+[latest evidence](evidence/logging-implementation-2026-10-12.md) for current
+deployment state and acceptance limits. Do not infer capacity from the
+single-node sample.
 
 ## Query examples
 
@@ -156,3 +156,23 @@ The dashboard is
 It includes core connection/size/transaction panels and the existing bounded
 Geodata PostGIS query-duration histogram. Empty database panels are expected
 until the receiver is accepted.
+
+## Alert response
+
+All configured Prometheus and Grafana alert rules include a link to this
+section. Alert conditions use bounded metric series. Do not create an alert
+per request, correlation ID, entity, message, or job ID.
+
+| Signal | First checks | Recovery boundary |
+|---|---|---|
+| Collector, Loki, or Tempo unavailable | Check Deployment readiness, Collector queue/retry logs, service endpoints, and persistent volume capacity. | Restore the telemetry component; application/database state remains authoritative. |
+| API error rate or latency | Filter by fixed service, normalized route, method, and status; follow trace/log links when authenticated Grafana navigation is available. | Resolve the owning API or dependency fault; do not use request payloads as diagnostics. |
+| Activity/Geodata worker failure, retry, or queue age | Filter logs by service and stable `correlation_id`; inspect the owning job row, durable pending state, and outbox relay metrics. | Recover or redrive from the owning database row only after cause is understood; keep handler idempotency. |
+| Outbox age, retries, or unresolved dead letter | Inspect the service-owned outbox row, relay readiness, NATS connectivity, and bounded error class. | Database outbox remains the source of truth; do not delete an unresolved row to clear an alert. |
+| PostgreSQL connection or collector signal | Check database readiness, the least-privilege monitor role, and pool/connection metrics. | Preserve business data; logs do not replace database health or recovery procedures. |
+| NATS/JetStream capacity or Surveyor | Check server/Surveyor health and bounded stream/consumer metrics. | NATS is bounded delivery infrastructure, not the domain archive. Recover work from the service database. |
+
+For every alert, keep the event body and labels free of payloads and secrets.
+The only indexed Loki labels are `deployment_environment`,
+`service_name`, and `service_namespace`; use structured metadata for
+correlation and trace navigation.

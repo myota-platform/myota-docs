@@ -1,3 +1,20 @@
+## 12 October 2026 — Structured logging and request-to-worker correlation
+
+- Closed Programme #4, Activity #3, and Geodata #6 after deployed producer/worker
+  correlation evidence, ACK checks, and exact probe cleanup. Identity #3 was
+  already closed.
+- Fixed the deployed Activity consumer's NATS header mapping access and enabled
+  production OTLP identity for Activity/Geodata workers and outbox relays.
+- Audited Loki's indexed labels (three fixed labels), sampled metadata for
+  payload leakage, confirmed live 14-day retention configuration and compactor
+  runs, and linked 33 Prometheus plus two Grafana alerts to the operator
+  runbook.
+- Deploy #6 remains open for authenticated Grafana navigation, full Compose
+  runtime parity, representative capacity/recovery, and Helm revision 278's
+  pending-upgrade status. Details:
+  [12 October evidence](docs/observability/evidence/logging-implementation-2026-10-12.md)
+  and [issue #6](https://github.com/myota-platform/myota-deploy/issues/6).
+
 ## 12 October 2026 — Observability dashboard issue recheck
 
 - Rechecked closed Deploy issues [#11](https://github.com/myota-platform/myota-deploy/issues/11),
