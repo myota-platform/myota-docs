@@ -306,13 +306,17 @@ Deliverables:
   `myota-geodata-service/geodata_retention_worker.py` and
   `myota-geodata-service/import_retention.py`; focused tests and the scheduled
   deployed job succeeded.
-- [ ] deployed-worker retry/ACK and request-to-worker correlation acceptance;
-  the initiating HTTP correlation ID is still not persisted by every outbox
-  producer.
+- [x] Deployed-worker retry/ACK and request-to-worker correlation acceptance.
+  Identity, Programme, Activity, and Geodata owner paths were exercised live;
+  Activity and Geodata work completed with matching correlation in Loki and
+  advanced their durable ACK floors. Programme facts have no consumer group,
+  so a worker ACK is not applicable. See the
+  [12 October evidence](evidence/logging-implementation-2026-10-12.md) and
+  linked service issue completion comments.
 - [x] Stable NATS correlation header source for work/fact events: the relay
   selects `correlationId`, then `workId`, then `eventId`, and consumer log
-  context inherits `Myota-Correlation-Id`. Focused CI tests pass; live
-  request-to-worker acceptance remains open.
+  context inherits `Myota-Correlation-Id`. Focused CI and deployed
+  request-to-worker checks pass.
 
 Implementation prompt:
 [Phase 4 ChatGPT prompt](prompts/logging-phase-4-workers-nats.md)
@@ -331,12 +335,11 @@ Deliverables:
 - [x] a MyOTA Logs / Failures dashboard;
 - [x] panels for errors by service, recent failures, worker failures/retries and HTTP
   server-error logs;
-- [ ] links from existing operational dashboards where useful;
+- [x] Links from API, workflow, and Geodata capacity dashboards to Logs / Failures are mounted and provisioned in Grafana.
 - [x] verify Helm ConfigMap mounting and Grafana provisioning of the dashboard;
 - [x] execute all seven mounted dashboard LogQL queries against live Loki OTLP
   structured metadata (no JSON parser);
-- [ ] verify Grafana UI trace/log navigation in both directions; revision 225
-  mounted the fix, but the authenticated UI links were not exercised.
+- [ ] Verify authenticated Grafana UI trace/log navigation in both directions. The configured links and dashboard assets are live, but no authorized browser session was used.
 
 Implementation prompt:
 [Phase 5 ChatGPT prompt](prompts/logging-phase-5-grafana-correlation.md)
@@ -364,15 +367,18 @@ Deliverables:
   pre-live sample is not represented as a production growth rate.
 - [x] live Loki label-name check found only `deployment_environment`,
   `service_name`, and `service_namespace`;
-- [ ] cardinality under representative production traffic and payload-label audit;
+- [x] Current Loki indexed-label and sampled payload-field audit: three fixed indexed labels; sampled records contain no request/domain payload.
+- [ ] Cardinality under representative production traffic; current single-node traffic is not representative.
 - [x] source redaction/correlation tests pass in service CI;
-- [ ] live redaction check against Collector-to-Loki records;
-- [ ] exceptional-event alert rules;
+- [x] Live redaction check against Collector-to-Loki records: a synthetic path marker was absent from the normalized error log and no request body was recorded.
+- [x] Bounded metric-backed alerts and operator runbook links are loaded: 33 Prometheus rules validate with `promtool`, and Grafana mounts two alert runbook links.
+- [ ] Add log-only exceptional-event rules only where no equivalent metric exists and an actionable signal is established; avoid duplicate metric alerts.
 - [x] initial operational queries and troubleshooting runbook in
   [logging-runbook.md](logging-runbook.md);
-- [ ] live ingestion, capacity, retention, and end-to-end verification;
+- [x] Live Loki ingestion and active 14-day retention policy/compactor activity verified.
+- [ ] Representative capacity/recovery qualification and authenticated UI trace/log navigation; no such claim is made from the single-node sample.
 - [ ] Compose/Helm parity check;
-- [ ] end-to-end test: request -> trace -> log -> async worker correlation.
+- [ ] Authenticated request -> trace -> log -> async worker navigation in Grafana. Worker request correlation is verified in Phase 4; interactive trace/log navigation remains open.
 
 Implementation prompt:
 [Phase 6 ChatGPT prompt](prompts/logging-phase-6-production-hardening.md)
