@@ -99,6 +99,30 @@ and [Geodata #6](https://github.com/myota-platform/myota-geodata-service/issues/
 - Observed records are a small single-node sample, not representative traffic.
   No capacity conclusion is inferred.
 
+## Compose runtime qualification attempt
+
+The authoritative Deploy `compose.images.yaml` at
+[85978c2](https://github.com/myota-platform/myota-deploy/blob/main/compose.images.yaml)
+rendered with Podman Compose 1.0.6. It contains the service and messaging image
+set but omits Loki, Tempo, Prometheus, Grafana, and the Collector, so that file
+alone cannot establish logging-stack Compose parity.
+
+A disposable isolated project was created with loopback-only published ports
+and separate named volumes. Its first startup failed because the chosen host
+port `127.0.0.1:15432` was already occupied. Podman Compose then continued
+creating dependent containers despite the database startup failure, so this
+was not a valid runtime or restart check. The project was stopped and cleaned:
+test containers, volumes, network, cached images, temporary files, and the
+installed Podman packages were removed. No migration job completed and no
+application test data was created.
+
+The authoritative full source Compose file is
+[`compose.yaml`](https://github.com/myota-platform/myota-deploy/blob/main/compose.yaml)
+at [422df5f](https://github.com/myota-platform/myota-deploy/blob/main/compose.yaml).
+The local workspace copy still contains the retired Operations workload, so it
+was not used for a full run. Compose runtime parity remains unverified; this
+attempt does not satisfy the acceptance gate.
+
 ## Remaining Deploy issue #6 gates
 
 - Exercise authenticated Grafana trace-to-log and log-to-trace navigation in
