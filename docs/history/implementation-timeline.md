@@ -35,6 +35,19 @@
   [12 October evidence](../observability/evidence/logging-implementation-2026-10-12.md)
   and [Deploy #6](https://github.com/myota-platform/myota-deploy/issues/6).
 
+
+### 12 October rollout correction
+
+The runbook-link rollout exposed a malformed Prometheus annotation that passed
+Helm rendering but failed live Prometheus rule loading. Deploy commit 4910201
+and Platform commit 5555541 fix the YAML; Deploy Python quality run 38217037536
+and Helm chart validation run 38217036883 passed. Helm revision 279 rolled back
+to revision 277 source and restored Prometheus. All 23 Deployments and 27
+replicas are ready. Fleet has commit 4910201 staged, but its applied deployment
+ID and sync generation have not advanced, so new runbook/dashboard links are
+not yet live. The correction and exact release state are in the
+[12 October evidence](../observability/evidence/logging-implementation-2026-10-12.md).
+
 ## 12 October 2026 — Dashboard enhancement issue closeout recheck
 
 - **Prompt used:** “Complete and close Deploy issues #11, #12, and #13 as

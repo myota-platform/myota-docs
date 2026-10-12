@@ -1,22 +1,16 @@
 Status: Shared structured logging and bounded request-to-worker
 correlation are implemented and deployed. All four producer-owned correlation
-issues are closed with live evidence. As of 12 October 2026 07:16 UTC, the MyOTA Fleet bundle
-is Ready with 71/71 resources and 23 Deployments / 27 replicas ready. Helm
-revision 278 reports `pending-upgrade` after Deploy commit 7cd6ac2, while Fleet
-reports that commit applied and Ready.
+issues are closed with live evidence. As of 12 October 2026 07:27 UTC, Helm revision 279 is deployed after a
+rollback to the last valid source; Prometheus and all 23 Deployments / 27
+replicas are ready. Fleet has corrected Deploy commit 4910201 staged but the
+BundleDeployment still reports the earlier applied ID and sync generation 92
+versus desired 93. The newly committed alert runbook and dashboard links are
+not yet live. All four producer-owned correlation issues are closed.
 
 The remaining Deploy-owned gates are authenticated Grafana trace/log
-navigation, full Compose runtime parity, and representative capacity/recovery
-evidence. Loki's three indexed labels, sampled payload exclusion, 14-day
-retention configuration, compactor activity, and alert runbook links are
-verified at the bounds described in the
+navigation, full Compose runtime parity, representative capacity/recovery,
+and Fleet application of the latest chart. See the
 [12 October evidence](evidence/logging-implementation-2026-10-12.md).
-Do not treat the single-node sample as production capacity qualification.
-
-Current evidence:
-[12 October 2026](evidence/logging-implementation-2026-10-12.md) |
-[11 October 2026 historical rollout](evidence/logging-implementation-2026-10-11.md).
-Parent: [MyOTA observability](overview.md)
 
 **Acceptance boundary:** checked deliverables below mean that their focused
 source, CI, or live checks passed. They do not close remaining end-to-end

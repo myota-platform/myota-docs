@@ -12,16 +12,22 @@ capacity or representative traffic.
 
 - K3s context: `default`; namespace: `myota`.
 - Deploy main contains runbook links for all 33 Prometheus rules and both
-  Grafana API alert rules at commit
-  [7cd6ac2](https://github.com/myota-platform/myota-deploy/commit/7cd6ac233715ceedae25dd049441ed0ce080bee5).
+  Grafana API alert rules. The source change is in
+  [commit 7cd6ac2](https://github.com/myota-platform/myota-deploy/commit/7cd6ac233715ceedae25dd049441ed0ce080bee5),
+  with malformed YAML corrected in
+  [commit 4910201](https://github.com/myota-platform/myota-deploy/commit/4910201b4462aef07e9b55cc35158341ef599ef1).
   Platform's synchronized chart copy is at
-  [07eeb86](https://github.com/myota-platform/myota-platform/commit/07eeb863330223f426234b32d3078a044d8f65f3).
-- Fleet's MyOTA BundleDeployment is Ready with 71/71 resources for Deploy
-  commit 7cd6ac2. All 23 Deployments and 27/27 desired replicas are ready.
-  Helm revision 278 is currently `pending-upgrade`; revision 277 was
-  `deployed`. Fleet reports the applied bundle Ready, but Helm's status
-  discrepancy remains recorded rather than described as a successful Helm
-  release.
+  [commit 5555541](https://github.com/myota-platform/myota-platform/commit/5555541c8be02891f91afee9c7e0898e9bff428f).
+  API, workflow, and Geodata capacity dashboards link to Logs / Failures in
+  Deploy [commit c1d2d31](https://github.com/myota-platform/myota-deploy/commit/c1d2d313e2c7f137c4c67884fe7d1efe9aa70e80)
+  and Platform [commit cc7aa3d](https://github.com/myota-platform/myota-platform/commit/cc7aa3d08b8df4983b00ef3b10ebfad24766bf19).
+- Helm revision 279 is `deployed` after rollback to revision 277 source.
+  Helm revision 278 remains `pending-upgrade` in history. Prometheus is 1/1;
+  all 23 Deployments and 27/27 desired replicas are ready.
+- Fleet has Deploy commit 4910201 staged, but the BundleDeployment applied
+  deployment ID and sync generation 92 remain behind the desired ID/generation
+  93. The current live ConfigMap contains the valid pre-change rules; the new
+  alert runbook annotations and dashboard links are not yet live.
 - Activity's fixed JetStream consumer reads NATS message headers through
   `Msg.headers`, has a passing regression for redelivery/idempotency, and is
   deployed at image
@@ -93,3 +99,23 @@ reports the Deploy/Platform rule assets applied.
 The issue remains open until the browser and Compose gates have real evidence
 and the Helm state is reconciled. No Compose run, authenticated UI test, or
 production-capacity qualification is claimed here.
+
+## Deployment correction after the initial 12 October check
+
+The first runbook-annotation source edit merged `runbook_url` and the
+following `description` on one YAML line. GitHub Helm rendering accepted the
+chart, but live Prometheus rejected `observability/rules.yml` and entered
+CrashLoopBackOff. The malformed file was corrected in Deploy commit
+[4910201](https://github.com/myota-platform/myota-deploy/commit/4910201b4462aef07e9b55cc35158341ef599ef1)
+and Platform commit
+[5555541](https://github.com/myota-platform/myota-platform/commit/5555541c8be02891f91afee9c7e0898e9bff428f).
+Deploy Python quality run 38217037536 and Helm chart validation run 38217036883
+passed for the corrected source.
+
+Helm rollback to revision 277 source completed as revision 279. Prometheus
+returned to 1/1 Running and all 23 Deployments / 27 replicas are ready. The
+corrected source commit is staged in Fleet, but the BundleDeployment still
+reports the prior applied deployment ID and sync generation 92 versus desired
+93. Do not claim the runbook/dashboard assets are live until Fleet finishes
+that sync. The authenticated Grafana browser check and full Compose runtime
+exercise remain open; Docker and Podman are absent on the host.

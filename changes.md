@@ -10,8 +10,10 @@
   runs, and linked 33 Prometheus plus two Grafana alerts to the operator
   runbook.
 - Deploy #6 remains open for authenticated Grafana navigation, full Compose
-  runtime parity, representative capacity/recovery, and Helm revision 278's
-  pending-upgrade status. Details:
+  runtime parity, representative capacity/recovery, and Fleet application of
+  the corrected chart. A malformed alert annotation caused Prometheus to restart;
+  Helm rollback revision 279 restored it to 1/1. The corrected source passes CI,
+  while Fleet's applied ID remains behind the staged commit. Details:
   [12 October evidence](docs/observability/evidence/logging-implementation-2026-10-12.md)
   and [issue #6](https://github.com/myota-platform/myota-deploy/issues/6).
 
