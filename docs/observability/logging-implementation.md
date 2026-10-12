@@ -1,16 +1,15 @@
 Status: Shared structured logging and bounded request-to-worker correlation
 are implemented and deployed. All four producer-owned correlation issues are
-closed with live evidence. As of 12 October 2026 07:40 UTC, Helm revision 280
-is `pending-upgrade`; Prometheus and Grafana are 1/1, and all 23 Deployments /
-27 replicas are ready. Fleet has the corrected Deploy source at b460a69 and
-force-sync generation 94, but reports `WaitApplied` (0/1) with sync generation
-92 versus desired 94.
+closed with live evidence. As of 12 October 2026 07:43 UTC, Helm revision 280
+is `deployed`; Prometheus and Grafana are 1/1, all 23 Deployments / 27 replicas
+are ready, and the MyOTA Fleet GitRepo and BundleDeployment are Ready at sync
+generation 94/94 with matching deployment IDs.
 
-The 33 Prometheus alerts load with runbook URLs, the two Grafana alert URLs and
-three Logs / Failures dashboard links are mounted, and Grafana reports that
-dashboard provisioning finished. The remaining acceptance gates are
-authenticated Grafana trace/log navigation, full Compose runtime parity,
-representative capacity/recovery. See the
+The 33 Prometheus alerts load with runbook URLs, Grafana mounts two alert
+runbook links and three Logs / Failures dashboard links, and dashboard
+provisioning completed. Deploy issue #6 remains open for three unverified
+gates: authenticated Grafana trace/log navigation, Compose runtime parity, and
+representative capacity/recovery qualification. See the
 [12 October evidence](evidence/logging-implementation-2026-10-12.md).
 
 **Acceptance boundary:** checked deliverables below mean that their focused
