@@ -12,8 +12,9 @@
 - Deploy #6 remains open for authenticated Grafana navigation, full Compose
   runtime parity, representative capacity/recovery, and Fleet application of
   the corrected chart. A malformed alert annotation caused Prometheus to restart;
-  Helm rollback revision 279 restored it to 1/1. The corrected source passes CI,
-  while Fleet's applied ID remains behind the staged commit. Details:
+  Helm rollback revision 279 restored it to 1/1. The corrected Prometheus and Grafana rule source passes focused YAML parsing;
+  Deploy Python quality passes, while Fleet remains `WaitApplied` with applied
+  sync generation 92 versus desired 94. Details:
   [12 October evidence](docs/observability/evidence/logging-implementation-2026-10-12.md)
   and [issue #6](https://github.com/myota-platform/myota-deploy/issues/6).
 

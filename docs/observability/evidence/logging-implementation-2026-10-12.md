@@ -78,8 +78,9 @@ and [Geodata #6](https://github.com/myota-platform/myota-geodata-service/issues/
 All 33 Prometheus rules and both Grafana API alerts link to the shared
 [logging runbook](../logging-runbook.md#alert-response). Thresholds remain
 bounded and continue to use Prometheus metrics where a metric exists; no
-high-cardinality labels or log-derived duplicate alerts were added. Fleet
-reports the Deploy/Platform rule assets applied.
+high-cardinality labels or log-derived duplicate alerts were added. The
+Deploy/Platform assets are committed and syntax-checked; Fleet has not applied
+the new versions yet.
 
 ## Remaining Deploy issue #6 gates
 
@@ -92,9 +93,9 @@ reports the Deploy/Platform rule assets applied.
 - The current single-node measurements do not establish representative
   capacity or operational recovery under load. Actual 14-day expiry was not
   waited out; the live policy and successful compactor runs were checked.
-- Helm revision 278 reports `pending-upgrade` while Fleet's applied bundle is
-  Ready. This discrepancy must clear before claiming a fully reconciled Helm
-  release.
+- Helm revision 279 is `deployed` after rollback to revision 277 source;
+  revision 278 remains `pending-upgrade` in history. Fleet is `WaitApplied`
+  at commit b460a69; it has not applied the current chart source.
 
 The issue remains open until the browser and Compose gates have real evidence
 and the Helm state is reconciled. No Compose run, authenticated UI test, or
@@ -105,17 +106,22 @@ production-capacity qualification is claimed here.
 The first runbook-annotation source edit merged `runbook_url` and the
 following `description` on one YAML line. GitHub Helm rendering accepted the
 chart, but live Prometheus rejected `observability/rules.yml` and entered
-CrashLoopBackOff. The malformed file was corrected in Deploy commit
+CrashLoopBackOff. The malformed Prometheus rule file was corrected in Deploy commit
 [4910201](https://github.com/myota-platform/myota-deploy/commit/4910201b4462aef07e9b55cc35158341ef599ef1)
 and Platform commit
 [5555541](https://github.com/myota-platform/myota-platform/commit/5555541c8be02891f91afee9c7e0898e9bff428f).
-Deploy Python quality run 38217037536 and Helm chart validation run 38217036883
-passed for the corrected source.
+The Grafana alert file's equivalent formatting correction is Deploy commit
+[b460a69](https://github.com/myota-platform/myota-deploy/commit/b460a6900d48b0fe552ca03de21006d812edd824).
+Deploy Python quality runs 38217037536 and 38218406097 and Helm chart validation
+run 38217036883 passed. A focused PyYAML check passed all six Prometheus/Grafana
+rule files across source and chart mirrors (33/33 and 2/2 rules have runbook
+links). The three dashboard JSON assets parse and contain the Logs / Failures
+link.
 
 Helm rollback to revision 277 source completed as revision 279. Prometheus
 returned to 1/1 Running and all 23 Deployments / 27 replicas are ready. The
 corrected source commit is staged in Fleet, but the BundleDeployment still
 reports the prior applied deployment ID and sync generation 92 versus desired
-93. Do not claim the runbook/dashboard assets are live until Fleet finishes
+94. The MyOTA GitRepo is at commit b460a69 and reports `WaitApplied` (0/1). Do not claim the runbook/dashboard assets are live until Fleet finishes
 that sync. The authenticated Grafana browser check and full Compose runtime
 exercise remain open; Docker and Podman are absent on the host.
