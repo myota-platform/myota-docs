@@ -35,6 +35,13 @@
   for a different email. The original check counted `public.account`, which is
   not this service's source of truth. The production Identity records were not
   copied, and the previous zero-account conclusion was wrong.
+- After the user's explicit authorization, copied only the requested active
+  account, its password hash, and its active `GLOBAL_OPERATOR` assignment into
+  test. Reset its test lockout counters; did not copy other production users,
+  sessions, recovery tokens, or security history. Restarted the test Identity
+  pod. Verified the password hash matches, account is active, role is present,
+  and Identity metrics report the loaded account. No password was available to
+  this session, so an actual login was not attempted.
 - The `myota-geodata-imports` bucket was independently compared by object key
   and size after the recovery: 10 objects, 13,625,617 bytes. Temporary source
   credentials, copy and verifier Jobs, and ConfigMaps were removed.

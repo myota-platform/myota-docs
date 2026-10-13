@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Verified:** 2026-10-13 20:34 UTC
+**Verified:** 2026-10-13 21:30 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Fleet source:** `myota-platform/myota-deploy`, branch `testing`, commit
@@ -74,20 +74,30 @@ does not enable automatic updates for future image publications.
 ## Initial data seed
 
 The database and object data were copied after migrations and before enabling
-public test ingress. **Identity account state was not copied.** The earlier
-check incorrectly treated Core `public.account` as the Identity source of
-truth. Identity stores accounts in `public.service_state.state->'items'` for
-service `identity`. A read-only recheck after the login report found two live
-Identity accounts, including the reported login, and no persisted Identity
-accounts in `myota-test`. The test Identity deployment has a separately
-configured bootstrap account whose email does not match that login. This is a
-seed gap; the earlier claim that the live account store was empty was incorrect.
+public test ingress. The first pass missed Identity accounts because it
+incorrectly treated Core `public.account` as the Identity source of truth.
+Identity stores accounts in `public.service_state.state->'items'` for service
+`identity`. After the user explicitly authorized the copy, the requested active
+account, password hash, and its active `GLOBAL_OPERATOR` role assignment were
+copied into the test Identity state. The test-only failed-attempt counter and
+lock state were reset. The test Identity pod was restarted to load the updated
+state. The password hash equality, active account status, role assignment, and
+running Identity account metrics were verified without printing credential
+material. The test login was not exercised because the user's password was not
+provided to this session.
+
+The copy excluded other production accounts, all sessions and refresh-token
+state, recovery tokens, revoked-token entries, login-rate-limit history, and
+production security/audit history. The test deployment continues to use its
+separate bootstrap account.
 
 Verified source/target data counts were:
 
 | Data | Source and test result |
 |---|---:|
-| Identity `service_state.state.items` | 2 live accounts; 0 persisted test accounts (not copied) |
+| Identity `service_state.state.items` | 2 live accounts; requested account copied; 1 copied account persisted in test |
+| Identity password credential | Requested account's password hash matches; test lockout counters reset |
+| Active Identity role assignment | Requested account's `GLOBAL_OPERATOR` role copied and verified |
 | Legacy Core `public.account` relation | 0 rows; not the Identity source of truth |
 | Activity `activity_notification` | 155 rows |
 | Geo `geodata_entity` | 10 rows |
