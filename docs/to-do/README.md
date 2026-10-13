@@ -28,4 +28,4 @@ For the recommended execution order, see the
 - [Charter delivery gaps](../governance/charter-gap-analysis.md) — longer-term
   product, coverage, stewardship, and participant-experience gaps.
 
-- [Database baseline and rebuild gates](../operations/databases/baseline-migration-inventory.md) — active implementation. Do not reset live databases until the fixed runner is deployed and each post-quiescence archive passes isolated restore and explicit go/no-go.
+- [Database data-preserving rebuilds](../operations/databases/baseline-migration-inventory.md) — baseline issues Deploy #15, Activity #4, and Geodata #8 are complete and closed. Rebuild issues #16, #5, and #9 remain open. Platform baseline mirror PR #5 is merged to `main`; Deploy #20, Activity #10, and Geodata #12 are awaiting promotion CI/merge. Do not cut over until the exact runner image is deployed and each post-quiescence archive passes isolated restore with a recorded go/no-go.
