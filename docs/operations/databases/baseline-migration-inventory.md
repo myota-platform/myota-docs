@@ -218,22 +218,40 @@ not hydrate the entity catalogue from the old JSON snapshot; the exact
 retirement/retention disposition of these legacy relations remains an explicit
 owner verification gate.
 
-### Remaining object-level evidence
+### Retained-object ownership evidence
 
-The historical filenames and schema effects are mapped above, and the retired
-Operations snapshot objects are proven absent from the Core target. The
-following owner-path audit remains open before the three baseline issues can
-close:
+The table names alone do not prove active ownership. Current source inspection
+has established these dispositions:
 
-- Identify any live Identity/Programme readers or writers of Core
-  `activation`, `qso`, and `service_state`.
-- Confirm whether retained Activity/Geodata `service_state` and Geodata
-  `source_snapshot_*` rows are required archives or can be excluded from a
-  rebuilt target; do not infer this from table names.
-- Link active code paths and deployed catalog rows for each retained table,
-  index, view, extension, sequence, trigger, role, and grant.
-- Confirm retired Geodata snapshot writers are absent from current code and
-  operational procedures before checking that acceptance item.
+- Identity and Programme `common.py` each read and write their own row in Core
+  `service_state`. This is active JSON-backed service state and must remain
+  available through the rebuild.
+- Current Activity domain state is stored in `activity_activation` and
+  `activity_qso` in `myota_activity`; the generic Activity
+  `service_state` table is retained in the baseline for compatibility, while
+  durable mode does not use it as the source of truth.
+- Geodata `service_state` is a legacy JSON snapshot archive. The Geodata
+  migration guide, baseline table comment, and relational-authority tests say
+  the live relational runtime does not read or write it. Preserve its existing
+  row through the rebuild until a separate disposition is recorded.
+- Geodata `source_snapshot_manifest` and `source_snapshot_record` are
+  active import provenance/cleanup state. In particular,
+  `import_retention.py` deletes manifests by `import_run_id`; these tables
+  must be retained and restored with their import rows.
+- Core `activation` and `qso` are the pre-split Activity-shaped relations.
+  Current Activity uses its prefixed tables in `myota_activity`; no current
+  Identity or Programme callsite was found in the inspected persistence paths.
+  Keep Core rows through this rebuild for data preservation, and do not treat
+  these relations as current Activity write targets.
+
+The exhaustive table-to-callsite mapping is still incomplete for the remaining
+Core auth/Programme tables and indexes, functions, views, sequences, triggers,
+roles, and grants. The exact evidence to close that gate is a table/object to
+source path map validated against the deployed catalog. Do not remove any
+retained relation during this baseline/rebuild work. Historical Operations
+snapshot objects remain the verified exception: both are absent from the Core
+baseline after retirement.
+
 
 ## Issue status and remaining gates
 
