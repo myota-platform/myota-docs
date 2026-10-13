@@ -1,3 +1,10 @@
+## 13 October 2026 — Activity migration inventory checkoff
+
+- Checked Activity #4's historical migration/object inventory after documenting all eight former migration files, 26 baseline tables, source ownership, and Deploy/Platform mirror paths in the canonical inventory.
+- Merged Activity README correction in PR #9 after Python quality run 38376070414 passed.
+- Activity #4 remains open for focused API/worker/outbox integration checks. Core and Geodata baseline issues remain open for remaining object ownership and integration evidence. Paired rebuild issues remain gated; no live database was changed.
+- See the [baseline/rebuild inventory](docs/operations/databases/baseline-migration-inventory.md).
+
 ## 13 October 2026 — Database inventory and ownership follow-up
 
 - Expanded the canonical migration inventory with complete baseline table lists and historical migration paths for Core, Activity, and Geodata.

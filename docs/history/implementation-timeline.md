@@ -1,3 +1,10 @@
+## 13 October 2026 — Activity inventory acceptance check
+
+- **Prompt used:** Continue the database baseline and data-preserving rebuild issues under the standing `AGENTS.md` instructions.
+- **Evidence:** Activity's historical migrations 001–008 are mapped to schema effects; all 26 baseline tables and source/mirror paths are listed. Activity README PR #9 replaced stale sequential migration instructions and linked the canonical inventory.
+- **Issue update:** Activity #4's migration inventory acceptance criterion is now checked. Its focused API/worker/outbox disposable-database checks remain open; issue #4 remains open. Deploy #15 and Geodata #8 also remain open with their unverified object mappings and integration gates. Paired rebuild issues #16/#5/#9 remain gated.
+- **Runtime boundary:** No live database was changed. The fixed runner has only been tested in an isolated namespace and is not yet deployed in Helm.
+
 ## 13 October 2026 — Database object mapping and source guide update
 
 - **Prompt used:** Continue work on the database baseline and data-preserving rebuild issues under the standing `AGENTS.md` instructions.
