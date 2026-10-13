@@ -2,7 +2,7 @@
 
 For the latest verified deployment and workstream status, see [Current system state](../architecture/current-state.md). This page lists unfinished work only; completed milestones remain in their source plans and evidence.
 
-**Reviewed:** 2026-10-13 09:37 UTC
+**Reviewed:** 2026-10-13 09:58 UTC
 
 This is a recommended order, not a delivery schedule. It records no due dates,
 staffing commitments, external deadlines, or production incidents. Roadmaps own
@@ -22,11 +22,11 @@ priorities change.
 
 ### 1. Finish baseline readiness before rebuilding the three databases
 
-**Current position:** Core, Activity, and Geodata baselines are merged to `testing`; the unified runner passed fresh, repeat, and readiness-failure checks on disposable K3s databases. Focused service integration checks and deployment of the fixed runner image are still open. Preliminary archives were captured before quiescence and are not cutover backups. No live database has been modified.
+**Current position:** Baseline issues Deploy #15, Activity #4, and Geodata #8 are closed after source ownership, disposable catalog, and service-path evidence. Platform mirror promotion PR #5 is merged to `main`. Promotion PRs Deploy #20, Activity #10, and Geodata #12 are open; Deploy and Activity quality/Helm checks passed, Platform CI passed, and Geodata's workflow gates are passing. The fixed runner image has not yet been observed in the live Helm release. Preliminary archives predate quiescence and are not cutover backups. No live database has been modified.
 
 **Why P0:** Each rebuild is destructive and must preserve domain rows, spatial objects, outbox/idempotency state, and consumer checkpoints.
 
-**Next:** Close the owner-mapping and service integration gates, build/deploy the fixed migration image, quiesce each database's writers and async work, take and rehearse a final archive, record go/no-go, then rebuild one database at a time with a tested rollback. Track the exact gates in the [inventory](../operations/databases/baseline-migration-inventory.md) and issues [Deploy #15/#16](https://github.com/myota-platform/myota-deploy/issues/15), [Activity #4/#5](https://github.com/myota-platform/myota-activity-service/issues/4), [Geodata #8/#9](https://github.com/myota-platform/myota-geodata-service/issues/8).
+**Next:** Complete source promotion, build and deploy the exact Platform runner image through Fleet, verify the runner revision and readiness on the existing schema, then quiesce each database's writers and async work. Take and rehearse a new final archive after quiescence, record go/no-go, then rebuild one database at a time with tested rollback. Track the gates in the [inventory](../operations/databases/baseline-migration-inventory.md) and open rebuild issues [Deploy #16](https://github.com/myota-platform/myota-deploy/issues/16), [Activity #5](https://github.com/myota-platform/myota-activity-service/issues/5), and [Geodata #9](https://github.com/myota-platform/myota-geodata-service/issues/9).
 
 ### 2. Reopen Geodata qualification before expanding capacity
 
