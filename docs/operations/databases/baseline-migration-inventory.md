@@ -136,20 +136,34 @@ Historical Deploy source files under
 | `006_outbox_correlation.sql` | Added nullable correlation to `outbox_event`; retained in the current event infrastructure. |
 | `006_retire_storage_snapshots.sql` | Dropped `operations_storage_snapshot`; this history has a second migration also numbered 006. |
 
-The current Core baseline contains 29 public tables. Identity-owned target
-tables are `account`, `account_credential`, `account_primary_callsign`,
-`account_recovery_token`, `account_role`, `auth_revocation`,
-`auth_session`, `callsign`, `callsign_evidence`,
-`oidc_provider_mapping`, `security_event`, and `audit_event`.
-Programme-owned target tables are `award`, `award_rule`, `approver_scope`,
-`jurisdiction`, `programme`, `programme_policy_version`, and
-`programme_rule`. Shared infrastructure includes `consumer_checkpoint`,
-`consumer_processed_event`, `dead_letter_event`, `idempotency_record`,
-`outbox_event`, and `outbox_redrive_audit`. The baseline also contains
-`activation`, `qso`, and `service_state`; their current active readers and
-writers are not proven by the baseline change alone. Keep that owner/path
-verification open rather than assigning those compatibility relations by
-assumption.
+The current Core baseline contains 29 public tables:
+`account`, `account_credential`, `account_primary_callsign`,
+`account_recovery_token`, `account_role`, `activation`,
+`approver_scope`, `audit_event`, `auth_revocation`, `auth_session`,
+`award`, `award_rule`, `callsign`, `callsign_evidence`,
+`consumer_checkpoint`, `consumer_processed_event`, `dead_letter_event`,
+`idempotency_record`, `jurisdiction`, `oidc_provider_mapping`,
+`outbox_event`, `outbox_redrive_audit`, `programme`,
+`programme_policy_version`, `programme_rule`, `qso`,
+`security_event`, `service_state`, and `myota_schema_migration`.
+
+Current Identity and Programme persistence is visible in each service's
+`common.py`: `service_state`, `idempotency_record`, and
+`outbox_event` are selected or written there. Identity's `identity.py` and
+Programme's `programmes.py` handle the matching domain objects. The
+normalized `account_*`, `auth_*`, `callsign_*`, award, and programme-policy
+relations are present in the current catalog, but the inspected API handlers
+do not issue SQL against all of them. Preserve their rows through rebuild; the
+exact object-to-handler owner mapping remains an acceptance gate rather than
+inferring activity from names.
+
+Core `activation` and `qso` are the pre-split Activity-shaped relations.
+Current Activity persistence uses `activity_activation` and `activity_qso`
+in `myota_activity` through
+`myota-activity-service/activity_repository.py`. No current Identity or
+Programme SQL path targets Core `activation` or `qso`. Preserve these legacy
+Core rows during this rebuild; do not use them as current Activity write
+targets.
 
 The operations tables above are specifically absent from
 [`001_core_baseline.sql`](https://github.com/myota-platform/myota-deploy/blob/testing/db/migrations/core/001_core_baseline.sql).
@@ -171,10 +185,25 @@ Historical authoritative Activity files under
 | `007_activity_jetstream_work.sql` | Transactional work outbox support; retains API-visible `activity_job`, removes the poll-only claim index and synthetic state-only jobs. |
 | `008_outbox_correlation.sql` | Nullable outbox request correlation without changing event payloads. |
 
-Activity owns the `activity_*` domain tables, including activations, QSOs,
-awards, imports, jobs, notifications, processed-event and dead-letter records.
-The baseline also retains generic `service_state` for compatibility; durable
-Activity mode does not use it as its source of truth. Deploy's
+The Activity baseline contains 26 public tables:
+`activity_activation`, `activity_asset`, `activity_award_definition`,
+`activity_award_issuance`, `activity_award_progress`,
+`activity_award_request`, `activity_import`, `activity_job`,
+`activity_notification`, `activity_notification_redrive`,
+`activity_qso`, `activity_qso_correction`,
+`activity_statistic_snapshot`, `activity_subject_aggregate`,
+`activity_subject_callsign`, `activity_subject_entity`,
+`activity_work_dead_letter`, `activity_work_redrive_audit`,
+`consumer_checkpoint`, `consumer_processed_event`, `dead_letter_event`,
+`idempotency_record`, `outbox_event`, `outbox_redrive_audit`,
+`service_state`, and `myota_schema_migration`.
+
+Activity owns the `activity_*` tables. SQL call sites are concentrated in
+`activity_repository.py`, `activity_worker.py`, `awards.py`, and
+`event_consumer.py`; generic state, idempotency, and outbox support lives in
+`common.py`. Activity's README states durable mode does not use generic
+`service_state` as its source of truth; retain that compatibility relation
+through this data-preserving rebuild. Deploy's
 [`db/migrations/activity/`](https://github.com/myota-platform/myota-deploy/tree/testing/db/migrations/activity)
 and Platform's matching directory are synchronized copies, not schema owners.
 
@@ -209,14 +238,27 @@ Historical authoritative Geodata files under
 | `022_entity_website_description.sql` | Optional public Website and Description entity fields. |
 | `022_outbox_correlation.sql` | Nullable outbox correlation; historical path has a second file numbered 022. |
 
-Geodata-owned current objects cover relational entities and categories, review
-and provenance, upload/import sessions, staged candidates, processing and
-schedule state, outbox/idempotency/consumer state, spatial indexes, and QGIS
-views. The baseline retains `service_state`, `source_snapshot_manifest`,
-and `source_snapshot_record` from the verified catalog. Durable Geodata does
-not hydrate the entity catalogue from the old JSON snapshot; the exact
-retirement/retention disposition of these legacy relations remains an explicit
-owner verification gate.
+The Geodata baseline contains 27 public tables:
+`conflation_candidate`, `consumer_checkpoint`,
+`consumer_processed_event`, `dead_letter_event`, `entity_review`,
+`entity_type`, `geodata_audit_event`, `geodata_control_record`,
+`geodata_edit_staging`, `geodata_entity`,
+`geodata_entity_attachment`, `geodata_entity_category`,
+`geodata_import_candidate`, `geodata_import_processing_queue`,
+`geodata_schema_feature`, `geodata_upload_part`,
+`geodata_upload_session`, `idempotency_record`, `import_run`,
+`import_schedule`, `outbox_event`, `outbox_redrive_audit`,
+`source_reference`, `service_state`, `source_snapshot_manifest`,
+`source_snapshot_record`, and `myota_schema_migration`.
+
+Relational entities, categories, controls, idempotency and outbox writes are
+implemented in `relational_state.py`; import-run and snapshot lifecycle
+handling also uses `geodata.py`, `geodata_import_worker.py`,
+`geodata_store.py`, and `import_retention.py`. The service README and
+migration comments classify `service_state` as an archive; the import
+retention worker removes `source_snapshot_manifest` by import run, with its
+records removed by the foreign-key cascade. These are active import
+provenance/cleanup relations, not retired monitoring state.
 
 ### Retained-object ownership evidence
 
