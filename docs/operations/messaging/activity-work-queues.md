@@ -1,10 +1,11 @@
 # Activity JetStream work queues
 
-**Status:** deployed in production through the Phase 4 cutover. Two Activity
-workers consume the six exact durables; the database poller and transitional
-repair are retired. The production selected-work backlog was zero at cutover,
-so production handler execution was not observed. Isolated PostgreSQL/JetStream
-qualification processed each work type. See the [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md)
+**Status:** deployed in the current local, non-production K3s environment
+through the Phase 4 cutover. Two Activity worker replicas consume the six exact
+durables; the database poller and transitional repair are retired. The
+selected-work backlog was zero at cutover, so live handler execution was not
+observed there. Isolated PostgreSQL/JetStream qualification processed each work
+type. See the [Phase 4 evidence](evidence/phase4-activity-work-2026-10-10.md)
 and migration [plan](nats-event-migration-plan.md).
 
 ## Ownership and command routes
@@ -85,15 +86,17 @@ repaired zero rows.
 
 The Activity API exposes bounded database-derived metrics by job kind/status:
 queued age, completed latency, retry total, failed jobs, and unresolved work-DLQ
-count. Operations' Grafana dashboard adds job status/kind, age, latency/retries,
-and unresolved-DLQ panels. Do not add job IDs or other unbounded labels.
+count. Provisioned Grafana dashboards add job status/kind, age,
+latency/retries, and unresolved-DLQ panels. Do not add job IDs or other
+unbounded labels.
 
-Phase 4 production verification found the WorkQueue stream and six exact
-durables ready, no selected queued/running job rows, no pending or ack-pending
-messages, and active worker pull waiters. The compatibility repair is disabled
-and `activity_job_claim_idx` is absent. The Activity API exports per-kind job
+Phase 4 cutover checks found the WorkQueue stream and six exact durables
+ready, no selected queued/running job rows, no pending or ack-pending messages,
+and active worker pull waiters. The compatibility repair is disabled and
+`activity_job_claim_idx` is absent. The Activity API exports per-kind job
 status, queue age, retries, latency observations when jobs complete, and
-unresolved DLQ counts; Prometheus and Operations dashboards use these bounded
-metrics. No latency sample exists until real jobs execute. Preserve
-`MYOTA_EVENTS` Interest retention and all Geodata work durables until their
-separate planned phases.
+unresolved DLQ counts; provisioned Grafana dashboards use these bounded
+metrics. No latency sample exists until a job executes. The shared
+`MYOTA_EVENTS` stream now uses bounded Limits retention, and the four legacy
+Geodata durables have been retired; see the [current system state](../architecture/current-state.md)
+for the active topology.
