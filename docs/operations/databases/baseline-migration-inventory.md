@@ -330,14 +330,32 @@ missing SQL reference.
 The retained-object map is source-based, not a proposal to remove schema. The
 catalog comparison and focused service tests remain separate acceptance gates.
 
+### Disposable catalog and integration checks — 2026-10-13
+
+The following focused checks ran only against isolated databases in the
+`codex-db-rebuild` namespace. Temporary Core and Activity databases, synthetic
+rows, copied SQL, and local dumps were removed after verification. The retained
+`restore-core`, `restore-activity`, and `restore-geo` rehearsal databases
+were left intact for the open rebuild issues.
+
+| Database | Catalog evidence | Service-path evidence |
+|---|---|---|
+| Core | The baseline catalog was compared with the archived Core schema. All application tables, constraints, and deployment readiness objects matched; the only additional object in the new target is `myota_schema_migration`, the intended baseline/checksum ledger. The deployment readiness table remains present. | Identity account creation persisted and reloaded from `service_state`, with one transactional `identity.account.created.v1` outbox row. Programme creation persisted and reloaded from `service_state`, with one `programme.created.v1` outbox row. |
+| Activity | The baseline catalog compared with the archived Activity schema; the only additional object in the target is `myota_schema_migration`. | Activity API handler create/read passed. A QSO-ingestion job was enqueued, claimed under a worker lease, completed, and read back as succeeded; activation and work-command outbox rows were verified. |
+| Geodata | The restored archive and fresh baseline public schemas matched after normalization. The baseline runner verified PostGIS 3.4.3 and spatial indexes. | Geodata CI run [38370613580](https://github.com/myota-platform/myota-geodata-service/actions/runs/38370613580) passed the disposable database migration, two independent API instances and regression suite, worker ACK/recovery tests, and upload-session API/restart-recovery integration. Quality run [38370614459](https://github.com/myota-platform/myota-geodata-service/actions/runs/38370614459) passed. |
+
+These checks close the baseline catalog/service-path gates. They do not deploy
+the new runner to the live Helm release or authorize a database cutover; those
+are gates in the paired rebuild issues.
+
 ## Issue status and remaining gates
 
-All six issues remain open:
+The three baseline issues are complete and closed; all three rebuild issues remain open:
 
 | Owner | Baseline issue progress | Rebuild issue progress |
 |---|---|---|
-| Deploy/Core | [#15](https://github.com/myota-platform/myota-deploy/issues/15) — 6/7 checked; open | [#16](https://github.com/myota-platform/myota-deploy/issues/16) — 1/7 checked; open |
-| Activity | [#4](https://github.com/myota-platform/myota-activity-service/issues/4) — 5/6 checked; open | [#5](https://github.com/myota-platform/myota-activity-service/issues/5) — 1/7 checked; open |
+| Deploy/Core | [#15](https://github.com/myota-platform/myota-deploy/issues/15) — 7/7 checked; closed | [#16](https://github.com/myota-platform/myota-deploy/issues/16) — 1/7 checked; open |
+| Activity | [#4](https://github.com/myota-platform/myota-activity-service/issues/4) — 6/6 checked; closed | [#5](https://github.com/myota-platform/myota-activity-service/issues/5) — 1/7 checked; open |
 | Geodata | [#8](https://github.com/myota-platform/myota-geodata-service/issues/8) — 5/7 checked; open | [#9](https://github.com/myota-platform/myota-geodata-service/issues/9) — 1/7 checked; open |
 
 Verified baseline checkboxes and evidence are recorded in those issues. Each
