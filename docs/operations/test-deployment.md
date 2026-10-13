@@ -1,10 +1,10 @@
 # Isolated test deployment
 
-**Verified:** 2026-10-13 21:30 UTC
+**Verified:** 2026-10-13 22:50 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Fleet source:** `myota-platform/myota-deploy`, branch `testing`, commit
-[`d0556c3`](https://github.com/myota-platform/myota-deploy/commit/d0556c376dbaa830d4bc2508a04252dfa496a777).
+[`e4791b4`](https://github.com/myota-platform/myota-deploy/commit/e4791b4b1dd13fd4bd4d3c2672c2d42cdd73ac56).
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
@@ -15,23 +15,37 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 
 | Check | Result |
 |---|---|
-| Helm | Release `myota-test`, chart `myota-test-0.1.0` with shared chart dependency `0.2.25`, revision 4, `deployed`. |
-| Fleet | GitRepo and BundleDeployment Ready at Deploy `testing` commit `d0556c376dbaa830d4bc2508a04252dfa496a777`. |
-| Workloads | Every test Deployment and PostgreSQL StatefulSet has all desired replicas ready. |
-| Images | All ready MyOTA application containers use immutable testing-tag digests, and each running container image ID matches its declared digest. |
+| Helm | Release `myota-test`, chart `myota-test-0.1.0` with shared chart dependency `0.2.25`, revision 37, `deployed`. |
+| Fleet | GitRepo tracks Deploy `testing` at `e4791b4b1dd13fd4bd4d3c2672c2d42cdd73ac56`; BundleDeployment Ready. |
+| Workloads | All 24 Deployments and all 3 StatefulSets have their desired replicas available. Revision 37 migration, JetStream provisioner, Activity notification provisioner, and PostgreSQL monitor-role Jobs completed successfully. |
+| Images | The four pinned testing digests from PR #49 are active; the image IDs were verified after that rollout. |
 | JetStream | The deployment-owned provisioner validated all three streams and ten selected work durables. |
 | Admin UI | [admin.test.myota.top](https://admin.test.myota.top) returns HTTP 200 with a valid ACME certificate. |
 | Participant UI | [test.myota.top](https://test.myota.top) returns HTTP 200 with a valid ACME certificate. |
 | API ingress | `api.test.myota.top` terminates with a valid ACME certificate; `/` returns 404 because the gateway does not serve a root route. |
 
 Fleet watches the Deploy `testing` branch and corrects drift. The test values
-use the published `testing` image tags and immutable image digests, so a new
-Helm digest value causes Kubernetes to roll the corresponding workload.
-Deploy PR [#44](https://github.com/myota-platform/myota-deploy/pull/44) updated
-the platform and gateway digests to the images published by testing commit
-`d03c3d39`. Fleet reconciled the merged values; all 27 Deployments and
-StatefulSets are ready, all running application image IDs match their configured
-digests, and both UI endpoints still return HTTP 200 with valid TLS.
+pin immutable image digests, so a digest update rolls the corresponding
+workload. Deploy PR [#49](https://github.com/myota-platform/myota-deploy/pull/49)
+updated four image digests, and Fleet deployed Helm revision 35. The pinned
+digests were:
+
+| Image | Testing digest |
+|---|---|
+| Geodata service | `sha256:d0c99a7aa47cf876ab6f4b7b8add65b0e37a48f387d840e3c7e46ff7b6cef36a` |
+| Gateway | `sha256:5ea1e5b82eca775b855c9699904a6fefe78ee39dfa10398da68449d4f8e3ce94` |
+| Admin Web | `sha256:cdbcc11c0fdbdb6dfdc94d6997343d9ece310946edc537b4faa2f4ac16863394` |
+| Shared Platform image | `sha256:3abc60cd6d276afd1d28ce765e40920669d00daa284a317cb4787b78ded36e64` |
+
+After PR #49, all 24 Deployments were available and both test UIs returned HTTP
+200. Deploy PR [#50](https://github.com/myota-platform/myota-deploy/pull/50)
+then removed the ineffective duplicate digest poller from the `testing` branch
+and updated its operator README. It merged as
+[`e4791b4`](https://github.com/myota-platform/myota-deploy/commit/e4791b4b1dd13fd4bd4d3c2672c2d42cdd73ac56).
+That commit contains only the workflow deletion and README update. Fleet
+reconciled it as Helm revision 37; the release is `deployed`, the BundleDeployment
+is Ready, all 27 workload controllers have desired replicas available, the
+revision 37 setup Jobs completed, and both UI endpoints return HTTP 200.
 
 ### Rollout recovery
 
@@ -50,26 +64,32 @@ verified. Production workloads and volumes were not changed.
 
 ### Image update automation status
 
-The digest polling and protected-branch PR workflow is present on Deploy's
-`testing` branch. GitHub scheduled workflows run from the repository's default
-branch (`main`), where the existing scheduled workflow updates production
-image values. A manual `workflow_dispatch` run on `testing` (run
-[38457930823](https://github.com/myota-platform/myota-deploy/actions/runs/38457930823))
-verified the registry lookup but failed when creating its protected-branch PR:
-the organization policy prohibits GitHub Actions from creating or approving
-pull requests. Repository-level permission changes are rejected by the
-organization, and this session has no organization policy administration
-scope. Therefore the testing digest poller is **not active yet**. A testing
-image publication will not independently update this release until a safe
-release pull request places the test poller on `main` and an organization
-administrator permits the workflow to create pull requests. The Deploy `main`
-and `testing` branches are divergent; promoting the whole testing branch would
-include unrelated production configuration and migration changes, so it was
-not done as part of this isolated deployment. Until these gates are resolved,
-Fleet automatically reconciles committed test values but new image digests
-require a deliberate digest update on `testing`. The current deployment has
-the latest digests published by the testing builds checked by PR #44; this
-does not enable automatic updates for future image publications.
+The testing digest-sync controller now lives in the default branch of the
+organization `.github` repository at
+[`sync-testing-image-digests.yml`](https://github.com/myota-platform/.github/blob/main/.github/workflows/sync-testing-image-digests.yml).
+It polls every five minutes, resolves each published `testing` tag to its
+registry digest, and proposes changes only to
+`deploy/helm/myota-test/values-image-digests-testing.yaml` on Deploy `testing`.
+It opens one digest-only PR at a time and enables auto-merge, which takes effect
+only after required branch checks pass. Deploy PR #50 removed the duplicate
+poller from `testing`; the `.github` workflow is the single controller.
+
+The controller is implemented but **not active until credentials are
+configured**. Add repository variable `TESTING_DIGEST_APP_ID` and Actions
+secret `TESTING_DIGEST_APP_PRIVATE_KEY` to the `.github` repository. The
+corresponding GitHub App should be installed only on `myota-deploy`, with
+Contents and Pull requests read/write permissions. Until both credentials are
+present, scheduled runs warn and safely skip. This avoids broadening the
+organization-wide Actions policy, which prevents `GITHUB_TOKEN` from opening
+pull requests. No credentials or private key were created or exposed during
+this work.
+
+The registry digest sync uses five-minute polling rather than image-publish
+events, so discovery delay is bounded by the polling interval. A new image
+will roll into `myota-test` only after the digest PR passes Deploy's required
+checks and merges, then Fleet reconciles the updated test values. The image
+update from PR #49 was deployed; future automatic promotions remain pending
+GitHub App configuration.
 
 ## Initial data seed
 
