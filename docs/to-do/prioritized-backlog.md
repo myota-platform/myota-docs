@@ -2,7 +2,7 @@
 
 For the latest verified deployment and workstream status, see [Current system state](../architecture/current-state.md). This page lists unfinished work only; completed milestones remain in their source plans and evidence.
 
-**Reviewed:** 2026-10-13 09:58 UTC
+**Reviewed:** 2026-10-13 11:08 UTC
 
 This is a recommended order, not a delivery schedule. It records no due dates,
 staffing commitments, external deadlines, or production incidents. Roadmaps own
@@ -20,15 +20,7 @@ priorities change.
 
 ## P0 — before expansion or dependent implementation
 
-### 1. Finish baseline readiness before rebuilding the three databases
-
-**Current position:** Baseline issues Deploy #15, Activity #4, and Geodata #8 are closed after source ownership, disposable catalog, and service-path evidence. Platform mirror promotion PR #5 is merged to `main`. Promotion PRs Deploy #20, Activity #10, and Geodata #12 are open; Deploy and Activity quality/Helm checks passed, Platform CI passed, and Geodata's workflow gates are passing. The fixed runner image has not yet been observed in the live Helm release. Preliminary archives predate quiescence and are not cutover backups. No live database has been modified.
-
-**Why P0:** Each rebuild is destructive and must preserve domain rows, spatial objects, outbox/idempotency state, and consumer checkpoints.
-
-**Next:** Complete source promotion, build and deploy the exact Platform runner image through Fleet, verify the runner revision and readiness on the existing schema, then quiesce each database's writers and async work. Take and rehearse a new final archive after quiescence, record go/no-go, then rebuild one database at a time with tested rollback. Track the gates in the [inventory](../operations/databases/baseline-migration-inventory.md) and open rebuild issues [Deploy #16](https://github.com/myota-platform/myota-deploy/issues/16), [Activity #5](https://github.com/myota-platform/myota-activity-service/issues/5), and [Geodata #9](https://github.com/myota-platform/myota-geodata-service/issues/9).
-
-### 2. Reopen Geodata qualification before expanding capacity
+### 1. Reopen Geodata qualification before expanding capacity
 
 **Current position:** The tested deployment envelope is two to three Geodata API
 replicas. Phase 5 was closed by owner acceptance, not by passing every
@@ -48,7 +40,7 @@ complete the missing measurements and recovery drills before changing the
 replica ceiling. Rerun the digest-pinned Phase 2 recovery qualification when the
 deployed SeaweedFS image changes.
 
-### 3. Establish programme governance, jurisdiction, and eligibility controls
+### 2. Establish programme governance, jurisdiction, and eligibility controls
 
 **Current position:** The configuration gap analysis remains an audit baseline;
 programme ownership/lifecycle, locale and content policy, jurisdiction and
@@ -67,7 +59,7 @@ Admin UI controls.
 
 ## P1 — close identified operational visibility gaps
 
-### 4. Complete logging acceptance
+### 3. Complete logging acceptance
 
 **Current position:** Helm revision 272 is deployed and Fleet is Ready with all
 23 Deployments and 27/27 replicas. Identity request-to-worker correlation has
@@ -87,7 +79,7 @@ service paths that have not been verified end to end.
 
 ## P2 — planned capability after higher-priority work
 
-### 5. Define the typed future award-condition model
+### 4. Define the typed future award-condition model
 
 **Current position:** This is a proposed capability. Its roadmap leaves the
 semantic and evidence decisions open; later implementation depends on reliable
@@ -97,7 +89,7 @@ worked-entity resolution and versioned geodata/reference evidence.
 which reference-data and QSO-resolution work must precede evaluator
 implementation. See the [award-condition roadmap](../domain/awards/future-condition-model-roadmap.md).
 
-### 6. Establish Admin UI internationalization
+### 5. Establish Admin UI internationalization
 
 **Current position:** The proposed roadmap has no completed phases. Locale and
 string inventory should precede translation catalogs or screen migration.
@@ -106,7 +98,7 @@ string inventory should precede translation catalogs or screen migration.
 persistence, and translation-review ownership. See the
 [internationalization roadmap](../domain/administration/i18n-roadmap.md).
 
-### 7. Address longer-term programme and charter gaps
+### 6. Address longer-term programme and charter gaps
 
 **Current position:** The charter gap analysis is a baseline, not a set of
 completed deliverables. Product, governance, interoperability, open-data,

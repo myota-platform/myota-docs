@@ -1,17 +1,18 @@
 # Database migration baselines and data-preserving rebuilds
 
-**Status verified:** 13 October 2026 09:53 UTC  
+**Status verified:** 13 October 2026 11:08 UTC  
 **Scope:** Deploy, Activity, Geodata, Platform, and the local non-production K3s
-cluster. This record covers baseline source and disposable runner evidence. It
-does not authorize or report a live database rebuild.
+cluster. This record covers authoritative baseline sources, isolated runner
+evidence, and completed live data-preserving rebuilds. Final runtime evidence is
+in [the rebuild closeout record](database-rebuild-evidence-2026-10-13.md).
 
 ## Ownership and synchronized copies
 
 | Database | Schema owner and authoritative baseline | Deployment runner and mirror | Status |
 |---|---|---|---|
-| `myota_core` | Deploy: [`db/migrations/core/001_core_baseline.sql`](https://github.com/myota-platform/myota-deploy/blob/testing/db/migrations/core/001_core_baseline.sql); shared by Identity and Programme | Deploy owns [`db/migrations/run.sh`](https://github.com/myota-platform/myota-deploy/blob/testing/db/migrations/run.sh). Platform mirrors runner and SQL at [`db/migrations/core/`](https://github.com/myota-platform/myota-platform/tree/testing/db/migrations/core). | Fresh and repeat runner verified in disposable K3s DB; current Helm image is still on historical migration chain. |
-| `myota_activity` | Activity: [`migrations/001_activity_baseline.sql`](https://github.com/myota-platform/myota-activity-service/blob/testing/migrations/001_activity_baseline.sql) | Deploy mirrors at [`db/migrations/activity/`](https://github.com/myota-platform/myota-deploy/tree/testing/db/migrations/activity); Platform mirrors at [`db/migrations/activity/`](https://github.com/myota-platform/myota-platform/tree/testing/db/migrations/activity). | Fresh and repeat runner verified in disposable K3s DB; current Helm image is still on historical migration chain. |
-| `myota_geo` | Geodata: [`migrations/001_geodata_baseline.sql`](https://github.com/myota-platform/myota-geodata-service/blob/testing/migrations/001_geodata_baseline.sql) | Deploy mirrors at [`db/migrations/geo/`](https://github.com/myota-platform/myota-deploy/tree/testing/db/migrations/geo); Platform mirrors at [`db/migrations/geo/`](https://github.com/myota-platform/myota-platform/tree/testing/db/migrations/geo). | Fresh and repeat runner verified against PostGIS 3.4.3 in disposable K3s DB; current Helm image is still on historical migration chain. |
+| `myota_core` | Deploy: [`db/migrations/core/001_core_baseline.sql`](https://github.com/myota-platform/myota-deploy/blob/main/db/migrations/core/001_core_baseline.sql); shared by Identity and Programme | Deploy owns [`db/migrations/run.sh`](https://github.com/myota-platform/myota-deploy/blob/main/db/migrations/run.sh). Platform mirrors runner and SQL at [`db/migrations/core/`](https://github.com/myota-platform/myota-platform/tree/main/db/migrations/core). | Live rebuild completed from the authoritative baseline; Helm revision 288 is ready. |
+| `myota_activity` | Activity: [`migrations/001_activity_baseline.sql`](https://github.com/myota-platform/myota-activity-service/blob/main/migrations/001_activity_baseline.sql) | Deploy mirrors at [`db/migrations/activity/`](https://github.com/myota-platform/myota-deploy/tree/main/db/migrations/activity); Platform mirrors at [`db/migrations/activity/`](https://github.com/myota-platform/myota-platform/tree/main/db/migrations/activity). | Live rebuild completed from the authoritative baseline; Helm revision 288 is ready. |
+| `myota_geo` | Geodata: [`migrations/001_geodata_baseline.sql`](https://github.com/myota-platform/myota-geodata-service/blob/main/migrations/001_geodata_baseline.sql) | Deploy mirrors at [`db/migrations/geo/`](https://github.com/myota-platform/myota-deploy/tree/main/db/migrations/geo); Platform mirrors at [`db/migrations/geo/`](https://github.com/myota-platform/myota-platform/tree/main/db/migrations/geo). | Live rebuild completed from the authoritative PostGIS baseline; Helm revision 288 is ready. |
 
 The owner repositories define schema content. Deploy owns the combined database
 migration runner and deployment wiring. Platform is a synchronized mirror and
@@ -75,23 +76,21 @@ cutover.
 
 ## Live runtime boundary
 
-Helm release `myota` is revision 282, created as a rollback to revision 281.
-MyOTA Fleet still tracks Deploy `main` commit `9d80741`. The completed live
-migration Job `myota-migrations-281` executed the historical numbered chain,
-including Geodata migration 022, and completed successfully. It did not execute
-the new baseline runner from `testing`.
+Helm release `myota` is deployed at revision 288. Fleet tracks Deploy `main`
+commit `ed87c267fa0aa8981de40f1426dd9ace3b36910f`; the combined migration
+runner completed with the immutable image recorded above. All three baselines
+were applied, the readiness marker is true at revision 288, and the live
+rebuilds passed data/catalog and service-path checks. The [rebuild closeout
+record](database-rebuild-evidence-2026-10-13.md) contains checksums, restore
+results, counts, and runtime evidence.
 
-All live databases remain intact and their readiness markers remain healthy.
-No go/no-go has been recorded. Do not drop or recreate a live database until
-the fixed runner is built and deployed, baseline issue acceptance is complete,
-writers and asynchronous work are quiesced, and a final checksummed archive has
-passed isolated restore validation.
+## Preliminary recovery archive evidence
 
-## Recovery archive evidence
-
-The following custom-format archives were captured while services were still
-active. Each passed archive inspection and an isolated restore. They are
-**preliminary rehearsal archives only**, not cutover backups:
+These custom-format archives were captured while services were still active.
+Each passed archive inspection and an isolated restore, but was superseded by
+the final post-quiescence archive recorded in the [rebuild closeout
+evidence](database-rebuild-evidence-2026-10-13.md). The checksums below are
+historical preflight evidence only:
 
 | Database | Size | SHA-256 | Isolated restore evidence |
 |---|---:|---|---|
@@ -99,19 +98,16 @@ active. Each passed archive inspection and an isolated restore. They are
 | Activity | 863,447 bytes | `dc1901822aa198e024e0a1f737e6a89845188df1c6a5ceb9e4b688559eeb4ac` | 26 public tables restored. |
 | Geodata | 9,647,821 bytes | `89a321ff6ae221ba4ae1cda3f3cc3e221b3ff9840ea4a9a3153a52b438642034` | 28 public tables restored; PostGIS available; normalized schema matched the fresh baseline. |
 
-Because capture happened before quiescence, these archives do not satisfy the
-cutover gate. New archives must be taken after service writers, scheduled work,
-outbox relays, and JetStream consumers are paused or fenced and in-flight work
-is accounted for. Restore only data into the verified schema; exclude baseline
+The preliminary archives do not satisfy the cutover gate and must not be used
+for recovery. For the completed cutovers, the final archive was taken only after
+writers, scheduled work, outbox relays, and consumers were stopped or fenced
+and in-flight work was accounted for. The data-only restores excluded baseline
 bookkeeping (`myota_schema_migration` and
-`myota_deployment_schema_state`). For Geodata, also exclude
+`myota_deployment_schema_state`); Geodata also excluded
 `geodata_schema_feature` so the baseline-owned `row_authority_v1` marker
-survives. Preserve sequences, large objects, domain rows, outbox state,
-idempotency, and consumer checkpoints.
-
-The rehearsal namespace retains its restore pods and archived databases until
-the paired recovery evidence is complete. Remove it after evidence capture and
-remove the restricted local archive directory after acceptance.
+survived. Sequences, domain rows, outbox state, idempotency, and consumer
+checkpoints were preserved. The final archives and rehearsal namespace have
+been removed after evidence capture.
 
 ## Historical migration and object ownership map
 
@@ -332,11 +328,11 @@ catalog comparison and focused service tests remain separate acceptance gates.
 
 ### Disposable catalog and integration checks — 2026-10-13
 
-The following focused checks ran only against isolated databases in the
-`codex-db-rebuild` namespace. Temporary Core and Activity databases, synthetic
-rows, copied SQL, and local dumps were removed after verification. The retained
-`restore-core`, `restore-activity`, and `restore-geo` rehearsal databases
-were left intact for the open rebuild issues.
+The following initial focused checks ran in isolated databases in the
+`codex-db-rebuild` namespace. The exact-archive full and baseline data-only
+rehearsals then qualified each live cutover; all rehearsal databases, copied
+archives, SQL, and temporary Jobs were removed after the final evidence was
+captured. See the [rebuild closeout record](database-rebuild-evidence-2026-10-13.md).
 
 | Database | Catalog evidence | Service-path evidence |
 |---|---|---|
@@ -344,31 +340,22 @@ were left intact for the open rebuild issues.
 | Activity | The baseline catalog compared with the archived Activity schema; the only additional object in the target is `myota_schema_migration`. | Activity API handler create/read passed. A QSO-ingestion job was enqueued, claimed under a worker lease, completed, and read back as succeeded; activation and work-command outbox rows were verified. |
 | Geodata | The restored archive and fresh baseline public schemas matched after normalization. The baseline runner verified PostGIS 3.4.3 and spatial indexes. | Geodata CI run [38370613580](https://github.com/myota-platform/myota-geodata-service/actions/runs/38370613580) passed the disposable database migration, two independent API instances and regression suite, worker ACK/recovery tests, and upload-session API/restart-recovery integration. Quality run [38370614459](https://github.com/myota-platform/myota-geodata-service/actions/runs/38370614459) passed. |
 
-These checks close the baseline catalog/service-path gates. They do not deploy
-the new runner to the live Helm release or authorize a database cutover; those
-are gates in the paired rebuild issues.
+These initial checks closed the baseline catalog/service-path gates. The
+separate live rebuild gates are now complete: the runner is deployed, the exact
+post-quiescence archives passed full and data-only restore, and all three
+services are healthy at Helm revision 288.
 
-## Issue status and remaining gates
+## Issue status
 
-The three baseline issues are complete and closed; all three rebuild issues remain open:
+The three baseline issues and the three paired rebuild issues are complete and
+closed. Each rebuild checklist is 7/7:
 
-| Owner | Baseline issue progress | Rebuild issue progress |
+| Owner | Baseline issue | Rebuild issue |
 |---|---|---|
-| Deploy/Core | [#15](https://github.com/myota-platform/myota-deploy/issues/15) — 7/7 checked; closed | [#16](https://github.com/myota-platform/myota-deploy/issues/16) — 1/7 checked; open |
-| Activity | [#4](https://github.com/myota-platform/myota-activity-service/issues/4) — 6/6 checked; closed | [#5](https://github.com/myota-platform/myota-activity-service/issues/5) — 1/7 checked; open |
-| Geodata | [#8](https://github.com/myota-platform/myota-geodata-service/issues/8) — 7/7 checked; closed | [#9](https://github.com/myota-platform/myota-geodata-service/issues/9) — 1/7 checked; open |
+| Deploy/Core | [#15](https://github.com/myota-platform/myota-deploy/issues/15) — 7/7; closed | [#16](https://github.com/myota-platform/myota-deploy/issues/16) — 7/7; closed |
+| Activity | [#4](https://github.com/myota-platform/myota-activity-service/issues/4) — 6/6; closed | [#5](https://github.com/myota-platform/myota-activity-service/issues/5) — 7/7; closed |
+| Geodata | [#8](https://github.com/myota-platform/myota-geodata-service/issues/8) — 7/7; closed | [#9](https://github.com/myota-platform/myota-geodata-service/issues/9) — 7/7; closed |
 
-All baseline acceptance criteria are verified and closed. Source-linked owner
-maps and disposable catalog/service-path evidence are recorded above and in the
-issue histories. Each rebuild issue has one checked criterion for its
-checksummed preliminary archive and isolated restore rehearsal; those archives
-predate quiescence and are not cutover backups. Promotion PRs to `main` are
-open for Deploy #20, Platform #5, Activity #10, and Geodata #12. The fixed
-runner is not yet deployed in Helm.
-
-Rebuild gates remain: deploy the verified runner image; quiesce writers,
-workers, scheduled jobs, relays, and consumers; take and rehearse each final
-post-quiescence backup; record per-database go/no-go; recreate one database at a
-time from its baseline; data-only restore; validate counts, sequences,
-extensions, constraints, read/write paths, outbox/idempotency/checkpoints,
-readiness, and recovery; then resume services and clean temporary artifacts.
+The exact live cutover and acceptance evidence, including the explicit catalog
+count method and cleanup results, is in the
+[rebuild closeout record](database-rebuild-evidence-2026-10-13.md).

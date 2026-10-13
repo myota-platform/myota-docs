@@ -11,6 +11,10 @@ This index points to active delivery and evidence gates. Completed implementatio
 does not close independent rollout or acceptance work. Broader unstarted work
 is listed in [To do](../to-do/README.md).
 
+## Recently completed
+
+- [Database migration baselines and data-preserving rebuilds](../operations/databases/baseline-migration-inventory.md) — Deploy #15/#16, Activity #4/#5, and Geodata #8/#9 are all closed. Each rebuild checklist is 7/7. The final archives passed full and baseline data-only restores, the live databases were rebuilt and verified, Helm revision 288 is deployed, and temporary restore data was removed. See the [cutover evidence](../operations/databases/database-rebuild-evidence-2026-10-13.md).
+
 ## Cross-repository architecture review
 
 Phases 0–4 are complete and documented in [REVIEW.md](../../REVIEW.md), the
@@ -33,5 +37,3 @@ canonical/root/Platform mirrors are reconciled.
   verified. Programme/Activity/Geodata producer-specific live correlation,
   authenticated Grafana navigation, Loki field privacy, alerts/retention/
   recovery, and Compose parity remain open in the evidence record.
-
-- [Database migration baselines and data-preserving rebuilds](../operations/databases/baseline-migration-inventory.md) — baseline issues Deploy #15, Activity #4, and Geodata #8 are complete and closed. Source-linked catalog maps and isolated database API/worker/outbox evidence are recorded in the inventory. Each paired rebuild issue has 1/7 criteria checked for preliminary archive/restore evidence; archives predate quiescence and are not cutover backups. Promotion PRs from `testing` to `main` are open for Deploy #20, Platform #5, Activity #10, and Geodata #12. All rebuilds remain gated until the fixed runner is deployed and final backups are taken after quiescence.

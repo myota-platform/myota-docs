@@ -12,7 +12,8 @@ start at [Current system state](architecture/current-state.md).
   awards, and API contracts.
 - [Operations](operations/README.md) — deployment, storage, messaging, databases, and
   service runbooks.
-- [Database migration inventory](operations/databases/baseline-migration-inventory.md) — current baseline ownership, runner evidence, and gated rebuild status.
+- [Database migration inventory](operations/databases/baseline-migration-inventory.md) — source ownership and baseline history.
+- [Database rebuild evidence](operations/databases/database-rebuild-evidence-2026-10-13.md) — final archive checksums, restore results, live cutovers, and acceptance.
 - [Observability](observability/README.md) — logging, metrics, traces, NATS
   Surveyor, evidence, and operating guidance.
 - [Platform policies](platform/README.md) and [security](security/README.md).

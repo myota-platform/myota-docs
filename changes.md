@@ -1,3 +1,23 @@
+## 13 October 2026 — Data-preserving database rebuilds completed
+
+- **Prompt used:** Work the open database baseline/rebuild issues from
+  `.github/profile/README.md` to completion under the standing
+  `AGENTS.md`; follow-up: “You haven't updated and checked-off the issues and
+  stopped work. Continue.”
+- Rebuilt `myota_core`, `myota_activity`, and `myota_geo` from their
+  authoritative `main` baselines after quiescing each database's writers,
+  relays, workers, and scheduled work.
+- The exact post-quiescence archives passed full isolated and baseline
+  data-only restores. The immutable runner is deployed; Helm revision 288 and
+  Fleet 71/71 are Ready. Identity, Programme, Activity, and Geodata health
+  checks returned 200 with durable mode enabled.
+- Closed Deploy #16, Activity #5, and Geodata #9 with all acceptance criteria
+  checked. Removed the rehearsal namespace, temporary Jobs and client pods,
+  test databases, local archives, and copied SQL after recording their
+  checksums and restore evidence.
+- See the [rebuild evidence](docs/operations/databases/database-rebuild-evidence-2026-10-13.md)
+  and [baseline inventory](docs/operations/databases/baseline-migration-inventory.md).
+
 ## 13 October 2026 — Database baseline gates completed
 
 - Closed baseline issues Deploy #15, Activity #4, and Geodata #8 after source-linked catalog mapping, isolated schema comparisons, and focused API/worker/outbox checks.

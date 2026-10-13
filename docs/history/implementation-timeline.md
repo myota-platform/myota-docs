@@ -1,3 +1,30 @@
+## 13 October 2026 — Core, Activity, and Geodata rebuild closeout
+
+- **Prompts used:** “Work on the issues under ‘Database migration baselines
+  and data-preserving rebuilds’ to completion following the standing
+  instructions in `./AGENTS.md).” Follow-up: “You haven't updated and
+  checked-off the issues and stopped work. Continue.”
+- **Scope:** Finish Deploy/Core #16, Activity #5, and Geodata #9 in the local
+  non-production K3s cluster; verify exact backups/restores and service recovery;
+  update the database evidence and issue index.
+- **Evidence:** Final quiescent Core (106,726 bytes), Activity (864,682 bytes),
+  and Geodata (9,649,351 bytes) archives passed `pg_restore --list`, full
+  isolated restore, and baseline data-only restore. Baseline Git blob SHAs,
+  PostgreSQL/PostGIS versions, archive checksums, catalog counts, retained rows,
+  grants, queue/durable state, API health, cleanup, and recovery steps are in
+  [the closeout record](../operations/databases/database-rebuild-evidence-2026-10-13.md).
+- **Runtime:** The unified runner image completed Helm migration Job
+  `myota-migrations-288`. Helm is deployed at revision 288; Fleet is Ready
+  71/71. Identity, Programme, Activity, and Geodata health endpoints returned
+  200 with durable mode enabled. All three database readiness markers are
+  true at revision 288.
+- **Issue completion:** Deploy #16, Activity #5, and Geodata #9 are each 7/7
+  checked and closed. The three baseline issues remain closed. The rehearsal
+  namespace, helper Jobs/pods, temporary databases, archives, and copied SQL
+  were removed after evidence capture.
+- **Record:** [Database baseline inventory](../operations/databases/baseline-migration-inventory.md)
+  and [rebuild closeout evidence](../operations/databases/database-rebuild-evidence-2026-10-13.md).
+
 ## 13 October 2026 — Database baseline acceptance and promotion
 
 - **Prompt used:** “Work on the issues under ‘Database migration baselines and data-preserving rebuilds’ in the organization issue index to completion following the standing instructions in `./AGENTS.md).” Follow-up: “You haven't updated and checked-off the issues and stopped work. Continue.”
