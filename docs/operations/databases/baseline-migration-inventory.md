@@ -1,6 +1,6 @@
 # Database migration baselines and data-preserving rebuilds
 
-**Status verified:** 13 October 2026 09:45 UTC  
+**Status verified:** 13 October 2026 09:53 UTC  
 **Scope:** Deploy, Activity, Geodata, Platform, and the local non-production K3s
 cluster. This record covers baseline source and disposable runner evidence. It
 does not authorize or report a live database rebuild.
@@ -358,14 +358,13 @@ The three baseline issues are complete and closed; all three rebuild issues rema
 | Activity | [#4](https://github.com/myota-platform/myota-activity-service/issues/4) — 6/6 checked; closed | [#5](https://github.com/myota-platform/myota-activity-service/issues/5) — 1/7 checked; open |
 | Geodata | [#8](https://github.com/myota-platform/myota-geodata-service/issues/8) — 7/7 checked; closed | [#9](https://github.com/myota-platform/myota-geodata-service/issues/9) — 1/7 checked; open |
 
-Verified baseline checkboxes and evidence are recorded in those issues. Each
-rebuild issue now checks off the checksummed preliminary archive and isolated
-restore rehearsal. Those archives predate service quiescence and writer fencing;
-they are not cutover backups. Remaining baseline gates are exact historical
-migration/object ownership maps and focused
-service integration checks (Identity/Programme for Core; API, worker, outbox,
-import/recovery paths for Activity and Geodata). The runner is not yet deployed
-from the fixed source in Helm.
+All baseline acceptance criteria are verified and closed. Source-linked owner
+maps and disposable catalog/service-path evidence are recorded above and in the
+issue histories. Each rebuild issue has one checked criterion for its
+checksummed preliminary archive and isolated restore rehearsal; those archives
+predate quiescence and are not cutover backups. Promotion PRs to `main` are
+open for Deploy #20, Platform #5, Activity #10, and Geodata #12. The fixed
+runner is not yet deployed in Helm.
 
 Rebuild gates remain: deploy the verified runner image; quiesce writers,
 workers, scheduled jobs, relays, and consumers; take and rehearse each final
