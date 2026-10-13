@@ -113,6 +113,128 @@ The rehearsal namespace retains its restore pods and archived databases until
 the paired recovery evidence is complete. Remove it after evidence capture and
 remove the restricted local archive directory after acceptance.
 
+## Historical migration and object ownership map
+
+The pre-baseline file inventories below were read from the service/deployment
+`main` histories. Their schema effects are now consolidated in the single
+numbered baseline shown above. The baseline is schema-only: it does not replay
+migration-time data copies or seed domain rows.
+
+### Core history and target ownership
+
+Historical Deploy source files under
+[`db/migrations/core/`](https://github.com/myota-platform/myota-deploy/tree/main/db/migrations/core):
+
+| Historical migration | Schema effect and disposition in the baseline |
+|---|---|
+| `001_core.sql` | Initial shared core schema. The current target has Identity account/auth/callsign/security objects; Programme policy, award, jurisdiction and approver-scope objects; and shared outbox, idempotency, consumer and dead-letter infrastructure. |
+| `002_operations.sql` | Created `operations_jetstream_snapshot` and its history index. These Operations monitoring objects are retired and absent from the Core baseline. |
+| `003_storage_snapshots.sql` | Created `operations_storage_snapshot` and its history index. These sampled SeaweedFS monitoring objects are retired and absent from the Core baseline. |
+| `004_outbox_dead_letter_redrive.sql` | Added operator-audited outbox redrive state; retained as `outbox_redrive_audit`. |
+| `005_retire_jetstream_snapshots.sql` | Dropped `operations_jetstream_snapshot`; NATS monitoring is owned by Surveyor. |
+| `005_retire_operations.sql` | Dropped the Operations sampled-history tables. This historical chain has a second migration also numbered 005. |
+| `006_outbox_correlation.sql` | Added nullable correlation to `outbox_event`; retained in the current event infrastructure. |
+| `006_retire_storage_snapshots.sql` | Dropped `operations_storage_snapshot`; this history has a second migration also numbered 006. |
+
+The current Core baseline contains 29 public tables. Identity-owned target
+tables are `account`, `account_credential`, `account_primary_callsign`,
+`account_recovery_token`, `account_role`, `auth_revocation`,
+`auth_session`, `callsign`, `callsign_evidence`,
+`oidc_provider_mapping`, `security_event`, and `audit_event`.
+Programme-owned target tables are `award`, `award_rule`, `approver_scope`,
+`jurisdiction`, `programme`, `programme_policy_version`, and
+`programme_rule`. Shared infrastructure includes `consumer_checkpoint`,
+`consumer_processed_event`, `dead_letter_event`, `idempotency_record`,
+`outbox_event`, and `outbox_redrive_audit`. The baseline also contains
+`activation`, `qso`, and `service_state`; their current active readers and
+writers are not proven by the baseline change alone. Keep that owner/path
+verification open rather than assigning those compatibility relations by
+assumption.
+
+The operations tables above are specifically absent from
+[`001_core_baseline.sql`](https://github.com/myota-platform/myota-deploy/blob/testing/db/migrations/core/001_core_baseline.sql).
+No live Core data was removed in the baseline task.
+
+### Activity history and target ownership
+
+Historical authoritative Activity files under
+[`myota-activity-service/migrations/`](https://github.com/myota-platform/myota-activity-service/tree/main/migrations):
+
+| Historical migration | Schema effect consolidated in `001_activity_baseline.sql` |
+|---|---|
+| `001_activity_relational.sql` | Normalized Activity entities and service-local outbox/idempotency/consumer infrastructure. |
+| `002_activity_entity_deletion.sql` | Bounded entity-impact and QSO-cascade indexes. |
+| `003_adif_source_retention.sql` | ADIF source-object retention marker/index. |
+| `004_adif_failed_source_retention.sql` | Extends the retention index to failed imports. |
+| `005_outbox_dead_letter_redrive.sql` | Audited, operator-authorized redrive state. |
+| `006_notification_consumer_replay.sql` | Notification replay coordinates. |
+| `007_activity_jetstream_work.sql` | Transactional work outbox support; retains API-visible `activity_job`, removes the poll-only claim index and synthetic state-only jobs. |
+| `008_outbox_correlation.sql` | Nullable outbox request correlation without changing event payloads. |
+
+Activity owns the `activity_*` domain tables, including activations, QSOs,
+awards, imports, jobs, notifications, processed-event and dead-letter records.
+The baseline also retains generic `service_state` for compatibility; durable
+Activity mode does not use it as its source of truth. Deploy's
+[`db/migrations/activity/`](https://github.com/myota-platform/myota-deploy/tree/testing/db/migrations/activity)
+and Platform's matching directory are synchronized copies, not schema owners.
+
+### Geodata history and target ownership
+
+Historical authoritative Geodata files under
+[`myota-geodata-service/migrations/`](https://github.com/myota-platform/myota-geodata-service/tree/main/migrations):
+
+| Historical migration | Schema effect consolidated in `001_geodata_baseline.sql` |
+|---|---|
+| `001_geodata.sql` | Initial PostGIS catalogue, local state, idempotency and outbox infrastructure. |
+| `002_qgis_views.sql` | QGIS views and access grants. |
+| `003_production_pipeline.sql` | Production import/review pipeline metadata and GIS staging. |
+| `004_location_enrichment.sql` | Reverse-geocoded location metadata. |
+| `005_location_manual_precedence.sql` | Manual municipality alias and override precedence. |
+| `006_unscoped_imports.sql` | Platform-wide imports without requiring programme assignment. |
+| `007_relational_entity_persistence.sql` | Relational entity persistence alongside the legacy snapshot. |
+| `008_entity_category_assignments.sql` | Relational many-category assignments. |
+| `009_candidate_lifecycle.sql` | Unified candidate lifecycle. |
+| `010_import_preprocessing.sql` | Staged, reviewable import candidates. |
+| `011_import_recovery.sql` | Restart-safe processing leases and source recovery. |
+| `012_import_finalization.sql` | Import finalization metadata and staged-row cleanup support. |
+| `013_import_retention.sql` | Bounded retention eligibility for finalized imports. |
+| `014_resumable_uploads.sql` | S3 multipart upload sessions and parts. |
+| `015_jetstream_worker_dispatch.sql` | Durable import/recovery dispatch and legacy repair support. |
+| `016_relational_authority.sql` | Writer fence and relational source of truth; preserves legacy snapshot only as archive and does not merge it over authoritative rows. |
+| `017_import_cancellation.sql` | Durable cancellation for queued uploads and preprocessing. |
+| `018_import_lookup_indexes.sql` | Import-scoped and entity lookup indexes. |
+| `019_maidenhead_locators.sql` | Derived Maidenhead locator cells. |
+| `020_outbox_dead_letter_redrive.sql` | Audited outbox dead-letter redrive. |
+| `021_jetstream_work_recovery.sql` | Bounded dispatch repair marker for lost/expired work. |
+| `022_entity_website_description.sql` | Optional public Website and Description entity fields. |
+| `022_outbox_correlation.sql` | Nullable outbox correlation; historical path has a second file numbered 022. |
+
+Geodata-owned current objects cover relational entities and categories, review
+and provenance, upload/import sessions, staged candidates, processing and
+schedule state, outbox/idempotency/consumer state, spatial indexes, and QGIS
+views. The baseline retains `service_state`, `source_snapshot_manifest`,
+and `source_snapshot_record` from the verified catalog. Durable Geodata does
+not hydrate the entity catalogue from the old JSON snapshot; the exact
+retirement/retention disposition of these legacy relations remains an explicit
+owner verification gate.
+
+### Remaining object-level evidence
+
+The historical filenames and schema effects are mapped above, and the retired
+Operations snapshot objects are proven absent from the Core target. The
+following owner-path audit remains open before the three baseline issues can
+close:
+
+- Identify any live Identity/Programme readers or writers of Core
+  `activation`, `qso`, and `service_state`.
+- Confirm whether retained Activity/Geodata `service_state` and Geodata
+  `source_snapshot_*` rows are required archives or can be excluded from a
+  rebuilt target; do not infer this from table names.
+- Link active code paths and deployed catalog rows for each retained table,
+  index, view, extension, sequence, trigger, role, and grant.
+- Confirm retired Geodata snapshot writers are absent from current code and
+  operational procedures before checking that acceptance item.
+
 ## Issue status and remaining gates
 
 All six issues remain open:

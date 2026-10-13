@@ -1,3 +1,9 @@
+## 13 October 2026 — Database baseline ownership inventory
+
+- Expanded the canonical inventory with exact historical migration paths and schema effects for Core, Activity, and Geodata.
+- Confirmed the old Operations JetStream and storage snapshot tables are absent from the Core baseline. Kept unresolved compatibility-object ownership visible: Core `activation`, `qso`, and `service_state`; Activity `service_state`; Geodata `service_state` and `source_snapshot_*`.
+- All baseline issues remain open until these owner-path and focused service checks are resolved. Rebuild issues remain gated on deployment of the fixed runner and final post-quiescence archives.
+
 ## 13 October 2026 — Database baselines and rebuild gate progress
 
 - Re-read `AGENTS.md`, continued Deploy/Core #15/#16, Activity #4/#5, and Geodata #8/#9, and updated every issue with verified checkmarks or current evidence. All six remain open.

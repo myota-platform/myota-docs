@@ -1,3 +1,11 @@
+## 13 October 2026 — Database baseline owner inventory follow-up
+
+- **Prompt used:** Continue the database migration baseline and data-preserving rebuild issues under the standing `AGENTS.md` workflow.
+- **Scope:** Map the historical Core, Activity, and Geodata migration chains to the consolidated targets; document current table groups and exact source paths. This does not authorize a live rebuild.
+- **Evidence:** Core's historical Operations migrations created the JetStream and SeaweedFS sampled-history tables; the forward retirement migrations removed them, and neither object is present in the current Core baseline. Activity and Geodata histories are individually listed in the canonical inventory. Generic `service_state` and Geodata `source_snapshot_*` object ownership remains explicitly unresolved pending call-site evidence.
+- **Status:** The source/mirror baseline work and runner checks are verified on `testing`. Core, Activity, and Geodata baseline issues remain open for the exact retained-object owner audit and focused service checks. Paired rebuild issues remain gated on a deployed runner and final post-quiescence backup/restore rehearsals.
+- **Record:** [Database baseline and rebuild inventory](../operations/databases/baseline-migration-inventory.md).
+
 ## 13 October 2026 — Database baseline runner verification and issue tracking
 
 - **Prompt used:** “Work on the issues under ‘Database migration baselines and data-preserving rebuilds’ in the organization issue index to completion following the standing instructions in `./AGENTS.md`.”
