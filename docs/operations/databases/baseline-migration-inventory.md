@@ -1,6 +1,6 @@
 # Database migration baselines and data-preserving rebuilds
 
-**Status verified:** 13 October 2026 09:15 UTC  
+**Status verified:** 13 October 2026 09:42 UTC  
 **Scope:** Deploy, Activity, Geodata, Platform, and the local non-production K3s
 cluster. This record covers baseline source and disposable runner evidence. It
 does not authorize or report a live database rebuild.
@@ -299,14 +299,17 @@ baseline after retirement.
 
 All six issues remain open:
 
-| Owner | Baseline issue | Rebuild issue |
+| Owner | Baseline issue progress | Rebuild issue progress |
 |---|---|---|
-| Deploy/Core | [#15](https://github.com/myota-platform/myota-deploy/issues/15) — baseline | [#16](https://github.com/myota-platform/myota-deploy/issues/16) — backup and rebuild |
-| Activity | [#4](https://github.com/myota-platform/myota-activity-service/issues/4) — baseline | [#5](https://github.com/myota-platform/myota-activity-service/issues/5) — backup and rebuild |
-| Geodata | [#8](https://github.com/myota-platform/myota-geodata-service/issues/8) — baseline | [#9](https://github.com/myota-platform/myota-geodata-service/issues/9) — backup and rebuild |
+| Deploy/Core | [#15](https://github.com/myota-platform/myota-deploy/issues/15) — 5/7 checked; open | [#16](https://github.com/myota-platform/myota-deploy/issues/16) — 1/7 checked; open |
+| Activity | [#4](https://github.com/myota-platform/myota-activity-service/issues/4) — 5/6 checked; open | [#5](https://github.com/myota-platform/myota-activity-service/issues/5) — 1/7 checked; open |
+| Geodata | [#8](https://github.com/myota-platform/myota-geodata-service/issues/8) — 5/7 checked; open | [#9](https://github.com/myota-platform/myota-geodata-service/issues/9) — 1/7 checked; open |
 
-Verified baseline checkboxes and evidence are recorded in those issues. Remaining
-baseline gates are exact historical migration/object ownership maps and focused
+Verified baseline checkboxes and evidence are recorded in those issues. Each
+rebuild issue now checks off the checksummed preliminary archive and isolated
+restore rehearsal. Those archives predate service quiescence and writer fencing;
+they are not cutover backups. Remaining baseline gates are exact historical
+migration/object ownership maps and focused
 service integration checks (Identity/Programme for Core; API, worker, outbox,
 import/recovery paths for Activity and Geodata). The runner is not yet deployed
 from the fixed source in Helm.
