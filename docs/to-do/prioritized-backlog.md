@@ -2,7 +2,7 @@
 
 For the latest verified deployment and workstream status, see [Current system state](../architecture/current-state.md). This page lists unfinished work only; completed milestones remain in their source plans and evidence.
 
-**Reviewed:** 2026-10-11 22:53 UTC
+**Reviewed:** 2026-10-13 09:15 UTC
 
 This is a recommended order, not a delivery schedule. It records no due dates,
 staffing commitments, external deadlines, or production incidents. Roadmaps own
@@ -20,7 +20,15 @@ priorities change.
 
 ## P0 — before expansion or dependent implementation
 
-### 1. Reopen Geodata qualification before expanding capacity
+### 1. Finish baseline readiness before rebuilding the three databases
+
+**Current position:** Core, Activity, and Geodata baselines are merged to `testing`; the unified runner passed fresh, repeat, and readiness-failure checks on disposable K3s databases. Focused service integration checks and deployment of the fixed runner image are still open. Preliminary archives were captured before quiescence and are not cutover backups. No live database has been modified.
+
+**Why P0:** Each rebuild is destructive and must preserve domain rows, spatial objects, outbox/idempotency state, and consumer checkpoints.
+
+**Next:** Close the owner-mapping and service integration gates, build/deploy the fixed migration image, quiesce each database's writers and async work, take and rehearse a final archive, record go/no-go, then rebuild one database at a time with a tested rollback. Track the exact gates in the [inventory](../operations/databases/baseline-migration-inventory.md) and issues [Deploy #15/#16](https://github.com/myota-platform/myota-deploy/issues/15), [Activity #4/#5](https://github.com/myota-platform/myota-activity-service/issues/4), [Geodata #8/#9](https://github.com/myota-platform/myota-geodata-service/issues/8).
+
+### 2. Reopen Geodata qualification before expanding capacity
 
 **Current position:** The tested deployment envelope is two to three Geodata API
 replicas. Phase 5 was closed by owner acceptance, not by passing every
@@ -40,7 +48,7 @@ complete the missing measurements and recovery drills before changing the
 replica ceiling. Rerun the digest-pinned Phase 2 recovery qualification when the
 deployed SeaweedFS image changes.
 
-### 2. Establish programme governance, jurisdiction, and eligibility controls
+### 3. Establish programme governance, jurisdiction, and eligibility controls
 
 **Current position:** The configuration gap analysis remains an audit baseline;
 programme ownership/lifecycle, locale and content policy, jurisdiction and
@@ -59,7 +67,7 @@ Admin UI controls.
 
 ## P1 — close identified operational visibility gaps
 
-### 3. Complete logging acceptance
+### 4. Complete logging acceptance
 
 **Current position:** Helm revision 272 is deployed and Fleet is Ready with all
 23 Deployments and 27/27 replicas. Identity request-to-worker correlation has
@@ -79,7 +87,7 @@ service paths that have not been verified end to end.
 
 ## P2 — planned capability after higher-priority work
 
-### 4. Define the typed future award-condition model
+### 5. Define the typed future award-condition model
 
 **Current position:** This is a proposed capability. Its roadmap leaves the
 semantic and evidence decisions open; later implementation depends on reliable
@@ -89,7 +97,7 @@ worked-entity resolution and versioned geodata/reference evidence.
 which reference-data and QSO-resolution work must precede evaluator
 implementation. See the [award-condition roadmap](../domain/awards/future-condition-model-roadmap.md).
 
-### 5. Establish Admin UI internationalization
+### 6. Establish Admin UI internationalization
 
 **Current position:** The proposed roadmap has no completed phases. Locale and
 string inventory should precede translation catalogs or screen migration.
@@ -98,7 +106,7 @@ string inventory should precede translation catalogs or screen migration.
 persistence, and translation-review ownership. See the
 [internationalization roadmap](../domain/administration/i18n-roadmap.md).
 
-### 6. Address longer-term programme and charter gaps
+### 7. Address longer-term programme and charter gaps
 
 **Current position:** The charter gap analysis is a baseline, not a set of
 completed deliverables. Product, governance, interoperability, open-data,

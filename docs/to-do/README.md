@@ -27,3 +27,5 @@ For the recommended execution order, see the
   — typed award conditions remain future capability work.
 - [Charter delivery gaps](../governance/charter-gap-analysis.md) — longer-term
   product, coverage, stewardship, and participant-experience gaps.
+
+- [Database baseline and rebuild gates](../operations/databases/baseline-migration-inventory.md) — active implementation. Do not reset live databases until the fixed runner is deployed and each post-quiescence archive passes isolated restore and explicit go/no-go.

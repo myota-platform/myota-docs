@@ -10,8 +10,9 @@ start at [Current system state](architecture/current-state.md).
   diagrams, and current state.
 - [Domain and API](domain/README.md) — identity, programmes, administration,
   awards, and API contracts.
-- [Operations](operations/README.md) — deployment, storage, messaging, and
+- [Operations](operations/README.md) — deployment, storage, messaging, databases, and
   service runbooks.
+- [Database migration inventory](operations/databases/baseline-migration-inventory.md) — current baseline ownership, runner evidence, and gated rebuild status.
 - [Observability](observability/README.md) — logging, metrics, traces, NATS
   Surveyor, evidence, and operating guidance.
 - [Platform policies](platform/README.md) and [security](security/README.md).

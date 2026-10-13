@@ -1,3 +1,11 @@
+## 13 October 2026 — Database baselines and rebuild gate progress
+
+- Re-read `AGENTS.md`, continued Deploy/Core #15/#16, Activity #4/#5, and Geodata #8/#9, and updated every issue with verified checkmarks or current evidence. All six remain open.
+- Merged a PostgreSQL 16 psql compatibility fix to the owning and mirror `testing` branches after the runner rehearsal found unsupported pg_dump restriction commands. Deploy #19, Activity #8, and Platform #4 all passed their CI checks.
+- Ran the fixed unified migration runner against fresh disposable Core, Activity, and PostGIS databases. Fresh application and repeat behavior passed. A missing Core sentinel caused the run to fail with readiness false for all targets; restoring the sentinel/checksum allowed recovery. Runner-test databases, jobs, ConfigMap, and temporary source files were removed.
+- Preliminary custom-format archives passed inspection and isolated restore; their checksums and limits are in the [baseline/rebuild inventory](docs/operations/databases/baseline-migration-inventory.md). They were captured before quiescence and are not safe cutover backups.
+- Helm 282 is a rollback to 281; Fleet still tracks Deploy `main` commit `9d80741`, and the completed live migration job used the historical chain. All live databases remain intact; no rebuild go/no-go was recorded.
+
 ## 12 October 2026 — Structured logging and request-to-worker correlation
 
 - Closed Programme #4, Activity #3, and Geodata #6 after deployed producer/worker

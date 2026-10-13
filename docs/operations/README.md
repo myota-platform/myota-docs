@@ -4,6 +4,7 @@ The Operations runtime is retired. Collector owns PostgreSQL telemetry, Gateway 
 
 - [Operations runbooks](runbooks.md) — local/production operation, JetStream,
   recovery, storage, and deployment procedures.
+- [Database migrations and recovery](databases/README.md) — baseline ownership, runner verification, backup evidence, and rebuild gates.
 - [Production core setup](production-core.md)
 - [GitHub organization handoff](github-handoff.md)
 - [Messaging and NATS](messaging/README.md)

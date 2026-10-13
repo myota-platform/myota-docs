@@ -33,3 +33,5 @@ canonical/root/Platform mirrors are reconciled.
   verified. Programme/Activity/Geodata producer-specific live correlation,
   authenticated Grafana navigation, Loki field privacy, alerts/retention/
   recovery, and Compose parity remain open in the evidence record.
+
+- [Database migration baselines and data-preserving rebuilds](../operations/databases/baseline-migration-inventory.md) — baseline sources are on `testing`; the runner passed fresh/repeat/readiness-failure tests in an isolated namespace. Core/Activity/Geodata baseline issues remain open for exact owner mapping and service integration checks. All rebuilds remain gated: the live Helm image still runs historical migrations, and the available archives were captured before quiescence.
