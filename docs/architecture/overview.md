@@ -62,7 +62,7 @@ retention from service-owned work queues. See
 [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md) and the
 [NATS migration plan](../operations/messaging/nats-event-migration-plan.md).
 
-Operations is retired from runtime. The Collector reads bounded database statistics through least-privilege roles; Gateway checks live Identity session and role data for Grafana authorization. Repository archival remains pending [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). Broker/server metrics come from the
+Operations is retired from runtime and its GitHub repository was archived on 2026-10-13 ([issue #3](https://github.com/myota-platform/myota-operations-service/issues/3), closed). The Collector reads bounded database statistics through least-privilege roles; Gateway checks live Identity session and role data for Grafana authorization. Broker/server metrics come from the
 cluster-local Surveyor exporter and Prometheus, with eleven dashboards in the
 Grafana `NATS` folder. See the
 [NATS Surveyor monitoring evidence](../observability/nats-surveyor-migration.md).

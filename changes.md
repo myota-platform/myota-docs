@@ -1,3 +1,16 @@
+## 13 October 2026 — Operations Service repository archived
+
+- **Prompt used:** “Archive the repository `myota-operations-service`.”
+- **Pre-archive checks:** The Operations runtime retirement evidence and linked
+  Deploy, Contracts, Admin, and Docs work were complete. There were no open PRs;
+  issue #3 was the repository's only open issue.
+- **Action and verification:** Archived
+  [myota-operations-service](https://github.com/myota-platform/myota-operations-service)
+  through GitHub. The API then returned `archived: true`; `main` remains its
+  default branch. Closed [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3)
+  after recording the archive result. No runtime or database changes were made.
+- **Record:** [Operations retirement evidence](docs/operations/evidence/operations-service-retirement-2026-10-11.md).
+
 ## 13 October 2026 — Data-preserving database rebuilds completed
 
 - **Prompt used:** Work the open database baseline/rebuild issues from
@@ -141,9 +154,8 @@
   returns 401 and `Cache-Control: no-store`.
 - Helm 0.2.20 revision 272 is deployed and Fleet Ready with 23 Deployments
   and 27 replicas. Operations snapshot tables are absent.
-- Repository archival remains pending because the connector exposes no archive
-  operation. See [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3)
-  and [retirement evidence](docs/operations/evidence/operations-service-retirement-2026-10-11.md).
+- At the time of this 11 October entry, repository archival was still pending;
+  it was completed on 13 October as recorded in the later archive entry below.
 
 ## 11 October 2026 — Observability dashboard enhancements
 

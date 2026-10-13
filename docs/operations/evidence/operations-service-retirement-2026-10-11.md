@@ -56,6 +56,14 @@ and removed image publishing. Contracts `fb564e3fed6ef4482c29a56b9d194332f5804ee
 Contract Freeze run [#138](https://github.com/myota-platform/myota-contracts/actions/runs/38182971884)
 passed on 11 October 2026 at 23:06 UTC.
 
-The repository remains unarchived because the available GitHub connector
-does not expose archival. Keep [Operations issue #3](https://github.com/myota-platform/myota-operations-service/issues/3)
-open solely for that action.
+## Repository archive verification
+
+On 2026-10-13, the GitHub repository `myota-platform/myota-operations-service`
+was archived with its default branch still `main`. A follow-up GitHub API read
+returned `archived: true`. There were no open pull requests; issue #3 was the
+repository's only open issue and was closed after the archive state was
+verified. No runtime, database, or deployment changes were made as part of the
+archive action.
+
+[Operations issue #3](https://github.com/myota-platform/myota-operations-service/issues/3)
+contains the final acceptance checklist and archive evidence.

@@ -14,9 +14,6 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
   and Identity/Programme metrics work already verified as complete is recorded
   in the [current-state page](../architecture/current-state.md) and linked
   evidence.
-- [Archive the retired Operations repository](../operations/evidence/operations-service-retirement-2026-10-11.md)
-  — runtime, API, and observability functions have been retired; repository
-  archival remains tracked in [Operations issue #3](https://github.com/myota-platform/myota-operations-service/issues/3).
 
 ## Reopen only before expanding Geodata capacity
 
@@ -26,6 +23,10 @@ remain unverified. Reopen the relevant qualification gates before expanding
 beyond the accepted envelope. See the [closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md).
 
 ## Recently completed
+
+- [Operations Service retirement and repository archive](../operations/evidence/operations-service-retirement-2026-10-11.md)
+  — runtime functions are retired, the GitHub repository was archived on
+  2026-10-13, and [Operations issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) is closed.
 
 - [Database baselines and data-preserving rebuilds](../operations/databases/baseline-migration-inventory.md)
   — Deploy #15/#16, Activity #4/#5, and Geodata #8/#9 are closed. Each rebuild

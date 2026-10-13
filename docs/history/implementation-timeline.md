@@ -1,3 +1,16 @@
+## 13 October 2026 — Operations Service repository archived
+
+- **Prompt used:** “Archive the repository `myota-operations-service`.”
+- **Pre-archive checks:** The Operations runtime retirement evidence and linked
+  Deploy, Contracts, Admin, and Docs work were complete. There were no open PRs;
+  issue #3 was the repository's only open issue.
+- **Action and verification:** Archived
+  [myota-operations-service](https://github.com/myota-platform/myota-operations-service)
+  through GitHub. The API then returned `archived: true`; `main` remains its
+  default branch. Closed [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3)
+  after recording the archive result. No runtime or database changes were made.
+- **Record:** [Operations retirement evidence](docs/operations/evidence/operations-service-retirement-2026-10-11.md).
+
 ## 13 October 2026 — Core, Activity, and Geodata rebuild closeout
 
 - **Prompts used:** “Work on the issues under ‘Database migration baselines

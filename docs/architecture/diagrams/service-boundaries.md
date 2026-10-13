@@ -75,8 +75,9 @@ authoritative for domain state, job state, outbox delivery, and recovery.
 - Geodata owns geometries, entity lifecycle, imports, provenance, conflation,
   review, and geodata audit history.
 - Deploy owns Collector configuration; Gateway and Identity own Grafana
-  session and role checks. Repository archival remains pending. It no longer samples SeaweedFS and does not inspect or
-  consume JetStream.
+  session and role checks. The retired Operations repository was archived on
+  2026-10-13. It no longer samples SeaweedFS and does not inspect or consume
+  JetStream.
 - Deploy owns runtime wiring and deployment configuration. Platform copies of
   Deploy assets are synchronized mirrors; service repositories remain
   authoritative for service code and contracts.

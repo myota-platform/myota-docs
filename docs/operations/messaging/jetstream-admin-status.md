@@ -10,7 +10,7 @@ The former page showed read-only JetStream broker metadata and persisted
 periodic snapshots in `operations_jetstream_snapshot`. It did not consume
 application work or change stream state. At the time of the NATS cutover, separate Operations storage inspection and
 Grafana identity functions remained. SeaweedFS monitoring was subsequently
-retired; Gateway and Identity now own Grafana authorization. Operations is retired from runtime; see [retirement evidence](../evidence/operations-service-retirement-2026-10-11.md). The repository remains unarchived pending [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). See the current
+retired; Gateway and Identity now own Grafana authorization. Operations is retired from runtime and its repository was archived on 2026-10-13; see [retirement evidence](../evidence/operations-service-retirement-2026-10-11.md) and closed [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). See the current
 [SeaweedFS monitoring guide](../storage/seaweedfs-admin-status.md).
 
 The Operations-owned forward migration has removed the snapshot table and

@@ -1,9 +1,8 @@
 # Operations
 
 Use the [current system state](../architecture/current-state.md) for the
-deployed revision, readiness, and operational evidence. The Operations Service
-runtime is retired; repository archival remains tracked in
-[issue #3](https://github.com/myota-platform/myota-operations-service/issues/3).
+deployed revision, readiness, and operational evidence. The Operations Service runtime and repository are retired; GitHub archived the
+repository on 2026-10-13 and [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) is closed.
 See the [retirement record](evidence/operations-service-retirement-2026-10-11.md).
 
 ## Runbooks and infrastructure

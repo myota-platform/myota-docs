@@ -9,7 +9,7 @@ The following split is justified and intentionally small:
 | `myota-programme-service` | programmes, shared entity category master data and programme assignments, programme-owned rules and themes | `programmes.py`, `run_programmes.py` |
 | `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, staged dataset intake, source decoding and durable domain workers | `geodata.py`, `geodata_routes.py`, `relational_state.py`, `relational_queries.py`, `geodata_import_worker.py`, `migrations/` |
 | `myota-activity-service` | activations, normalized/indexed QSOs, COPY/ADIF ingestion, activity aggregates, corrections, programme-owned award definitions and versioned progress, object-storage assets, requests, rendering, notifications, statistics and issuance records | `activity.py`, `awards.py`, `activity_repository.py`, `activity_worker.py`, `migrations/` |
-| `myota-operations-service` | Retired historical implementation; not deployed and no longer publishes images. Repository archive pending issue #3. | historical source; archive tracked in [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) |
+| `myota-operations-service` | Archived on 2026-10-13; retired historical implementation, not deployed and no longer publishes images. | read-only historical source; retirement and archive recorded in [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) |
 | `myota-web` | universal programme UI, published award progress and participant requests | `web/` |
 | `myota-admin-web` | Vue 3/TypeScript administration, programme context, grouped workspaces, resumable import intake, review queues, award designer, asset management, and operational views | `src/`, `public/vendor/` |
 | `myota-deploy` | Helm charts, environments, migration orchestration, Compose, worker deployments, observability | `deploy/helm/myota/`, `db/migrations/`, `compose.yaml` |
@@ -38,7 +38,7 @@ The NATS monitoring consolidation in
 [observability](../observability/nats-surveyor-migration.md) is complete within
 its recorded evidence bounds. Surveyor and Grafana provisioning are Deploy
 owned; retired service monitoring and synchronized Platform copies are tracked
-by their respective owners. Operations is retired from Compose, Helm/Fleet, API routes, and image publishing. Deploy's Collector owns database telemetry; Gateway and Identity own Grafana authorization. Platform mirrors Deploy configuration. Repository archive remains in [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). See the
+by their respective owners. Operations is retired from Compose, Helm/Fleet, API routes, and image publishing. Deploy's Collector owns database telemetry; Gateway and Identity own Grafana authorization. Platform mirrors Deploy configuration. The Operations repository was archived on 2026-10-13; [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) is closed. See the
 [cross-repository architecture review](../../REVIEW.md) for the completed
 Phases 1–4 and the remaining duplicate-YAML-key check. Detailed CI and K3s
 results are in the [phase evidence record](evidence/review-phases-1-4-2026-10-11.md).
