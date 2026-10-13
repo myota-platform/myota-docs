@@ -74,13 +74,21 @@ does not enable automatic updates for future image publications.
 ## Initial data seed
 
 The database and object data were copied after migrations and before enabling
-public test ingress. Identity accounts were zero in the source, so the
-relational seed's account guard passed without copying users or credentials.
-Verified source/target row counts were:
+public test ingress. **Identity account state was not copied.** The earlier
+check incorrectly treated Core `public.account` as the Identity source of
+truth. Identity stores accounts in `public.service_state.state->'items'` for
+service `identity`. A read-only recheck after the login report found two live
+Identity accounts, including the reported login, and no persisted Identity
+accounts in `myota-test`. The test Identity deployment has a separately
+configured bootstrap account whose email does not match that login. This is a
+seed gap; the earlier claim that the live account store was empty was incorrect.
+
+Verified source/target data counts were:
 
 | Data | Source and test result |
 |---|---:|
-| Core `public.account` | 0 rows |
+| Identity `service_state.state.items` | 2 live accounts; 0 persisted test accounts (not copied) |
+| Legacy Core `public.account` relation | 0 rows; not the Identity source of truth |
 | Activity `activity_notification` | 155 rows |
 | Geo `geodata_entity` | 10 rows |
 | Geo `geodata_import_candidate` | 10 rows |

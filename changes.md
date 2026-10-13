@@ -11,7 +11,9 @@
   release into `myota-test`, and seeded its Core, Activity, Geodata, and
   SeaweedFS data from the live namespace. The copy preserved target-owned
   migration/reference records and omitted live delivery/recovery and
-  observability state. Source accounts were zero.
+  observability state. The first review incorrectly reported the Identity
+  source as empty after counting legacy Core `public.account`; Identity stores
+  accounts as JSONB in `service_state`, and those records were not copied.
 - Deploy PRs #41–#43 made the shared chart upgrade-safe, bumped its package
   version through `0.2.25`, and made stream and durable provisioning run as
   retryable first-install Jobs. The test Helm release was reinstalled from
@@ -26,6 +28,13 @@
   StatefulSets are ready, and all running application image IDs match
   the pinned testing digests. Both requested UIs return HTTP 200 with valid
   TLS. JetStream provisioning validated three streams and ten work durables.
+- **Identity seed correction:** a read-only recheck after the login report found
+  two accounts in live `service_state.state->'items'` for service `identity`,
+  including the reported login; `myota-test` has zero persisted identity
+  accounts. The test namespace has a separate bootstrap account configured
+  for a different email. The original check counted `public.account`, which is
+  not this service's source of truth. The production Identity records were not
+  copied, and the previous zero-account conclusion was wrong.
 - The `myota-geodata-imports` bucket was independently compared by object key
   and size after the recovery: 10 objects, 13,625,617 bytes. Temporary source
   credentials, copy and verifier Jobs, and ConfigMaps were removed.
