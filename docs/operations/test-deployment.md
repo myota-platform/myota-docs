@@ -1,8 +1,8 @@
 # Isolated test deployment
 
-**Verified:** 2026-10-13 19:45 UTC  
-**Cluster:** local single-node K3s on `spainip-k3s`  
-**Namespace:** `myota-test`  
+**Verified:** 2026-10-13 19:52 UTC
+**Cluster:** local single-node K3s on `spainip-k3s`
+**Namespace:** `myota-test`
 **Fleet source:** `myota-platform/myota-deploy`, branch `testing`, commit
 [`dc101391`](https://github.com/myota-platform/myota-deploy/commit/dc101391b38be523343d5f6d05bb31880f676ba2)
 
@@ -31,15 +31,21 @@ Helm digest value causes Kubernetes to roll the corresponding workload.
 The digest polling and protected-branch PR workflow is present on Deploy's
 `testing` branch. GitHub scheduled workflows run from the repository's default
 branch (`main`), where the existing scheduled workflow updates production
-image values. Therefore the testing digest poller is **not active yet**. A
-testing image publication will not independently update this release until a
-safe release pull request places the test poller on `main` or an equivalent
-default-branch trigger is installed. The Deploy `main` and `testing` branches
-are divergent; promoting the whole testing branch would include unrelated
-production configuration and migration changes, so it was not done as part of
-this isolated deployment. Until that release is resolved, Fleet automatically
-reconciles committed test values but new image digests require a deliberate
-digest update on `testing`.
+image values. A manual `workflow_dispatch` run on `testing` (run
+[38457930823](https://github.com/myota-platform/myota-deploy/actions/runs/38457930823))
+verified the registry lookup but failed when creating its protected-branch PR:
+the organization policy prohibits GitHub Actions from creating or approving
+pull requests. Repository-level permission changes are rejected by the
+organization, and this session has no organization policy administration
+scope. Therefore the testing digest poller is **not active yet**. A testing
+image publication will not independently update this release until a safe
+release pull request places the test poller on `main` and an organization
+administrator permits the workflow to create pull requests. The Deploy `main`
+and `testing` branches are divergent; promoting the whole testing branch would
+include unrelated production configuration and migration changes, so it was
+not done as part of this isolated deployment. Until these gates are resolved,
+Fleet automatically reconciles committed test values but new image digests
+require a deliberate digest update on `testing`.
 
 ## Initial data seed
 

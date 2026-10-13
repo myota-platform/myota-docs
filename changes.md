@@ -23,7 +23,10 @@
   the workflow is on Deploy `testing`, but GitHub schedules execute workflows
   from default branch `main`. Promoting the whole divergent testing branch
   would include unrelated deployment and production changes, so no promotion
-  was performed. See the [test deployment record](docs/operations/test-deployment.md).
+  was performed. A manual workflow dispatch verified registry digest lookup
+  but failed at PR creation because organization policy denies Actions PR
+  creation; repo-level changes are rejected and org policy administration is
+  unavailable to this session. See the [test deployment record](docs/operations/test-deployment.md).
 
 ## 13 October 2026 — Operations Service repository archived
 

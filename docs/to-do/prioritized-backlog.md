@@ -64,14 +64,16 @@ Admin UI controls.
 **Current position:** The `myota-test` release is deployed and Fleet reconciles
 committed digest changes, but the scheduled digest poller is not active because
 its workflow is on Deploy `testing` while GitHub schedules only run from the
-default branch. The divergent Deploy branches make a whole-branch promotion
-unsafe for this isolated task.
+default branch, and organization Actions policy prohibits the workflow from
+creating pull requests. The divergent Deploy branches make a whole-branch
+promotion unsafe for this isolated task.
 
 **Next:** Release the test digest polling workflow onto `main` through the
 standing testing-to-main release process after separating or resolving the
-unrelated production changes. Preserve protected-branch PR checks and confirm
-that a newly published testing image produces a digest PR, passes checks,
-merges, and rolls only the test workload. See the
+unrelated production changes, and obtain organization-level permission for
+Actions to create the protected-branch PR. Preserve PR checks and confirm that
+a newly published testing image produces a digest PR, passes checks, merges,
+and rolls only the test workload. See the
 [test deployment record](../operations/test-deployment.md).
 
 ### 4. Complete logging acceptance
