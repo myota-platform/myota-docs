@@ -1,3 +1,13 @@
+## 13 October 2026 — Database object mapping and source guide update
+
+- **Prompt used:** Continue work on the database baseline and data-preserving rebuild issues under the standing `AGENTS.md` instructions.
+- **Scope:** Refine the historical migration/object inventory and update source guides and issue evidence. No runtime or live database changes.
+- **Evidence:** The inventory now lists all Core, Activity, and Geodata baseline tables and exact historical migration paths. Source inspection linked Identity/Programme state and outbox persistence to `common.py`, Activity domain writes to `activity_repository.py` and worker/consumer files, and Geodata relational/import retention to `relational_state.py` and `import_retention.py`. Geodata `source_snapshot_*` is active import provenance; the generic `service_state` row is a legacy archive. Core normalized compatibility relations remain preserved until the full object-to-callsite audit is complete.
+- **Source guide:** Activity PR #9 corrected the stale eight-step migration instructions and merged to `testing` at `1a4a8fcf0cf0bcf2a34ac27f36050f9ea08384c2`; Python quality run 38376070414 passed.
+- **Issue status:** Deploy #15 has 5/7 acceptance checks marked, Activity #4 has 4/6, and Geodata #8 has 5/7. Paired rebuild issues #16/#5/#9 remain open with preliminary pre-quiescence archive evidence only. No live database was dropped or modified.
+- **Live deployment:** Helm 282 is a rollback to 281. Fleet tracks Deploy `main` commit `9d80741`; its migration job ran the historical chain. The fixed runner remains on `testing` and is not in the live image.
+- **Canonical record:** [Database baseline and rebuild inventory](../operations/databases/baseline-migration-inventory.md).
+
 ## 13 October 2026 — Database baseline owner inventory follow-up
 
 - **Prompt used:** Continue the database migration baseline and data-preserving rebuild issues under the standing `AGENTS.md` workflow.

@@ -1,3 +1,11 @@
+## 13 October 2026 — Database inventory and ownership follow-up
+
+- Expanded the canonical migration inventory with complete baseline table lists and historical migration paths for Core, Activity, and Geodata.
+- Linked Identity/Programme common state and outbox paths, Activity repository/worker/consumer paths, and Geodata relational and import-retention paths. Classified Geodata source snapshot tables as active provenance and its service_state as an archive.
+- Updated Activity's README to remove stale sequential-migration instructions; PR #9 merged after Python quality passed.
+- Baseline issue acceptance checks now stand at Deploy #15 5/7, Activity #4 4/6, and Geodata #8 5/7. All remain open for full object-to-callsite inventories and focused service integration checks. The three rebuild issues remain gated.
+- No live database was modified. See the [baseline/rebuild inventory](docs/operations/databases/baseline-migration-inventory.md).
+
 ## 13 October 2026 — Database baseline ownership inventory
 
 - Expanded the canonical inventory with exact historical migration paths and schema effects for Core, Activity, and Geodata.
