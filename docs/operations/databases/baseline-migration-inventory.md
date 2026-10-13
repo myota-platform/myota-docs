@@ -295,6 +295,41 @@ snapshot objects remain the verified exception: both are absent from the Core
 baseline after retirement.
 
 
+### Current catalog owner and callsite map
+
+The baseline inventory is compared with the deployed PostgreSQL catalogs. These
+source maps identify current persistence paths and distinguish them from schema
+objects that remain for compatibility. No relation is removed based only on a
+missing SQL reference.
+
+#### Core (29 public tables)
+
+| Objects | Current owner and exact source path | Current use / rebuild disposition |
+|---|---|---|
+| `service_state`, `idempotency_record`, `outbox_event` | Identity and Programme persistence adapter: [Identity common.py](https://github.com/myota-platform/myota-identity-service/blob/main/common.py#L329) and [Programme common.py](https://github.com/myota-platform/myota-programme-service/blob/main/common.py#L329). | Active durable state, idempotency, and transactional outbox. Retain data and constraints. |
+| `account`, `account_credential`, `account_primary_callsign`, `account_recovery_token`, `account_role`, `auth_revocation`, `auth_session`, `callsign`, `callsign_evidence`, `oidc_provider_mapping`, `security_event`, `audit_event` | Identity API state is handled by [identity.py](https://github.com/myota-platform/myota-identity-service/blob/main/identity.py) and serialized by [common.py](https://github.com/myota-platform/myota-identity-service/blob/main/common.py#L329). | Current API state is JSON-backed in Identity's `service_state` row. The inspected handler paths do not issue direct SQL against these normalized relations; classify them as retained compatibility schema and preserve any rows. |
+| `programme`, `award`, `award_rule`, `approver_scope`, `jurisdiction`, `programme_policy_version`, `programme_rule` | Programme API state is handled by [programmes.py](https://github.com/myota-platform/myota-programme-service/blob/main/programmes.py) and serialized by [common.py](https://github.com/myota-platform/myota-programme-service/blob/main/common.py#L329). | Current API state is JSON-backed in Programme's `service_state` row. The inspected handler paths do not issue direct SQL against these normalized relations; classify them as retained compatibility schema and preserve any rows. |
+| `activation`, `qso` | Current Activity persistence is owned by [activity_repository.py](https://github.com/myota-platform/myota-activity-service/blob/testing/activity_repository.py). | These are pre-split Core relations. Current Activity writes `activity_activation` and `activity_qso` in `myota_activity`; retain existing Core rows without treating them as current Activity storage. |
+| `dead_letter_event`, `outbox_redrive_audit` | Deploy outbox handling: [outbox_worker.py](https://github.com/myota-platform/myota-deploy/blob/testing/services/outbox_worker.py) and [outbox_admin.py](https://github.com/myota-platform/myota-deploy/blob/testing/services/outbox_admin.py). | Active outbox delivery, dead-letter, and audited redrive state. Preserve for recovery and duplicate-effect protection. |
+| `consumer_checkpoint`, `consumer_processed_event` | No active Core consumer SQL callsite was found in Identity, Programme, or the Deploy Core relay paths inspected. Current JetStream consumers use service-local processing state. | Retained compatibility state. Preserve rows; do not infer retirement from the absence of a Core reader. |
+| `myota_schema_migration` | Deploy migration runner: [run.sh](https://github.com/myota-platform/myota-deploy/blob/testing/db/migrations/run.sh). | Active runner ledger. Retain and validate baseline marker/checksum behavior. |
+
+#### Geodata (27 public tables)
+
+| Objects | Current owner and exact source path | Current use / rebuild disposition |
+|---|---|---|
+| `entity_type`, `geodata_entity`, `geodata_entity_category`, `source_reference`, `geodata_entity_attachment` | Relational entity writes and projection: [geodata_store.py](https://github.com/myota-platform/myota-geodata-service/blob/main/geodata_store.py) and [relational_state.py](https://github.com/myota-platform/myota-geodata-service/blob/main/relational_state.py). | Current authoritative entities, category assignments, source provenance, and attachments. Preserve relations, foreign keys, PostGIS geometry, and indexes. |
+| `conflation_candidate`, `entity_review`, `geodata_edit_staging`, `geodata_audit_event`, `geodata_control_record`, `geodata_schema_feature` | Review, control, feature-check, and audit paths in [geodata_store.py](https://github.com/myota-platform/myota-geodata-service/blob/main/geodata_store.py), [relational_state.py](https://github.com/myota-platform/myota-geodata-service/blob/main/relational_state.py), and [geodata.py](https://github.com/myota-platform/myota-geodata-service/blob/main/geodata.py). | Active review/edit and relational control state; preserve through data-only restore. The schema feature relation gates compatibility checks. |
+| `import_run`, `geodata_import_candidate`, `geodata_import_processing_queue`, `import_schedule` | Import lifecycle and asynchronous work: [geodata_store.py](https://github.com/myota-platform/myota-geodata-service/blob/main/geodata_store.py), [relational_state.py](https://github.com/myota-platform/myota-geodata-service/blob/main/relational_state.py), and [geodata_import_worker.py](https://github.com/myota-platform/myota-geodata-service/blob/main/geodata_import_worker.py). | Active import, candidate, queue, and schedule state. Preserve pending/recoverable work and its IDs. |
+| `geodata_upload_session`, `geodata_upload_part` | Upload and expiry handling: [geodata.py](https://github.com/myota-platform/myota-geodata-service/blob/main/geodata.py) and [geodata_retention_worker.py](https://github.com/myota-platform/myota-geodata-service/blob/main/geodata_retention_worker.py). | Active resumable upload/recovery state. Preserve session/part linkage and expiry status. |
+| `source_snapshot_manifest`, `source_snapshot_record` | Import provenance and cleanup: [import_retention.py](https://github.com/myota-platform/myota-geodata-service/blob/main/import_retention.py); manifest deletion is scoped by import run and records cascade through the FK. | Active import provenance/retention data. Preserve with the matching import rows. |
+| `service_state` | [Geodata README](https://github.com/myota-platform/myota-geodata-service/blob/main/README.md) and [relational_state.py](https://github.com/myota-platform/myota-geodata-service/blob/main/relational_state.py). | Legacy JSON snapshot archive; current relational runtime does not use it as authoritative state. Preserve existing contents pending a separate disposition. |
+| `idempotency_record`, `outbox_event`, `dead_letter_event`, `outbox_redrive_audit`, `consumer_checkpoint`, `consumer_processed_event` | Service persistence adapter: [common.py](https://github.com/myota-platform/myota-geodata-service/blob/main/common.py); outbox delivery and recovery: [outbox_worker.py](https://github.com/myota-platform/myota-deploy/blob/testing/services/outbox_worker.py) and [outbox_admin.py](https://github.com/myota-platform/myota-deploy/blob/testing/services/outbox_admin.py). | Active request idempotency, publication, delivery/recovery state. Preserve IDs/checkpoints and pending/dead-letter linkage. |
+| `myota_schema_migration` | Deploy migration runner: [run.sh](https://github.com/myota-platform/myota-deploy/blob/testing/db/migrations/run.sh). | Active runner ledger. Retain and validate baseline marker/checksum behavior. |
+
+The retained-object map is source-based, not a proposal to remove schema. The
+catalog comparison and focused service tests remain separate acceptance gates.
+
 ## Issue status and remaining gates
 
 All six issues remain open:
