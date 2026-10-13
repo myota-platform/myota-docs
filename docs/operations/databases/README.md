@@ -1,9 +1,15 @@
 # Database migrations and recovery
 
-- [Baseline migration inventory and rebuild status](baseline-migration-inventory.md)
-  — authoritative owners, synchronized mirrors, runner checks, archive evidence,
-  live boundaries, and the remaining gates for the three database rebuilds.
+The three baseline rebuilds are complete. This index links to the source
+inventory and the dated cutover record:
 
-Deploy owns the combined migration runner and deployment wiring. Activity and
-Geodata own their schema baselines; Deploy and Platform keep synchronized copies.
-The inventory links to each source repository and tracks current status.
+- [Baseline migration inventory](baseline-migration-inventory.md) — authoritative
+  schema owners, synchronized mirrors, and migration-runner design.
+- [Database rebuild evidence](database-rebuild-evidence-2026-10-13.md) — exact
+  archive checksums, isolated restore rehearsals, live cutovers, validation, and
+  cleanup.
+
+Activity and Geodata own their schemas; Deploy owns migration orchestration and
+keeps deployment copies synchronized with the service sources. Core is shared
+by Identity and Programme. See the inventory for the ownership map and the
+closed issue checklists.

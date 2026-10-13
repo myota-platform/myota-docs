@@ -61,21 +61,17 @@ Admin UI controls.
 
 ### 3. Complete logging acceptance
 
-**Current position:** Helm revision 272 is deployed and Fleet is Ready with all
-23 Deployments and 27/27 replicas. Identity request-to-worker correlation has
-passed a sanitized live request, worker completion, and JetStream ACK check;
-Identity issue #3 is closed. Identity and Programme metrics coverage is also
-complete; see the [metrics evidence](../observability/evidence/identity-programme-metrics-2026-10-11.md).
-Remaining logging acceptance includes Programme/Activity/Geodata
-producer-specific live correlation evidence, authenticated Grafana log/trace
-navigation, a representative Loki prohibited-field/cardinality review, alerts
-and runbooks, retention/capacity/recovery evidence, and full Compose runtime
-parity. See the [logging roadmap](../observability/logging-implementation.md)
-and [current evidence](../observability/evidence/logging-implementation-2026-10-11.md).
+**Current position:** Helm revision 288 is deployed and Fleet reports 71/71
+resources Ready. Request-to-worker correlation is verified for Identity,
+Programme, Activity, and Geodata; Identity/Programme metrics coverage and
+dashboard enhancements are also complete. Remaining logging acceptance gates
+are authenticated Grafana trace/log navigation, Compose runtime parity, and
+representative capacity/recovery evidence. See the [logging roadmap](../observability/logging-implementation.md),
+[latest logging evidence](../observability/evidence/logging-implementation-2026-10-12.md),
+and [current system state](../architecture/current-state.md).
 
-**Next:** Close the remaining producer-specific and platform acceptance gates
-from their recorded evidence. Do not infer successful workflow correlation for
-service paths that have not been verified end to end.
+**Next:** Close the remaining navigation, Compose, and representative
+capacity/recovery gates using the evidence requirements in the roadmap.
 
 ## P2 — planned capability after higher-priority work
 

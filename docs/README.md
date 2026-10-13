@@ -1,43 +1,48 @@
 # Documentation index
 
-The [repository README](../README.md) is the project introduction. This page is
-the single subject index. For latest verified runtime and repository status,
-start at [Current system state](architecture/current-state.md).
+Use the [current system state](architecture/current-state.md) for the latest
+verified runtime and repository snapshot. This index routes by topic; it does
+not duplicate status details from that page.
 
-## System
+## Start with a question
 
-- [Architecture](architecture/README.md) — ownership, boundaries, decisions,
-  diagrams, and current state.
-- [Domain and API](domain/README.md) — identity, programmes, administration,
-  awards, and API contracts.
-- [Operations](operations/README.md) — deployment, storage, messaging, databases, and
-  service runbooks.
-- [Database migration inventory](operations/databases/baseline-migration-inventory.md) — source ownership and baseline history.
-- [Database rebuild evidence](operations/databases/database-rebuild-evidence-2026-10-13.md) — final archive checksums, restore results, live cutovers, and acceptance.
-- [Observability](observability/README.md) — logging, metrics, traces, NATS
-  Surveyor, evidence, and operating guidance.
-- [Platform policies](platform/README.md) and [security](security/README.md).
-- [Development](development/README.md) — local workflows and quality checks.
+| If you need to… | Start here |
+|---|---|
+| Understand the live architecture, data ownership, or repository boundaries | [Architecture and ownership](architecture/README.md) |
+| Find a product or API behavior | [Domain and API index](domain/README.md) |
+| Run or recover the deployed system | [Operations index](operations/README.md) |
+| Understand logs, metrics, traces, dashboards, or alerts | [Observability index](observability/README.md) |
+| Work on spatial data and import workflows | [Geodata index](geodata/README.md) |
+| Find project purpose, policy, or security controls | [Governance](governance/README.md), [platform policies](platform/README.md), and [security](security/README.md) |
+| Set up development or quality checks | [Development guide](development/README.md) |
+| See active work, accepted future work, or its priority | [Work in progress](work-in-progress/README.md), [To do](to-do/README.md), and [prioritized backlog](to-do/prioritized-backlog.md) |
+| Find dated evidence or past changes | [History](history/README.md), plus the evidence indexes under each subject |
 
-## Work and history
+## Canonical document locations
 
-- [Work in progress](work-in-progress/README.md) — active implementation and
-  evidence gates.
-- [To do](to-do/README.md) — accepted work not started or awaiting a decision.
-- [Prioritized backlog](to-do/prioritized-backlog.md) — recommended sequence,
-  not a committed schedule.
-- [History](history/README.md) — dated decisions, changes, and source inspection.
-- [Cross-repository review](../REVIEW.md) — findings, mitigation, and
-  completion evidence.
+- `architecture/` — current state, repository ownership, decisions, diagrams,
+  and cross-repository review evidence.
+- `domain/` — API plans and product behavior for identity, programmes,
+  administration, and awards.
+- `geodata/` — Geodata operations, scaling, imports, and qualification records.
+- `operations/` — deployment, databases, messaging, recovery, and storage.
+- `observability/` — logging, metrics, traces, Grafana, and monitoring.
+- `governance/`, `platform/`, and `security/` — project direction and
+  cross-cutting policy.
+- `development/` — contributor workflows and quality gates.
+- `work-in-progress/`, `to-do/`, and `history/` — delivery status and
+  chronology.
 
-## Documentation rules
+## Which page is authoritative?
 
-Roadmaps own task scope and checkboxes; dated evidence pages own the results and
-limits of a specific check. The [current-state page](architecture/current-state.md)
-summarizes the latest verified state and links to those sources. Historical
-records remain snapshots and are not rewritten to look current. Diagrams show
-current ownership unless explicitly labeled historical or proposed.
+- The [current-state page](architecture/current-state.md) is the rolling
+  snapshot of verified system status.
+- A roadmap owns the scope, tasks, and checkboxes for its workstream.
+- A dated evidence page records the result and limits of a particular check.
+  Historical evidence is retained as a snapshot, even when later state changes.
+- The [repository map](architecture/repository-map.md) identifies source owners
+  and synchronized copies.
 
-Older top-level `docs/*.md` paths are retained as short compatibility pages
-where other MyOTA repositories link to them. Subject indexes link to canonical
-documents.
+Older `docs/*.md`, `docs/adr/`, and `docs/diagrams/` paths remain as short
+compatibility pages for external links. Use the canonical subject indexes above
+for current navigation.

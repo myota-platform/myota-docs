@@ -6,37 +6,35 @@ definition. Each programme owns its charter, eligibility, rules, awards,
 content, and governance.
 
 This repository is the documentation hub; service repositories own runtime
-code. Start with the [documentation index](docs/README.md), the
-[repository ownership map](docs/architecture/repository-map.md), or the
-[current system state](docs/architecture/current-state.md).
+code. The original `ea7klk/mpota` repository remains untouched and is migration
+input only.
 
-## Current state
+## Start here
 
-The latest K3s and repository reconciliation is dated 11 October 2026. Helm
-revision 249 is deployed; Fleet is Ready 1/1 at Deploy commit `12251ff`, with
-matching applied and desired deployment IDs, 23/23 Deployments and 67/67
-resources ready. The snapshot records current repository/image revisions,
-ownership, remaining work, and evidence limits. Readiness is not production
-qualification.
+- [Documentation index](docs/README.md) — subject-based navigation and
+  documentation conventions.
+- [Current system state](docs/architecture/current-state.md) — latest verified
+  runtime, repository heads, and evidence limits.
+- [Repository ownership map](docs/architecture/repository-map.md) — authoritative
+  repositories and synchronized mirrors.
+- [Architecture](docs/architecture/README.md) — boundaries, decisions, and
+  diagrams.
 
-SeaweedFS monitoring now uses the Collector and provisioned Grafana dashboard;
-the Admin sampling page, Operations polling API, and history table are retired.
-See the [SeaweedFS monitoring guide](docs/operations/storage/seaweedfs-admin-status.md)
-and [retirement issues](https://github.com/myota-platform/myota-deploy/issues/8).
+## Delivery tracking
 
-## Work tracking
+- [Work in progress](docs/work-in-progress/README.md) — active work and gates.
+- [To do](docs/to-do/README.md) — accepted work not currently in progress.
+- [Prioritized backlog](docs/to-do/prioritized-backlog.md) — recommended order,
+  not a schedule.
+- [Implementation timeline](docs/history/implementation-timeline.md) — dated
+  prompts, changes, and evidence.
+- [Cross-repository review](REVIEW.md) — findings and mitigation status.
 
-- [Work in progress](docs/work-in-progress/README.md)
-- [To do](docs/to-do/README.md)
-- [Prioritized backlog](docs/to-do/prioritized-backlog.md)
-- [Cross-repository architecture review](REVIEW.md)
-
-Dated evidence records preserve the state and limits at the time of each
-qualification. The current-state page links to them and is the entry point for
-the latest verified snapshot.
+The current-state page is the only rolling runtime snapshot. Dated evidence
+records preserve what was checked and the limits of each result.
 
 ## Source project
 
-The original `ea7klk/mpota` repository remains untouched. It is migration
-input only; see [migration from MPOTA](docs/governance/migration-from-mpota.md)
-and [source inspection](docs/history/source-inspection.md).
+The original `ea7klk/mpota` repository remains untouched. See the
+[migration context](docs/governance/migration-from-mpota.md) and
+[historical source inspection](docs/history/source-inspection.md).

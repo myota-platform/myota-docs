@@ -1,13 +1,25 @@
 # Operations
 
-The Operations runtime is retired. Collector owns PostgreSQL telemetry, Gateway and Identity own Grafana authorization, and Surveyor owns NATS monitoring. Repository archive remains pending [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3). See [retirement evidence](evidence/operations-service-retirement-2026-10-11.md).
+Use the [current system state](../architecture/current-state.md) for the
+deployed revision, readiness, and operational evidence. The Operations Service
+runtime is retired; repository archival remains tracked in
+[issue #3](https://github.com/myota-platform/myota-operations-service/issues/3).
+See the [retirement record](evidence/operations-service-retirement-2026-10-11.md).
 
-- [Operations runbooks](runbooks.md) — local/production operation, JetStream,
-  recovery, storage, and deployment procedures.
-- [Database migrations and recovery](databases/README.md) — baseline ownership, runner verification, backup evidence, and rebuild gates.
+## Runbooks and infrastructure
+
+- [Runbooks](runbooks.md) — local workflows, recovery, deployment, storage, and
+  messaging procedures.
+- [Database migrations and recovery](databases/README.md) — schema ownership,
+  baseline history, and verified rebuild records.
 - [Production core setup](production-core.md)
-- [GitHub organization handoff](github-handoff.md)
-- [Messaging and NATS](messaging/README.md)
 - [Storage operations](storage/README.md)
-- [Observability](../observability/README.md)
-- [NATS monitoring consolidation plan](../observability/nats-surveyor-migration.md) — proposed Surveyor deployment and legacy monitor retirement.
+- [Messaging and NATS](messaging/README.md)
+- [GitHub organization handoff](github-handoff.md)
+
+## Monitoring
+
+- [Observability](../observability/README.md) — logs, traces, metrics, and
+  dashboards.
+- [NATS Surveyor](../observability/nats-surveyor-migration.md) — deployed
+  monitoring topology and retirement decisions for former NATS samplers.
