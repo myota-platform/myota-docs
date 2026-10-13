@@ -1,4 +1,4 @@
-## 13 October 2026 — Isolated test deployment seeded and exposed
+## 13 October 2026 — Isolated test deployment verified after latest image rollout
 
 - **Prompt used:** “In a new cluster namespace `myota-test`, create a helm
   deployment that will deploy the entire system. Expose the admin ui for that
@@ -12,22 +12,33 @@
   SeaweedFS data from the live namespace. The copy preserved target-owned
   migration/reference records and omitted live delivery/recovery and
   observability state. Source accounts were zero.
-- At the final verification, Fleet tracks Deploy commit `5d091919`; Helm
-  revision 10 is deployed and 75/75 resources are Ready. Both requested UIs
-  return HTTP 200 with publicly
-  trusted ACME certificates. The copied `myota-geodata-imports` bucket was
-  independently compared by object key and size: 10 objects, 13,625,617
-  bytes. Temporary source credentials and verification resources were
-  removed.
-- The testing image values are pinned to immutable digests and Fleet
-  reconciles committed changes. Automatic digest polling is not yet active:
-  the workflow is on Deploy `testing`, but GitHub schedules execute workflows
-  from default branch `main`. Promoting the whole divergent testing branch
-  would include unrelated deployment and production changes, so no promotion
-  was performed. A manual workflow dispatch verified registry digest lookup
-  but failed at PR creation because organization policy denies Actions PR
-  creation; repo-level changes are rejected and org policy administration is
-  unavailable to this session. See the [test deployment record](docs/operations/test-deployment.md).
+- Deploy PRs #41–#43 made the shared chart upgrade-safe, bumped its package
+  version through `0.2.25`, and made stream and durable provisioning run as
+  retryable first-install Jobs. The test Helm release was reinstalled from
+  Fleet after its prior Helm history became inconsistent. The three database
+  PVCs were preserved; the recreated SeaweedFS volume was seeded again from
+  the untouched live source.
+- Deploy PR [#44](https://github.com/myota-platform/myota-deploy/pull/44)
+  passed all required checks and refreshed the platform and gateway pins to
+  digests published by testing commit `d03c3d39`. Fleet now tracks commit
+  [`d0556c3`](https://github.com/myota-platform/myota-deploy/commit/d0556c376dbaa830d4bc2508a04252dfa496a777),
+  and Helm revision 4 is deployed. Fleet reports Ready (76/76 resources), all 27 Deployments and
+  StatefulSets are ready, and all running application image IDs match
+  the pinned testing digests. Both requested UIs return HTTP 200 with valid
+  TLS. JetStream provisioning validated three streams and ten work durables.
+- The `myota-geodata-imports` bucket was independently compared by object key
+  and size after the recovery: 10 objects, 13,625,617 bytes. Temporary source
+  credentials, copy and verifier Jobs, and ConfigMaps were removed.
+- Automatic digest polling is not yet active. The workflow is on Deploy
+  `testing`, but GitHub schedules execute workflows from default branch `main`.
+  A manual workflow dispatch verified registry digest lookup but failed at PR
+  creation because organization policy denies Actions PR creation; repository
+  permission changes are rejected and org policy administration is unavailable
+  to this session. The divergent branches also make whole-branch promotion
+  unsafe. Fleet reconciles committed test values, and PR #44 pinned the latest
+  testing images available during this deployment, but future image
+  publications still require a deliberate digest update on `testing`. See the
+  [test deployment record](docs/operations/test-deployment.md).
 
 ## 13 October 2026 — Operations Service repository archived
 

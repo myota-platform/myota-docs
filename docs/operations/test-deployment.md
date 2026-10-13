@@ -1,10 +1,10 @@
 # Isolated test deployment
 
-**Verified:** 2026-10-13 19:56 UTC
+**Verified:** 2026-10-13 20:34 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Fleet source:** `myota-platform/myota-deploy`, branch `testing`, commit
-[`5d091919`](https://github.com/myota-platform/myota-deploy/commit/5d091919b9d9026146777b001f6af8e80527bf93)
+[`d0556c3`](https://github.com/myota-platform/myota-deploy/commit/d0556c376dbaa830d4bc2508a04252dfa496a777).
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
@@ -15,16 +15,38 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 
 | Check | Result |
 |---|---|
-| Helm | Release `myota-test`, chart `myota-test-0.1.0`, revision 10, `deployed`. |
-| Fleet | GitRepo Ready; commit `5d091919`; 75/75 resources Ready. |
+| Helm | Release `myota-test`, chart `myota-test-0.1.0` with shared chart dependency `0.2.25`, revision 4, `deployed`. |
+| Fleet | GitRepo and BundleDeployment Ready at Deploy `testing` commit `d0556c376dbaa830d4bc2508a04252dfa496a777`. |
 | Workloads | Every test Deployment and PostgreSQL StatefulSet has all desired replicas ready. |
-| Admin UI | [admin.test.myota.top](https://admin.test.myota.top) returns HTTP 200 with a publicly trusted ACME certificate. |
-| Participant UI | [test.myota.top](https://test.myota.top) returns HTTP 200 with a publicly trusted ACME certificate. |
+| Images | All ready MyOTA application containers use immutable testing-tag digests, and each running container image ID matches its declared digest. |
+| JetStream | The deployment-owned provisioner validated all three streams and ten selected work durables. |
+| Admin UI | [admin.test.myota.top](https://admin.test.myota.top) returns HTTP 200 with a valid ACME certificate. |
+| Participant UI | [test.myota.top](https://test.myota.top) returns HTTP 200 with a valid ACME certificate. |
 | API ingress | `api.test.myota.top` terminates with a valid ACME certificate; `/` returns 404 because the gateway does not serve a root route. |
 
 Fleet watches the Deploy `testing` branch and corrects drift. The test values
 use the published `testing` image tags and immutable image digests, so a new
 Helm digest value causes Kubernetes to roll the corresponding workload.
+Deploy PR [#44](https://github.com/myota-platform/myota-deploy/pull/44) updated
+the platform and gateway digests to the images published by testing commit
+`d03c3d39`. Fleet reconciled the merged values; all 27 Deployments and
+StatefulSets are ready, all running application image IDs match their configured
+digests, and both UI endpoints still return HTTP 200 with valid TLS.
+
+### Rollout recovery
+
+Changing the service image digest exposed an immutable legacy JetStream Job.
+The chart was changed to use revision-scoped Jobs, Fleet's cached shared chart
+dependency was advanced to `0.2.24`, and first-install stream and durable
+provisioning was moved to retryable, revision-scoped Jobs in `0.2.25` (Deploy
+PRs [#41](https://github.com/myota-platform/myota-deploy/pull/41),
+[#42](https://github.com/myota-platform/myota-deploy/pull/42), and
+[#43](https://github.com/myota-platform/myota-deploy/pull/43)). The isolated
+Helm release history then became inconsistent, so the test release was
+reinstalled from Fleet. All three database PVCs were preserved. The
+chart-managed SeaweedFS volume was recreated; its live source remained intact,
+and the existing application bucket was copied back and independently
+verified. Production workloads and volumes were not changed.
 
 ### Image update automation status
 
@@ -45,7 +67,9 @@ and `testing` branches are divergent; promoting the whole testing branch would
 include unrelated production configuration and migration changes, so it was
 not done as part of this isolated deployment. Until these gates are resolved,
 Fleet automatically reconciles committed test values but new image digests
-require a deliberate digest update on `testing`.
+require a deliberate digest update on `testing`. The current deployment has
+the latest digests published by the testing builds checked by PR #44; this
+does not enable automatic updates for future image publications.
 
 ## Initial data seed
 
@@ -75,7 +99,9 @@ Target migration ledgers, seeded spatial reference data, `entity_type`, and
 the target-owned `geodata_schema_feature` marker were preserved. Four named
 application buckets were absent in the live SeaweedFS. The existing
 `myota-geodata-imports` bucket was copied and independently checked by object
-key and size: 10 matching objects totaling 13,625,617 bytes.
+key and size: 10 matching objects totaling 13,625,617 bytes. After the
+isolated release recovery, the same source bucket was copied again and
+reverified with the same 10 object keys, sizes, and total byte count.
 
 Outbox delivery state, dead-letter and replay state, consumer checkpoints,
 sessions, recovery tokens, observability history, and live JetStream messages

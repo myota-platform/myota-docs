@@ -61,12 +61,14 @@ Admin UI controls.
 
 ### 3. Activate automatic image digest updates for the isolated test release
 
-**Current position:** The `myota-test` release is deployed and Fleet reconciles
-committed digest changes, but the scheduled digest poller is not active because
-its workflow is on Deploy `testing` while GitHub schedules only run from the
-default branch, and organization Actions policy prohibits the workflow from
-creating pull requests. The divergent Deploy branches make a whole-branch
-promotion unsafe for this isolated task.
+**Current position:** The `myota-test` release is deployed at Helm revision 4
+at Deploy `testing` commit `d0556c3`; PR #44 pinned the latest published
+platform and gateway digests, and Fleet reconciled them successfully. Fleet
+reconciles committed digest changes. The scheduled digest poller is
+not active because its workflow is on Deploy `testing` while GitHub schedules
+only run from the default branch, and organization Actions policy prohibits the
+workflow from creating pull requests. The divergent Deploy branches make a
+whole-branch promotion unsafe for this isolated task.
 
 **Next:** Release the test digest polling workflow onto `main` through the
 standing testing-to-main release process after separating or resolving the

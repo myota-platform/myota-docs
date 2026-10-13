@@ -9,7 +9,8 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
 ## Active work
 
 - [Activate testing-image digest updates for the isolated test release](../operations/test-deployment.md)
-  — the release is deployed and ready, but GitHub's scheduled digest workflow
+  — Helm revision 4 is deployed and ready at Deploy `testing` commit
+  `d0556c3`, but GitHub's scheduled digest workflow
   is only present on Deploy `testing`; schedules run from default branch
   `main`, and organization policy currently prohibits Actions from creating
   the required PR. Resolve both gates without promoting unrelated divergent
