@@ -12,8 +12,9 @@
   SeaweedFS data from the live namespace. The copy preserved target-owned
   migration/reference records and omitted live delivery/recovery and
   observability state. Source accounts were zero.
-- Fleet tracks Deploy commit `dc101391`; Helm revision 8 is deployed and
-  75/75 resources are Ready. Both requested UIs return HTTP 200 with publicly
+- At the final verification, Fleet tracks Deploy commit `5d091919`; Helm
+  revision 10 is deployed and 75/75 resources are Ready. Both requested UIs
+  return HTTP 200 with publicly
   trusted ACME certificates. The copied `myota-geodata-imports` bucket was
   independently compared by object key and size: 10 objects, 13,625,617
   bytes. Temporary source credentials and verification resources were

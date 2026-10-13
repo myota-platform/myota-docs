@@ -1,6 +1,6 @@
 # Current system state
 
-**Verified:** 2026-10-13 19:52 UTC
+**Verified:** 2026-10-13 19:56 UTC
 **Scope:** GitHub repository heads and a read-only inspection and controlled
 rollout in the production `myota` and isolated `myota-test` namespaces on the
 local single-node K3s host. Repository head rows below were captured at 11:08
@@ -15,7 +15,7 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
 | Helm/Fleet | Release `myota`, chart `myota-0.2.20`, revision `288`, deployed. MyOTA Fleet GitRepo and BundleDeployment are Ready 71/71 with zero non-ready resources at Deploy `main` commit `ed87c267fa0aa8981de40f1426dd9ace3b36910f`. Migration Job `myota-migrations-288` completed with the immutable unified runner image; all database readiness markers are true at revision 288. |
-| Isolated test release | Helm `myota-test` revision 8 is deployed in namespace `myota-test`; Fleet tracks Deploy `testing` commit `dc101391b38be523343d5f6d05bb31880f676ba2` with 75/75 resources Ready. The Admin and participant UIs return HTTP 200 with trusted TLS at [admin.test.myota.top](https://admin.test.myota.top) and [test.myota.top](https://test.myota.top). Initial relational and object data seed is verified. Automatic test image digest updates remain blocked by the default-branch schedule rule, divergent Deploy branches, and an organization policy that denies Actions PR creation; see [test deployment](../operations/test-deployment.md). |
+| Isolated test release | Helm `myota-test` revision 10 is deployed in namespace `myota-test`; Fleet tracks Deploy `testing` commit `5d091919b9d9026146777b001f6af8e80527bf93` with 75/75 resources Ready. The Admin and participant UIs return HTTP 200 with trusted TLS at [admin.test.myota.top](https://admin.test.myota.top) and [test.myota.top](https://test.myota.top). Initial relational and object data seed is verified. Automatic test image digest updates remain blocked by the default-branch schedule rule, divergent Deploy branches, and an organization policy that denies Actions PR creation; see [test deployment](../operations/test-deployment.md). |
 | MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas), including the namespace-scoped kube-state-metrics Deployment. The Admin web runs image `sha256:52de069757c0f259f7ad22e86309227d6b2558f689029615b47cbf45b7b362c0`; its Name & categories tab places Website and Description after Entity name and Entity categories and saves the full section with one action. The live bundle exposes `Save details`. See [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2). `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |

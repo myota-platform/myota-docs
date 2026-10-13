@@ -1,10 +1,10 @@
 # Isolated test deployment
 
-**Verified:** 2026-10-13 19:52 UTC
+**Verified:** 2026-10-13 19:56 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Fleet source:** `myota-platform/myota-deploy`, branch `testing`, commit
-[`dc101391`](https://github.com/myota-platform/myota-deploy/commit/dc101391b38be523343d5f6d05bb31880f676ba2)
+[`5d091919`](https://github.com/myota-platform/myota-deploy/commit/5d091919b9d9026146777b001f6af8e80527bf93)
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
@@ -15,8 +15,8 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 
 | Check | Result |
 |---|---|
-| Helm | Release `myota-test`, chart `myota-test-0.1.0`, revision 8, `deployed`. |
-| Fleet | GitRepo Ready; commit `dc101391`; 75/75 resources Ready. |
+| Helm | Release `myota-test`, chart `myota-test-0.1.0`, revision 10, `deployed`. |
+| Fleet | GitRepo Ready; commit `5d091919`; 75/75 resources Ready. |
 | Workloads | Every test Deployment and PostgreSQL StatefulSet has all desired replicas ready. |
 | Admin UI | [admin.test.myota.top](https://admin.test.myota.top) returns HTTP 200 with a publicly trusted ACME certificate. |
 | Participant UI | [test.myota.top](https://test.myota.top) returns HTTP 200 with a publicly trusted ACME certificate. |
