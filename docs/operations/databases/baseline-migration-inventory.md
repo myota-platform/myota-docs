@@ -356,7 +356,7 @@ The three baseline issues are complete and closed; all three rebuild issues rema
 |---|---|---|
 | Deploy/Core | [#15](https://github.com/myota-platform/myota-deploy/issues/15) — 7/7 checked; closed | [#16](https://github.com/myota-platform/myota-deploy/issues/16) — 1/7 checked; open |
 | Activity | [#4](https://github.com/myota-platform/myota-activity-service/issues/4) — 6/6 checked; closed | [#5](https://github.com/myota-platform/myota-activity-service/issues/5) — 1/7 checked; open |
-| Geodata | [#8](https://github.com/myota-platform/myota-geodata-service/issues/8) — 5/7 checked; open | [#9](https://github.com/myota-platform/myota-geodata-service/issues/9) — 1/7 checked; open |
+| Geodata | [#8](https://github.com/myota-platform/myota-geodata-service/issues/8) — 7/7 checked; closed | [#9](https://github.com/myota-platform/myota-geodata-service/issues/9) — 1/7 checked; open |
 
 Verified baseline checkboxes and evidence are recorded in those issues. Each
 rebuild issue now checks off the checksummed preliminary archive and isolated
