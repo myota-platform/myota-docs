@@ -11,6 +11,7 @@ not duplicate status details from that page.
 | Understand the live architecture, data ownership, or repository boundaries | [Architecture and ownership](architecture/README.md) |
 | Find a product or API behavior | [Domain and API index](domain/README.md) |
 | Run or recover the deployed system | [Operations index](operations/README.md) |
+| Inspect the isolated K3s test deployment, initial seed, and image-update status | [Test deployment](operations/test-deployment.md) |
 | Understand logs, metrics, traces, dashboards, or alerts | [Observability index](observability/README.md) |
 | Work on spatial data and import workflows | [Geodata index](geodata/README.md) |
 | Find project purpose, policy, or security controls | [Governance](governance/README.md), [platform policies](platform/README.md), and [security](security/README.md) |

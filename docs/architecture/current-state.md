@@ -1,8 +1,10 @@
 # Current system state
 
-**Verified:** 2026-10-13 11:08 UTC
-**Scope:** GitHub `main` repository heads and a read-only inspection and controlled rollout in the
-MyOTA namespace on the local single-node K3s host. This is a snapshot, not a
+**Verified:** 2026-10-13 19:45 UTC
+**Scope:** GitHub repository heads and a read-only inspection and controlled
+rollout in the production `myota` and isolated `myota-test` namespaces on the
+local single-node K3s host. Repository head rows below were captured at 11:08
+UTC; the test release was rechecked at 19:45 UTC. This is a snapshot, not a
 production-readiness declaration. Authoritative owner repositories remain the
 source of truth; Deploy and Platform copies are synchronized mirrors where the
 [repository map](repository-map.md) says so.
@@ -13,6 +15,7 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
 | Helm/Fleet | Release `myota`, chart `myota-0.2.20`, revision `288`, deployed. MyOTA Fleet GitRepo and BundleDeployment are Ready 71/71 with zero non-ready resources at Deploy `main` commit `ed87c267fa0aa8981de40f1426dd9ace3b36910f`. Migration Job `myota-migrations-288` completed with the immutable unified runner image; all database readiness markers are true at revision 288. |
+| Isolated test release | Helm `myota-test` revision 8 is deployed in namespace `myota-test`; Fleet tracks Deploy `testing` commit `dc101391b38be523343d5f6d05bb31880f676ba2` with 75/75 resources Ready. The Admin and participant UIs return HTTP 200 with trusted TLS at [admin.test.myota.top](https://admin.test.myota.top) and [test.myota.top](https://test.myota.top). Initial relational and object data seed is verified. Test image digest polling remains inactive pending a safe release of its workflow to default branch `main`; see [test deployment](../operations/test-deployment.md). |
 | MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas), including the namespace-scoped kube-state-metrics Deployment. The Admin web runs image `sha256:52de069757c0f259f7ad22e86309227d6b2558f689029615b47cbf45b7b362c0`; its Name & categories tab places Website and Description after Entity name and Entity categories and saves the full section with one action. The live bundle exposes `Save details`. See [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2). `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
@@ -20,7 +23,9 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 
 The Deployment and Fleet observations establish Kubernetes readiness only. They do not establish external availability, multi-node
 resilience, capacity, recovery outside this node, or product launch readiness.
-The deployed participant web client was absent from the MyOTA namespace check.
+The participant web client is absent from the production `myota` namespace and
+is deployed in `myota-test`. The test release status is documented separately
+from the production release in the [test deployment record](../operations/test-deployment.md).
 
 ## First-party repository heads
 
@@ -76,6 +81,7 @@ is explicitly deferred; the local file store is not a backup.
 
 | Workstream | Current status | Source of detail |
 |---|---|---|
+| Isolated test deployment | Namespace `myota-test` is deployed and Fleet Ready 75/75. Initial Core, Activity, Geodata, and SeaweedFS application data was copied and checked. Testing tags are digest-pinned; automatic digest polling is not active until its workflow is released onto default branch `main`. | [Test deployment](../operations/test-deployment.md), [Deploy test bundle](https://github.com/myota-platform/myota-deploy/tree/testing/deploy/helm/myota-test) |
 | Cross-repository architecture review | Phases 0–4 complete, including duplicate-YAML-key rejection, handler/mirror check, and route inventory evidence. | [Review](../../REVIEW.md), [Phase 0 evidence](evidence/review-phase-0-2026-10-11.md), [Phases 1–4 evidence](evidence/review-phases-1-4-2026-10-11.md) |
 | NATS event/work migration | Phases 0–6 complete within evidence bounds. Six application DLQ records remain preserved. Seven migration evidence/readiness issues are closed (Operations #1 was superseded); the 24-hour observation was waived and closed early, not completed as a full-day window. Off-node recovery and representative 30-day capacity qualification remain accepted limits. | [Migration plan](../operations/messaging/nats-event-migration-plan.md), [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md), [issue closeout](../operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md) |
 | NATS monitoring consolidation | Surveyor, dashboards, capacity settings, and broker-sampler retirement are implemented; single-host broker and Prometheus limits still apply. | [Surveyor plan](../observability/nats-surveyor-migration.md), [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md) |

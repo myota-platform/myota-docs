@@ -1,3 +1,30 @@
+## 13 October 2026 — Isolated test deployment seeded and exposed
+
+- **Prompt used:** “In a new cluster namespace `myota-test`, create a helm
+  deployment that will deploy the entire system. Expose the admin ui for that
+  deployment as `https://admin.test.myota.top` and the user UI as
+  `https://test.myota.top`. Make sure helm picks up new images with the
+  testing tag and deploys and reconciles them automatically when a new image
+  is published. Also, on first deployment copy data existing in the current
+  live system to this second deployment.”
+- Added the isolated Helm/Fleet release in Deploy `testing`, installed the
+  release into `myota-test`, and seeded its Core, Activity, Geodata, and
+  SeaweedFS data from the live namespace. The copy preserved target-owned
+  migration/reference records and omitted live delivery/recovery and
+  observability state. Source accounts were zero.
+- Fleet tracks Deploy commit `dc101391`; Helm revision 8 is deployed and
+  75/75 resources are Ready. Both requested UIs return HTTP 200 with publicly
+  trusted ACME certificates. The copied `myota-geodata-imports` bucket was
+  independently compared by object key and size: 10 objects, 13,625,617
+  bytes. Temporary source credentials and verification resources were
+  removed.
+- The testing image values are pinned to immutable digests and Fleet
+  reconciles committed changes. Automatic digest polling is not yet active:
+  the workflow is on Deploy `testing`, but GitHub schedules execute workflows
+  from default branch `main`. Promoting the whole divergent testing branch
+  would include unrelated deployment and production changes, so no promotion
+  was performed. See the [test deployment record](docs/operations/test-deployment.md).
+
 ## 13 October 2026 — Operations Service repository archived
 
 - **Prompt used:** “Archive the repository `myota-operations-service`.”

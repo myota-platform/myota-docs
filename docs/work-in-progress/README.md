@@ -8,6 +8,11 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
 
 ## Active work
 
+- [Activate testing-image digest updates for the isolated test release](../operations/test-deployment.md)
+  — the release is deployed and ready, but GitHub's scheduled digest workflow
+  is only present on Deploy `testing`; scheduled workflows run from default
+  branch `main`. Resolve this through a safe release PR without promoting the
+  unrelated divergent deployment changes.
 - [Structured logging and observability acceptance](../observability/logging-implementation.md)
   — remaining gates are authenticated Grafana trace/log navigation, Compose
   runtime parity, and representative capacity/recovery evidence. Correlation

@@ -2,7 +2,7 @@
 
 For the latest verified deployment and workstream status, see [Current system state](../architecture/current-state.md). This page lists unfinished work only; completed milestones remain in their source plans and evidence.
 
-**Reviewed:** 2026-10-13 11:08 UTC
+**Reviewed:** 2026-10-13 19:45 UTC
 
 This is a recommended order, not a delivery schedule. It records no due dates,
 staffing commitments, external deadlines, or production incidents. Roadmaps own
@@ -59,7 +59,22 @@ Admin UI controls.
 
 ## P1 — close identified operational visibility gaps
 
-### 3. Complete logging acceptance
+### 3. Activate automatic image digest updates for the isolated test release
+
+**Current position:** The `myota-test` release is deployed and Fleet reconciles
+committed digest changes, but the scheduled digest poller is not active because
+its workflow is on Deploy `testing` while GitHub schedules only run from the
+default branch. The divergent Deploy branches make a whole-branch promotion
+unsafe for this isolated task.
+
+**Next:** Release the test digest polling workflow onto `main` through the
+standing testing-to-main release process after separating or resolving the
+unrelated production changes. Preserve protected-branch PR checks and confirm
+that a newly published testing image produces a digest PR, passes checks,
+merges, and rolls only the test workload. See the
+[test deployment record](../operations/test-deployment.md).
+
+### 4. Complete logging acceptance
 
 **Current position:** Helm revision 288 is deployed and Fleet reports 71/71
 resources Ready. Request-to-worker correlation is verified for Identity,
@@ -75,7 +90,7 @@ capacity/recovery gates using the evidence requirements in the roadmap.
 
 ## P2 — planned capability after higher-priority work
 
-### 4. Define the typed future award-condition model
+### 5. Define the typed future award-condition model
 
 **Current position:** This is a proposed capability. Its roadmap leaves the
 semantic and evidence decisions open; later implementation depends on reliable
@@ -85,7 +100,7 @@ worked-entity resolution and versioned geodata/reference evidence.
 which reference-data and QSO-resolution work must precede evaluator
 implementation. See the [award-condition roadmap](../domain/awards/future-condition-model-roadmap.md).
 
-### 5. Establish Admin UI internationalization
+### 6. Establish Admin UI internationalization
 
 **Current position:** The proposed roadmap has no completed phases. Locale and
 string inventory should precede translation catalogs or screen migration.
@@ -94,7 +109,7 @@ string inventory should precede translation catalogs or screen migration.
 persistence, and translation-review ownership. See the
 [internationalization roadmap](../domain/administration/i18n-roadmap.md).
 
-### 6. Address longer-term programme and charter gaps
+### 7. Address longer-term programme and charter gaps
 
 **Current position:** The charter gap analysis is a baseline, not a set of
 completed deliverables. Product, governance, interoperability, open-data,

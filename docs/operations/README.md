@@ -7,6 +7,8 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
 
 ## Runbooks and infrastructure
 
+- [Isolated test deployment](test-deployment.md) — `myota-test` Helm/Fleet
+  release, initial live-data seed, endpoints, and testing-image update status.
 - [Runbooks](runbooks.md) — local workflows, recovery, deployment, storage, and
   messaging procedures.
 - [Database migrations and recovery](databases/README.md) — schema ownership,
