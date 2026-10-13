@@ -1,3 +1,11 @@
+## 13 October 2026 — Database baseline gates completed
+
+- Closed baseline issues Deploy #15, Activity #4, and Geodata #8 after source-linked catalog mapping, isolated schema comparisons, and focused API/worker/outbox checks.
+- Added source-owner maps for Core's 29 and Geodata's 27 public tables. Disposable Core and Activity API/worker/outbox tests passed; Geodata baseline CI run 38370613580 and quality run 38370614459 passed. Temporary test databases and data were removed.
+- Merged Platform mirror PR #5 to main. Opened promotion PRs Deploy #20, Activity #10, and Geodata #12 for the tested migration sources. The exact image digest is not yet deployed to Fleet.
+- Rebuild issues Deploy #16, Activity #5, and Geodata #9 remain open. The marked archive/restore evidence predates quiescence and cannot authorize cutover; no live database has been modified.
+- See the [baseline and rebuild inventory](docs/operations/databases/baseline-migration-inventory.md).
+
 ## 13 October 2026 — Activity migration inventory checkoff
 
 - Checked Activity #4's historical migration/object inventory after documenting all eight former migration files, 26 baseline tables, source ownership, and Deploy/Platform mirror paths in the canonical inventory.
