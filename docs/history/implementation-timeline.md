@@ -1,3 +1,11 @@
+## 13 October 2026 — Database baseline acceptance and promotion
+
+- **Prompt used:** “Work on the issues under ‘Database migration baselines and data-preserving rebuilds’ in the organization issue index to completion following the standing instructions in `./AGENTS.md).” Follow-up: “You haven't updated and checked-off the issues and stopped work. Continue.”
+- **Evidence:** Core and Activity fresh baseline catalogs were compared with the archived schemas; each contained the expected new `myota_schema_migration` ledger, while application objects and deployment readiness remained. Identity create/read persistence and outbox, Programme create/read persistence and outbox, and Activity create/read plus worker lease/complete/outbox paths passed against disposable baseline databases. Geodata CI run 38370613580 passed baseline migration, two API instances, worker ACK/recovery, and upload recovery; PostGIS and spatial-index evidence passed. Temporary test DBs/data and copied SQL were removed.
+- **Issue completion:** Deploy #15 (7/7), Activity #4 (6/6), and Geodata #8 (7/7) are closed. The rebuild issues #16/#5/#9 remain open at 1/7 each; only preliminary pre-quiescence archive/restore evidence is checked.
+- **Promotion:** Platform PR #5 merged to main at `a421a3a281d2653de145f8bb38e40e1539257fb4`. Deploy #20, Activity #10, and Geodata #12 are awaiting quality gates/promotion. The image digest and Fleet deployment have not yet changed, so no live migration run or database cutover was performed.
+- **Record:** [Database baseline and rebuild inventory](../operations/databases/baseline-migration-inventory.md).
+
 ## 13 October 2026 — Activity inventory acceptance check
 
 - **Prompt used:** Continue the database baseline and data-preserving rebuild issues under the standing `AGENTS.md` instructions.
