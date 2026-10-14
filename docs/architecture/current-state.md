@@ -21,6 +21,26 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
 | Monitoring | NATS Surveyor 0.9.11, Prometheus 2.55.1, Grafana 11.2.2, Alertmanager 0.28.1, OTel Collector 0.135.0, Tempo 2.6.1, and Loki 3.7.8. Eleven NATS dashboards are in Grafana folder `NATS`. |
 
+## Geodata import review status
+
+On 14 October, a Testing import exposed a permanent source-reference collision
+that left an already-confirmed `APPROVED` promotion in `PROCESSING`. Its source
+feature contained an OSM `@id`, but the older importer generated a reusable
+manual row number. The duplicate warning was also absent after durable reload,
+and staged records were not compared with earlier candidates in their import.
+The source identity, terminal conflict handling, durable duplicate evidence,
+same-import proximity checks, and Admin UI summary are implemented and checked
+in PRs targeting `testing` under
+[Geodata issue #20](https://github.com/myota-platform/myota-geodata-service/issues/20)
+and [Admin UI issue #16](https://github.com/myota-platform/myota-admin-web/issues/16).
+[Geodata PR #21](https://github.com/myota-platform/myota-geodata-service/pull/21)
+and [Admin UI PR #17](https://github.com/myota-platform/myota-admin-web/pull/17)
+carry the source changes.
+Until the Testing deployment is verified, this is a known defect and the fix is
+not considered deployed. The already-confirmed candidate is the only promotion
+eligible for recovery; the remaining pending import records still require
+administrator review.
+
 The Deployment and Fleet observations establish Kubernetes readiness only. They do not establish external availability, multi-node
 resilience, capacity, recovery outside this node, or product launch readiness.
 The participant web client is absent from the production `myota` namespace and

@@ -1,3 +1,42 @@
+## 14 October 2026 — Geodata import duplicate evidence and promotion recovery
+
+- **Prompts used:** “In the admin UI - Geodata-imports modal when promoting an
+  entity to approved, it stays in `Promotion queued. Waiting for the result…`
+  indefinitely. Reject entity works fine. When force reloading the page the
+  approved park has disappeared from the list, but it does not show as
+  approved in the entity catalogue or entity map.” “Fix it!” “OK, this makes
+  it look like the duplicate detection based on geographic coincidence or
+  proximity isn't working. Also, if the uniqueness constraint is on the name,
+  remove it as there can be entities with the same name in different
+  locations. in the process, approve and process any pending / queued
+  entities.” “No evidence or warning about possible duplicate is shown in the
+  import detail or in the modal. Add this.” “Also for all work currently
+  being done, create descriptive github issue(s) in the relevant repositories
+  and describe the solution in a comment, close them when solved and tested.”
+- Read-only Testing investigation found that a confirmed approved candidate's
+  promotion hit the unique `(adapter_code, source_record_id)` constraint after
+  its manual fallback reference collided. The input's OSM `@id` was discarded.
+  No entity-name uniqueness constraint exists. The candidate's durable staging
+  write also omitted duplicate metadata, and preprocessing checked only the
+  existing catalogue, not earlier candidates in the same import.
+- Tracked implementation in [Geodata issue #20](https://github.com/myota-platform/myota-geodata-service/issues/20)
+  and [Admin UI issue #16](https://github.com/myota-platform/myota-admin-web/issues/16).
+  The fixes cover source identity, same-import proximity checks, durable
+  duplicate evidence, a visible import summary count, and terminal feedback for
+  permanent integrity conflicts while preserving retries for transient errors.
+- **Status at documentation update:** Geodata full suite passed (168 tests,
+  33 skipped because the relational integration database is not configured),
+  Ruff passed, and Admin UI checks passed under Node 24 (29 tests, typecheck,
+  lint, and production build). Geodata PR #21 and Admin UI PR #17 target
+  `testing`; deployment and live recovery remain unverified. No production
+  change is authorized by this work. Only candidates already explicitly
+  confirmed for promotion are eligible for queue recovery. Unreviewed pending
+  records must remain in administrator review.
+- **Evidence:** [Geodata import validation diagram](docs/architecture/diagrams/geodata-import-validation.md),
+  [current system state](docs/architecture/current-state.md), and linked issue
+  comments. Update this entry with PR, CI, and isolated Testing evidence before
+  closing the issues.
+
 ## 13 October 2026 — Isolated test deployment verified after latest image rollout
 
 - **Prompt used:** “In a new cluster namespace `myota-test`, create a helm

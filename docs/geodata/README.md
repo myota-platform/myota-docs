@@ -20,6 +20,8 @@ database ownership.
   coverage.
 - [Ways and line geometry](ways.md)
 - [QGIS workflow](qgis-workflow.md)
+- [Import duplicate review and promotion](../architecture/diagrams/geodata-import-validation.md)
+  — source identity, duplicate evidence, review behavior, and queue outcomes.
 - [Entity catalogue editor](../domain/administration/entity-catalogue-editor.md)
   — Website and Description fields, persistence, audit, and import precedence.
 

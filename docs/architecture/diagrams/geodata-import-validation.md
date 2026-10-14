@@ -22,7 +22,10 @@ flowchart LR
   CancelCheck -->|Yes| Cancel[Stop at feature boundary]
   Cancel --> CancelCleanup[Delete staged rows + temporary source]
   CancelCleanup --> Cancelled[Retain summary as CANCELLED]
-  Dedup --> Store[(Pre-processed candidate store)]
+  Dedup --> CatalogueMatch[Check current catalogue within 50 m]
+  Dedup --> ImportMatch[Check earlier candidates in this import within 50 m]
+  CatalogueMatch --> Store[(Pre-processed candidate store)]
+  ImportMatch --> Store
   Store --> Checkpoint[(Commit window + evict worker projections)]
   Checkpoint -->|Next ordinal window| Window
   Dedup -.-> Warning[Possible duplicate warning]
@@ -80,10 +83,19 @@ spool volume.
 
 The candidate store is represented by `geodata_import_candidate` in the
 geodata PostGIS schema. Duplicate verification compares normalized geometry
-with existing entities; identical geometry or a centroid distance under 50
-metres adds `POSSIBLE_DUPLICATE` and comparison geometry to the candidate. It
-does not automatically merge, reject, or modify an existing entity. The admin
-modal shows both geometries on a Leaflet map.
+with catalogue entities and earlier staged candidates from the same import.
+Identical geometry or a distance under 50 metres adds `POSSIBLE_DUPLICATE`
+evidence, including the matched record, distance, and match type. This evidence
+is stored with the durable candidate and appears in the import summary, review
+list, and map modal after reload. It does not automatically merge, reject, or
+modify an existing record. Entity names are not unique; the source-reference
+identity `(adapter_code, source_record_id)` is unique. Source-provided IDs are
+preserved, and generated fallback IDs include the import run ID.
+
+A permanent database constraint conflict during promotion becomes a failed
+queue result with an actionable error, allowing the UI to stop polling and
+report the result. Transient database failures retain the worker retry path.
+Only explicitly confirmed candidates can be promoted.
 
 `geodata_import_processing_queue` is the durable projection of the NATS
 request. Local Compose and Helm run the same geodata-owned JetStream worker
