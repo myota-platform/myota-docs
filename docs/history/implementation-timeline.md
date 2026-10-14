@@ -1,3 +1,38 @@
+## 14 October 2026 — Identity account creation and role-grant gate
+
+- **Prompt used:** “Implement and close issues #60, #58, #57, and #55 with
+  their dependent issues; close them and document the work as required by
+  AGENTS.md.”
+- **Decision:** Use one Identity-owned account model. The participant role
+  carries no administrative scopes. Creating an account requires
+  identity.accounts.create; adding roles also requires identity.roles.assign.
+  A grant is allowed only when its permission set is a strict subset of the
+  actor's current permissions. Role mutations cannot target the actor. New
+  accounts remain PENDING_SETUP without a permanent password. Public
+  registration stays disabled until verified-email and abuse controls exist.
+- **Implementation:** PR
+  [#70](https://github.com/myota-platform/myota/pull/70), based on testing,
+  updates Identity account creation, current-role authorization, the OpenAPI
+  contract, route inventory, and the Compose service mirror. Access-token
+  permission checks now resolve current roles on each request. The PR is open
+  and has not changed any deployed runtime.
+- **Evidence:** In the app source, python3 -m unittest discover -s tests -v
+  passed 20/20. Deployment Identity and vertical-slice tests passed 15/15.
+  The focused account authorization suite passed against both app source and
+  deploy/services. Ruff lint/format, the contract route audit (zero missing
+  routes, zero duplicate operation IDs), generated clients, YAML syntax, and
+  the duplicate-key scan passed. Ruby is unavailable on the host, so the
+  repository Ruby duplicate-key script was not run.
+- **Still open:** Invitation/credential setup, PostgreSQL relational authority
+  and multi-replica consistency, Admin Web/Gateway integration, deploy gates,
+  and public registration safeguards. The JSONB service_state snapshot is
+  still in use. Issues #19, #32, #34, and #36 remain open; parent #60 cannot
+  close until all child criteria and integration evidence pass.
+- **Evidence links:** [PR #70](https://github.com/myota-platform/myota/pull/70),
+  [Identity authority issue #36](https://github.com/myota-platform/myota/issues/36),
+  [secure creation issue #34](https://github.com/myota-platform/myota/issues/34),
+  and [shared-account parent #60](https://github.com/myota-platform/myota/issues/60).
+
 ## 14 October 2026 — Group monorepo issues by workstream
 
 - **Prompt used:** “in the new myota repo, organize the issues into a main issue and subissues for each of the affected components and tasks, keeping more or less the old organization in https://github.com/myota-platform/.github/blob/main/profile/README.md”

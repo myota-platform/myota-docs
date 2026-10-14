@@ -13,6 +13,7 @@ open evidence gates.
   language qualification criteria.
 - [Architecture decisions](decisions/README.md) — durable decisions and
   rationale.
+- [Identity account and role policy](decisions/0009-identity-accounts-and-role-policy.md) — account creation, role authority, registration gates, and implementation status.
 - [Diagrams](diagrams/README.md) — service/data boundaries plus the separate
   source/deployment transition status.
 - [Cross-repository review](../../REVIEW.md) — findings, mitigation, and
