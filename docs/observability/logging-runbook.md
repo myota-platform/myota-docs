@@ -74,18 +74,25 @@ They do not emit full payloads or raw exception text.
 
 - In Loki, open a record with a non-empty `trace_id` and follow the provisioned
   Tempo derived-field link.
-- In Tempo, use the provisioned trace-to-logs action to query Loki with the
-  trace ID, service name and time window.
+- For Tempo-to-Loki investigation, copy the trace ID and query structured
+  metadata in Loki Explore using the service and span time window. The current
+  automated reverse action still searches the body and is not reliable.
 - A trace ID joins one distributed execution. A business `correlation_id`
   joins asynchronous work across separate traces and retries.
 
-The Grafana datasource configuration links the `trace_id` structured-metadata
-field to Tempo using a label-type derived field. The 12 October production
-snapshot recorded the corrected provisioning at Helm revision 280. Testing
-revision 301 also contains the Loki/Tempo datasources and dashboard
-provisioning. Authenticated browser navigation in both directions remains
-unverified; do not treat the provisioned link as proof of an authorized UI
-path.
+The label-type derived field links `trace_id` structured metadata to Tempo.
+Testing PR #84 fixes its provisioning escape; authenticated browser verification
+confirmed **View trace** opens the matching trace. The reverse action still
+needs an explicit metadata query. For a manual lookup, use:
+
+```logql
+{service_namespace="myota", service_name="myota-identity"} | trace_id="<trace-id>"
+```
+
+Replace the fixed service value with the owning service and use the trace's
+time window. Trace IDs remain structured metadata, not indexed labels. See the
+[browser evidence](evidence/grafana-browser-qualification-2026-10-15.md) for the
+verified direction and remaining gates.
 
 ### Provisioned Grafana dashboards
 
@@ -95,32 +102,34 @@ and are provisioned in the Grafana **MyOTA** folder.
 #### MyOTA Logs / Failures (`myota-logs-failures`)
 
 This dashboard uses MyOTA Loki (`myota-loki`) to show log volume,
-warnings/errors, worker retries, failed HTTP completions, and log records for
-a correlation ID. Its `service`, `environment`, `severity`, `component`, and
-`correlation_id` variables constrain the queries. The [Compose source](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/observability/grafana/dashboards/myota-logs-failures.json)
+warnings/errors, worker retries and failed HTTP completions. Its `service`,
+`environment`, and `severity` selectors use finite allowed values. Correlation
+IDs can be queried as structured metadata in Explore; they are not dashboard
+variables. The [Compose source](https://github.com/myota-platform/myota/blob/cf9daf2406c6ce20b6adf80fd0423ece7c257e76/deploy/observability/grafana/dashboards/myota-logs-failures.json)
 is packaged for Helm at
-[`deploy/helm/myota/observability/grafana/dashboards/myota-logs-failures.json`](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/helm/myota/observability/grafana/dashboards/myota-logs-failures.json).
+[`deploy/helm/myota/observability/grafana/dashboards/myota-logs-failures.json`](https://github.com/myota-platform/myota/blob/cf9daf2406c6ce20b6adf80fd0423ece7c257e76/deploy/helm/myota/observability/grafana/dashboards/myota-logs-failures.json).
 
 #### MyOTA Distributed Traces (`myota-traces`)
 
 This dashboard uses MyOTA Tempo (`myota-tempo`) to search for error traces and
 traces longer than one second. The one-second value is a query default, not an
-SLO. Its service textbox defaults to all MyOTA services. The [Compose source](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/observability/grafana/dashboards/myota-traces.json)
+SLO. Its finite service selector defaults to all MyOTA services. The [Compose source](https://github.com/myota-platform/myota/blob/cf9daf2406c6ce20b6adf80fd0423ece7c257e76/deploy/observability/grafana/dashboards/myota-traces.json)
 is packaged for Helm at
-[`deploy/helm/myota/observability/grafana/dashboards/myota-traces.json`](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/helm/myota/observability/grafana/dashboards/myota-traces.json).
+[`deploy/helm/myota/observability/grafana/dashboards/myota-traces.json`](https://github.com/myota-platform/myota/blob/cf9daf2406c6ce20b6adf80fd0423ece7c257e76/deploy/helm/myota/observability/grafana/dashboards/myota-traces.json).
 
 Both dashboards default to the last 30 minutes and refresh every 30 seconds.
-The Logs / Failures dashboard scopes queries to the active deployment namespace;
-Compose uses `myota`, while Helm renders the release namespace into the
-dashboard. The provisioner and dashboard folder definitions are in
-[`deploy/observability/grafana/provisioning/dashboards/dashboards.yml`](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/observability/grafana/provisioning/dashboards/dashboards.yml)
+The Logs / Failures dashboard scopes queries to application resource namespace
+`myota` in both Compose and Helm. Kubernetes release namespaces are separate
+from this telemetry attribute. The environment selector includes the emitted
+`test` value, and warning queries accept both `WARN` and `WARNING`. The provisioner and dashboard folder definitions are in
+[`deploy/observability/grafana/provisioning/dashboards/dashboards.yml`](https://github.com/myota-platform/myota/blob/cf9daf2406c6ce20b6adf80fd0423ece7c257e76/deploy/observability/grafana/provisioning/dashboards/dashboards.yml)
 and its packaged Helm copy.
 
 For a log-to-trace investigation, set the dashboard time range first, narrow
-service/environment/component as needed, then set `correlation_id` to the
-stable workflow identifier. Open a matching log record with a non-empty
+service/environment/severity as needed. Use Explore for a structured-metadata
+`correlation_id` query when following a stable workflow identifier. Open a matching log record with a non-empty
 `trace_id` and use **View trace**. In Tempo, select an error or slow trace and
-use its trace-to-logs action to return to Loki. A trace ID is scoped to one
+use the manual metadata query above until the reverse action is corrected. A trace ID is scoped to one
 distributed execution; use the business correlation ID to follow retries and
 separate asynchronous executions. If a trace or matching log is absent, check
 the selected time range, service filter, ingestion health, and configured
@@ -212,9 +221,9 @@ exclude SQL statements, query text, and bind parameters. See the
 and [current system state](../architecture/current-state.md).
 
 The dashboard is
-[`myota-postgresql-postgis.json`](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/observability/grafana/dashboards/myota-postgresql-postgis.json)
+[`myota-postgresql-postgis.json`](https://github.com/myota-platform/myota/blob/cf9daf2406c6ce20b6adf80fd0423ece7c257e76/deploy/observability/grafana/dashboards/myota-postgresql-postgis.json)
 in the monorepo deployment tree; its packaged Helm copy is under
-[`deploy/helm/myota/observability/grafana/dashboards/`](https://github.com/myota-platform/myota/tree/e00ba2960595601df03bd71c41f0641b7914197f/deploy/helm/myota/observability/grafana/dashboards).
+[`deploy/helm/myota/observability/grafana/dashboards/`](https://github.com/myota-platform/myota/tree/cf9daf2406c6ce20b6adf80fd0423ece7c257e76/deploy/helm/myota/observability/grafana/dashboards).
 It includes core connection/size/transaction panels and the existing bounded
 Geodata PostGIS query-duration histogram. Empty database panels are expected
 until the receiver is accepted.
