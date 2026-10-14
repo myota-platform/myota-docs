@@ -175,3 +175,13 @@ until a test provider key is provisioned and its Helm setting is enabled.
 
 The implementation and focused test evidence are tracked in
 [Geodata issue #27](https://github.com/myota-platform/myota-geodata-service/issues/27).
+The implementation is merged to Geodata `testing` at `9fc5aa3` and its
+testing image was published as digest
+`sha256:ca0f5f9546d5f9a7f412a5f70809a79f58a4293bf5e77a860d13e54be6911548`.
+It is not yet in `main` or deployed. Release PR
+[#29](https://github.com/myota-platform/myota-geodata-service/pull/29) is
+blocked because `main` advanced to the baseline-migration commit
+`7d1e91f`, which is not an ancestor of `testing`. Strict branch protection and
+required linear history prevent a history-preserving sync PR; no protection
+rule was bypassed or changed. The code change needs a permitted release path
+before it takes effect in deployed services.
