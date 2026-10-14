@@ -1,17 +1,31 @@
 # Isolated test deployment
 
-**Verified:** 2026-10-14 11:09 UTC
+**Current verification:** 2026-10-14 19:44 UTC
+**Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
-**Fleet source:** `myota-platform/myota-deploy`, branch `testing`, commit
-[`3af93b2`](https://github.com/myota-platform/myota-deploy/commit/3af93b275879c60cef13426fb3ac483f76ac996d).
+**Current Fleet source:** `myota-platform/myota`, branch `testing`, commit
+[`e00ba29`](https://github.com/myota-platform/myota/commit/e00ba2960595601df03bd71c41f0641b7914197f), path `deploy/helm/myota-test`.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Deployment status
+## Current monorepo rollout — 2026-10-14 19:44 UTC
+
+| Check | Result |
+|---|---|
+| Fleet | The Testing-only GitRepo `fleet-local/myota-deploy-testing` now reads `myota-platform/myota`, branch `testing`, path `deploy/helm/myota-test`, at commit `e00ba2960595601df03bd71c41f0641b7914197f`. Its single bundle deployment reports Ready. Production Fleet remains on `myota-platform/myota-deploy`, branch `main`. |
+| Helm and storage | Release `myota-test` is deployed at revision 299. All 10 database and observability PVCs in `myota-test` are Bound. |
+| Trace dashboard | The deployed `myota-observability` ConfigMap contains `myota-traces.json` with UID `myota-traces`. Grafana's read-only dashboard search returned `MyOTA Distributed Traces`; the Tempo datasource `myota-tempo` is configured. |
+| Existing telemetry | A read-only Tempo search returned 20 stored traces across Activity, Geodata, and outbox services. The current failed-trace and over-one-second queries each returned zero; no synthetic traces were inserted. |
+| Digest workflow | The workflow code is `.github/workflows/sync-testing-image-digests.yml` in `myota`. It executes on GitHub-hosted `ubuntu-latest` runners; the Kubernetes dispatcher is only a planned trigger and no digest-dispatch CronJob is installed in `myota-test`. Manual run [#38625702955](https://github.com/myota-platform/myota/actions/runs/38625702955) completed as `workflow_dispatch` on `main`, but skipped because the repository variable `TESTING_DIGEST_APP_ID` and secret `TESTING_DIGEST_APP_PRIVATE_KEY` are unset. It created no digest PR. |
+| Recent Admin image | Testing push [#38625361907](https://github.com/myota-platform/myota/actions/runs/38625361907) passed and published the Admin image. Its updated digest has not been recorded or reconciled because the digest-writer App is not configured. |
+
+To enable digest updates, install the digest-writer GitHub App on `myota` with Contents and Pull requests write access. Add `TESTING_DIGEST_APP_ID` as an Actions variable and `TESTING_DIGEST_APP_PRIVATE_KEY` as an Actions secret in that repository, then run the workflow again. See [digest writer setup](https://github.com/myota-platform/myota/issues/30) and [image access and rollout evidence](https://github.com/myota-platform/myota/issues/53). The latest digest workflow run confirms that those credentials are currently missing.
+
+## Historical deployment snapshot — 2026-10-14 11:09 UTC
 
 | Check | Result |
 |---|---|
@@ -174,8 +188,8 @@ K3s namespace and their source files are stored under the host's
 
 ## Ownership and operating notes
 
-- The authoritative Helm source and Fleet bundle are in
-  [Deploy `deploy/helm/myota-test`](https://github.com/myota-platform/myota-deploy/tree/testing/deploy/helm/myota-test).
+- The current Testing Helm source and Fleet bundle are in the monorepo at
+  [`deploy/helm/myota-test`](https://github.com/myota-platform/myota/tree/testing/deploy/helm/myota-test). The old `myota-deploy` repository remains the production Fleet source until that environment is deliberately migrated.
 - The test release uses `values-testing.yaml` and
   `values-image-digests-testing.yaml`; production values remain under
   `deploy/helm/myota`.
