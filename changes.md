@@ -24,18 +24,31 @@
   The fixes cover source identity, same-import proximity checks, durable
   duplicate evidence, a visible import summary count, and terminal feedback for
   permanent integrity conflicts while preserving retries for transient errors.
-- **Status at documentation update:** Geodata full suite passed (168 tests,
-  33 skipped because the relational integration database is not configured),
-  Ruff passed, and Admin UI checks passed under Node 24 (29 tests, typecheck,
-  lint, and production build). Geodata PR #21 and Admin UI PR #17 target
-  `testing`; deployment and live recovery remain unverified. No production
-  change is authorized by this work. Only candidates already explicitly
-  confirmed for promotion are eligible for queue recovery. Unreviewed pending
-  records must remain in administrator review.
+- **Implemented:** Preserve source-provided IDs such as OSM `@id`, scope
+  fallback IDs to the import run, compare candidates against catalogue and
+  earlier same-import records within 50 m, persist duplicate match metadata,
+  surface a count and match evidence in Admin UI, and turn permanent integrity
+  conflicts into terminal actionable results while transient errors remain
+  retryable. Entity names remain non-unique.
+- **Checks:** Geodata Ruff passed; unit suite passed (168 tests, 33 skipped
+  because the local relational database is unavailable); isolated relational /
+  PostGIS, upload-recovery, load-harness and CI checks passed. Admin UI lint,
+  29 tests, typecheck, production build and browser regression passed. Geodata
+  PR #21 and Admin UI PR #17 merged to `testing`.
+- **Testing evidence:** Helm `myota-test` revision 161 is deployed; Geodata API,
+  import worker and Admin Web are Ready on their pinned testing image digests.
+  A confirmed stuck promotion completed through the normal worker and is
+  `APPROVED`; both catalogue and map queries return it. A disposable duplicate
+  fixture returned one 15.73 m match after durable reload; its run, candidates
+  and manifest were cleaned and verified absent. Only explicitly confirmed
+  work was recovered. Remaining unreviewed pending records stay in the
+  administrator review queue.
+- **Issues:** [Geodata #20](https://github.com/myota-platform/myota-geodata-service/issues/20)
+  and [Admin Web #16](https://github.com/myota-platform/myota-admin-web/issues/16)
+  include solution and evidence comments and are closed.
 - **Evidence:** [Geodata import validation diagram](docs/architecture/diagrams/geodata-import-validation.md),
-  [current system state](docs/architecture/current-state.md), and linked issue
-  comments. Update this entry with PR, CI, and isolated Testing evidence before
-  closing the issues.
+  [current system state](docs/architecture/current-state.md), PRs #21/#17,
+  isolated Testing deployment, and linked issue comments.
 
 ## 13 October 2026 — Isolated test deployment verified after latest image rollout
 
