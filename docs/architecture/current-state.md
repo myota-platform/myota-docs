@@ -1,6 +1,6 @@
 # Current system state
 
-**Verified:** 2026-10-14 08:46 UTC
+**Verified:** 2026-10-14 09:03 UTC
 **Scope:** GitHub repository heads and a read-only inspection and controlled
 rollout in the production `myota` and isolated `myota-test` namespaces on the
 local single-node K3s host. Repository head rows below were captured at 11:08
@@ -102,7 +102,7 @@ is explicitly deferred; the local file store is not a backup.
 
 | Workstream | Current status | Source of detail |
 |---|---|---|
-| Isolated test deployment | Namespace `myota-test` is deployed at Helm revision 4; Fleet reports 76/76 Ready at Deploy `testing` commit `d0556c376dbaa830d4bc2508a04252dfa496a777`. PR #44 refreshed platform and gateway image digests; all running application image IDs match their configured testing digests. Database seed markers and the re-copied SeaweedFS bucket are verified. Automatic digest polling is blocked until its workflow is safely released onto default branch `main` and organization Actions PR creation is permitted. | [Test deployment](../operations/test-deployment.md), [Deploy test bundle](https://github.com/myota-platform/myota-deploy/tree/testing/deploy/helm/myota-test) |
+| Testing image digest automation | The `.github` workflow is active on `main` with a five-minute offset cron. Its App-backed manual run resolved digests and auto-merged Deploy PR #56. The prior schedule had a five-hour gap; no scheduled run appeared in the first 13 minutes after the offset change. GitHub may delay or drop schedule events, so reliability remains open in [.github issue #5](https://github.com/myota-platform/.github/issues/5). | [Test deployment](../operations/test-deployment.md), [digest workflow](https://github.com/myota-platform/.github/blob/main/.github/workflows/sync-testing-image-digests.yml), [.github issue #5](https://github.com/myota-platform/.github/issues/5) |
 | Cross-repository architecture review | Phases 0–4 complete, including duplicate-YAML-key rejection, handler/mirror check, and route inventory evidence. | [Review](../../REVIEW.md), [Phase 0 evidence](evidence/review-phase-0-2026-10-11.md), [Phases 1–4 evidence](evidence/review-phases-1-4-2026-10-11.md) |
 | NATS event/work migration | Phases 0–6 complete within evidence bounds. Six application DLQ records remain preserved. Seven migration evidence/readiness issues are closed (Operations #1 was superseded); the 24-hour observation was waived and closed early, not completed as a full-day window. Off-node recovery and representative 30-day capacity qualification remain accepted limits. | [Migration plan](../operations/messaging/nats-event-migration-plan.md), [Phase 6 evidence](../operations/messaging/evidence/phase6-fact-stream-cutover-2026-10-11.md), [issue closeout](../operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md) |
 | NATS monitoring consolidation | Surveyor, dashboards, capacity settings, and broker-sampler retirement are implemented; single-host broker and Prometheus limits still apply. | [Surveyor plan](../observability/nats-surveyor-migration.md), [cutover evidence](../observability/evidence/2026-10-11-nats-surveyor-cutover.md) |

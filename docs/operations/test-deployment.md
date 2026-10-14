@@ -86,9 +86,9 @@ The nominal polling cadence is every five minutes at minutes 2, 7, 12, ..., 57
 UTC, staggered away from the top of the hour. The original `*/5` schedule
 showed only two scheduled starts (01:39 and 06:43 UTC) in the observed
 14 October window, despite the workflow being enabled on the default branch.
-GitHub documents that schedule events can be delayed or dropped under high
-Actions load; therefore Actions does not guarantee a hard five-minute SLA.
-This schedule offset reduces contention at the hourly boundary. The digest
+GitHub [documents that schedule events can be delayed or dropped](https://docs.github.com/en/actions/tutorials/manage-your-work/schedule-issue-creation)
+under high Actions load; therefore Actions does not guarantee a hard five-minute
+SLA. This schedule offset reduces contention at the hourly boundary. The digest
 workflow remains the only controller, proposes changes only in the isolated
 test values, and relies on Deploy checks and Fleet reconciliation. See
 [`.github` issue #5](https://github.com/myota-platform/.github/issues/5) for

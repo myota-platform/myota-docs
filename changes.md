@@ -1,3 +1,33 @@
+## 14 October 2026 — Testing digest schedule reliability
+
+- **Prompt used:** “the `Update testing image digests` in the `.github` repo
+  isn't running every 5 minutes via the cron expression. Fix this. Document
+  the fault and the fix in a github issue.”
+- **Fault evidence:** `.github`'s workflow was enabled on default branch
+  `main` and had the valid `*/5 * * * *` schedule, but its 14 October Actions
+  history showed scheduled runs only at 01:39 and 06:43 UTC. [GitHub documents
+  that schedules can be delayed or dropped under load](https://docs.github.com/en/actions/tutorials/manage-your-work/schedule-issue-creation).
+  The App-backed
+  manual run at 08:36 UTC successfully resolved image digests, opened Deploy
+  PR #56, and auto-merged it after checks passed. The GitHub documentation
+  warns schedule events may be delayed or dropped during high Actions load,
+  especially at minute 00.
+- **Fix:** `.github` commit `a5c57b2` changed the cadence to
+  `2-59/5 * * * *` (UTC minutes 2, 7, ..., 57) to avoid the hourly minute-00
+  boundary. It remains the only digest controller and retains the Deploy-only
+  App and protected `testing` PR flow.
+- **Verification:** GitHub reports the workflow active and shows the updated
+  cron on default branch `main`. The first three expected scheduled ticks after
+  the change had not appeared in Actions by 09:03 UTC; the issue remains open
+  pending an authenticated scheduled run. GitHub Actions provides a
+  best-effort schedule, not a hard five-minute SLA. If strict timing is
+  required, a separately managed external scheduler would be needed.
+- **Issue and docs:** [.github issue #5](https://github.com/myota-platform/.github/issues/5)
+  records the fault, fix, and acceptance gates. The issue remains open until a
+  scheduled run is observed. See [test deployment](docs/operations/test-deployment.md)
+  and [.github issue #3](https://github.com/myota-platform/.github/issues/3)
+  for the App configuration history.
+
 ## 14 October 2026 — Geodata import duplicate evidence and promotion recovery
 
 - **Prompts used:** “In the admin UI - Geodata-imports modal when promoting an
