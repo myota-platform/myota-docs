@@ -79,7 +79,72 @@ They do not emit full payloads or raw exception text.
 - A trace ID joins one distributed execution. A business `correlation_id`
   joins asynchronous work across separate traces and retries.
 
-The Deploy-owned datasource config links the `trace_id` structured-metadata field to Tempo using Grafana's label-type derived field. The corrected datasource and dashboard provisioning are live on Helm revision 280. Authenticated browser navigation in both directions remains unverified; do not treat the provisioned link as proof of an authorized UI path.
+The Grafana datasource configuration links the `trace_id` structured-metadata
+field to Tempo using a label-type derived field. The 12 October production
+snapshot recorded the corrected provisioning at Helm revision 280. Testing
+revision 301 also contains the Loki/Tempo datasources and dashboard
+provisioning. Authenticated browser navigation in both directions remains
+unverified; do not treat the provisioned link as proof of an authorized UI
+path.
+
+### Provisioned Grafana dashboards
+
+The current dashboard definitions are owned by the monorepo deployment tree
+and are provisioned in the Grafana **MyOTA** folder.
+
+#### MyOTA Logs / Failures (`myota-logs-failures`)
+
+This dashboard uses MyOTA Loki (`myota-loki`) to show log volume,
+warnings/errors, worker retries, failed HTTP completions, and log records for
+a correlation ID. Its `service`, `environment`, `severity`, `component`, and
+`correlation_id` variables constrain the queries. The [Compose source](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/observability/grafana/dashboards/myota-logs-failures.json)
+is packaged for Helm at
+[`deploy/helm/myota/observability/grafana/dashboards/myota-logs-failures.json`](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/helm/myota/observability/grafana/dashboards/myota-logs-failures.json).
+
+#### MyOTA Distributed Traces (`myota-traces`)
+
+This dashboard uses MyOTA Tempo (`myota-tempo`) to search for error traces and
+traces longer than one second. The one-second value is a query default, not an
+SLO. Its service textbox defaults to all MyOTA services. The [Compose source](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/observability/grafana/dashboards/myota-traces.json)
+is packaged for Helm at
+[`deploy/helm/myota/observability/grafana/dashboards/myota-traces.json`](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/helm/myota/observability/grafana/dashboards/myota-traces.json).
+
+Both dashboards default to the last 30 minutes and refresh every 30 seconds.
+The Logs / Failures dashboard scopes queries to the active deployment namespace;
+Compose uses `myota`, while Helm renders the release namespace into the
+dashboard. The provisioner and dashboard folder definitions are in
+[`deploy/observability/grafana/provisioning/dashboards/dashboards.yml`](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/observability/grafana/provisioning/dashboards/dashboards.yml)
+and its packaged Helm copy.
+
+For a log-to-trace investigation, set the dashboard time range first, narrow
+service/environment/component as needed, then set `correlation_id` to the
+stable workflow identifier. Open a matching log record with a non-empty
+`trace_id` and use **View trace**. In Tempo, select an error or slow trace and
+use its trace-to-logs action to return to Loki. A trace ID is scoped to one
+distributed execution; use the business correlation ID to follow retries and
+separate asynchronous executions. If a trace or matching log is absent, check
+the selected time range, service filter, ingestion health, and configured
+retention before treating the absence as proof that no work occurred.
+
+The dashboards query bounded service, environment, severity, component, and
+route dimensions. Trace IDs and correlation IDs are query fields, not indexed
+Loki labels; participant identifiers, email addresses, request bodies, SQL,
+and message payloads must not be added to labels or dashboard variables. The
+HTTP completion panel intentionally includes only error
+`http.request.completed` events. Loki's configured retention is 14 days;
+Tempo is short-lived diagnostic storage, not an event archive. PostgreSQL,
+outbox rows, and domain records remain authoritative for work and business
+state.
+
+**Testing deployment evidence (14 October 2026):** Fleet reported the
+`myota-test` bundle Ready at monorepo commit `e00ba2960595601df03bd71c41f0641b7914197f`.
+The Grafana provisioning logs reported dashboards finished provisioning; the
+observability ConfigMap contained both dashboard files and Loki/Tempo
+datasources. A read-only Tempo search returned 20 stored traces. At that
+check, the failed-trace and over-one-second queries returned no matches, so
+those panels were provisioned but had no matching sample. No synthetic trace
+was written. See the [Testing deployment record](../operations/test-deployment.md)
+and deployment work item [#22](https://github.com/myota-platform/myota/issues/22).
 
 ## Loki or Collector ingestion failure
 
@@ -142,7 +207,9 @@ exclude SQL statements, query text, and bind parameters. See the
 and [current system state](../architecture/current-state.md).
 
 The dashboard is
-[`myota-postgresql-postgis.json`](https://github.com/myota-platform/myota-deploy/blob/main/observability/grafana/dashboards/myota-postgresql-postgis.json).
+[`myota-postgresql-postgis.json`](https://github.com/myota-platform/myota/blob/e00ba2960595601df03bd71c41f0641b7914197f/deploy/observability/grafana/dashboards/myota-postgresql-postgis.json)
+in the monorepo deployment tree; its packaged Helm copy is under
+[`deploy/helm/myota/observability/grafana/dashboards/`](https://github.com/myota-platform/myota/tree/e00ba2960595601df03bd71c41f0641b7914197f/deploy/helm/myota/observability/grafana/dashboards).
 It includes core connection/size/transaction panels and the existing bounded
 Geodata PostGIS query-duration histogram. Empty database panels are expected
 until the receiver is accepted.

@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-14 19:44 UTC
+**Current verification:** 2026-10-14 19:49 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -17,11 +17,24 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 | Check | Result |
 |---|---|
 | Fleet | The Testing-only GitRepo `fleet-local/myota-deploy-testing` now reads `myota-platform/myota`, branch `testing`, path `deploy/helm/myota-test`, at commit `e00ba2960595601df03bd71c41f0641b7914197f`. Its single bundle deployment reports Ready. Production Fleet remains on `myota-platform/myota-deploy`, branch `main`. |
-| Helm and storage | Release `myota-test` is deployed at revision 299. All 10 database and observability PVCs in `myota-test` are Bound. |
+| Helm and storage | Release `myota-test` is deployed at revision 301. All 10 database and observability PVCs in `myota-test` are Bound. |
+| Workloads | All 24 Deployments and all 3 StatefulSets report their desired replicas ready. |
+| Logs dashboard | The deployed `myota-observability` ConfigMap contains `myota-logs-failures.json` with UID `myota-logs-failures`; Grafana logged `finished to provision dashboards` at 19:42 UTC. It uses the MyOTA Loki datasource. |
 | Trace dashboard | The deployed `myota-observability` ConfigMap contains `myota-traces.json` with UID `myota-traces`. Grafana's read-only dashboard search returned `MyOTA Distributed Traces`; the Tempo datasource `myota-tempo` is configured. |
 | Existing telemetry | A read-only Tempo search returned 20 stored traces across Activity, Geodata, and outbox services. The current failed-trace and over-one-second queries each returned zero; no synthetic traces were inserted. |
 | Digest workflow | The workflow code is `.github/workflows/sync-testing-image-digests.yml` in `myota`. It executes on GitHub-hosted `ubuntu-latest` runners; the Kubernetes dispatcher is only a planned trigger and no digest-dispatch CronJob is installed in `myota-test`. Manual run [#38625702955](https://github.com/myota-platform/myota/actions/runs/38625702955) completed as `workflow_dispatch` on `main`, but skipped because the repository variable `TESTING_DIGEST_APP_ID` and secret `TESTING_DIGEST_APP_PRIVATE_KEY` are unset. It created no digest PR. |
 | Recent Admin image | Testing push [#38625361907](https://github.com/myota-platform/myota/actions/runs/38625361907) passed and published the Admin image. Its updated digest has not been recorded or reconciled because the digest-writer App is not configured. |
+
+The Logs / Failures and Distributed Traces dashboards are provisioned in
+Grafana's **MyOTA** folder. Both default to a 30-minute time window and a
+30-second refresh. The 19:49 UTC read-only recheck found the log dashboard
+ConfigMap payload SHA-256
+`c664a46c452a042ee858966f7c3f163bff8d18ec971ea9577f2b768a7b98f062` and
+trace dashboard payload SHA-256
+`0a97abe5410b4a58c7871ffcaaca4d3e22314c842ea74ab586090bb7587a50be`. The
+configured Loki and Tempo datasource UIDs were `myota-loki` and `myota-tempo`.
+The last recorded bounded Tempo search found 20 traces, but none matched the
+failed-trace or over-one-second filters; no synthetic traces were inserted.
 
 To enable digest updates, install the digest-writer GitHub App on `myota` with Contents and Pull requests write access. Add `TESTING_DIGEST_APP_ID` as an Actions variable and `TESTING_DIGEST_APP_PRIVATE_KEY` as an Actions secret in that repository, then run the workflow again. See [digest writer setup](https://github.com/myota-platform/myota/issues/30) and [image access and rollout evidence](https://github.com/myota-platform/myota/issues/53). The latest digest workflow run confirms that those credentials are currently missing.
 

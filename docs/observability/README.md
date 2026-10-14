@@ -12,8 +12,9 @@ ownership and cutover evidence are documented in the
   alerts, and known gaps.
 - [Logging implementation](logging-implementation.md) — roadmap, checklists,
   and acceptance criteria.
-- [Logging runbook](logging-runbook.md) — LogQL, trace/log navigation, and
-  ingestion troubleshooting.
+- [Logging runbook](logging-runbook.md) — provisioned Logs / Failures and
+  Distributed Traces dashboards, LogQL, trace/log navigation, privacy limits,
+  and ingestion troubleshooting.
 - [NATS Surveyor](nats-surveyor-migration.md) — deployed exporter, Grafana
   dashboards, capacity decisions, and retired monitoring components.
 - [SeaweedFS monitoring](../operations/storage/seaweedfs-admin-status.md) —
@@ -22,6 +23,7 @@ ownership and cutover evidence are documented in the
 ## Evidence
 
 - [Dashboard enhancements](evidence/dashboard-enhancements-2026-10-12.md)
+- [Testing deployment verification](../operations/test-deployment.md)
 - [Logging evidence, 12 October](evidence/logging-implementation-2026-10-12.md)
 - [Logging evidence, 11 October](evidence/logging-implementation-2026-10-11.md) —
   historical rollout snapshot.

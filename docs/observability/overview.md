@@ -1,23 +1,24 @@
 # MyOTA observability
 
 For the latest deployment and repository snapshot, see the
-[Current system state](../architecture/current-state.md). On 11 October 2026 22:53 UTC,
-Helm release `myota` was deployed at revision 272 with chart 0.2.20.
-Fleet reported the MyOTA bundle deployed and monitored at Deploy commit
-`ced2df0d35c869b93c3b5fe1943f1c1eeed59e43`. The workload, workflow, and
-database dashboard enhancements are documented in the
-[dashboard evidence record](evidence/dashboard-enhancements-2026-10-12.md).
+[Current system state](../architecture/current-state.md) and the
+[Testing deployment record](../operations/test-deployment.md). The 11 October
+Helm revision 272 snapshot below is retained as historical evidence. On
+14 October, the isolated Testing release was at Helm revision 301 with the
+Logs / Failures and Distributed Traces dashboards provisioned. Their live
+query limits are recorded in the [logging runbook](logging-runbook.md).
 Identity and Programme metrics coverage is verified; other logging and
 observability acceptance gates remain open. See the
 [logging roadmap](logging-implementation.md).
 
 ## Dashboard enhancement delivery
 
-The Deploy-owned Grafana configuration now includes a K3s workload health and
-capacity dashboard, an application workflow dashboard, and expanded
-PostgreSQL/PostGIS health panels. The Platform Helm copies match the Deploy
-source byte-for-byte. The K3s dashboard is Helm-only; Compose does not invent
-cluster metrics.
+The monorepo deployment configuration includes a K3s workload health and
+capacity dashboard, an application workflow dashboard, expanded
+PostgreSQL/PostGIS health panels, plus log and trace dashboards. The source
+Compose assets live under `deploy/observability`; Helm packages the matching
+deployment assets under `deploy/helm/myota`. The K3s dashboard is Helm-only;
+Compose does not invent cluster metrics.
 
 K3s panels use kube-state-metrics and internal HTTPS Kubelet metrics, scoped
 to the MyOTA namespace. The workflow dashboard combines available outbox,
@@ -51,24 +52,19 @@ represented as zero.
 
 ## Structured logging implementation roadmap
 
-Structured logging and bounded database telemetry are deployed. Helm revision
-265 is active with chart 0.2.20; Fleet reports the MyOTA bundle deployed and
-monitored. The remaining logging acceptance work is tracked separately. Operations is retired. Collector directly scrapes all databases with least-privilege credentials and live metrics; Gateway checks live Identity roles for Grafana. PostgreSQL metrics and Psycopg client spans are scrubbed
-of SQL attributes before Tempo export. A safe Identity
-`GET /healthz` record was found in Loki by its OTLP structured-metadata
-`trace_id`, and the matching Tempo server span was retrieved. The Grafana
-dashboard query shapes also succeeded against live Loki. Helm revision 225
-mounted the corrected metadata-aware dashboard and datasource files, Grafana
-logged dashboard provisioning, and all seven dashboard LogQL queries returned
-successfully against live Loki. Fleet later applied logging/dashboard changes;
-Helm revision 234 is deployed; Helm history labels it a rollback to revision
-233. The Fleet BundleDeployment is Ready=True at sync generation 93. All 67
-resources are ready, and all Deployments meet their requested replica counts. The PostgreSQL/PostGIS dashboard asset is mounted in Grafana, but
-its Collector receiver is paused after authentication failures that were not
-reproduced by read-only `psql` checks with the same Secrets. UI trace/log
-navigation remains open, as do asynchronous correlation and Phase 6 hardening. See the
-[implementation plan](logging-implementation.md), [evidence](evidence/logging-implementation-2026-10-11.md),
-and [runbook](logging-runbook.md).
+Structured logging and bounded database telemetry are deployed. Operations is
+retired; the Collector scrapes databases with least-privilege credentials, and
+Gateway checks live Identity roles for Grafana. PostgreSQL metrics and database
+spans exclude SQL text and bind parameters. The dated records contain the
+query, provisioning, and service-correlation evidence for their respective
+snapshots. On 14 October, the isolated Testing release provisioned the current
+Logs / Failures and Distributed Traces dashboards; its bounded Tempo search
+found 20 traces but no failures or traces over one second. Authenticated
+trace/log UI navigation, full Compose runtime parity, and representative
+capacity/recovery qualification remain open. See the
+[implementation plan](logging-implementation.md),
+[12 October evidence](evidence/logging-implementation-2026-10-12.md), and
+[runbook](logging-runbook.md).
 
 Loki stores OTLP event text as the log body and attributes such as
 `severity_text`, `trace_id`, `event`, and `correlation_id` as structured
@@ -105,7 +101,7 @@ flowchart LR
   Grafana --> Alertmanager
 ```
 
-The collector is infrastructure owned by `myota-deploy`; a separate business
+The collector is infrastructure owned by the monorepo `deploy/` tree; a separate business
 metrics microservice would create a second owner for facts already owned by
 identity, geodata, programme, and activity services. Prometheus scrapes the
 collector's `:8889` endpoint. The collector also scrapes each service's
@@ -179,7 +175,7 @@ ensures future dashboard changes roll Grafana automatically.
 ## Alerting
 
 Prometheus evaluates the source-of-truth rules in
-`myota-deploy/observability/rules.yml` and sends alerts to Alertmanager. The
+`myota/deploy/observability/rules.yml` and sends alerts to Alertmanager. The
 rules cover collector availability, service scrape availability, per-route 5xx
 error rate above 5% for five minutes, p95 latency above one second for ten
 minutes, and a critical p95 threshold above five seconds for five minutes.
@@ -233,9 +229,11 @@ GLOBAL_OPERATOR/GLOBAL_ADMIN roles receive Editor and other authorized readers
 receive Viewer. Prometheus, Alertmanager and Tempo ports are private. The
 provisioned dashboards default to the last 30 minutes and refresh every
 30 seconds; UI saves are enabled for Editors. Copy a source-managed dashboard
-if its UI edits must survive later provisioning updates. The `MyOTA operations`,
-`MyOTA API performance`, and `MyOTA Geodata capacity baseline` dashboards use
-live service data. The former combined JetStream/PostGIS dashboard has been
+if its UI edits must survive later provisioning updates. The `MyOTA service
+health`, `MyOTA API performance`, and `MyOTA Geodata capacity baseline`
+dashboards use live service data. The Logs / Failures and Distributed Traces
+dashboards are documented in the [operator runbook](logging-runbook.md). The
+former combined JetStream/PostGIS dashboard has been
 retired; its PostGIS panels are not recreated. Grafana's `NATS` folder contains
 dashboard 16256 and the ten pinned Surveyor dashboards. See the
 [NATS monitoring consolidation plan](nats-surveyor-migration.md).

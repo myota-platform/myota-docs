@@ -1,3 +1,21 @@
+## 14 October 2026 — Document the provisioned log and trace dashboards
+
+- **Work items:** [myota #20](https://github.com/myota-platform/myota/issues/20)
+  and [myota #22](https://github.com/myota-platform/myota/issues/22).
+- **Implemented:** Expanded the logging runbook with the provisioned dashboard
+  names, folder, datasource UIDs, query defaults, investigation path, source
+  links, privacy/cardinality rules, and unavailable-data guidance. Corrected
+  observability source ownership to the monorepo and updated the Testing
+  deployment record and architecture references.
+- **Evidence:** On 14 October, the Testing Fleet bundle was Ready at commit
+  `e00ba2960595601df03bd71c41f0641b7914197f`. Grafana logged successful
+  dashboard provisioning; its observability ConfigMap contained the Logs /
+  Failures and Distributed Traces files and Loki/Tempo datasources. The bounded
+  Tempo search returned 20 existing traces, with no failed or over-one-second
+  matches. No synthetic trace was written.
+- **Limit:** Authenticated browser navigation remains unverified. The
+  provisioned dashboards and source queries do not alone prove UI access.
+
 ## 14 October 2026 — Move Testing digest synchronization into the monorepo
 
 - **Prompt used:** “OK, move this workflow to the monorepo and then deactivate

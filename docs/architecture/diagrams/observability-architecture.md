@@ -37,8 +37,9 @@ internal HTTPS]
   Loki --> Grafana
 ```
 
-The dashboard configuration is owned by `myota-deploy`; matching Helm
-configuration is synchronized to `myota-platform`. kube-state-metrics is
+The dashboard configuration is owned by the `myota` monorepo under
+`deploy/observability`; Helm packages its deployment copy from
+`deploy/helm/myota`. kube-state-metrics is
 restricted to the MyOTA namespace. Prometheus scrapes Kubelet resource and
 volume metrics over internal HTTPS with projected credentials and CA
 validation. Fleet keeps the cluster-scoped `nodes`/`nodes/metrics` read
@@ -59,9 +60,10 @@ and vacuum/freeze measurements that are not collected. See the
 Surveyor owns NATS broker monitoring. SeaweedFS telemetry flows through the
 private Collector scrape to Prometheus and Grafana; Operations no longer
 samples SeaweedFS or retains its history. The forward migration drops the
-retired `operations_storage_snapshot` table and owned index. Operations
-retains bounded read-only PostgreSQL/PostGIS metrics and Grafana role
-resolution. Direct Collector receivers now collect bounded database metrics with least-privilege credentials; Gateway and Identity own Grafana authorization. The active bounded database telemetry path and
+retired `operations_storage_snapshot` table and owned index. Operations is
+retired. Direct Collector receivers collect bounded database metrics with
+least-privilege credentials, while Gateway and Identity own Grafana
+authorization. The active bounded database telemetry path and
 remaining coverage gaps are documented in the
 [logging roadmap](../../observability/logging-implementation.md).
 
@@ -71,8 +73,9 @@ metrics, not broker messages. Panels that require a multi-server cluster,
 gateway, or multi-node Raft have no corresponding signals in this single-server
 deployment.
 
-The latest verified snapshot is [Helm 0.2.20 revision 272, Fleet Ready, and
-23/23 MyOTA Deployments ready](../current-state.md). Logging acceptance remains
+Testing Helm revision 301 has the provisioned logs and trace dashboards; the
+current Testing release and query limits are recorded in the
+[test deployment record](../../operations/test-deployment.md). Logging acceptance remains
 open for authenticated Grafana navigation, request-to-worker correlation,
 Loki privacy/cardinality review, Compose parity, and retention/recovery
 evidence. Readiness is not acceptance closure. See
