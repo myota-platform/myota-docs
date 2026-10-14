@@ -9,6 +9,7 @@ not duplicate status details from that page.
 | If you need to… | Start here |
 |---|---|
 | Understand the live architecture, data ownership, or repository boundaries | [Architecture and ownership](architecture/README.md) |
+| Review the proposed monorepo direction, future-scale design, or language options | [Monorepo and future-scale assessment](architecture/monorepo-and-scalability-assessment.md) |
 | Find a product or API behavior | [Domain and API index](domain/README.md) |
 | Run or recover the deployed system | [Operations index](operations/README.md) |
 | Inspect the isolated K3s test deployment, initial seed, and image-update status | [Test deployment](operations/test-deployment.md) |
@@ -22,7 +23,8 @@ not duplicate status details from that page.
 ## Canonical document locations
 
 - `architecture/` — current state, repository ownership, decisions, diagrams,
-  and cross-repository review evidence.
+  cross-repository review evidence, and the proposed monorepo/scalability
+  assessment.
 - `domain/` — API plans and product behavior for identity, programmes,
   administration, and awards.
 - `geodata/` — Geodata operations, scaling, imports, and qualification records.

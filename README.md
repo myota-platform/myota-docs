@@ -19,6 +19,9 @@ input only.
   repositories and synchronized mirrors.
 - [Architecture](docs/architecture/README.md) — boundaries, decisions, and
   diagrams.
+- [Monorepo and future-scale assessment](docs/architecture/monorepo-and-scalability-assessment.md)
+  — proposed consolidation that preserves independently deployed services,
+  APIs, and frontends.
 
 ## Delivery tracking
 
