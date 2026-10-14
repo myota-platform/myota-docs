@@ -175,13 +175,13 @@ until a test provider key is provisioned and its Helm setting is enabled.
 
 The implementation and focused test evidence are tracked in
 [Geodata issue #27](https://github.com/myota-platform/myota-geodata-service/issues/27).
-The implementation is merged to Geodata `testing` at `9fc5aa3` and its
-testing image was published as digest
-`sha256:ca0f5f9546d5f9a7f412a5f70809a79f58a4293bf5e77a860d13e54be6911548`.
-It is not yet in `main` or deployed. Release PR
-[#29](https://github.com/myota-platform/myota-geodata-service/pull/29) is
-blocked because `main` advanced to the baseline-migration commit
-`7d1e91f`, which is not an ancestor of `testing`. Strict branch protection and
-required linear history prevent a history-preserving sync PR; no protection
-rule was bypassed or changed. The code change needs a permitted release path
-before it takes effect in deployed services.
+The fix was merged to Geodata `main` as `122d4b4` through release PR
+[#29](https://github.com/myota-platform/myota-geodata-service/pull/29), and the
+main image was published with digest
+`sha256:f83e9d13a966afebb32ba4266a92c6fd045e1ad01fcb94750d29dca429c71c31`.
+Production is still on the previous digest because Deploy's scheduled
+production digest-sync workflow attempted a direct push to protected `main`;
+GitHub rejected it because the required `Main PR source policy` check was
+missing. [Deploy issue #60](https://github.com/myota-platform/myota-deploy/issues/60)
+tracks the compliant rollout path. The fix is in the release image but is not
+active in the deployed production API or worker yet.
