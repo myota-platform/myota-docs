@@ -1,3 +1,28 @@
+## 14 October 2026 — Bound Grafana dashboard filters
+
+- **Prompt used:** “Continue the open workstreams and their dependent issues;
+  follow `AGENTS.md`, and document verified work.” This entry covers
+  observability issue #22 under parent #57.
+- **Implementation:** Merged
+  [myota PR #80](https://github.com/myota-platform/myota/pull/80) to replace
+  the free-form Tempo service regex with a finite list of observed service
+  names. Merged
+  [myota PR #81](https://github.com/myota-platform/myota/pull/81) to replace
+  free-form Loki environment, service, and severity filters with finite lists,
+  remove arbitrary correlation-ID/component filters, and match Python's
+  `WARNING` severity. Both PRs targeted `testing`; all reported checks passed.
+- **Verification:** Focused observability tests, all 87 deployment tests,
+  Ruff, Helm lint/render, and live read-only Tempo searches passed. The trace
+  query returned real data but zero failed or over-one-second matches. Grafana
+  provisioned PR #80. Fleet has not applied PR #81 and reports
+  `ErrApplied` at commit `4905398`, with missing Job
+  `myota-activity-notification-provisioner-319`; Helm revision 322 is
+  `pending-upgrade`. Authenticated interactive navigation and Fleet recovery
+  remain open; no test records or synthetic telemetry were inserted.
+- **Evidence:** [Testing deployment](../operations/test-deployment.md),
+  [dashboard evidence](../observability/evidence/dashboard-enhancements-2026-10-12.md),
+  and [myota issues #22 and #57](https://github.com/myota-platform/myota/issues/22).
+
 ## 14 October 2026 — Implement and qualify shared user profile fields and images
 
 - **Prompt used:** “Implement and close issues #60, #58, #57, and #55 and

@@ -6,6 +6,15 @@ acceptance gates. Operations Service has been retired; its replacement
 ownership and cutover evidence are documented in the
 [retirement record](../operations/evidence/operations-service-retirement-2026-10-11.md).
 
+The 14 October dashboard follow-up merged bounded service choices for Tempo
+and bounded environment/service/severity choices for Loki in monorepo PRs
+[#80](https://github.com/myota-platform/myota/pull/80) and
+[#81](https://github.com/myota-platform/myota/pull/81). Testing has provisioned
+the trace dashboard update, while Fleet's failed Helm upgrade has not yet
+applied the Logs / Failures change. The failed/slow trace searches returned no
+matches in the observed range. See the latest
+[Testing deployment evidence](../operations/test-deployment.md).
+
 ## Guides
 
 - [Overview](overview.md) — collection architecture, data sources, dashboards,

@@ -28,7 +28,10 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
   runtime parity, and representative capacity/recovery evidence. Correlation
   and Identity/Programme metrics work already verified as complete is recorded
   in the [current-state page](../architecture/current-state.md) and linked
-  evidence.
+  evidence. MyOTA #22 PRs #80 and #81 add finite Grafana filters; Testing has
+  the trace update, but Fleet still reports `ErrApplied` and has not applied
+  the Logs / Failures update. See the [test deployment record](../operations/test-deployment.md)
+  and [issue #22](https://github.com/myota-platform/myota/issues/22).
 
 ## Reopen only before expanding Geodata capacity
 

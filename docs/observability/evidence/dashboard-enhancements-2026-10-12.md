@@ -123,3 +123,43 @@ Deploy issues [#11](https://github.com/myota-platform/myota-deploy/issues/11),
 closed as completed. Their original implementation and live-query evidence
 remains in the verification section above; this recheck confirms the active
 Helm/Fleet deployment still includes the three dashboards.
+
+## Monorepo dashboard follow-up — 14 October 2026 21:29 UTC
+
+Monorepo issue [#22](https://github.com/myota-platform/myota/issues/22) found
+that its Tempo service selector and Loki environment, service, severity,
+component, and correlation-ID controls were free-form textboxes. It also
+filtered Python warning records using `WARN`, although the logger emits
+`WARNING`.
+
+- PR [#80](https://github.com/myota-platform/myota/pull/80) replaces the Tempo
+  text field with a finite service dropdown containing the nine names observed
+  in the Testing Tempo search. Its `All` option and 30-minute time picker stay
+  available. TraceQL queries remain bounded to 50 rows and use stored spans.
+- PR [#81](https://github.com/myota-platform/myota/pull/81) makes Loki
+  environment, service, and severity filters finite. It removes the arbitrary
+  correlation-ID panel and component filter, aggregates errors by service,
+  and filters warnings using `WARNING|ERROR`. Trace-to-log navigation remains
+  based on the selected trace context, not a user-entered identifier.
+- Both PRs merged to `myota/testing` after all reported checks passed. The
+  focused observability suite passed 13/13 before PR #80; all 87 deployment
+  tests passed before PR #81. Helm lint and template rendering passed for both
+  changes. PR #81's tests also verified that no correlation-ID or component
+  free-text filter remains.
+- A read-only Tempo search returned up to 1,000 traces and nine distinct
+  MyOTA root service names. The failed-trace and `trace:duration > 1s` queries
+  parsed and returned zero matches for the queried range. No synthetic spans
+  or log records were written.
+- The Test Grafana mount has the updated trace dashboard (SHA-256
+  `510f978c3a78a571b4082dc34894167bd5da97993ddf78b1425ad9236fb8de8d`) and
+  the prior Logs / Failures dashboard (SHA-256
+  `c664a46c452a042ee858966f7c3f163bff8d18ec971ea9577f2b768a7b98f062`). Fleet
+  last reports monorepo commit `4905398` and `ErrApplied` because the expected
+  Job `myota-activity-notification-provisioner-319` is missing. GitHub
+  `testing` is at `fcb31f6`; Helm revision 322 is `pending-upgrade`. All 24
+  Deployments and three StatefulSets are ready, but that does not prove the
+  Fleet release is reconciled.
+- Production values and workloads were not changed. Authenticated interactive
+  trace/log navigation, Fleet recovery, full Compose runtime parity, the old
+  Platform mirror, and representative error/slow trace matches remain open.
+  No synthetic test data required cleanup.

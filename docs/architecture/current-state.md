@@ -1,11 +1,11 @@
 # Current system state
 
 **Production snapshot:** 2026-10-14 11:09 UTC
-**Testing snapshot:** 2026-10-14 20:02 UTC
+**Testing snapshot:** 2026-10-14 21:29 UTC
 **Scope:** GitHub repository heads and a read-only inspection and controlled
 rollout in the production `myota` and isolated `myota-test` namespaces on the
 local single-node K3s host. Production and repository heads were checked at
-11:09 UTC; Testing was rechecked at 20:02 UTC. This is a snapshot, not a
+11:09 UTC; Testing was rechecked at 21:29 UTC. This is a snapshot, not a
 production-readiness declaration. Authoritative owner repositories remain the
 source of truth; Deploy and Platform copies are synchronized mirrors where the
 [repository map](repository-map.md) says so.
@@ -16,7 +16,7 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
 | Helm/Fleet | Release `myota`, chart `myota-0.2.20`, revision `288`, deployed. MyOTA Fleet GitRepo and BundleDeployment are Ready 71/71 with zero non-ready resources at Deploy `main` commit `ed87c267fa0aa8981de40f1426dd9ace3b36910f`. Migration Job `myota-migrations-288` completed with the immutable unified runner image; all database readiness markers are true at revision 288. |
-| Isolated test release | Helm `myota-test` revision `304` is deployed. The Testing Fleet GitRepo points at `myota-platform/myota/testing` commit [`5b334661`](https://github.com/myota-platform/myota/commit/5b33466155bf0bd3bd69a65fbfdc6d37a338b812); all 24 Deployments and 3 StatefulSets report desired replicas ready, and all 10 database/observability PVCs are Bound. Logs / Failures, Distributed Traces, and MyOTA service health dashboards are provisioned. Live queries for the Identity user and Programme gauges return real series matching the current dashboard expressions. See [test deployment](../operations/test-deployment.md) for dashboard, image, and query evidence. |
+| Isolated test release | All 24 Deployments and 3 StatefulSets report desired replicas ready, and all 10 database/observability PVCs remain Bound. Helm revision 322 is `pending-upgrade`; Fleet reports `ErrApplied` at monorepo commit `4905398`, expecting missing Job `myota-activity-notification-provisioner-319`, while GitHub `testing` is at [`fcb31f6`](https://github.com/myota-platform/myota/commit/fcb31f663b885bad5a4f9f0354412c3320b2c630). The Distributed Traces dashboard's bounded service filter is mounted; the Logs / Failures filter update is merged but not yet mounted. The service-health dashboard remains provisioned and its last recorded live Identity and Programme queries returned current series. See [test deployment](../operations/test-deployment.md) for dashboard, image, and query evidence. |
 | MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas), including the namespace-scoped kube-state-metrics Deployment. The Admin web runs image `sha256:52de069757c0f259f7ad22e86309227d6b2558f689029615b47cbf45b7b362c0`; its Name & categories tab places Website and Description after Entity name and Entity categories and saves the full section with one action. The live bundle exposes `Save details`. See [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2). `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |

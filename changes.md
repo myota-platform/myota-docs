@@ -1,5 +1,19 @@
 ## 14 October 2026
 
+- Improved the monorepo Grafana dashboards in PRs
+  [#80](https://github.com/myota-platform/myota/pull/80) and
+  [#81](https://github.com/myota-platform/myota/pull/81): Tempo service
+  selection is finite; Loki environment, service, and severity filters are
+  finite; arbitrary correlation-ID and component controls were removed; and
+  Python `WARNING` events now match the warning panels. All PR checks passed.
+- Testing has provisioned the trace filter from PR #80. PR #81 is merged to
+  `testing` but its log dashboard has not been applied: Fleet is `ErrApplied`
+  at commit `4905398`, expects missing Job
+  `myota-activity-notification-provisioner-319`, and Helm revision 322 is
+  `pending-upgrade`. The 24 Deployments and three StatefulSets remain ready.
+  No synthetic logs or traces were created. Details are in the
+  [Testing deployment record](docs/operations/test-deployment.md).
+
 - Implemented shared user profile fields, private image handling, and the
   Participant editor in monorepo PRs
   [#76](https://github.com/myota-platform/myota/pull/76)–
