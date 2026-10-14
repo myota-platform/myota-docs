@@ -22,10 +22,8 @@ flowchart LR
   CancelCheck -->|Yes| Cancel[Stop at feature boundary]
   Cancel --> CancelCleanup[Delete staged rows + temporary source]
   CancelCleanup --> Cancelled[Retain summary as CANCELLED]
-  Dedup --> CatalogueMatch[Check current catalogue within 50 m]
-  Dedup --> ImportMatch[Check earlier candidates in this import within 50 m]
+  Dedup --> CatalogueMatch[Check persisted CANDIDATE or APPROVED entities within 50 m]
   CatalogueMatch --> Store[(Pre-processed candidate store)]
-  ImportMatch --> Store
   Store --> Checkpoint[(Commit window + evict worker projections)]
   Checkpoint -->|Next ordinal window| Window
   Dedup -.-> Warning[Possible duplicate warning]
@@ -87,14 +85,16 @@ spool volume.
 
 The candidate store is represented by `geodata_import_candidate` in the
 geodata PostGIS schema. Duplicate verification compares normalized geometry
-with catalogue entities and earlier staged candidates from the same import.
-Identical geometry or a distance under 50 metres adds `POSSIBLE_DUPLICATE`
-evidence, including the matched record, distance, and match type. This evidence
-is stored with the durable candidate and appears in the import summary, review
-list, and map modal after reload. It does not automatically merge, reject, or
-modify an existing record. Entity names are not unique; the source-reference
-identity `(adapter_code, source_record_id)` is unique. Source-provided IDs are
-preserved, and generated fallback IDs include the import run ID.
+only with persisted `geodata_entity` rows in `CANDIDATE` or `APPROVED` lifecycle
+status. Staged rows from this import or another import are not compared.
+Identical geometry or a distance under 50 metres adds
+`POSSIBLE_DUPLICATE` evidence, including the matched record, distance, and
+match type. This evidence is stored with the durable candidate and appears in
+the import summary, review list, and map modal after reload. It does not
+automatically merge, reject, or modify an existing record. Entity names are
+not unique; the source-reference identity `(adapter_code, source_record_id)` is
+unique. Source-provided IDs are preserved, and generated fallback IDs include
+the import run ID.
 
 Historical manual imports may contain reusable `MANUAL:record-N` placeholders.
 The worker repairs this known legacy pattern from the captured source feature,

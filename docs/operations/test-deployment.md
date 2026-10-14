@@ -1,10 +1,10 @@
 # Isolated test deployment
 
-**Verified:** 2026-10-14 09:56 UTC
+**Verified:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Fleet source:** `myota-platform/myota-deploy`, branch `testing`, commit
-[`6e60c27`](https://github.com/myota-platform/myota-deploy/commit/6e60c2739aa5f78929dc0bd7a401722b66da8f3f).
+[`3af93b2`](https://github.com/myota-platform/myota-deploy/commit/3af93b275879c60cef13426fb3ac483f76ac996d).
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
@@ -15,10 +15,10 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 
 | Check | Result |
 |---|---|
-| Helm | Release `myota-test`, chart `myota-test-0.1.0` with shared chart dependency `0.2.25`, revision 176, `deployed`. |
-| Fleet | GitRepo tracks Deploy `testing` at `6e60c2739aa5f78929dc0bd7a401722b66da8f3f`; BundleDeployment Ready. |
-| Workloads | All 24 Deployments and all 3 StatefulSets have their desired replicas available. Revision 175 migration, JetStream provisioner, Activity notification provisioner, and PostgreSQL monitor-role Jobs completed successfully; revision 176 remains Ready. |
-| Images | Pinned testing digests are active. Geodata API and import worker use the digest published from Geodata `testing` PR #23 and recorded through Deploy PR #58. |
+| Helm | Release `myota-test`, chart `myota-test-0.1.0` with shared chart dependency `0.2.25`, revision 191, `deployed`. |
+| Fleet | GitRepo tracks Deploy `testing` at `3af93b275879c60cef13426fb3ac483f76ac996d`; Fleet reports 76/76 desired resources ready and BundleDeployment Ready. |
+| Workloads | All 24 Deployments and all 3 StatefulSets have their desired replicas available. Revision 191 migration, JetStream provisioner, Activity notification provisioner, and PostgreSQL monitor-role Jobs completed successfully. |
+| Images | Pinned testing digests are active. Geodata API and import worker use the digest published from Geodata `testing` PR #26 and recorded through Deploy PR #59. |
 | JetStream | The deployment-owned provisioner validated all three streams and ten selected work durables. |
 | Admin UI | [admin.test.myota.top](https://admin.test.myota.top) returns HTTP 200 with a valid ACME certificate. |
 | Participant UI | [test.myota.top](https://test.myota.top) returns HTTP 200 with a valid ACME certificate. |
@@ -37,26 +37,36 @@ historical values were:
 | Admin Web | `sha256:cdbcc11c0fdbdb6dfdc94d6997343d9ece310946edc537b4faa2f4ac16863394` |
 | Shared Platform image | `sha256:3abc60cd6d276afd1d28ce765e40920669d00daa284a317cb4787b78ded36e64` |
 
-On 14 October, Geodata PR [#23](https://github.com/myota-platform/myota-geodata-service/pull/23)
-merged to `testing`. The `.github` digest workflow opened Deploy PR
-[#58](https://github.com/myota-platform/myota-deploy/pull/58), which changed
-only `values-image-digests-testing.yaml` and auto-merged after runtime tests,
-chart rendering, Python quality, and image checks passed. Fleet deployed the
-Geodata digest below to both API and import-processing worker. Helm revision
-176 is `deployed`, all 24 Deployments and three database StatefulSets are
-ready, the test BundleDeployment is Ready, and Geodata `/healthz` returned
+Earlier on 14 October, Geodata PR [#23](https://github.com/myota-platform/myota-geodata-service/pull/23)
+merged to `testing`. Deploy PR
+[#58](https://github.com/myota-platform/myota-deploy/pull/58) recorded its
+published digest, `sha256:929b31b9f9509c96ed088e158dc3c14e70c95b6b20ab510ca093b861edbb14ba`.
+Fleet deployed it to both Geodata Deployments at Helm revision 176; those
+Deployments and the other workloads were ready, and `/healthz` returned
 HTTP 200.
 
 | Current image | Testing digest |
 |---|---|
 | Identity service | `sha256:d1b35ba5338d50f3b77627da99a9ca170735ff461c014bd4b105ba098469de17` |
 | Programme service | `sha256:3cd2da5d6afe945ad505bdce8fb867789cc7a9076798dce52818a45745f43fc0` |
-| Geodata service | `sha256:929b31b9f9509c96ed088e158dc3c14e70c95b6b20ab510ca093b861edbb14ba` |
+| Geodata service | `sha256:c6c8ac57d4590f19bf990ca21282bd1084be0474d3014f094a2a51475ef0eaaf` |
 | Activity service | `sha256:653964a8c74cf485421449a122dd1397fc60f6a75efa2af90d55c4d094a22136` |
 | Gateway | `sha256:5ea1e5b82eca775b855c9699904a6fefe78ee39dfa10398da68449d4f8e3ce94` |
 | Admin Web | `sha256:8062833ca0052a2cb53b085517c79a7a4a1f560f0c1cc736f45a2e8b29038164` |
 | Shared platform image | `sha256:3abc60cd6d276afd3d28ce765e40920669d00daa284a317cb4787b78ded36e64` |
 | Participant Web | `sha256:563f0215e675b2a5824da264c6af8d852720192fdbe6fd951b4f6ffcc9cf98ec` |
+
+Later on 14 October, Geodata PR
+[#26](https://github.com/myota-platform/myota-geodata-service/pull/26)
+merged with catalogue-only duplicate comparison. The digest workflow opened
+Deploy PR [#59](https://github.com/myota-platform/myota-deploy/pull/59), which
+passed runtime tests, chart rendering, Python quality, and both artifact build
+checks before merging. Fleet deployed the current Geodata digest to the API
+and import-processing worker at Helm revision 191. Both Deployments are
+ready, the test bundle reports 76/76 desired resources ready, and Geodata
+`/healthz` returned HTTP 200. A read-only call to the deployed duplicate
+lookup returned two nearby `APPROVED` catalogue matches and no other lifecycle
+statuses; it wrote no test records.
 
 After PR #49, all 24 Deployments were available and both test UIs returned HTTP
 200. Deploy PR [#50](https://github.com/myota-platform/myota-deploy/pull/50)

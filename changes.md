@@ -1,3 +1,37 @@
+## 14 October 2026 — Restrict import duplicate evidence to catalogue entities
+
+- **Prompt used:** “when processing geodata imports, don't compare
+  duplicates with other imports or the same import, only with candidate aor
+  approved entities. Create and close github issue(s) for this work.”
+- **Decision:** Compare normalized imported geometry only with persisted
+  `geodata_entity` rows in `CANDIDATE` or `APPROVED` lifecycle status. Exclude
+  all staged import-candidate rows, regardless of run. This retains useful
+  review evidence from the entity catalogue while preventing staged records
+  from creating import-to-import warnings.
+- **Implementation:** Geodata issue
+  [#25](https://github.com/myota-platform/myota-geodata-service/issues/25),
+  [PR #26](https://github.com/myota-platform/myota-geodata-service/pull/26),
+  and Deploy digest PR
+  [#59](https://github.com/myota-platform/myota-deploy/pull/59). PR #26
+  filters the indexed PostGIS proximity query by lifecycle status, applies the
+  same rule in the in-memory store, and removes the staged-candidate proximity
+  query paths. Same-run and other-run staged rows are covered by regression
+  tests.
+- Issue #25 was closed after implementation, CI, and Testing rollout evidence
+  satisfied all acceptance criteria.
+- **Evidence:** Ruff passed; the focused import/store suite passed 45 tests;
+  the full local suite passed 171 tests with 33 database-dependent skips. All
+  Geodata CI checks passed, including relational/PostGIS boundaries, upload
+  session recovery, load harness, and image build. Testing runs Geodata digest
+  `sha256:c6c8ac57d4590f19bf990ca21282bd1084be0474d3014f094a2a51475ef0eaaf`
+  at Helm revision 191. Both Geodata Deployments are ready, the test Helm
+  release is deployed, Fleet reports 76/76 desired resources ready, and
+  `/healthz` returns HTTP 200. A read-only call to the deployed proximity
+  helper returned two nearby `APPROVED` catalogue matches and no other
+  lifecycle statuses. No test records were written.
+- **Documentation:** The Geodata README, architecture overview, current-state
+  record, import-validation diagram, and this change log describe the scope.
+
 ## 14 October 2026 — Recover legacy Geodata manual source IDs
 
 - **Prompt used:** “Now I get ‘The source record conflicts with an existing
