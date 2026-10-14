@@ -8,13 +8,15 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
 
 ## Active work
 
-- [Activate testing-image digest updates for the isolated test release](../operations/test-deployment.md)
-  — Helm revision 4 is deployed and ready at Deploy `testing` commit
-  `d0556c3`, but GitHub's scheduled digest workflow
-  is only present on Deploy `testing`; schedules run from default branch
-  `main`, and organization policy currently prohibits Actions from creating
-  the required PR. Resolve both gates without promoting unrelated divergent
-  production changes.
+- [Complete the monorepo release-path transition](../architecture/monorepo-and-scalability-assessment.md)
+  — the first CI/Helm workflow PR merged to `myota/testing`, and all PR checks
+  passed. Post-merge service/deployment test jobs passed, but image publishing
+  is blocked by GHCR `permission_denied: write_package` for eight existing
+  packages. Configure package access, verify the digest-writer App, update the
+  Testing Fleet source, validate release rules, and archive old repositories
+  only after both environment cutovers. See the
+  [dated evidence](../architecture/evidence/monorepo-transition-2026-10-14.md)
+  and [myota #53](https://github.com/myota-platform/myota/issues/53).
 - [Structured logging and observability acceptance](../observability/logging-implementation.md)
   — remaining gates are authenticated Grafana trace/log navigation, Compose
   runtime parity, and representative capacity/recovery evidence. Correlation

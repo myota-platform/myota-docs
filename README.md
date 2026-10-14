@@ -5,8 +5,10 @@ programmes. MPOTA is an optional programme configuration, not the platform
 definition. Each programme owns its charter, eligibility, rules, awards,
 content, and governance.
 
-This repository is the documentation hub; service repositories own runtime
-code. The original `ea7klk/mpota` repository remains untouched and is migration
+This repository is the documentation hub. Runtime source is transitioning
+to the [myota monorepo](https://github.com/myota-platform/myota); the active
+production and Testing deployments still use the previous split repositories
+until their release paths are verified. The original `ea7klk/mpota` repository remains untouched and is migration
 input only.
 
 ## Start here
@@ -20,8 +22,8 @@ input only.
 - [Architecture](docs/architecture/README.md) — boundaries, decisions, and
   diagrams.
 - [Monorepo and future-scale assessment](docs/architecture/monorepo-and-scalability-assessment.md)
-  — proposed consolidation that preserves independently deployed services,
-  APIs, and frontends.
+  — accepted consolidation strategy and current migration evidence; service,
+  API, and frontend boundaries remain independent.
 
 ## Delivery tracking
 

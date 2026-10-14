@@ -1,3 +1,31 @@
+## 14 October 2026 — Start the monorepo transition
+
+- **Prompt used:** “Implement the monorepo strategy as laid out in the
+  [monorepo/scalability assessment](https://github.com/myota-platform/myota-docs/blob/main/docs/architecture/monorepo-and-scalability-assessment.md).
+  Use current `main` snapshots, migrate all open issues, consolidate agent
+  instructions, preserve workflows and testing deployment, do not migrate
+  branches, name the repository `myota`, archive prior repositories except
+  Docs and `.github`, then update Docs and diagrams.”
+- **Implemented:** Imported current source snapshots into `myota`; established
+  service-preserving layout, common `AGENTS.md`, monorepo CI/Helm workflows,
+  Compose path changes, and root contract-source audit paths. Merged PR #3 to
+  `testing` after all ten PR checks passed. Updated the digest workflow to
+  target the monorepo. Moved 49 open issues with acceptance criteria and
+  reciprocal references, closing each source issue as migrated.
+- **Verification:** Post-merge unit, component, contract, Helm, and deployment
+  runtime checks passed. Eight GHCR image writes were denied because the
+  existing packages do not yet grant the monorepo Actions identity write
+  access. Fleet continues to track the split Deploy repo; there was no cluster
+  or runtime change. The old source repositories have zero open issues; the
+  monorepo has 50 after adding the package-access blocker
+  ([myota #53](https://github.com/myota-platform/myota/issues/53)).
+- **Remaining:** GitHub connector branch-protection reads returned HTTP 403 and
+  no archive write action is exposed. Configure package access and repository
+  rules; prove Testing and production cutovers, contract/mirror parity, and
+  digest automation before archiving previous repositories.
+- **Evidence:** [Monorepo transition record](https://github.com/myota-platform/myota-docs/blob/main/docs/architecture/evidence/monorepo-transition-2026-10-14.md);
+  [myota PR #3](https://github.com/myota-platform/myota/pull/3).
+
 ## 14 October 2026 — Restrict import duplicate evidence to catalogue entities
 
 - **Prompt used:** “when processing geodata imports, don't compare

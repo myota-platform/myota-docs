@@ -1,11 +1,27 @@
 # Monorepo and future-scale assessment
 
-**Status:** Proposed architecture decision, not implemented
+**Status:** Decision accepted; monorepo implementation started; release cutover incomplete
 
 **Assessment date:** 2026-10-14
 **Scope:** Repository structure, application boundaries, scalability, and language
 selection. No runtime behavior, API, schema, or deployment was changed for this
 assessment.
+
+## Implementation status — 2026-10-14
+
+The user-created `myota` repository is initialized from current `main`
+snapshots. The first CI/deployment workflow PR is merged to `testing`, and
+all PR checks passed. Post-merge unit/integration checks also passed, but the
+image push is blocked because the new repository lacks write access to eight
+existing GHCR packages. The active Fleet GitRepos still point to
+`myota-deploy`; no runtime or cluster resources have been moved. The 49
+source issues were transferred with reciprocal links; source issues are closed
+as migrated, not completed. See the
+[dated transition evidence](evidence/monorepo-transition-2026-10-14.md).
+
+The assessment's architecture and language recommendations remain the target
+while these release gates are resolved. Repository archive, main-branch
+protection, test deployment, and production cutover are not complete.
 
 ## Decision summary
 

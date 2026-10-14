@@ -1,3 +1,53 @@
+## 14 October 2026 — Monorepo foundation and issue migration
+
+- **Prompt used:** “OK. Implement the monorepo strategy as laid out in
+https://github.com/myota-platform/myota-docs/blob/main/docs/architecture/monorepo-and-scalability-assessment.md.
+Use the current main branch as the starting point. Move all open issues in
+existing repositories to the monorepo, reorganizing and consolidating them if
+needed. Create a common AGENTS.md that includes instructions from current
+AGENTS.md files from all repos and the local ./AGENTS.md. Adjust the workflows
+without losing functionality. Don't migrate any current branches. Implement the
+testing branch workflow and deploy that is currently in use. Name the
+repository myota. When done archive the previous repositories, except .github
+and myota-docs. As the last step, update the myota-docs repository, diagrams,
+etc...” Follow-up: “I have created the repository, continue.”
+- **Decision:** Follow the approved monorepo assessment: consolidate source
+  management under `myota` without merging service processes, APIs, databases,
+  scaling, or image boundaries. Keep the existing frontends and async messaging.
+  Do not rewrite Python or TypeScript.
+- **Source and layout:** Imported current `main` snapshots only; no old
+  branches or source commit histories were migrated. The repository layout is
+  `apps/identity`, `apps/programmes`, `apps/geodata`, `apps/activity`,
+  `apps/email`, `web/participant`, `web/admin`, `contracts`, `deploy`,
+  and `integration`. Added a common root `AGENTS.md` consolidating local
+  instructions and current `.github/AGENTS.md`; added root CI and Helm
+  validation workflows and adjusted monorepo paths.
+- **Issue migration:** Moved all 49 open issues from the source repositories
+  with user stories, acceptance criteria, related links, and reciprocal
+  migration comments. Closed source issues as migrated, not complete. A fresh
+  query found zero open issues across the source repositories and 50 open
+  issues in `myota` after adding the GHCR blocker. The
+  [.github issue index](https://github.com/myota-platform/.github/blob/main/profile/README.md)
+  lists current target issues in workstream groups.
+- **CI evidence:** PR [#3](https://github.com/myota-platform/myota/pull/3)
+  merged to `testing` as commit
+  [`a932f2f`](https://github.com/myota-platform/myota/commit/a932f2f3c511dbaebb27315e4c55646dbaec737b).
+  All ten PR checks passed. Post-merge component and deployment tests passed,
+  while eight GHCR pushes failed with `permission_denied: write_package`.
+  [MyOTA #53](https://github.com/myota-platform/myota/issues/53) records
+  package-level Actions permission remediation. Contracts checks passed.
+- **Release status:** Fleet still tracks `myota-deploy/main` for production and
+  `myota-deploy/testing` for the isolated release. No runtime changes were
+  deployed. The monorepo branch-protection endpoint returned HTTP 403 through
+  the connector; archive write actions are not available. Neither protections
+  nor archive state were changed. No testing-to-main release PR was opened.
+- **Exit status:** Incomplete. Do not archive old repositories until GHCR
+  publication, branch protections, digest automation, Testing Fleet cutover,
+  production release, and Contracts/Platform/Deploy parity are proven.
+- **Evidence:** [Monorepo transition record](../architecture/evidence/monorepo-transition-2026-10-14.md),
+  [repository map](../architecture/repository-map.md), and
+  [current system state](../architecture/current-state.md).
+
 ## 13 October 2026 — Operations Service repository archived
 
 - **Prompt used:** “Archive the repository `myota-operations-service`.”

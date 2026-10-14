@@ -2,7 +2,7 @@
 
 For the latest verified deployment and workstream status, see [Current system state](../architecture/current-state.md). This page lists unfinished work only; completed milestones remain in their source plans and evidence.
 
-**Reviewed:** 2026-10-13 19:45 UTC
+**Reviewed:** 2026-10-14 16:02 UTC
 
 This is a recommended order, not a delivery schedule. It records no due dates,
 staffing commitments, external deadlines, or production incidents. Roadmaps own
@@ -19,6 +19,26 @@ priorities change.
   current production blocker.
 
 ## P0 — before expansion or dependent implementation
+
+### 0. Complete the monorepo release-path transition
+
+**Current position:** The source snapshots and quality-gated CI/Helm workflows
+are in `myota`; PR #3 merged to `testing` and its PR checks passed. Post-merge
+service and deployment tests passed, but all eight image pushes were denied by
+GHCR package permissions. Fleet still tracks the split Deploy repository, and
+the new repository's branch protections and digest-writer App are unverified.
+The 49 original open issues moved with reciprocal links; a new GHCR gate is
+tracked in [myota #53](https://github.com/myota-platform/myota/issues/53).
+
+**Next:** Grant package write access or qualify a safe package rename; rerun
+the complete `testing` image workflows; confirm rulesets and digest automation;
+move and verify the isolated Testing release; validate production via its
+testing-to-main release PR; compare contract and deployment mirrors; archive
+former repositories only when no runtime, workflow, issue, or operator path
+depends on them. Do not change live release sources before image publication
+and rollout evidence pass. See the
+[transition evidence](../architecture/evidence/monorepo-transition-2026-10-14.md).
+
 
 ### 1. Reopen Geodata qualification before expanding capacity
 

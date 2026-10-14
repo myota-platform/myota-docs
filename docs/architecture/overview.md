@@ -1,6 +1,6 @@
 # MyOTA platform architecture
 
-Start with the [current system state](current-state.md) for the latest verified deployment, source revisions, and open work. Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diagrams/service-boundaries.md), [`diagrams/programme-configuration-lifecycle.md`](diagrams/programme-configuration-lifecycle.md), and [`diagrams/data-model.md`](diagrams/data-model.md). Diagrams show ownership and lifecycle relationships; linked evidence remains authoritative for implementation claims.
+Start with the [current system state](current-state.md) for the latest verified deployment, source revisions, and open work. Runtime boundaries remain unchanged while source code transitions into the [myota monorepo](repository-map.md); the active Fleet release still reads the split Deploy repository. Editable Mermaid views are maintained in [`diagrams/service-boundaries.md`](diagrams/service-boundaries.md), [`diagrams/programme-configuration-lifecycle.md`](diagrams/programme-configuration-lifecycle.md), and [`diagrams/data-model.md`](diagrams/data-model.md). Diagrams show ownership and lifecycle relationships; linked evidence remains authoritative for implementation claims.
 
 The deployed NATS event/work topology is shown in the
 [NATS migration diagram](diagrams/nats-event-migration.md). Phases 0–6 are

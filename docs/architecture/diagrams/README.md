@@ -1,7 +1,10 @@
 # Diagram index
 
-These Mermaid diagrams explain current ownership and selected architecture.
-They do not prove that every pictured capability is deployed. The
+These Mermaid diagrams explain current runtime ownership and selected architecture.
+The service boundaries and deployment are unchanged, but source ownership is
+transitioning separately. The service-boundary diagram distinguishes candidate
+monorepo source from the split-repository release that is still deployed.
+Diagrams do not prove that every pictured capability is deployed. The
 [current-state snapshot](../current-state.md) summarizes the latest live checks;
 linked plans and evidence remain authoritative for their scope. Sections labeled
 historical or proposed are snapshots or decisions, not current runtime claims.

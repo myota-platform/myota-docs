@@ -4,6 +4,14 @@ This current-state view summarizes service boundaries. The admin web
 coordinates APIs but does not own domain data. Cross-service references are
 IDs, slugs, and versioned API/event payloads, never cross-database foreign keys.
 
+The service/data-flow diagram below represents unchanged runtime boundaries.
+Repository ownership is in transition: source snapshots are consolidated under
+`myota/apps/*`, `myota/web/*`, and `myota/deploy`, but production and
+Testing Fleet still track the split Deploy repository. The monorepo has not
+been deployed. See the
+[repository map](../repository-map.md) and
+[dated transition evidence](../evidence/monorepo-transition-2026-10-14.md).
+
 ```mermaid
 flowchart LR
   Participant[Participant web and mobile]
@@ -78,9 +86,11 @@ authoritative for domain state, job state, outbox delivery, and recovery.
   session and role checks. The retired Operations repository was archived on
   2026-10-13. It no longer samples SeaweedFS and does not inspect or consume
   JetStream.
-- Deploy owns runtime wiring and deployment configuration. Platform copies of
-  Deploy assets are synchronized mirrors; service repositories remain
-  authoritative for service code and contracts.
+- The `myota` repository now contains candidate service code and deployment
+  assets at `apps/*`, `web/*`, `contracts`, and `deploy`. This is not yet
+  the deployed source. Fleet still reads Deploy's `main` and `testing` branches.
+- Platform copies of Deploy assets remain synchronized transition mirrors.
+  Compare and retire them only after monorepo deployment parity is verified.
 
 For the latest live deployment revision and evidence limits, see
 [Current system state](../current-state.md). The

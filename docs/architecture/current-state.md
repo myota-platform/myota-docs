@@ -21,6 +21,35 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
 | Monitoring | NATS Surveyor 0.9.11, Prometheus 2.55.1, Grafana 11.2.2, Alertmanager 0.28.1, OTel Collector 0.135.0, Tempo 2.6.1, and Loki 3.7.8. Eleven NATS dashboards are in Grafana folder `NATS`. |
 
+## Monorepo migration status — checked 2026-10-14 16:02 UTC
+
+The new `myota` repository was created from the current `main` snapshots of
+the service, web, contract, and deployment sources. No old branches or commit
+histories were migrated. Its first integration PR merged to `testing` as
+[`a932f2f`](https://github.com/myota-platform/myota/commit/a932f2f3c511dbaebb27315e4c55646dbaec737b).
+All ten PR quality checks passed. The merge reran tests on `testing`;
+component, contract, Helm, and deployment runtime tests passed, but each of
+eight image pushes failed with GHCR `permission_denied: write_package`.
+The remediation is tracked in
+[myota #53](https://github.com/myota-platform/myota/issues/53). No new
+monorepo image digest was published, and no release PR to `main` was opened.
+
+At 16:02 UTC, a read-only Fleet query still showed the production source as
+`myota-deploy/main` at `deploy/helm/myota` and the isolated Testing source
+as `myota-deploy/testing` at `deploy/helm/myota-test`. No cluster or runtime
+resource changed during this repository migration. Existing deployed revision
+and image evidence above remains the latest full runtime snapshot; this section
+updates repository-transition status only.
+
+All 49 open source issues were migrated with reciprocal links and closed as
+migrated. The old source repositories have zero open issues; `myota` has 50
+open issues, including the newly recorded GHCR blocker. The organization
+profile links the current grouped list. Branch-protection reads for the new
+repository returned HTTP 403, and the GitHub connector has no archive write
+action. Therefore rulesets are unverified and former repositories remain
+unarchived. See the
+[transition evidence](evidence/monorepo-transition-2026-10-14.md).
+
 ## Geodata import review status
 
 On 14 October, a Testing import exposed a permanent source-reference collision

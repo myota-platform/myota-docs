@@ -1,135 +1,89 @@
-# Current MyOTA repository map
+# Current MyOTA repository and source ownership map
 
-The following split is justified and intentionally small:
+## Migration status
 
-| Repository | Owns | Current implementation / artifacts |
+The monorepo strategy is accepted and implementation has started, but release
+cutover is incomplete. The user-created
+[`myota`](https://github.com/myota-platform/myota) repository was populated
+from current `main` snapshots. Its first integration workflow merged into
+`testing`; tests pass but package publication is blocked by GHCR permissions.
+Production and Testing Fleet still use `myota-deploy`. Former repositories
+remain transition sources and have not been archived. The
+[transition evidence](evidence/monorepo-transition-2026-10-14.md) records exact
+commits, runs, issue migration, live Fleet paths, and exit criteria.
+
+## Target source layout
+
+| Domain or responsibility | Target path in `myota` | Ownership boundary |
 |---|---|---|
-| `myota-contracts` | OpenAPI, event schemas, compatibility rules, generated client release | `contracts/` |
-| `myota-identity-service` | accounts, callsigns, auth claims, OIDC mappings and live roles and derived scopes | `identity.py`, `run_identity.py` |
-| `myota-programme-service` | programmes, shared entity category master data and programme assignments, programme-owned rules and themes | `programmes.py`, `run_programmes.py` |
-| `myota-geodata-service` | PostGIS, import adapters, provenance, conflation, review, staged dataset intake, source decoding and durable domain workers | `geodata.py`, `geodata_routes.py`, `relational_state.py`, `relational_queries.py`, `geodata_import_worker.py`, `migrations/` |
-| `myota-activity-service` | activations, normalized/indexed QSOs, COPY/ADIF ingestion, activity aggregates, corrections, programme-owned award definitions and versioned progress, object-storage assets, requests, rendering, notifications, statistics and issuance records | `activity.py`, `awards.py`, `activity_repository.py`, `activity_worker.py`, `migrations/` |
-| `myota-operations-service` | Archived on 2026-10-13; retired historical implementation, not deployed and no longer publishes images. | read-only historical source; retirement and archive recorded in [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) |
-| `myota-web` | universal programme UI, published award progress and participant requests | `web/` |
-| `myota-admin-web` | Vue 3/TypeScript administration, programme context, grouped workspaces, resumable import intake, review queues, award designer, asset management, and operational views | `src/`, `public/vendor/` |
-| `myota-deploy` | Helm charts, environments, migration orchestration, Compose, worker deployments, observability | `deploy/helm/myota/`, `db/migrations/`, `compose.yaml` |
-| `myota-docs` | architecture, ADRs, operator and migration docs | `docs/` |
-| `myota-platform` | integration bootstrap and synchronized runtime, migration and contract mirrors; not domain ownership | `services/`, `db/migrations/`, `contracts/`, `tests/` |
-| `.github` | public organization profile, delivery checklist and shared quality workflow | `profile/README.md`, `.github/workflows/python-quality.yml` |
+| Identity | `apps/identity` | Accounts, authentication, roles, scopes, and OIDC mappings; owns Core database objects in its scope. |
+| Programme | `apps/programmes` | Programme data, shared entity categories, assignments, policy, and themes; owns its Core schema. |
+| Geodata | `apps/geodata` | PostGIS entities, imports, provenance, review, audit, and durable workers; owns `myota_geo`. |
+| Activity | `apps/activity` | Activations, QSOs, awards, corrections, notifications, and workers; owns `myota_activity`. |
+| Participant UI | `web/participant` | Participant-facing web client; no domain database ownership. |
+| Admin UI | `web/admin` | Administration workflows; coordinates APIs and owns no domain data. |
+| Contracts | `contracts` | OpenAPI, event registry/schemas, compatibility rules, and generated client. |
+| Runtime/deployment | `deploy` | Compose, Helm, migration orchestration, image builds, and environment configuration. |
+| Integration | `integration` | Cross-service integration tests; not a service data owner. |
+| Email placeholder | `apps/email` | Planning/source placeholder only; no deployed email worker is claimed. |
 
-Migration ownership follows the service boundary. The activity repository is
-the source of truth for `migrations/001_activity_relational.sql`, while
-`myota-deploy/db/migrations/activity/` and
-`myota-platform/db/migrations/activity/` carry synchronized deployment and
-bootstrap copies. The deployment runner applies these files to
-`myota_activity`, never to `myota_core`. The
-geodata repository is the source of truth for its complete ordered migration
-set in `migrations/`; `myota-platform/db/migrations/geo/` is the synchronized
-vertical-slice bootstrap mirror and `myota-deploy/db/migrations/geo/` is the
-synchronized deployment mirror. The mirrors must not be edited independently.
-The historical Operations schema originated in `myota-operations-service/migrations/001_operations.sql` and was mirrored as core migration `002_operations.sql`. Forward-only Deploy migrations retired both snapshot tables; they are absent from live Core. Creation migrations remain unchanged for integrity. SeaweedFS monitoring is owned by Deploy's OpenTelemetry Collector
-and Grafana provisioning, with synchronized Platform mirrors. Geodata-local
-idempotency, audit and outbox tables belong to its physical database; they are
-not shared across database boundaries. This keeps schema
-review close to the owning service without making every service perform
-cluster migration orchestration.
+The repository consolidates source management, not runtime processes. Keep
+services separately deployable and scalable. Preserve independent database
+ownership, API behavior, authorization, data retention, failure handling, and
+image/deployment boundaries. Cross-service references remain IDs and
+versioned APIs/events; do not introduce cross-database foreign keys.
 
-The NATS monitoring consolidation in
-[observability](../observability/nats-surveyor-migration.md) is complete within
-its recorded evidence bounds. Surveyor and Grafana provisioning are Deploy
-owned; retired service monitoring and synchronized Platform copies are tracked
-by their respective owners. Operations is retired from Compose, Helm/Fleet, API routes, and image publishing. Deploy's Collector owns database telemetry; Gateway and Identity own Grafana authorization. Platform mirrors Deploy configuration. The Operations repository was archived on 2026-10-13; [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3) is closed. See the
-[cross-repository architecture review](../../REVIEW.md) for the completed
-Phases 1–4 and the remaining duplicate-YAML-key check. Detailed CI and K3s
-results are in the [phase evidence record](evidence/review-phases-1-4-2026-10-11.md).
+## Repository disposition during transition
 
-The physical storage split is intentional: `myota_core` and
-`myota_activity` use plain PostgreSQL; only `myota_geo` uses PostGIS. Local
-Compose runs three database containers. Helm expects three independent
-database URLs in the `myota-postgres` secret (`core-database-url`,
-`activity-database-url`, and `geo-database-url`).
+| Repository | Current disposition | Cutover condition |
+|---|---|---|
+| `myota` | Candidate canonical application source; `testing` integration is active. | Publish all component images, deploy and validate Testing, configure protections, release to production, then own all artifacts and operations. |
+| `myota-identity-service`, `myota-programme-service`, `myota-geodata-service`, `myota-activity-service` | Imported source snapshots; existing production image packages and live systems still depend on prior deployment sources. | Prove code/migration parity, publish from monorepo, deploy through Testing and production, then archive. |
+| `myota-web`, `myota-admin-web` | Frontend source snapshots are in `web/participant` and `web/admin`. | Verify builds, package access, deployed frontend routing, and release ownership before archival. |
+| `myota-deploy` | Current production and Testing Fleet source; its Compose/Helm assets were copied to `deploy/`. | Move Fleet and digest automation to the monorepo, validate both environments, then archive. |
+| `myota-platform` | Existing integration/bootstrap and synchronized Deploy/runtime mirrors; selected integration tests are in `integration/`. | Verify required integration coverage and mirror disposition. Remove redundant copies only after comparison. |
+| `myota-contracts` | Contract source was copied to `contracts/`; monorepo contract CI passes. | Verify schema/client/release parity and consumer references, then archive after all users consume monorepo contracts. |
+| `myota-docs` | Separate documentation, ADR, operations, and evidence owner; explicitly retained. | Remains separate. |
+| `.github` | Separate organization governance, contribution policy, profile, and shared digest automation owner; explicitly retained. | Remains separate; keep links pointed to the monorepo and canonical Docs. |
+| `myota-operations-service` | Archived and retired on 2026-10-13. | No further runtime migration. |
 
-The geodata import page is owned by `myota-admin-web`, but import semantics
-remain owned by `myota-geodata-service`: pasted text is accepted through the
-import resource, while files use a user-bound resumable session and bounded S3
-multipart parts. The database stores upload metadata and per-part checksums;
-the bytes are stored in SeaweedFS/S3-compatible object storage, not a shared
-pod spool volume. The browser retries parts and can resume from the stored
-part list. Object verification and malware gates run before the import run and
-outbox event are accepted. Durable `geodata.import.queued.v1` events are
-published through the geo outbox to NATS JetStream. The same geodata-owned
-worker image runs separately from the HTTP Deployment and consumes durable
-pull queues for preprocessing and administrator-requested promotion with
-explicit ack, bounded redelivery, database leases/heartbeats, and idempotent
-effects. File and pasted imports stop at `PREPROCESSED` as durable
-`geodata_import_candidate` records. Identical geometry or a centroid distance
-under 50 metres creates a non-blocking `POSSIBLE_DUPLICATE` warning with
-comparison geometry. The admin web exposes these records in a dedicated
-pre-processing queue with candidate counts; after paged confirmation, a
-separate NATS processing queue promotes selected records to `CANDIDATE` or
-authorized `APPROVED`. Only promoted candidates enter Geodata Review. Dataset
-imports select one or more shared Master data entity categories, are not tied
-to a programme, and programme assignment remains a separate eligibility
-concern. Supported intake formats are GeoJSON, KML, GPX, WFS/ArcGIS GeoJSON,
-Shapefile archives, OSM PBF, and ParkServe US payloads; PBF/ParkServe binary
-objects remain queued for the corresponding source worker. The default
-geodata request and upload envelopes default to 1 GiB via
-`MYOTA_MAX_BODY_BYTES` and `MYOTA_UPLOAD_MAX_BYTES`; deployments can lower
-both values. Browser file parts have a smaller configurable request-body cap;
-file uploads use owner-bound resumable sessions and bounded S3 multipart parts.
+Issue migration is complete as a tracking move: the 49 formerly open issues were
+copied with their acceptance criteria and reciprocal links, and their source
+issues were closed as migrated. They are not completed work. The monorepo has
+50 open issues, including the GHCR permission gate.
 
-The geodata service also owns import retention. A daily worker expires
-`PROCESSED` runs 30 days after `processed_at`; queued, preprocessed, failed, and
-stalled runs expire after 30 days without a newer start/completion/heartbeat.
-Active processing is retained while its heartbeat advances. The worker deletes
-stored source files and import-specific history/log data, while promoted
-entities and their source provenance remain.
+## Deployment-source and mirror rule
 
-Global entity deletion is an explicit cross-service workflow. The activity
-service owns the impact calculation, valid-QSO deletion, aggregate rebuild and
-award-progress recalculation job; only after that succeeds does the geodata
-service remove the entity, conflation links and entity audit history. The UI
-must show the QSO/activation impact and require confirmation before invoking
-the irreversible operation.
+The source of deployed configuration has not moved yet. Fleet currently tracks
+`myota-deploy/main` at `deploy/helm/myota` and
+`myota-deploy/testing` at `deploy/helm/myota-test`. Do not archive Deploy,
+change Fleet sources, or remove Platform copies until the new repository
+publishes permitted immutable images and passes non-destructive rollout
+verification.
 
-Deletion is dispatched through the third geodata durable pull consumer,
-`geodata-entity-deletion-v1`, on `myota.geodata.entity.delete.v1`. The job
-stores verified authorization context, leases execution and uses idempotent
-activity API calls; it is not an API-local executor. Preprocessing uses
-`geodata-preprocessing-v1`; promotion uses `geodata-import-processing-v2`;
-location enrichment uses `geodata-location-enrichment-v1` after entity
-materialization or geometry updates. Provider calls are asynchronous, guarded by
-request ID/geometry hash, and do not overwrite manual values.
-The operations service inspects these consumers but never executes their work.
-See the [Phase 1 authority/rollout record](../geodata/phase1-relational-authority.md)
-and [latest scaling delivery evidence](../geodata/horizontal-scaling-roadmap.md#latest-delivery-and-evidence--8-october-2026).
+During transition:
 
-The bootstrap repository is a temporary integration workspace; it is not a
-reason to create many more repositories. Each row is wired together by pinned
-contract versions. The public participant experience belongs in `myota-web`;
-administrator-only workflows belong in `myota-admin-web`. Android and iOS,
-when implemented, are participant applications only and must not become an
-alternate administration surface.
+1. Keep the current live deployment reproducible from the existing release
+   source.
+2. Treat `myota/deploy` as the migration candidate until Testing and production
+   cutovers are proven.
+3. Compare each Platform mirror against its owner before removing or changing
+   it; do not independently evolve duplicate Helm, migration, or runtime
+   configuration.
+4. Keep production and Testing digests separate. Testing tags and values must
+   never enter production.
+5. Record exact source commits, image digests, Helm/Fleet status, checks, and
+   cleanup evidence before marking a gate complete.
 
-## Documentation synchronization rule
+## Documentation synchronization
 
-`myota-docs` is the authoritative home for cross-repository architecture,
-ADRs, ownership boundaries, operational guidance, and gap analysis. The
-organization `.github` profile is the concise public summary and checkbox
-roadmap. Service repositories keep implementation-specific README and API
-notes, but must link back here for cross-service claims.
+`myota-docs` remains authoritative for cross-service architecture, decisions,
+operational procedures, and evidence. The `.github` profile is the concise
+organization summary and issue index. The
+[monorepo transition evidence](evidence/monorepo-transition-2026-10-14.md) is
+the detailed record for this cutover; service and domain plans remain
+authoritative for their own behavior and acceptance criteria.
 
-When a service boundary, API, migration owner, deployment topology, storage
-provider, or user-facing capability changes:
-
-1. update the owning service README/API notes;
-2. update this repository map and the relevant central architecture/ADR;
-3. update `.github/profile/README.md` if the public summary or roadmap status
-   changed; and
-4. update diagrams and deployment/operator docs when topology or lifecycle
-   changed.
-
-Documentation changes should be committed with the implementation change or
-as an immediately following documentation commit. A repository README must
-not claim a capability is production-ready merely because a dependency-free
-test adapter or local vertical slice exists.
+When a source boundary, contract, deployment, schema, or user capability
+changes, update the relevant implementation documentation, this map, the
+current-state record, affected diagrams, and the `.github` profile links.

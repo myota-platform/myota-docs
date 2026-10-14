@@ -23,8 +23,7 @@ not duplicate status details from that page.
 ## Canonical document locations
 
 - `architecture/` — current state, repository ownership, decisions, diagrams,
-  cross-repository review evidence, and the proposed monorepo/scalability
-  assessment.
+  cross-repository review evidence, and monorepo transition evidence.
 - `domain/` — API plans and product behavior for identity, programmes,
   administration, and awards.
 - `geodata/` — Geodata operations, scaling, imports, and qualification records.
