@@ -2992,3 +2992,26 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
   [NATS readiness closeout](../operations/messaging/evidence/nats-readiness-issue-closeout-2026-10-11.md);
   the [current system snapshot](../architecture/current-state.md) carries the
   reconciled deployment state.
+## 14 October 2026 — Add the email delivery core
+
+- **Prompt used:** “Implement and close issues #60, #58, #57, and #55 and
+  their dependent issues until completion, following `AGENTS.md`.” This entry
+  records the first bounded implementation slice of #29 under #58.
+- **Decision:** Keep NATS as asynchronous work transport, use recipient account
+  references and allowlisted template data, and preserve the SMTP at-least-once
+  duplicate boundary. Do not treat this core as a deployed service.
+- **Implementation:** Monorepo PR
+  [#82](https://github.com/myota-platform/myota/pull/82) merged to `testing`.
+  It validates the contracted envelope, renders escaped participant/admin
+  account-created templates, enforces TLS SMTP settings, and adds an email
+  lint/test workflow.
+- **Verification:** Eight email-core tests, Ruff, 12 Contracts tests, the
+  five-source-tree event audit, and all reported PR checks passed. No NATS
+  command was published and no SMTP service was contacted.
+- **Remaining gates:** Identity recipient resolution and transactional outbox,
+  the JetStream consumer and durable delivery state, retry/DLQ, OpenTelemetry,
+  Compose/Helm image deployment, and operating recovery. See the
+  [email delivery record](../operations/messaging/email-delivery.md),
+  [Identity #27](https://github.com/myota-platform/myota/issues/27),
+  [Contracts #28](https://github.com/myota-platform/myota/issues/28), and
+  [Email #29](https://github.com/myota-platform/myota/issues/29).

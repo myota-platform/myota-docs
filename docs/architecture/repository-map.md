@@ -25,7 +25,7 @@ commits, runs, issue migration, live Fleet paths, and exit criteria.
 | Contracts | `contracts` | OpenAPI, event registry/schemas, compatibility rules, and generated client. |
 | Runtime/deployment | `deploy` | Compose, Helm, migration orchestration, image builds, and environment configuration. |
 | Integration | `integration` | Cross-service integration tests; not a service data owner. |
-| Email placeholder | `apps/email` | Planning/source placeholder only; no deployed email worker is claimed. |
+| Email delivery | `apps/email` | Validation/rendering core is merged to Testing; no durable consumer or deployed email worker is claimed. See the [email delivery record](../operations/messaging/email-delivery.md). |
 
 The repository consolidates source management, not runtime processes. Keep
 services separately deployable and scalable. Preserve independent database

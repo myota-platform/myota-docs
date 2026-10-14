@@ -1,42 +1,42 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-14 21:29 UTC
+**Current verification:** 2026-10-14 21:43 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota`, branch `testing`, commit
-[`fcb31f6`](https://github.com/myota-platform/myota/commit/fcb31f663b885bad5a4f9f0354412c3320b2c630), path `deploy/helm/myota-test`.
+[`1140d05`](https://github.com/myota-platform/myota/commit/1140d057ca9122665414dede665c1677536a6941), path `deploy/helm/myota-test`.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current monorepo rollout — 2026-10-14 21:29 UTC
+## Current monorepo rollout — 2026-10-14 21:43 UTC
 
 | Check | Result |
 |---|---|
-| Fleet | The Testing-only GitRepo `fleet-local/myota-deploy-testing` reads `myota-platform/myota`, branch `testing`, path `deploy/helm/myota-test`. GitHub `testing` is at [`fcb31f6`](https://github.com/myota-platform/myota/commit/fcb31f663b885bad5a4f9f0354412c3320b2c630), while Fleet last reports commit `4905398` and `ErrApplied`: its BundleDeployment expects missing Job `myota-activity-notification-provisioner-319`. Production Fleet remains on `myota-platform/myota-deploy`, branch `main`, at `40a4bdb6be4e75146f0d74ab440db41e98c5d372`. |
-| Helm and storage | Helm release `myota-test` is at revision 322 with status `pending-upgrade`; release history shows revision 321 as the last deployed version. All 10 database and observability PVCs remain Bound. |
-| Workloads | All 24 Deployments and all 3 StatefulSets report their desired replicas ready. This does not clear the Fleet/Helm release-state error. |
+| Fleet | The Testing-only GitRepo `fleet-local/myota-deploy-testing` reads `myota-platform/myota`, branch `testing`, path `deploy/helm/myota-test`, at commit [`1140d05`](https://github.com/myota-platform/myota/commit/1140d057ca9122665414dede665c1677536a6941). At 21:43 UTC its display state was `WaitApplied` (`0/1` ready BundleDeployments), although its resource counts were 76/76 ready with zero missing, modified, or not-ready resources. The BundleDeployment's last Ready condition was true at 21:38 UTC. Production Fleet remains on `myota-platform/myota-deploy`, branch `main`. |
+| Helm and storage | Helm release `myota-test` is at revision 327 with status `pending-upgrade` (`Preparing upgrade`). All 10 database and observability PVCs remain Bound. Revision-327 migration, JetStream, Activity notification, and PostgreSQL monitor-role Jobs completed. |
+| Workloads | All 24 Deployments and all 3 StatefulSets report their desired replicas ready. The Fleet display and Helm release have not yet returned to a settled state. |
 | Profile storage | `myota-test-user-profile-images` uses the dedicated Testing credential and static S3 policy. Authorized write/read/delete passed; access to `myota-adif` and anonymous bucket listing were denied. The temporary object and Jobs were removed. Production was not changed. |
 | MyOTA service health dashboard | Grafana's `myota-observability` ConfigMap and mounted dashboard file contain `myota-service-health.json` with title **MyOTA service health** and UID `myota-service-health`. It is provisioned in the **MyOTA** folder and uses the `MyOTA Prometheus` datasource (`myota-prometheus`). Live Prometheus queries return `myota_identity_users` values `OPERATOR=2` and `SWL=0`, and `myota_programmes=2`; these match the corrected dashboard expressions. The old `myota-operations` dashboard was retired and is not the current dashboard. |
 | Logs dashboard | The deployed `myota-observability` ConfigMap contains `myota-logs-failures.json` with UID `myota-logs-failures`; Grafana logged `finished to provision dashboards` at 19:42 UTC. It uses the MyOTA Loki datasource. |
-| Trace dashboard | The mounted `myota-traces.json` has UID `myota-traces`, finite service options, and the `All` choice from merged PR [#80](https://github.com/myota-platform/myota/pull/80). Its SHA-256 is `510f978c3a78a571b4082dc34894167bd5da97993ddf78b1425ad9236fb8de8d`; Grafana logged successful dashboard provisioning at 21:28 UTC. |
-| Logs dashboard | The mounted `myota-logs-failures.json` is still the earlier version (SHA-256 `c664a46c452a042ee858966f7c3f163bff8d18ec971ea9577f2b768a7b98f062`), with free-form filters and a correlation-ID panel. The fix in PR [#81](https://github.com/myota-platform/myota/pull/81) has merged to `testing` but Fleet has not applied its commit yet. |
+| Trace dashboard | The mounted `myota-traces.json` has UID `myota-traces`, finite service options, and the `All` choice from merged PR [#80](https://github.com/myota-platform/myota/pull/80). Its SHA-256 is `510f978c3a78a571b4082dc34894167bd5da97993ddf78b1425ad9236fb8de8d`. |
+| Logs dashboard | The mounted `myota-logs-failures.json` now contains the bounded filters from PR [#81](https://github.com/myota-platform/myota/pull/81), with SHA-256 `a3aec40e56381be3a746484d50ce3dfd52d1342c7b6592d02dade517a270171c`. Its mounted bytes match the `myota-observability` ConfigMap. Grafana logged successful dashboard provisioning at 21:30:37 UTC. |
 | Existing telemetry | A read-only Tempo search returned up to 1,000 current traces and nine distinct MyOTA root service names. The failed-trace and over-one-second TraceQL queries parsed successfully and returned zero matches in the queried range; no synthetic traces were inserted. |
-| Digest workflow | The workflow code is `.github/workflows/sync-testing-image-digests.yml` in `myota`. It executes on GitHub-hosted `ubuntu-latest` runners; no Kubernetes dispatcher is installed in `myota-test`. Manual run [#38634904281](https://github.com/myota-platform/myota/actions/runs/38634904281) skipped because `TESTING_DIGEST_APP_ID` and `TESTING_DIGEST_APP_PRIVATE_KEY` are unset. The merged digest PR #78 was prepared through the local GH CLI; automatic digest synchronization still requires App credentials. |
+| Digest workflow | The active workflow is `.github/workflows/sync-testing-image-digests.yml` in `myota` and runs on GitHub-hosted Actions runners. The old `.github` workflow is deleted. Latest manual run [#38634904281](https://github.com/myota-platform/myota/actions/runs/38634904281) succeeded but skipped token creation and digest resolution because the MyOTA-scoped GitHub App credentials are absent in the `myota` Actions context. The workflow is not a Kubernetes CronJob. See [myota issue #30](https://github.com/myota-platform/myota/issues/30) for setup and [issue #53](https://github.com/myota-platform/myota/issues/53) for image publication and Fleet evidence. |
 | Profile images | PR #78 recorded the Testing image digests. Identity runs `sha256:7cbecb4d64db98300312237e5d776d8f8ae5ab3126a6cbe8fada58e1f77ddfdf`; Participant Web runs `sha256:5a404d56b721532c09b60670de410653fa551cebb20d9b0afe72c8fad6542249`. |
 
 The Logs / Failures and Distributed Traces dashboards are provisioned in
 Grafana's **MyOTA** folder. Both default to a 30-minute time window and a
-30-second refresh. The current trace dashboard is provisioned with the finite
-service dropdown from PR #80. The newer bounded Logs / Failures filters from
-PR #81 are merged but not yet visible in the Test Grafana mount. The configured
-Loki and Tempo datasource UIDs are `myota-loki` and `myota-tempo`. The current
-Tempo search found real traces but no failed or over-one-second matches; no
-synthetic traces were inserted. Fleet reconciliation and authenticated
-interactive navigation remain open acceptance gates under [myota #22](https://github.com/myota-platform/myota/issues/22),
+30-second refresh. The trace dashboard has the finite service dropdown from PR
+#80, and the Logs / Failures dashboard has the bounded filters from PR #81.
+The configured Loki and Tempo datasource UIDs are `myota-loki` and
+`myota-tempo`. The current Tempo search found real traces but no failed or
+over-one-second matches; no synthetic traces were inserted. Fleet/Helm
+reconciliation and authenticated interactive navigation remain open
+acceptance gates under [myota #22](https://github.com/myota-platform/myota/issues/22),
 [myota #48](https://github.com/myota-platform/myota/issues/48), and
 [myota #53](https://github.com/myota-platform/myota/issues/53).
 

@@ -1,17 +1,23 @@
 ## 14 October 2026
 
+- Added the proposed [email delivery architecture and operator flow](docs/operations/messaging/email-delivery.md).
+  Monorepo PR [#82](https://github.com/myota-platform/myota/pull/82) adds
+  bounded contract validation, escaped templates, TLS SMTP configuration,
+  and email-core quality checks. The NATS consumer, Identity API/outbox,
+  persistence, retry, observability, and deployment remain unfinished; no
+  email was sent.
 - Improved the monorepo Grafana dashboards in PRs
   [#80](https://github.com/myota-platform/myota/pull/80) and
   [#81](https://github.com/myota-platform/myota/pull/81): Tempo service
   selection is finite; Loki environment, service, and severity filters are
   finite; arbitrary correlation-ID and component controls were removed; and
   Python `WARNING` events now match the warning panels. All PR checks passed.
-- Testing has provisioned the trace filter from PR #80. PR #81 is merged to
-  `testing` but its log dashboard has not been applied: Fleet is `ErrApplied`
-  at commit `4905398`, expects missing Job
-  `myota-activity-notification-provisioner-319`, and Helm revision 322 is
-  `pending-upgrade`. The 24 Deployments and three StatefulSets remain ready.
-  No synthetic logs or traces were created. Details are in the
+- At 21:43 UTC, both bounded dashboards were mounted in Testing and Grafana
+  logged successful provisioning. Fleet displayed `WaitApplied` (`0/1`) at
+  monorepo commit `1140d05` while reporting 76/76 resources ready; Helm
+  revision 327 remained `pending-upgrade`. All 24 Deployments, three
+  StatefulSets, and ten PVCs were ready/bound. No synthetic logs or traces
+  were created. Details are in the
   [Testing deployment record](docs/operations/test-deployment.md).
 
 - Implemented shared user profile fields, private image handling, and the

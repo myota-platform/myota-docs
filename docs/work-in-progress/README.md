@@ -8,19 +8,26 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
 
 ## Active work
 
+- [Asynchronous email delivery](../operations/messaging/email-delivery.md)
+  — the versioned command contract is checked in, and PR #82 adds the bounded
+  email validation/rendering core plus an email-specific test/lint workflow.
+  The NATS durable consumer, Identity recipient API/outbox, delivery database,
+  retry/DLQ, runtime telemetry, and Compose/Helm deployment remain open. No
+  email is sent by the current code.
 - [Shared account profile fields and private images](../domain/identity/profile.md)
   — Contracts, Identity, Participant Web, and deployment PRs #76–#79 are
-  merged to Testing. The Test Helm release is at revision 321; all Deployments
-  are ready, and scoped/anonymous S3 permission checks passed with cleanup.
-  Fleet still reports a stale missing Helm revision under issue #53. Profile
-  docs and issue closeout are being finalized; production has not changed.
+  merged to Testing. The latest check found all 24 Deployments and 3
+  StatefulSets ready and all 10 PVCs bound; scoped/anonymous S3 permission
+  checks passed with cleanup. Issue #12 remains open for mirror/recovery
+  documentation and evidence; production has not changed.
 - [Complete the monorepo release-path transition](../architecture/monorepo-and-scalability-assessment.md)
-  — the first CI/Helm workflow PR merged to `myota/testing`, and all PR checks
-  passed. Post-merge service/deployment test jobs passed, but image publishing
-  is blocked by GHCR `permission_denied: write_package` for eight existing
-  packages. Configure package access, verify the digest-writer App, update the
-  Testing Fleet source, validate release rules, and archive old repositories
-  only after both environment cutovers. See the
+  — all eight image packages publish from monorepo Testing, and digest PR #78
+  recorded the current test digests. Testing Fleet now reads `myota/testing`;
+  its GitRepo currently displays `WaitApplied` while Helm revision 327 is
+  `pending-upgrade`, despite ready resources. Automatic digest updates remain
+  unverified because the monorepo workflow needs its scoped App credentials.
+  Production still reads the former Deploy repository; archive old
+  repositories only after both environment cutovers. See the
   [dated evidence](../architecture/evidence/monorepo-transition-2026-10-14.md)
   and [myota #53](https://github.com/myota-platform/myota/issues/53).
 - [Structured logging and observability acceptance](../observability/logging-implementation.md)
@@ -28,10 +35,12 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
   runtime parity, and representative capacity/recovery evidence. Correlation
   and Identity/Programme metrics work already verified as complete is recorded
   in the [current-state page](../architecture/current-state.md) and linked
-  evidence. MyOTA #22 PRs #80 and #81 add finite Grafana filters; Testing has
-  the trace update, but Fleet still reports `ErrApplied` and has not applied
-  the Logs / Failures update. See the [test deployment record](../operations/test-deployment.md)
-  and [issue #22](https://github.com/myota-platform/myota/issues/22).
+  evidence. MyOTA #22 PRs #80 and #81 add finite Grafana filters; both bounded
+  dashboards are mounted and Grafana logged successful provisioning. At the
+  21:43 UTC check, Fleet displayed `WaitApplied` despite 76/76 resources ready;
+  Helm revision 327 was still `pending-upgrade`. See the
+  [test deployment record](../operations/test-deployment.md) and
+  [issue #22](https://github.com/myota-platform/myota/issues/22).
 
 ## Reopen only before expanding Geodata capacity
 

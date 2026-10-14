@@ -12,6 +12,7 @@ not duplicate status details from that page.
 | Review the proposed monorepo direction, future-scale design, or language options | [Monorepo and future-scale assessment](architecture/monorepo-and-scalability-assessment.md) |
 | Find a product or API behavior | [Domain and API index](domain/README.md) |
 | Run or recover the deployed system | [Operations index](operations/README.md) |
+| Understand the proposed email command path and remaining implementation gates | [Asynchronous email delivery](operations/messaging/email-delivery.md) |
 | Inspect the isolated K3s test deployment, initial seed, and image-update status | [Test deployment](operations/test-deployment.md) |
 | Understand logs, metrics, traces, dashboards, or alerts | [Observability index](observability/README.md) |
 | Work on spatial data and import workflows | [Geodata index](geodata/README.md) |

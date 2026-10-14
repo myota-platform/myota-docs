@@ -17,6 +17,8 @@ The migration plan and phase records hold detailed decisions and verification.
 
 ## Service runbooks
 
+- [Asynchronous email delivery](email-delivery.md) — accepted request path,
+  current implementation boundary, privacy rules, and proposed operations.
 - [Activity notification consumer](activity-notification-consumer.md) — exact
   fact filters, deduplication, retries, and audited redrive.
 - [Activity work queues](activity-work-queues.md) — six durable job kinds,

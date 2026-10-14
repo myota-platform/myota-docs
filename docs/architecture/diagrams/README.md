@@ -32,6 +32,7 @@ historical or proposed are snapshots or decisions, not current runtime claims.
 ## Activity and operations
 
 - [Activity and award jobs](activity-award-jobs.md)
+- [Asynchronous email delivery](../../operations/messaging/email-delivery.md)
 - [API Phase 4 client and operational migration](api-phase4-operational-migration.md)
 - [OpenTelemetry observability architecture](observability-architecture.md)
 - [NATS current and selected event/work topologies](nats-event-migration.md) —

@@ -1,11 +1,11 @@
 # Current system state
 
 **Production snapshot:** 2026-10-14 11:09 UTC
-**Testing snapshot:** 2026-10-14 21:29 UTC
+**Testing snapshot:** 2026-10-14 21:43 UTC
 **Scope:** GitHub repository heads and a read-only inspection and controlled
 rollout in the production `myota` and isolated `myota-test` namespaces on the
 local single-node K3s host. Production and repository heads were checked at
-11:09 UTC; Testing was rechecked at 21:29 UTC. This is a snapshot, not a
+11:09 UTC; Testing was rechecked at 21:43 UTC. This is a snapshot, not a
 production-readiness declaration. Authoritative owner repositories remain the
 source of truth; Deploy and Platform copies are synchronized mirrors where the
 [repository map](repository-map.md) says so.
@@ -16,10 +16,11 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
 | Helm/Fleet | Release `myota`, chart `myota-0.2.20`, revision `288`, deployed. MyOTA Fleet GitRepo and BundleDeployment are Ready 71/71 with zero non-ready resources at Deploy `main` commit `ed87c267fa0aa8981de40f1426dd9ace3b36910f`. Migration Job `myota-migrations-288` completed with the immutable unified runner image; all database readiness markers are true at revision 288. |
-| Isolated test release | All 24 Deployments and 3 StatefulSets report desired replicas ready, and all 10 database/observability PVCs remain Bound. Helm revision 322 is `pending-upgrade`; Fleet reports `ErrApplied` at monorepo commit `4905398`, expecting missing Job `myota-activity-notification-provisioner-319`, while GitHub `testing` is at [`fcb31f6`](https://github.com/myota-platform/myota/commit/fcb31f663b885bad5a4f9f0354412c3320b2c630). The Distributed Traces dashboard's bounded service filter is mounted; the Logs / Failures filter update is merged but not yet mounted. The service-health dashboard remains provisioned and its last recorded live Identity and Programme queries returned current series. See [test deployment](../operations/test-deployment.md) for dashboard, image, and query evidence. |
+| Isolated test release | All 24 Deployments and 3 StatefulSets report desired replicas ready, and all 10 database/observability PVCs remain Bound. Helm revision 327 is `pending-upgrade` (`Preparing upgrade`). Fleet tracks monorepo `testing` at [`1140d05`](https://github.com/myota-platform/myota/commit/1140d057ca9122665414dede665c1677536a6941); GitRepo displays `WaitApplied` (`0/1`) despite reporting all 76 resources ready and no missing, modified, or not-ready resources. The revision-327 migration and provisioning Jobs completed. Both bounded Grafana dashboards are mounted: Logs / Failures SHA-256 `a3aec40e56381be3a746484d50ce3dfd52d1342c7b6592d02dade517a270171c`; Distributed Traces SHA-256 `510f978c3a78a571b4082dc34894167bd5da97993ddf78b1425ad9236fb8de8d`. Grafana logged successful provisioning. See [test deployment](../operations/test-deployment.md) for evidence and remaining Fleet/Helm and browser-navigation limits. |
 | MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas), including the namespace-scoped kube-state-metrics Deployment. The Admin web runs image `sha256:52de069757c0f259f7ad22e86309227d6b2558f689029615b47cbf45b7b362c0`; its Name & categories tab places Website and Description after Entity name and Entity categories and saves the full section with one action. The live bundle exposes `Save details`. See [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2). `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
+| Email delivery | The `email.send.v1` schema and bounded `apps/email/email_core.py` validation/rendering code are merged to monorepo `testing` in PR #82. No Identity producer/outbox, recipient API, JetStream durable consumer, delivery database, SMTP deployment, or send path exists yet. See the [email delivery record](../operations/messaging/email-delivery.md). |
 | Monitoring | NATS Surveyor 0.9.11, Prometheus 2.55.1, Grafana 11.2.2, Alertmanager 0.28.1, OTel Collector 0.135.0, Tempo 2.6.1, and Loki 3.7.8. Eleven NATS dashboards are in Grafana folder `NATS`. |
 
 ## Monorepo migration status — checked 2026-10-14 16:02 UTC
@@ -75,27 +76,28 @@ deploy/services/identity.py, and contracts/openapi.yaml. It also recalculates
 account permissions from current Identity roles when validating access tokens,
 rather than trusting role claims cached at token issuance.
 
-## Shared profile fields and image workstream — checked 2026-10-14 21:08 UTC
+## Shared profile fields and image workstream — checked 2026-10-14 21:43 UTC
 
 The Contracts, Identity, deployment, and Participant Web changes are merged to
 `myota/testing` in PRs [#76](https://github.com/myota-platform/myota/pull/76),
 [#77](https://github.com/myota-platform/myota/pull/77),
 [#78](https://github.com/myota-platform/myota/pull/78), and
 [#79](https://github.com/myota-platform/myota/pull/79). The profile feature is
-deployed in `myota-test` at Helm revision 321. All Deployments are ready. Live
+deployed in `myota-test`; the latest snapshot has Helm revision 327 pending
+upgrade, 24/24 Deployments and 3/3 StatefulSets ready, and 10/10 PVCs bound. Live
 S3 checks verified scoped write/read/delete, denial to the unrelated
 `myota-adif` bucket, and denial of anonymous bucket listing; the temporary
 object and Jobs were removed. Production was not changed.
 
-Fleet's Testing GitRepo still reports `ErrApplied`: its BundleDeployment
-references missing Helm revision secret `sh.helm.release.v1.myota-test.v317`.
-The chart values were applied from the merged Testing source to recover the
-isolated release, but Fleet status has not yet reconciled. Track this separately
-under [myota #53](https://github.com/myota-platform/myota/issues/53). Profile
+Fleet's Testing GitRepo tracks monorepo `testing` at `1140d05` and reports
+`WaitApplied` (`0/1`), though its resource counter is 76/76 ready with no
+missing, modified, or not-ready resources. Helm remains `pending-upgrade` at
+revision 327; four revision-scoped migration/provisioning Jobs completed.
+Track Fleet/digest closure separately under [myota #53](https://github.com/myota-platform/myota/issues/53). Profile
 implementation evidence and recovery limits are in the
 [profile policy and operations page](../domain/identity/profile.md). Contracts
-issue #11 is closed; #9, #10, #12, #13 and parent #55 are being closed after
-the final evidence and documentation review.
+issue #11 is closed; #9, #10, and #13 are complete. Deploy #12 and parent #55
+remain open for mirror/recovery evidence and the roll-up.
 
 This does not complete the Identity workstream. Durable Identity state still
 hydrates from and persists to the service_state JSONB snapshot through
