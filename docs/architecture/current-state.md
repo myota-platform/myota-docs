@@ -15,7 +15,7 @@ source of truth; Deploy and Platform copies are synchronized mirrors where the
 |---|---|
 | Kubernetes | One Ready node, `spainip-k3s`, Kubernetes `v1.35.8+k3s1`. |
 | Helm/Fleet | Release `myota`, chart `myota-0.2.20`, revision `288`, deployed. MyOTA Fleet GitRepo and BundleDeployment are Ready 71/71 with zero non-ready resources at Deploy `main` commit `ed87c267fa0aa8981de40f1426dd9ace3b36910f`. Migration Job `myota-migrations-288` completed with the immutable unified runner image; all database readiness markers are true at revision 288. |
-| Isolated test release | Helm `myota-test` revision `161` is deployed. Geodata API and import-processing worker are Ready on `ghcr.io/myota-platform/myota-geodata-service@sha256:734fa8ea3666902b875f84f862b2f269f8cdd757e4bee88b3a3bcf265c7b0be7`; Admin Web is Ready on `ghcr.io/myota-platform/myota-admin-web@sha256:8062833ca0052a2cb53b085517c79a7a4a1f560f0c1cc736f45a2e8b29038164`. The Admin UI host returns HTTP 200. See [test deployment](../operations/test-deployment.md) for the broader test-cluster snapshot. |
+| Isolated test release | Helm `myota-test` revision `176` is deployed. Geodata API and import-processing worker are Ready on `ghcr.io/myota-platform/myota-geodata-service@sha256:929b31b9f9509c96ed088e158dc3c14e70c95b6b20ab510ca093b861edbb14ba`; Admin Web is Ready on `ghcr.io/myota-platform/myota-admin-web@sha256:8062833ca0052a2cb53b085517c79a7a4a1f560f0c1cc736f45a2e8b29038164`. All 24 Deployments and three database StatefulSets are ready. Fleet reports the test bundle ready, and the Geodata `/healthz` endpoint returned HTTP 200. The Admin UI host also returns HTTP 200. See [test deployment](../operations/test-deployment.md) for the broader test-cluster snapshot. |
 | MyOTA Deployments | 23/23 report desired replicas ready (27/27 replicas), including the namespace-scoped kube-state-metrics Deployment. The Admin web runs image `sha256:52de069757c0f259f7ad22e86309227d6b2558f689029615b47cbf45b7b362c0`; its Name & categories tab places Website and Description after Entity name and Entity categories and saves the full section with one action. The live bundle exposes `Save details`. See [Admin issue #2](https://github.com/myota-platform/myota-admin-web/issues/2). `myota-web` participant client is not a Deployment in this namespace. |
 | Data and storage | Three PostgreSQL targets: `myota_core`, `myota_activity`, and `myota_geo`; PostGIS is used by Geo. SeaweedFS provides S3-compatible object storage. PostgreSQL remains authoritative for domain state and recovery records. |
 | Messaging | NATS 2.10, file-backed single replica. See streams below and [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md). |
@@ -32,8 +32,22 @@ The source identity, terminal conflict handling, durable duplicate evidence,
 same-import proximity checks, and Admin UI summary are implemented. Geodata PR
 [#21](https://github.com/myota-platform/myota-geodata-service/pull/21) and Admin
 Web PR [#17](https://github.com/myota-platform/myota-admin-web/pull/17) merged
-to `testing`; the corresponding images are deployed at Helm revision `161`.
-Both services are Ready. A disposable two-candidate test returned one
+to `testing`; those images were deployed at Helm revision `161`. A later
+follow-up found legacy staged manual candidates with reusable
+`MANUAL:record-N` placeholders whose IDs had since been claimed by unrelated
+entities. Geodata issue [#22](https://github.com/myota-platform/myota-geodata-service/issues/22)
+and PR [#23](https://github.com/myota-platform/myota-geodata-service/pull/23)
+repair these placeholders from captured source IDs or import-scoped fallbacks.
+The deployed image is at digest
+`sha256:929b31b9f9509c96ed088e158dc3c14e70c95b6b20ab510ca093b861edbb14ba`,
+with Geodata API and import worker Ready at Helm revision `176`. Geodata PR
+[#24](https://github.com/myota-platform/myota-geodata-service/pull/24) added a
+test-only assertion that stable source-ID reimports continue to associate with
+their existing entity; it passed CI and merged to `testing`. Issue
+[#22](https://github.com/myota-platform/myota-geodata-service/issues/22) is
+closed.
+
+A disposable two-candidate test returned one
 `WITHIN_50_METERS` match at 15.73 m after durable reload, and its run, candidates,
 and manifest were deleted and verified absent. The previously confirmed
 promotion was processed through the normal worker and now appears as `APPROVED`
@@ -41,6 +55,12 @@ in both catalogue and map queries. Geodata issue [#20](https://github.com/myota-
 and Admin Web issue [#16](https://github.com/myota-platform/myota-admin-web/issues/16)
 are closed after checks passed. Other unreviewed pending records remain for
 administrator review.
+
+The five failed promotion queue records observed during the follow-up
+investigation were absent on a later read. No candidates were requeued or
+approved as part of this fix. The deployed repair was checked directly without
+writing test data, and CI exercised promotion while proving the unrelated
+source-reference owner remains unchanged.
 
 The Deployment and Fleet observations establish Kubernetes readiness only. They do not establish external availability, multi-node
 resilience, capacity, recovery outside this node, or product launch readiness.

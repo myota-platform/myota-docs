@@ -36,8 +36,12 @@ flowchart LR
   Confirm --> PromoteOutbox[(Promotion outbox event)]
   PromoteOutbox --> PromoteNATS[NATS JetStream durable subject]
   PromoteNATS --> PromoteWorker[Promotion worker + atomic lease]
-  PromoteWorker --> Candidate[CANDIDATE entity]
-  PromoteWorker --> Approved[APPROVED entity]
+  PromoteWorker --> SourceIdentity{Legacy manual source ID?}
+  SourceIdentity -->|yes| RepairIdentity[Use captured source ID or import-scoped fallback]
+  SourceIdentity -->|no| Materialize[Materialize confirmed candidate]
+  RepairIdentity --> Materialize
+  Materialize --> Candidate[CANDIDATE entity]
+  Materialize --> Approved[APPROVED entity]
   Candidate -->|when missing or geometry changed| LocationOutbox[Location-enrichment outbox request]
   Approved -->|when missing or geometry changed| LocationOutbox
   LocationAdmin[Entity Management retry] --> LocationOutbox
@@ -92,10 +96,14 @@ modify an existing record. Entity names are not unique; the source-reference
 identity `(adapter_code, source_record_id)` is unique. Source-provided IDs are
 preserved, and generated fallback IDs include the import run ID.
 
-A permanent database constraint conflict during promotion becomes a failed
-queue result with an actionable error, allowing the UI to stop polling and
-report the result. Transient database failures retain the worker retry path.
-Only explicitly confirmed candidates can be promoted.
+Historical manual imports may contain reusable `MANUAL:record-N` placeholders.
+The worker repairs this known legacy pattern from the captured source feature,
+or assigns an import-scoped fallback when the feature has no stable ID. It
+does not adopt or modify the unrelated entity that previously owned the
+placeholder. A permanent database constraint conflict that cannot be repaired
+safely becomes a failed queue result with an actionable error; transient
+database failures retain the worker retry path. Only explicitly confirmed
+candidates can be promoted.
 
 `geodata_import_processing_queue` is the durable projection of the NATS
 request. Local Compose and Helm run the same geodata-owned JetStream worker

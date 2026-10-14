@@ -1,3 +1,42 @@
+## 14 October 2026 — Recover legacy Geodata manual source IDs
+
+- **Prompt used:** “Now I get ‘The source record conflicts with an existing
+  entity. Check the import source ID and retry.’ on approving any candidate in
+  the geodata-imports modal. Find and implement a way to gracefully resolve
+  this. Document in Github issue(s).”
+- **Diagnosis:** Five failed approvals in Testing referenced legacy
+  `MANUAL:record-N` placeholders. Older staged imports reused those ordinals;
+  another import had since attached the same adapter/source ID to a different
+  entity. The database correctly rejected that uniqueness conflict, but the
+  generic message suggested changing the source ID. The candidates had captured
+  source-feature IDs that were lost by the older importer.
+- **Fix:** Geodata repairs only the known legacy manual placeholder pattern,
+  taking a stable ID from the captured feature or assigning an import-scoped
+  fallback. It performs the repair both during new preprocessing and for old
+  staged candidates before promotion. Candidates already linked to an entity
+  remain linked; the conflicting entity is never adopted or modified, and
+  administrator confirmation remains required. Non-repairable integrity
+  conflicts still terminate with actionable feedback.
+- **Evidence:** [Geodata issue #22](https://github.com/myota-platform/myota-geodata-service/issues/22),
+  [PR #23](https://github.com/myota-platform/myota-geodata-service/pull/23),
+  [PR #24](https://github.com/myota-platform/myota-geodata-service/pull/24),
+  and [current system state](docs/architecture/current-state.md). PR #23
+  passed lint/format, relational/PostGIS boundaries, upload recovery, load
+  harness, and image build checks. The local suite passed 170 tests with 33
+  database-dependent skips. Testing runs Geodata digest
+  `sha256:929b31b9f9509c96ed088e158dc3c14e70c95b6b20ab510ca093b861edbb14ba`
+  at Helm revision 176; Fleet reports the test bundle ready and `/healthz`
+  returned 200. The deployed helper was checked without writing test records.
+- **Data safety:** The five failed queue records were absent on a later
+  read-only query. None were requeued or approved during this fix. No
+  persistent test domain data was created.
+- **Documentation:** The service README, architecture overview, current-state
+  record, import-validation diagram, and this change log describe the recovery
+  behavior. PR #24's stable source-reference regression assertion passed CI
+  and merged to `testing` at
+  `92277dbfe5437b014012b64db791c672fcf4921b`; issue #22 is closed after all
+  acceptance criteria passed.
+
 ## 14 October 2026 — Move digest polling to a K3s-triggered workflow dispatch
 
 - **Prompt used:** “OK, instead of relying on the github actions cron
