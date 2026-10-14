@@ -1,5 +1,11 @@
 ## 14 October 2026
 
+- Completed profile deployment acceptance with real deployed-image HTTP/S3
+  checks and fixture cleanup. Documented backup/restore, credential-pair
+  rotation, capacity reserve and active mirror ownership. Profile issues #12
+  and #55 are closed for Testing; production and Fleet transition remain
+  independent. See the [closeout evidence](docs/operations/storage/evidence/profile-deployment-closeout-2026-10-14.md).
+
 - Monorepo PR [#83](https://github.com/myota-platform/myota/pull/83) adds
   internal email-recipient resolution with fixed-scope service credentials,
   active-account eligibility, uniform HTTP 404 responses, cache prevention,

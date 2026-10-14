@@ -133,15 +133,68 @@ credential, or live profile data was changed for this work. Testing
 qualification used a temporary object in the dedicated Test bucket and
 removed it after verification.
 
+## Backup, restore, and credential rotation procedure
+
+The recovery unit is Identity metadata plus the shared SeaweedFS volume, not
+just the profile bucket. This is an operator procedure; no backup or restore
+was performed as part of the profile acceptance check. Existing local backups
+do not establish off-node recovery.
+
+1. Choose an environment and a maintenance window. Record the deployed image
+   digests, Helm values, replica counts, database recovery point, and volume
+   identity. Block profile writes and pause Identity maintenance/orphan cleanup
+   before capturing either side of the metadata/object relationship. Quiesce
+   other writers to the shared SeaweedFS volume before taking a filesystem
+   archive; a live file copy is not a consistent SeaweedFS backup.
+2. Capture the Core database with the established PostgreSQL backup procedure
+   and capture the complete SeaweedFS persistent volume, including its filer
+   metadata, while its writers are stopped. Keep both artifacts under the same
+   recovery record. Preserve runtime credentials and S3 configuration in the
+   operator's protected secret backup; do not put them in the database dump,
+   Git, an issue, or an evidence page. Record artifact checksums and restrictive
+   file permissions. Resume only the recorded workloads after capture.
+3. Restore into an isolated recovery namespace and empty recovery volumes
+   first. Restore the compatible Core and SeaweedFS artifacts and provision
+   environment-specific Secrets. Keep Identity maintenance paused until the
+   restored account references have been checked. Do not connect the recovery
+   API to production storage or copy its credential into a browser.
+4. For every non-null profile reference, confirm the corresponding object can
+   be read by the Identity storage identity and is a valid bounded WebP image.
+   Verify anonymous and unrelated-bucket access denial. A missing object is a
+   recovery discrepancy: restore it from the matching storage backup or clear
+   its reference through the authorized Identity API after recording the
+   decision. Do not silently claim recovery or delete unfamiliar objects.
+5. Verify profile fields and authorized API image reads using a disposable
+   recovery account. Remove its media and confirm inventory cleanup before
+   enabling orphan cleanup. Cut over only after database and storage evidence
+   agree; retain the previous recovery pair until that decision is complete.
+
+For credential rotation, generate a new scoped credential in the runtime
+secret store, update both the Identity profile Secret and SeaweedFS static S3
+configuration Secret for the same environment, then roll SeaweedFS followed by
+Identity and its maintenance worker. Verify scoped read/write/delete and
+cross-bucket denial with a disposable object. If verification fails, restore
+the matching previous pair and roll both workloads; never restore only one
+side. Rotation changes authentication, not object keys or account references.
+
+The existing 20 GiB Test PVC is shared with other buckets. Keep at least 20%
+free for ongoing storage operations and stop increasing profile capacity before
+that reserve is consumed. This is a conservative operational reserve, not a
+measured capacity qualification. The per-image and aggregate size estimates
+above remain the documented capacity boundary; referenced images do not expire.
+
 ## Source ownership
 
 The monorepo is authoritative. `apps/identity/` owns account behavior and the
 image store; `contracts/openapi.yaml` owns the API contract;
 `web/participant/` owns the browser editor; and `deploy/` owns Compose, Helm,
 bucket initialization, and S3 configuration. `deploy/services/identity.py`,
-`deploy/services/common.py`, `deploy/services/identity_maintenance.py`, and
+`deploy/services/identity_maintenance.py`, and
 `deploy/services/profile_images.py` are synchronized deployment copies of the
-Identity implementation and must remain in parity. The implementation is in
+Identity implementation and must remain in parity. `deploy/services/common.py`
+is a broader, independently maintained deployment runtime; it is not a byte-
+for-byte copy of Identity common. Its profile upload limits and binary response
+behavior must remain compatible, as checked by the deployment tests. The implementation is in
 `apps/identity/`, `contracts/`, `web/participant/`, and `deploy/`; the
 corresponding changes are linked from the merged PRs above.
 The Testing Fleet source uses the monorepo. Production Fleet still points to
@@ -179,3 +232,21 @@ normalization, authorization, replacement, and cleanup. See
 [#11](https://github.com/myota-platform/myota/issues/11),
 [#12](https://github.com/myota-platform/myota/issues/12), and
 [#13](https://github.com/myota-platform/myota/issues/13).
+
+## Final Testing acceptance
+
+The remaining deployment documentation and active mirror gates were verified
+on 14 October 2026. The three mirrored Identity profile modules matched their
+owners. Six focused deployment storage tests passed. An isolated Job using the
+currently deployed Identity image exercised the real HTTP profile API against
+the Test SeaweedFS bucket with runtime Secret references and an in-memory
+synthetic account. It verified fields, normalization, authenticated reads,
+replacement/deletion, and access denial without changing live accounts.
+
+The profile bucket contained zero objects before and after the check. The
+fixture and its Job/ConfigMap were removed. This closes the profile workstream's
+Testing scope; production promotion and the monorepo Fleet transition remain
+separate work. The authenticated browser editor is covered by the seven DOM
+tests; the live qualification covers the service-to-storage path, not a browser
+session. Exact evidence and limits are in the
+[profile deployment closeout](../../operations/storage/evidence/profile-deployment-closeout-2026-10-14.md).

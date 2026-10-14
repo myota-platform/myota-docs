@@ -15,12 +15,6 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
   The NATS durable consumer, Identity transactional outbox, delivery database,
   retry/DLQ, runtime telemetry, and Compose/Helm deployment remain open. No
   email is sent by the current code.
-- [Shared account profile fields and private images](../domain/identity/profile.md)
-  — Contracts, Identity, Participant Web, and deployment PRs #76–#79 are
-  merged to Testing. The latest check found all 24 Deployments and 3
-  StatefulSets ready and all 10 PVCs bound; scoped/anonymous S3 permission
-  checks passed with cleanup. Issue #12 remains open for mirror/recovery
-  documentation and evidence; production has not changed.
 - [Complete the monorepo release-path transition](../architecture/monorepo-and-scalability-assessment.md)
   — all eight image packages publish from monorepo Testing, and digest PR #78
   recorded the current test digests. Testing Fleet now reads `myota/testing`;
@@ -51,6 +45,12 @@ remain unverified. Reopen the relevant qualification gates before expanding
 beyond the accepted envelope. See the [closure decision](../geodata/evidence/phase5-owner-acceptance-2026-10-11.md).
 
 ## Recently completed
+
+- [Shared account profile fields and private images](../domain/identity/profile.md)
+  — Testing implementation, deployed-image HTTP/storage checks, active mirror
+  parity and recovery/rotation documentation are complete. Issues #12 and #55
+  are closed; production promotion and Fleet transition remain separate. See
+  the [closeout evidence](../operations/storage/evidence/profile-deployment-closeout-2026-10-14.md).
 
 - [Operations Service retirement and repository archive](../operations/evidence/operations-service-retirement-2026-10-11.md)
   — runtime functions are retired, the GitHub repository was archived on

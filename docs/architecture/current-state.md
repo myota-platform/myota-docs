@@ -76,15 +76,15 @@ deploy/services/identity.py, and contracts/openapi.yaml. It also recalculates
 account permissions from current Identity roles when validating access tokens,
 rather than trusting role claims cached at token issuance.
 
-## Shared profile fields and image workstream — checked 2026-10-14 21:43 UTC
+## Shared profile fields and image workstream — checked 2026-10-14 21:57 UTC
 
 The Contracts, Identity, deployment, and Participant Web changes are merged to
 `myota/testing` in PRs [#76](https://github.com/myota-platform/myota/pull/76),
 [#77](https://github.com/myota-platform/myota/pull/77),
 [#78](https://github.com/myota-platform/myota/pull/78), and
 [#79](https://github.com/myota-platform/myota/pull/79). The profile feature is
-deployed in `myota-test`; the latest snapshot has Helm revision 327 pending
-upgrade, 24/24 Deployments and 3/3 StatefulSets ready, and 10/10 PVCs bound. Live
+deployed in `myota-test`; the latest profile qualification snapshot has Helm
+revision 330 pending upgrade, 24/24 Deployments and 3/3 StatefulSets ready, and 10/10 PVCs bound. Live
 S3 checks verified scoped write/read/delete, denial to the unrelated
 `myota-adif` bucket, and denial of anonymous bucket listing; the temporary
 object and Jobs were removed. Production was not changed.
@@ -96,8 +96,11 @@ revision 327; four revision-scoped migration/provisioning Jobs completed.
 Track Fleet/digest closure separately under [myota #53](https://github.com/myota-platform/myota/issues/53). Profile
 implementation evidence and recovery limits are in the
 [profile policy and operations page](../domain/identity/profile.md). Contracts
-issue #11 is closed; #9, #10, and #13 are complete. Deploy #12 and parent #55
-remain open for mirror/recovery evidence and the roll-up.
+issues #9–#13 and parent #55 are closed after the final deployed-image HTTP/S3
+qualification, active module mirror comparison, and recovery/rotation guidance.
+The synthetic account was isolated in process memory; all fixture objects,
+Job and ConfigMap were removed. See the
+[profile closeout evidence](../operations/storage/evidence/profile-deployment-closeout-2026-10-14.md).
 
 This does not complete the Identity workstream. Durable Identity state still
 hydrates from and persists to the service_state JSONB snapshot through

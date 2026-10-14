@@ -3037,3 +3037,25 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
   authoritative relational recipient reads, lifecycle intents/outbox atomicity,
   email consumer/persistence, SMTP runtime checks, observability, and recovery.
   No email was sent. See the [email record](../operations/messaging/email-delivery.md).
+
+## 14 October 2026 — Complete profile deployment acceptance
+
+- **Prompt used:** “Implement and close issues #60, #58, #57, and #55 and
+  their dependent issues until completion, following `AGENTS.md`.” This slice
+  completes the remaining profile deployment/documentation gates under #55.
+- **Decision:** Qualify the deployed Identity image against Test storage with
+  a synthetic account in isolated process memory, keeping live accounts and
+  databases unchanged. Treat Deploy common as an independent runtime rather
+  than an identical Identity mirror.
+- **Verification:** Three active profile module mirrors matched; six focused
+  Deploy tests passed. Job `myota-profile-qualification-20261014b` completed
+  at 21:57:40 UTC and verified fields, image normalization, private reads,
+  replacement/deletion and storage denial. Profile bucket inventory returned
+  to its original empty state; the Job and ConfigMap were deleted.
+- **Documentation:** Added consistent database/storage recovery procedure,
+  credential rotation/rollback, capacity reserve and precise evidence limits.
+  [Deployment #12](https://github.com/myota-platform/myota/issues/12) and
+  [profile #55](https://github.com/myota-platform/myota/issues/55) are closed
+  only for the verified Testing scope. No production promotion or off-node
+  recovery qualification is claimed. See the
+  [closeout record](../operations/storage/evidence/profile-deployment-closeout-2026-10-14.md).
