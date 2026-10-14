@@ -82,18 +82,29 @@ published testing digests, opened Deploy PR #56, and the PR auto-merged after
 its checks passed. The credentials are never stored in this repository or
 logged in plaintext.
 
-The nominal polling cadence is every five minutes at minutes 2, 7, 12, ..., 57
-UTC, staggered away from the top of the hour. The original `*/5` schedule
-showed only two scheduled starts (01:39 and 06:43 UTC) in the observed
-14 October window, despite the workflow being enabled on the default branch.
-GitHub [documents that schedule events can be delayed or dropped](https://docs.github.com/en/actions/tutorials/manage-your-work/schedule-issue-creation)
-under high Actions load; therefore Actions does not guarantee a hard five-minute
-SLA. This schedule offset reduces contention at the hourly boundary. The digest
-workflow remains the only controller, proposes changes only in the isolated
-test values, and relies on Deploy checks and Fleet reconciliation. See
-[`.github` issue #5](https://github.com/myota-platform/.github/issues/5) for
-the fault, fix, and verification record, and [issue #3](https://github.com/myota-platform/.github/issues/3)
-for the scoped App setup.
+The current GitHub Actions schedule is nominally every five minutes at minutes
+2, 7, 12, ..., 57 UTC. The original `*/5` schedule showed only two scheduled
+starts (01:39 and 06:43 UTC) in the observed 14 October window, despite the
+workflow being enabled on the default branch. GitHub
+[documents that schedule events can be delayed or dropped](https://docs.github.com/en/actions/tutorials/manage-your-work/schedule-issue-creation)
+under high Actions load; an offset reduces contention at the hourly boundary
+but does not guarantee delivery. The user selected a Deploy-owned Kubernetes
+CronJob in the isolated `myota-test` namespace as the recurring trigger. It
+will call the GitHub `workflow_dispatch` endpoint for `.github` workflow
+`sync-testing-image-digests.yml` on `main`. This replacement is planned and
+not deployed; the Actions schedule remains temporarily configured and will
+be removed after scheduled dispatch is verified.
+
+The CronJob will use a separate GitHub App installed only on `.github` with
+Actions read/write permission. The existing App installed only on
+`myota-deploy` continues to create the digest PRs. The planned configuration
+stores App ID, installation ID, and dispatch target in a ConfigMap, and the
+private key in a namespace Secret. The CronJob will mint a short-lived token
+per request and send it only to GitHub's API. See [Deploy issue #57](https://github.com/myota-platform/myota-deploy/issues/57),
+[`.github` setup issue #6](https://github.com/myota-platform/.github/issues/6),
+and [Docs issue #12](https://github.com/myota-platform/myota-docs/issues/12).
+The earlier schedule-only issue [#5](https://github.com/myota-platform/.github/issues/5)
+was closed as superseded by this selected design.
 
 ## Initial data seed
 

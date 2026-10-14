@@ -1,3 +1,36 @@
+## 14 October 2026 — Move digest polling to a K3s-triggered workflow dispatch
+
+- **Prompt used:** “OK, instead of relying on the github actions cron
+  expression, trigger it every 5 minutes via a webhook triggering the job via
+  workflow_dispatch. Chose a service/component from which to launch the
+  webhook, create github issue(s) including one that instructs me how and what
+  to configure.”
+- **Decision:** Use a Deploy-owned Kubernetes CronJob in the isolated
+  `myota-test` namespace as the recurring five-minute trigger. It will POST
+  GitHub's `workflow_dispatch` API for `.github` workflow
+  `sync-testing-image-digests.yml`, ref `main`. Use a dedicated GitHub App
+  installed only on `.github` with Actions read/write permission; keep the
+  existing Deploy-only digest-writer App separate. This is planned and not
+  deployed. The GitHub Actions cron remains temporarily configured and will
+  be removed after the CronJob passes recurring dispatch verification.
+- **Issues:** [Deploy #57](https://github.com/myota-platform/myota-deploy/issues/57)
+  tracks the CronJob and hardened dispatcher; [.github #6](https://github.com/myota-platform/.github/issues/6)
+  gives the operator step-by-step App and Kubernetes Secret configuration;
+  [Docs #12](https://github.com/myota-platform/myota-docs/issues/12) tracks the
+  complete operator runbook. Each issue links the other repositories' work.
+  The schedule-only [.github #5](https://github.com/myota-platform/.github/issues/5)
+  was closed as superseded, not as an implemented runtime fix.
+- **Current evidence and limits:** GitHub manual run #38536330021 authenticated,
+  resolved image digests, and opened Deploy PR #56, which auto-merged after
+  checks. The old five-minute schedule had a five-hour gap; no scheduled run
+  appeared during the first 13 minutes after its offset change. GitHub Actions
+  may delay or drop schedule events, so the external trigger is selected to
+  remove recurring reliance on that scheduler. No CronJob or new App was
+  deployed or configured in this documentation/issues task.
+- **References:** [Testing deployment record](docs/operations/test-deployment.md),
+  [current system state](docs/architecture/current-state.md), and linked
+  GitHub issues.
+
 ## 14 October 2026 — Testing digest schedule reliability
 
 - **Prompt used:** “the `Update testing image digests` in the `.github` repo
