@@ -1,3 +1,25 @@
+## 14 October 2026 — Group monorepo issues by workstream
+
+- **Prompt used:** “in the new myota repo, organize the issues into a main issue and subissues for each of the affected components and tasks, keeping more or less the old organization in https://github.com/myota-platform/.github/blob/main/profile/README.md”
+- **Action:** Created 11 workstream parent issues and linked the 50 existing
+  component/task issues as checklist items. Appended a reciprocal parent link
+  to each child without changing its acceptance criteria. Groups follow the
+  former organization profile: production release, Testing digest automation,
+  user profiles, Identity accounts/roles, observability, email, public landing
+  page, programme governance, charter/award roadmaps, Admin internationalization,
+  and Geodata capacity.
+- **Issue groups:** Parent issues
+  [#54–64](https://github.com/myota-platform/myota/issues?q=is%3Aissue+is%3Aopen+Workstream)
+  now contain 50 task links. The monorepo has 61 open issues total.
+- **Relationship limitation:** GitHub's `/issues/{number}/sub_issues` endpoint
+  returned an empty list, and the connected GitHub tools do not expose a
+  sub-issue relationship write operation. Therefore the parent/checklist and
+  child/backlink organization is visible in issue bodies, but native GitHub
+  parent/sub-issue relationships are not established.
+- **Evidence:** Parent
+  [#54](https://github.com/myota-platform/myota/issues/54) and task
+  [#4](https://github.com/myota-platform/myota/issues/4).
+
 ## 14 October 2026 — Monorepo foundation and issue migration
 
 - **Prompt used:** “OK. Implement the monorepo strategy as laid out in
@@ -25,10 +47,9 @@ etc...” Follow-up: “I have created the repository, continue.”
 - **Issue migration:** Moved all 49 open issues from the source repositories
   with user stories, acceptance criteria, related links, and reciprocal
   migration comments. Closed source issues as migrated, not complete. A fresh
-  query found zero open issues across the source repositories and 50 open
-  issues in `myota` after adding the GHCR blocker. The
-  [.github issue index](https://github.com/myota-platform/.github/blob/main/profile/README.md)
-  lists current target issues in workstream groups.
+  query found zero open issues across the source repositories and 61 open
+  issues in `myota`: 11 workstream parents and 50 task issues. Parent
+  checklists and child backlinks record the grouping.
 - **CI evidence:** PR [#3](https://github.com/myota-platform/myota/pull/3)
   merged to `testing` as commit
   [`a932f2f`](https://github.com/myota-platform/myota/commit/a932f2f3c511dbaebb27315e4c55646dbaec737b).

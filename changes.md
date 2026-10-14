@@ -1,3 +1,20 @@
+## 14 October 2026 — Group monorepo issues by workstream
+
+- **Prompt used:** “in the new myota repo, organize the issues into a main issue
+  and subissues for each of the affected components and tasks, keeping more or
+  less the old organization in the .github profile issue list.”
+- **Action:** Created 11 workstream parent issues (#54–64) and linked all 50
+  existing task issues in parent checklists. Each task issue now links back to
+  its parent; original acceptance criteria remain in the component/task issue.
+  The groupings preserve the former profile's workstreams.
+- **Status:** 61 open issues total (11 parents, 50 tasks). Native GitHub
+  sub-issue associations were not writable through the available connector;
+  the sub-issue endpoint reads empty. Current relationships are explicit
+  parent checklist links and child backlinks.
+- **Evidence:** [Parent issue #54](https://github.com/myota-platform/myota/issues/54),
+  [task issue #4](https://github.com/myota-platform/myota/issues/4), and
+  [parent #64](https://github.com/myota-platform/myota/issues/64).
+
 ## 14 October 2026 — Start the monorepo transition
 
 - **Prompt used:** “Implement the monorepo strategy as laid out in the

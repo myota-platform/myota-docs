@@ -94,9 +94,10 @@ The 49 open issues found across the source repositories were copied to
 `myota` with their user stories, acceptance criteria, and related links.
 Each source issue was closed as migrated and has a reciprocal link to its
 monorepo issue. A fresh GitHub issue search found zero open issues in the
-former source repositories, and 50 open issues in `myota` after adding the
-GHCR permission blocker. The grouped live index is in
-[.github/profile/README.md](https://github.com/myota-platform/.github/blob/main/profile/README.md).
+former source repositories, and 61 open issues in `myota`: 11 workstream parent issues and the 50 task
+issues, after adding the GHCR permission blocker. Each parent has a linked
+checklist and each child points back to its parent. The connector has no native
+sub-issue write operation, so the relationship is represented in issue bodies.
 
 Closing a source issue as migrated does not mean its task is complete. The new
 monorepo issue remains the work record until its original acceptance criteria

@@ -42,9 +42,11 @@ and image evidence above remains the latest full runtime snapshot; this section
 updates repository-transition status only.
 
 All 49 open source issues were migrated with reciprocal links and closed as
-migrated. The old source repositories have zero open issues; `myota` has 50
-open issues, including the newly recorded GHCR blocker. The organization
-profile links the current grouped list. Branch-protection reads for the new
+migrated. The old source repositories have zero open issues; `myota` has 61 open issues:
+11 workstream parents and the 50 migrated task issues. Each parent contains a
+linked task checklist and each task issue links back to its parent. The GitHub
+connector exposes no native sub-issue write action, so these are documented
+issue-body relationships rather than API-backed parent/sub-issue associations. Branch-protection reads for the new
 repository returned HTTP 403, and the GitHub connector has no archive write
 action. Therefore rulesets are unverified and former repositories remain
 unarchived. See the
