@@ -4,9 +4,12 @@ For the latest deployment and repository snapshot, see the
 [Current system state](../architecture/current-state.md) and the
 [Testing deployment record](../operations/test-deployment.md). The 11 October
 Helm revision 272 snapshot below is retained as historical evidence. On
-14 October, the isolated Testing release was at Helm revision 301 with the
-Logs / Failures and Distributed Traces dashboards provisioned. Their live
-query limits are recorded in the [logging runbook](logging-runbook.md).
+14 October, the isolated Testing release is at Helm revision 304 with Logs /
+Failures, Distributed Traces, and MyOTA service health dashboards provisioned.
+The Identity and Programme panels were corrected against live metric names;
+their current values and query limits are recorded in the
+[Testing deployment record](../operations/test-deployment.md) and
+[logging runbook](logging-runbook.md).
 Identity and Programme metrics coverage is verified; other logging and
 observability acceptance gates remain open. See the
 [logging roadmap](logging-implementation.md).

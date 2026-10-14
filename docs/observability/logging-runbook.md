@@ -136,15 +136,20 @@ Tempo is short-lived diagnostic storage, not an event archive. PostgreSQL,
 outbox rows, and domain records remain authoritative for work and business
 state.
 
-**Testing deployment evidence (14 October 2026):** Fleet reported the
-`myota-test` bundle Ready at monorepo commit `e00ba2960595601df03bd71c41f0641b7914197f`.
-The Grafana provisioning logs reported dashboards finished provisioning; the
-observability ConfigMap contained both dashboard files and Loki/Tempo
-datasources. A read-only Tempo search returned 20 stored traces. At that
-check, the failed-trace and over-one-second queries returned no matches, so
-those panels were provisioned but had no matching sample. No synthetic trace
-was written. See the [Testing deployment record](../operations/test-deployment.md)
-and deployment work item [#22](https://github.com/myota-platform/myota/issues/22).
+**Testing deployment evidence (14 October 2026):** Fleet reports the
+`myota-test` bundle Ready at monorepo commit
+[`5b334661`](https://github.com/myota-platform/myota/commit/5b33466155bf0bd3bd69a65fbfdc6d37a338b812),
+and Helm revision 304 is deployed. Grafana logged successful dashboard
+provisioning for the MyOTA folder. Logs / Failures, Distributed Traces, and
+MyOTA service health are present in the deployed observability ConfigMap. A
+read-only Tempo search returned 20 stored traces; the failed-trace and
+over-one-second filters returned no matches, so those panels had no matching
+sample. No synthetic trace was written. Live Prometheus queries confirmed the
+service-health expressions against Identity values `OPERATOR=2`, `SWL=0`, and
+Programme value `2`. This is Testing data; authenticated UI navigation remains
+unverified under logging acceptance issue [#48](https://github.com/myota-platform/myota/issues/48).
+See the [Testing deployment record](../operations/test-deployment.md) and
+dashboard task [#24](https://github.com/myota-platform/myota/issues/24).
 
 ## Loki or Collector ingestion failure
 

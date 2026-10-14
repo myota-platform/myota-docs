@@ -1,3 +1,25 @@
+## 14 October 2026 — Correct and deploy Testing service-health dashboard queries
+
+- **Work items:** [myota #24](https://github.com/myota-platform/myota/issues/24),
+  [myota #21](https://github.com/myota-platform/myota/issues/21), and parent
+  [myota #57](https://github.com/myota-platform/myota/issues/57).
+- **Cause and fix:** The service-health dashboard used Identity and Programme
+  metric names with `_total` suffixes, but the services export
+  `myota_identity_users` and `myota_programmes`. Updated the Compose and Helm
+  dashboard copies and focused assertions in PR
+  [myota #75](https://github.com/myota-platform/myota/pull/75).
+- **Verification:** PR checks passed and the change merged to `testing` as
+  `5b334661`. Fleet reports the test bundle Ready; Helm revision 304 is
+  deployed, all 24 Deployments and 3 StatefulSets are ready, and all 10 PVCs
+  are bound. Live Prometheus queries returned the current Identity
+  (`OPERATOR=2`, `SWL=0`) and Programme (`2`) series. Grafana completed
+  dashboard provisioning in the MyOTA folder. Production Fleet remains on its
+  `main` source and was not changed by this Testing rollout.
+- **Limit:** Grafana's API requires the trusted auth-proxy identity. This
+  deployment check used the mounted dashboard/configuration, provisioning
+  logs, and live Prometheus queries; interactive authenticated browser
+  navigation remains open under issue #48.
+
 ## 14 October 2026 — Document the provisioned log and trace dashboards
 
 - **Work items:** [myota #20](https://github.com/myota-platform/myota/issues/20)

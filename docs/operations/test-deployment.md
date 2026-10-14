@@ -1,24 +1,25 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-14 19:49 UTC
+**Current verification:** 2026-10-14 20:02 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota`, branch `testing`, commit
-[`e00ba29`](https://github.com/myota-platform/myota/commit/e00ba2960595601df03bd71c41f0641b7914197f), path `deploy/helm/myota-test`.
+[`5b33466`](https://github.com/myota-platform/myota/commit/5b33466155bf0bd3bd69a65fbfdc6d37a338b812), path `deploy/helm/myota-test`.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current monorepo rollout — 2026-10-14 19:44 UTC
+## Current monorepo rollout — 2026-10-14 20:02 UTC
 
 | Check | Result |
 |---|---|
-| Fleet | The Testing-only GitRepo `fleet-local/myota-deploy-testing` now reads `myota-platform/myota`, branch `testing`, path `deploy/helm/myota-test`, at commit `e00ba2960595601df03bd71c41f0641b7914197f`. Its single bundle deployment reports Ready. Production Fleet remains on `myota-platform/myota-deploy`, branch `main`. |
-| Helm and storage | Release `myota-test` is deployed at revision 301. All 10 database and observability PVCs in `myota-test` are Bound. |
+| Fleet | The Testing-only GitRepo `fleet-local/myota-deploy-testing` reads `myota-platform/myota`, branch `testing`, path `deploy/helm/myota-test`, at commit [`5b334661`](https://github.com/myota-platform/myota/commit/5b33466155bf0bd3bd69a65fbfdc6d37a338b812). Its bundle deployment is Ready. Production Fleet remains on `myota-platform/myota-deploy`, branch `main`, at `40a4bdb6be4e75146f0d74ab440db41e98c5d372`. |
+| Helm and storage | Release `myota-test` is deployed at revision 304. All 10 database and observability PVCs in `myota-test` are Bound. |
 | Workloads | All 24 Deployments and all 3 StatefulSets report their desired replicas ready. |
+| MyOTA service health dashboard | Grafana's `myota-observability` ConfigMap and mounted dashboard file contain `myota-service-health.json` with title **MyOTA service health** and UID `myota-service-health`. It is provisioned in the **MyOTA** folder and uses the `MyOTA Prometheus` datasource (`myota-prometheus`). Live Prometheus queries return `myota_identity_users` values `OPERATOR=2` and `SWL=0`, and `myota_programmes=2`; these match the corrected dashboard expressions. The old `myota-operations` dashboard was retired and is not the current dashboard. |
 | Logs dashboard | The deployed `myota-observability` ConfigMap contains `myota-logs-failures.json` with UID `myota-logs-failures`; Grafana logged `finished to provision dashboards` at 19:42 UTC. It uses the MyOTA Loki datasource. |
 | Trace dashboard | The deployed `myota-observability` ConfigMap contains `myota-traces.json` with UID `myota-traces`. Grafana's read-only dashboard search returned `MyOTA Distributed Traces`; the Tempo datasource `myota-tempo` is configured. |
 | Existing telemetry | A read-only Tempo search returned 20 stored traces across Activity, Geodata, and outbox services. The current failed-trace and over-one-second queries each returned zero; no synthetic traces were inserted. |
@@ -35,6 +36,24 @@ trace dashboard payload SHA-256
 configured Loki and Tempo datasource UIDs were `myota-loki` and `myota-tempo`.
 The last recorded bounded Tempo search found 20 traces, but none matched the
 failed-trace or over-one-second filters; no synthetic traces were inserted.
+
+The service-health dashboard was corrected in monorepo PR
+[#75](https://github.com/myota-platform/myota/pull/75) after a live query audit
+found that Identity and Programme export `myota_identity_users` and
+`myota_programmes`, without the `_total` suffix used by the old panels. Both
+the Compose source and packaged Helm dashboard now use the observed names.
+Focused observability tests and the PR checks passed before merge to
+`testing`; Fleet applied commit `5b334661` at Helm revision 304. The dashboard
+payload in the live ConfigMap has SHA-256
+`d3a1a3d3270b5458b9369d8b0092ed68e23fddc481fba065bc3329dd8b52b311`.
+The mounted file has SHA-256
+`39ccd622a714b3e9ab75fbbd5ecfc35f95068b32126e63a69f8a08205ba95308`; the
+ConfigMap value has a trailing newline absent from the mounted file. Both
+contain the same dashboard UID and corrected Identity and Programme queries.
+The Prometheus results are current Testing values, not target or production
+counts. Grafana's dashboard provisioning is verified from its ConfigMap and
+provisioning logs; authenticated browser navigation remains a separate
+acceptance gate tracked in [issue #48](https://github.com/myota-platform/myota/issues/48).
 
 To enable digest updates, install the digest-writer GitHub App on `myota` with Contents and Pull requests write access. Add `TESTING_DIGEST_APP_ID` as an Actions variable and `TESTING_DIGEST_APP_PRIVATE_KEY` as an Actions secret in that repository, then run the workflow again. See [digest writer setup](https://github.com/myota-platform/myota/issues/30) and [image access and rollout evidence](https://github.com/myota-platform/myota/issues/53). The latest digest workflow run confirms that those credentials are currently missing.
 
