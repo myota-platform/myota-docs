@@ -90,10 +90,11 @@ workflow being enabled on the default branch. GitHub
 under high Actions load; an offset reduces contention at the hourly boundary
 but does not guarantee delivery. The user selected a Deploy-owned Kubernetes
 CronJob in the isolated `myota-test` namespace as the recurring trigger. It
-will call the GitHub `workflow_dispatch` endpoint for `.github` workflow
-`sync-testing-image-digests.yml` on `main`. This replacement is planned and
-not deployed; the Actions schedule remains temporarily configured and will
-be removed after scheduled dispatch is verified.
+will call the GitHub [`workflow_dispatch` API](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event)
+for `.github` workflow `sync-testing-image-digests.yml` on `main`; the
+dedicated App requires repository Actions write permission. This replacement
+is planned and not deployed; the Actions schedule remains temporarily
+configured and will be removed after scheduled dispatch is verified.
 
 The CronJob will use a separate GitHub App installed only on `.github` with
 Actions read/write permission. The existing App installed only on
