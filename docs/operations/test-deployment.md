@@ -96,23 +96,22 @@ verified. Production workloads and volumes were not changed.
 ### Image update automation status
 
 The digest-sync workflow now lives in the MyOTA monorepo at
-[\`.github/workflows/sync-testing-image-digests.yml\`](https://github.com/myota-platform/myota/blob/main/.github/workflows/sync-testing-image-digests.yml).
+[`.github/workflows/sync-testing-image-digests.yml`](https://github.com/myota-platform/myota/blob/main/.github/workflows/sync-testing-image-digests.yml).
 It runs on a five-minute schedule or manual dispatch, resolves published
-\`testing\` tags to immutable digests, and opens a digest-only PR against
-\`myota/testing\`. The old copy was removed from the organization
-[\`.github\`](https://github.com/myota-platform/.github) repository after the
-monorepo workflow reached \ `main\`.
+`testing` tags to immutable digests, and opens a digest-only PR against
+`myota/testing`. The old copy was removed from the organization
+[`.github`](https://github.com/myota-platform/.github) repository after the
+monorepo workflow reached `main`.
 
-The workflow expects \ `TESTING_DIGEST_APP_ID\` and
-\`TESTING_DIGEST_APP_PRIVATE_KEY\` in the \ `myota\` Actions context (or
-organization-level settings that include \ `myota\`). These values are
+The workflow expects `TESTING_DIGEST_APP_ID` and
+`TESTING_DIGEST_APP_PRIVATE_KEY` in the `myota` Actions context (or
+organization-level settings that include `myota`). These values are
 not readable through the GitHub connector. The first scheduled run after the
 move has not yet been observed, so credential availability and digest PR
-creation remain unverified. The workflow includes \ `workflow_dispatch\` for
-a manual verification run. The test digest values and live \ `myota-test\`
+creation remain unverified. The workflow includes `workflow_dispatch` for
+a manual verification run. The test digest values and live `myota-test`
 workloads still reflect the previous image set; Fleet rollout verification
 remains outstanding. Production values were not changed.
-
 ## Initial data seed
 
 The database and object data were copied after migrations and before enabling
