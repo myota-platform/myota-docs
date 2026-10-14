@@ -1,5 +1,13 @@
 ## 14 October 2026
 
+- Monorepo PR [#83](https://github.com/myota-platform/myota/pull/83) adds
+  internal email-recipient resolution with fixed-scope service credentials,
+  active-account eligibility, uniform HTTP 404 responses, cache prevention,
+  and Gateway exclusion. It merged to `testing` after all PR checks passed;
+  runtime secret provisioning remains pending. Identity email intents remain
+  gated by relational database authority. See the
+  [email operating record](docs/operations/messaging/email-delivery.md).
+
 - Added the proposed [email delivery architecture and operator flow](docs/operations/messaging/email-delivery.md).
   Monorepo PR [#82](https://github.com/myota-platform/myota/pull/82) adds
   bounded contract validation, escaped templates, TLS SMTP configuration,

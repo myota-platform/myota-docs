@@ -3015,3 +3015,25 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
   [Identity #27](https://github.com/myota-platform/myota/issues/27),
   [Contracts #28](https://github.com/myota-platform/myota/issues/28), and
   [Email #29](https://github.com/myota-platform/myota/issues/29).
+
+## 14 October 2026 — Add internal email recipient resolution
+
+- **Prompt used:** “Implement and close issues #60, #58, #57, and #55 and
+  their dependent issues until completion, following `AGENTS.md`.” This slice
+  advances Identity #27 under the asynchronous email workstream.
+- **Decision:** Only the fixed email-service identity may resolve an active
+  account's address. Pending setup does not imply delivery eligibility. Keep
+  the route off the public Gateway and require a runtime client credential.
+- **Implementation:** PR [#83](https://github.com/myota-platform/myota/pull/83)
+  merged to `testing` at `d2250585b708ead209464f00ce864510ee9e1e16`; it
+  adds the recipient route, fixed five-minute token exchange, Gateway exclusion,
+  non-cacheable responses, OpenAPI/route inventory, and owner/mirror changes.
+- **Verification:** Identity suite passed 42 tests, including seven recipient
+  tests; four focused Gateway tests, twelve Contracts tests, source audit,
+  route/client checks, and Ruff passed. HTTP fixtures used ephemeral localhost
+  servers and were cleaned up. Local Ruby was unavailable; duplicate-key
+  rejection passed in Contracts CI. Every reported PR check passed before merge.
+- **Remaining gates:** Runtime Secret provisioning,
+  authoritative relational recipient reads, lifecycle intents/outbox atomicity,
+  email consumer/persistence, SMTP runtime checks, observability, and recovery.
+  No email was sent. See the [email record](../operations/messaging/email-delivery.md).

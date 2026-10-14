@@ -18,7 +18,10 @@ deployed and no runtime path is authorized to send email yet.
   renders escaped text/HTML for the two templates, and requires TLS SMTP
   configuration. Its eight focused unit tests and the contract-source audit
   pass. This is a validation/rendering core, not a durable consumer.
-- Identity's service-to-service recipient API and transactional email outbox,
+- PR [#83](https://github.com/myota-platform/myota/pull/83) adds the internal
+  Identity recipient API and Gateway exclusion; it merged to `testing` after
+  all PR checks passed. Runtime credential provisioning remains pending.
+- Identity's transactional email outbox,
   the NATS consumer, PostgreSQL delivery/idempotency state, retry/dead-letter
   behavior, SMTP Secret/ConfigMap deployment, and runtime telemetry are not
   implemented. The core cannot send on its own and is not deployed.
@@ -78,6 +81,37 @@ successful delivery.
 Password-reset, recovery, and email-verification messages remain out of scope.
 Their tokens are secret-bearing and need a separate one-time retrieval design.
 The current non-enumerating recovery response must remain unchanged.
+
+## Recipient API implementation and deployment gate
+
+PR [#83](https://github.com/myota-platform/myota/pull/83), merged to `testing`
+at commit `d2250585b708ead209464f00ce864510ee9e1e16`, implements
+`GET /v1/identity/internal/email-recipients/{accountId}` in the Identity owner
+and its Deploy runtime mirror. It returns only `deliverableAddress` for an
+active account with an address. Missing, pending-setup, deactivated, and
+unaddressable accounts receive the same HTTP 404. Requests with participant,
+administrator, or other service tokens are denied. The Gateway excludes
+`/v1/identity/internal/`, and recipient/token responses disable caching.
+
+The future worker exchanges `service=email-service` and a runtime
+`MYOTA_EMAIL_SERVICE_CLIENT_SECRET` at
+`POST /v1/identity/auth/service-token`. Identity issues a five-minute token
+with subject `service:email-service`, audience `myota-identity`, and only
+`identity.email.resolve`. The caller cannot choose scopes, and administrative
+service-token issuance cannot grant that reserved scope. An absent or short
+configured credential fails closed. Provision the same generated credential
+into Identity and the worker through Kubernetes Secrets; do not place it in
+ConfigMaps, Helm values, logs, or issue comments.
+
+This API is a prerequisite, not a complete producer or deployment. Identity's
+current JSONB/process snapshot remains its account lookup source until
+[#36](https://github.com/myota-platform/myota/issues/36) makes relational reads
+authoritative across replicas. Do not enable email publication before that
+gate. Pending-setup accounts are deliberately ineligible; current account-
+created templates alone do not authorize sending to them. The initial
+participant trigger and any setup notification policy still require the
+Identity lifecycle implementation. No SMTP or NATS requests were made by the
+recipient API tests.
 
 ## SMTP configuration target
 

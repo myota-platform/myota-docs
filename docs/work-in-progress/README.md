@@ -11,7 +11,8 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
 - [Asynchronous email delivery](../operations/messaging/email-delivery.md)
   — the versioned command contract is checked in, and PR #82 adds the bounded
   email validation/rendering core plus an email-specific test/lint workflow.
-  The NATS durable consumer, Identity recipient API/outbox, delivery database,
+  PR #83 adds the internal Identity recipient API and Gateway exclusion.
+  The NATS durable consumer, Identity transactional outbox, delivery database,
   retry/DLQ, runtime telemetry, and Compose/Helm deployment remain open. No
   email is sent by the current code.
 - [Shared account profile fields and private images](../domain/identity/profile.md)
