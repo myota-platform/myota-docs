@@ -8,8 +8,11 @@ BundleDeployment is Ready at sync generation 94/94 with matching staged/applied 
 The 33 Prometheus alerts load with runbook URLs, Grafana mounts two alert
 runbook links and three Logs / Failures dashboard links, and dashboard
 provisioning completed. Deploy issue #6 remains open for three unverified
-gates: authenticated Grafana trace/log navigation, Compose runtime parity, and
-representative capacity/recovery qualification. See the
+gates in the original evidence. Authenticated Grafana trace/log navigation
+now passes in Testing after PRs #84/#85. Full Compose runtime/restart and
+representative capacity/recovery qualification remain open. See the
+[15 October browser evidence](evidence/grafana-browser-qualification-2026-10-15.md)
+for the superseding navigation result. See the
 [12 October evidence](evidence/logging-implementation-2026-10-12.md).
 
 **Acceptance boundary:** checked deliverables below mean that their focused
@@ -338,7 +341,10 @@ Deliverables:
 - [x] verify Helm ConfigMap mounting and Grafana provisioning of the dashboard;
 - [x] execute all seven mounted dashboard LogQL queries against live Loki OTLP
   structured metadata (no JSON parser);
-- [ ] Verify authenticated Grafana UI trace/log navigation in both directions. The configured links and dashboard assets are live, but no authorized browser session was used.
+- [x] Verify authenticated Grafana UI trace/log navigation in both directions.
+  PRs #84/#85 corrected provisioning and metadata queries; the authorized Test
+  browser check verified the matching record in the new reverse pane. See the
+  [browser evidence](evidence/grafana-browser-qualification-2026-10-15.md).
 
 Implementation prompt:
 [Phase 5 ChatGPT prompt](prompts/logging-phase-5-grafana-correlation.md)
@@ -473,3 +479,12 @@ uses a body search instead of a structured-metadata predicate; full Compose
 dashboard-set/runtime parity and capacity/recovery remain open. The
 bidirectional roadmap checkbox is unchanged. See the
 [browser evidence](evidence/grafana-browser-qualification-2026-10-15.md).
+
+## 15 October 2026 — Reverse navigation verified
+
+PR [#85](https://github.com/myota-platform/myota/pull/85) fixes Tempo-to-Loki
+structured-metadata filtering and adds the two missing Compose dashboards.
+All 21 dashboard definitions match recursively; sixteen focused checks and all
+PR checks pass. Grafana mounts the corrected datasource, and the authorized
+browser verified both directions using an existing retained Identity error.
+Source parity does not replace the full Compose runtime/restart gate.

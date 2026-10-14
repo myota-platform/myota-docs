@@ -1,49 +1,43 @@
-# Phase 5 prompt - Grafana logs and cross-signal correlation
+# Phase 5 prompt — Grafana logs and cross-signal correlation
 
-Use this prompt in ChatGPT Work or Codex to implement Phase 5 of the
-[structured logging plan](../logging-implementation.md).
+Use this prompt for the remaining Phase 5 tasks in the
+[structured logging plan](../logging-implementation.md). Source implementation
+is in the monorepo; former repository paths are migration history.
 
-## Prompt
+```text
+Complete Phase 5 Grafana correlation in myota-platform/myota. Read AGENTS.md,
+myota-docs/docs/observability/logging-implementation.md, the logging runbook,
+and the latest browser evidence first. deploy/ owns Compose and Helm sources;
+myota-docs owns decisions, prompts and evidence. Keep the deployment copies
+synchronized and preserve the existing MyOTA, NATS and K3s folders/datasources.
 
-Integrate MyOTA Loki logs into Grafana so operators can navigate between metrics,
-traces and logs.
+Work only on the remaining Phase 5 checkboxes and exit criteria. Use Loki UID
+myota-loki and Tempo UID myota-tempo. Applications emit service.namespace=myota;
+do not substitute a Kubernetes namespace into that application resource label.
+Use finite service/environment/severity selectors and actual emitted values.
+Keep trace, request and correlation IDs as structured metadata, not indexed
+labels or dashboard variables. Never log credentials, account addresses,
+request bodies or domain payloads.
 
-Primary repository:
-- myota-platform/myota-deploy
+Verify log-to-trace and trace-to-log actions in an authorized Test Grafana
+browser session. Preserve trace IDs through provisioning by escaping dollar
+macros. The reverse query must filter trace_id structured metadata, not search
+the event body. Confirm the newly opened pane contains the matching record;
+a record remaining in another pane is insufficient evidence. Scope queries
+by service and time. Use existing sanitized telemetry where possible; remove
+all temporary credentials, fixtures and test resources afterward.
 
-Documentation:
-- myota-platform/myota-docs
+Compare the complete dashboard inventory and definitions, including nested
+NATS and K3s assets, across Compose and Helm. Preserve no-data behavior when
+Kubernetes metrics are unavailable in standalone Compose. Keep alerts and
+performance metrics authoritative; do not replace them with log approximations.
+Do not expand this phase into Identity schemas, SMTP, or production changes.
 
-Prerequisites: Loki is receiving structured logs and services emit trace_id,
-service identity, component and correlation_id.
-
-Requirements:
-1. Provision the Loki datasource for Compose and Helm using stable datasource UID
-   myota-loki.
-2. Configure a derived field/link so trace_id in Loki opens the corresponding
-   trace in the existing Tempo datasource.
-3. Configure Tempo trace-to-logs so an operator can open logs relevant to a trace
-   or span, scoped at minimum by service and time range.
-4. Keep service/environment/severity/component filters low-cardinality.
-5. Add a provisioned MyOTA Logs / Failures dashboard with:
-   - log events per minute;
-   - ERROR/WARN rate;
-   - errors by service/component;
-   - recent failures table;
-   - worker retries/failures;
-   - HTTP 5xx log stream;
-   - variables for environment, service, severity and component.
-6. Provide an easy LogQL path to filter by correlation_id without making it a
-   Loki label.
-7. Add links from existing operations/API performance dashboards where they
-   materially improve troubleshooting.
-8. Do not replace Prometheus panels with log-derived approximations when metrics
-   already exist.
-9. Verify provisioning in Compose and Helm rendering.
-10. Document example workflows:
-    metric alert -> trace -> logs;
-    error log -> trace;
-    correlation_id -> multi-service workflow investigation.
-
-Return screenshots only if practical; always provide query/provisioning evidence
-and exact changed files.
+Run focused checks and all required PR gates. Follow feature/fix branches and
+PRs into testing; verify the approved files are mounted and provisioned before
+claiming rollout. Record exact commands/results, source/merge commits, browser
+behavior, cleanup and remaining gaps in myota-docs. Check off only verified
+items and close the task issue only when every exit criterion has evidence.
+Leave capacity, recovery and full runtime/restart qualification to Phase 6
+where they are separately tracked. Commit and push related work coherently.
+```

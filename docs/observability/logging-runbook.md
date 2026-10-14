@@ -74,16 +74,16 @@ They do not emit full payloads or raw exception text.
 
 - In Loki, open a record with a non-empty `trace_id` and follow the provisioned
   Tempo derived-field link.
-- For Tempo-to-Loki investigation, copy the trace ID and query structured
-  metadata in Loki Explore using the service and span time window. The current
-  automated reverse action still searches the body and is not reliable.
+- In Tempo, select a span and use **Logs for this span**. The custom reverse
+  query filters `trace_id` structured metadata with mapped service/environment
+  labels and the span time window.
 - A trace ID joins one distributed execution. A business `correlation_id`
   joins asynchronous work across separate traces and retries.
 
 The label-type derived field links `trace_id` structured metadata to Tempo.
-Testing PR #84 fixes its provisioning escape; authenticated browser verification
-confirmed **View trace** opens the matching trace. The reverse action still
-needs an explicit metadata query. For a manual lookup, use:
+Testing PR #84 fixes its provisioning escape, and PR #85 adds the custom
+reverse metadata query. Authenticated browser verification confirms both
+directions and the matching result in the new pane. For a manual lookup, use:
 
 ```logql
 {service_namespace="myota", service_name="myota-identity"} | trace_id="<trace-id>"
@@ -92,7 +92,7 @@ needs an explicit metadata query. For a manual lookup, use:
 Replace the fixed service value with the owning service and use the trace's
 time window. Trace IDs remain structured metadata, not indexed labels. See the
 [browser evidence](evidence/grafana-browser-qualification-2026-10-15.md) for the
-verified direction and remaining gates.
+verified navigation and remaining runtime/capacity gates.
 
 ### Provisioned Grafana dashboards
 
@@ -129,7 +129,7 @@ For a log-to-trace investigation, set the dashboard time range first, narrow
 service/environment/severity as needed. Use Explore for a structured-metadata
 `correlation_id` query when following a stable workflow identifier. Open a matching log record with a non-empty
 `trace_id` and use **View trace**. In Tempo, select an error or slow trace and
-use the manual metadata query above until the reverse action is corrected. A trace ID is scoped to one
+use **Logs for this span** or the manual metadata query above. A trace ID is scoped to one
 distributed execution; use the business correlation ID to follow retries and
 separate asynchronous executions. If a trace or matching log is absent, check
 the selected time range, service filter, ingestion health, and configured

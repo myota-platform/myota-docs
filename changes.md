@@ -1,5 +1,13 @@
 ## 15 October 2026
 
+- Merged/deployed [PR #85](https://github.com/myota-platform/myota/pull/85):
+  reverse trace navigation now filters structured metadata, and Compose includes
+  the Outbox/K3s dashboards. All 21 definitions match recursively, sixteen
+  focused checks and all PR checks pass, and authenticated browser navigation
+  succeeds in both directions. Full Compose runtime/restart and capacity/recovery
+  remain open. Evidence is in the
+  [browser record](docs/observability/evidence/grafana-browser-qualification-2026-10-15.md).
+
 - Authenticated browser inspection of Test Grafana found application logs
   hidden by a Kubernetes namespace filter and a trace link with an empty query.
   Monorepo PR [#84](https://github.com/myota-platform/myota/pull/84) fixes

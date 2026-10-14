@@ -32,8 +32,9 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
   in the [current-state page](../architecture/current-state.md) and linked
   evidence. Authenticated browser qualification found incorrect application
   namespace/environment/severity filters and an empty trace link; PR #84 fixes
-  these and is merged/deployed. Log-to-trace navigation now succeeds;
-  trace-to-log metadata filtering and two missing Compose dashboards remain. See the
+  these; PR #85 adds reverse metadata filtering and the missing Compose
+  dashboards. Both are merged/deployed, and bidirectional browser navigation
+  passes. Full Compose runtime/restart and capacity/recovery remain open. See the
   [browser evidence](../observability/evidence/grafana-browser-qualification-2026-10-15.md).
   MyOTA #22 PRs #80 and #81 add finite Grafana filters; both bounded
   dashboards are mounted and Grafana logged successful provisioning. At the

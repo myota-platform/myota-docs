@@ -3078,3 +3078,22 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
   open, along with two missing Compose dashboards. Compose runtime/restart and capacity/recovery
   qualification remain open. No telemetry fixtures were injected. See the
   [browser record](../observability/evidence/grafana-browser-qualification-2026-10-15.md).
+
+## 15 October 2026 — Verify reverse trace correlation and source parity
+
+- **Prompt used:** “Implement and close issues #60, #58, #57, and #55 and
+  their dependent issues until completion, following `AGENTS.md`.” This slice
+  completes browser navigation under #22/#48 and fixes full dashboard source
+  parity. Updated Phase 5/6 prompts name the monorepo and preserve their gates.
+- **Implementation:** PR #85 merged at `9f216240bf2cb4171cb41d62815df45ac09e9445`.
+  It uses an escaped custom trace-to-log metadata query, adds Outbox/K3s assets
+  to Compose and checks the complete recursive dashboard inventory.
+- **Verification:** Sixteen focused checks and all final-head PR checks passed;
+  all 21 definitions match. The corrected datasource hash matched its Test
+  mount. Authorized Chromium verified both directions and the matching log in
+  the newly opened reverse pane using a known retained Identity error.
+- **Cleanup and limits:** No synthetic telemetry/account was created; temporary
+  credential/script files were removed. Initial dynamic trace selection timed
+  out; the final known-record check passed. Full Compose runtime/restart and
+  representative capacity/recovery remain open. See the
+  [browser evidence](../observability/evidence/grafana-browser-qualification-2026-10-15.md).

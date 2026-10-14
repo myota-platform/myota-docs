@@ -5,13 +5,21 @@ Use this prompt in ChatGPT Work or Codex to implement Phase 6 of the
 
 ## Prompt
 
+```text
 Perform the production-hardening and acceptance phase for MyOTA structured
 logging.
 
 Repositories to inspect:
-- myota-platform/myota-deploy
-- myota-platform/myota-docs
-- all service repositories changed by Phases 1, 3 and 4
+- myota-platform/myota: apps/, packages/, deploy/ and integration/
+- myota-platform/myota-docs: roadmap, runbook and evidence
+
+Read the monorepo AGENTS.md, logging roadmap, runbook and latest browser
+evidence first. Former repository paths are migration history. Work only on
+remaining Phase 6 tasks and exit criteria. Qualify in isolated Testing or a
+disposable Compose project on this host; preserve production data and clean
+up fixtures/resources. Source rendering does not prove runtime parity,
+retention expiry, representative capacity or recovery. Follow feature/fix
+branches and quality-gated PRs to testing, then verify deployed sources.
 
 Requirements:
 1. Validate the Loki label set is low-cardinality. Explicitly reject request IDs,
@@ -54,3 +62,8 @@ Requirements:
 
 Do not claim completion for tests or runtime verification that were not actually
 executed. Leave explicit follow-up items for any unverified production behavior.
+
+Record exact commands, results, source/merge commits, runtime behavior and
+cleanup. Check off only verified items, preserve remaining gaps, update the
+relevant docs and issue comments, and commit/push related work coherently.
+```
