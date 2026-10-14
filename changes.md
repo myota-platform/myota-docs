@@ -1,3 +1,25 @@
+## 14 October 2026 — Move Testing digest synchronization into the monorepo
+
+- **Prompt used:** “OK, move this workflow to the monorepo and then deactivate
+  it in the .github repo. It's currently running.”
+- **Implemented:** Added the scheduled and manual digest-sync workflow at
+  `myota/.github/workflows/sync-testing-image-digests.yml`. Merged feature
+  PR [#67](https://github.com/myota-platform/myota/pull/67) into `testing`
+  after its checks passed, then promoted it through release PR
+  [#66](https://github.com/myota-platform/myota/pull/66), whose reported
+  checks passed. Removed the old copy from `.github` in
+  [commit 08480b2](https://github.com/myota-platform/.github/commit/08480b2b94fe525e76bf2247646588532b900f9b).
+- **Verification gap:** No scheduled run appeared in `myota` after the
+  workflow reached `main`; no digest PR is open and Testing still uses the
+  prior digests. The workflow reads `TESTING_DIGEST_APP_ID` and
+  `TESTING_DIGEST_APP_PRIVATE_KEY` in the monorepo Actions context. Configure
+  them there if they are currently repository-scoped to `.github`, then
+  manually dispatch the workflow and verify its PR and Fleet rollout. The old
+  workflow is inactive; production values were not changed.
+- **Evidence:** [Monorepo workflow](https://github.com/myota-platform/myota/blob/main/.github/workflows/sync-testing-image-digests.yml),
+  [Testing deployment record](docs/operations/test-deployment.md#image-update-automation-status),
+  and [deployment issue #53](https://github.com/myota-platform/myota/issues/53).
+
 ## 14 October 2026 — Group monorepo issues by workstream
 
 - **Prompt used:** “in the new myota repo, organize the issues into a main issue
