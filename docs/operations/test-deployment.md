@@ -67,7 +67,7 @@ verified. Production workloads and volumes were not changed.
 The testing digest-sync controller now lives in the default branch of the
 organization `.github` repository at
 [`sync-testing-image-digests.yml`](https://github.com/myota-platform/.github/blob/main/.github/workflows/sync-testing-image-digests.yml).
-It polls every 15 minutes, resolves each published `testing` tag to its
+It polls every five minutes, resolves each published `testing` tag to its
 registry digest, and proposes changes only to
 `deploy/helm/myota-test/values-image-digests-testing.yaml` on Deploy `testing`.
 It opens one digest-only PR at a time and enables auto-merge, which takes effect
@@ -84,7 +84,7 @@ organization-wide Actions policy, which prevents `GITHUB_TOKEN` from opening
 pull requests. No credentials or private key were created or exposed during
 this work.
 
-The registry digest sync uses 15-minute polling rather than image-publish
+The registry digest sync uses five-minute polling rather than image-publish
 events, so discovery delay is bounded by the polling interval. A new image
 will roll into `myota-test` only after the digest PR passes Deploy's required
 checks and merges, then Fleet reconciles the updated test values. The image
