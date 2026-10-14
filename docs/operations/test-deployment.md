@@ -74,22 +74,26 @@ It opens one digest-only PR at a time and enables auto-merge, which takes effect
 only after required branch checks pass. Deploy PR #50 removed the duplicate
 poller from `testing`; the `.github` workflow is the single controller.
 
-The controller is implemented but **not active until credentials are
-configured**. Add repository variable `TESTING_DIGEST_APP_ID` and Actions
-secret `TESTING_DIGEST_APP_PRIVATE_KEY` to the `.github` repository. The
-corresponding GitHub App should be installed only on `myota-deploy`, with
-Contents and Pull requests read/write permissions. Until both credentials are
-present, scheduled runs warn and safely skip. This avoids broadening the
-organization-wide Actions policy, which prevents `GITHUB_TOKEN` from opening
-pull requests. No credentials or private key were created or exposed during
-this work.
+The App credentials are configured in the `.github` repository: variable
+`TESTING_DIGEST_APP_ID` and Actions secret `TESTING_DIGEST_APP_PRIVATE_KEY`.
+The App is scoped to `myota-deploy` with Contents and Pull requests write
+permissions. A manual run at 08:36 UTC on 14 October authenticated, resolved
+published testing digests, opened Deploy PR #56, and the PR auto-merged after
+its checks passed. The credentials are never stored in this repository or
+logged in plaintext.
 
-The registry digest sync uses five-minute polling rather than image-publish
-events, so discovery delay is bounded by the polling interval. A new image
-will roll into `myota-test` only after the digest PR passes Deploy's required
-checks and merges, then Fleet reconciles the updated test values. The image
-update from PR #49 was deployed; future automatic promotions remain pending
-GitHub App configuration.
+The nominal polling cadence is every five minutes at minutes 2, 7, 12, ..., 57
+UTC, staggered away from the top of the hour. The original `*/5` schedule
+showed only two scheduled starts (01:39 and 06:43 UTC) in the observed
+14 October window, despite the workflow being enabled on the default branch.
+GitHub documents that schedule events can be delayed or dropped under high
+Actions load; therefore Actions does not guarantee a hard five-minute SLA.
+This schedule offset reduces contention at the hourly boundary. The digest
+workflow remains the only controller, proposes changes only in the isolated
+test values, and relies on Deploy checks and Fleet reconciliation. See
+[`.github` issue #5](https://github.com/myota-platform/.github/issues/5) for
+the fault, fix, and verification record, and [issue #3](https://github.com/myota-platform/.github/issues/3)
+for the scoped App setup.
 
 ## Initial data seed
 
