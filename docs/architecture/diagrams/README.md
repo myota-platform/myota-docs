@@ -27,6 +27,7 @@ historical or proposed are snapshots or decisions, not current runtime claims.
 - [Geodata candidate/import/review lifecycle](geodata-resource-lifecycle.md)
 - [Import validation and promotion queues](geodata-import-validation.md)
 - [Object-storage buckets and retention](object-storage-buckets.md)
+- [Private account profile image flow](object-storage-buckets.md#profile-image-flow)
 
 ## Activity and operations
 

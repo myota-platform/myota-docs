@@ -1,3 +1,44 @@
+## 14 October 2026 — Implement and qualify shared user profile fields and images
+
+- **Prompt used:** “Implement and close issues #60, #58, #57, and #55 and
+  their dependent issues under `AGENTS.md`.” This entry records the #55
+  component slice only; the other workstreams remain separate.
+- **Decision:** Keep account fields and authorization owned by Identity. Keep
+  images private in a dedicated per-environment SeaweedFS bucket, return image
+  bytes only through authenticated Identity routes, and store only server-
+  managed image metadata on the account. Legacy account records read missing
+  fields as `null`; no data-destructive migration is needed.
+- **Implementation:** PRs [#76](https://github.com/myota-platform/myota/pull/76)
+  (Contracts, Identity, storage and Participant editor),
+  [#77](https://github.com/myota-platform/myota/pull/77) (DOM-level UI tests),
+  [#78](https://github.com/myota-platform/myota/pull/78) (immutable Testing
+  image digests), and [#79](https://github.com/myota-platform/myota/pull/79)
+  (Testing bucket scope) merged to `testing`.
+- **Evidence:** Identity 35 tests, Contracts 12 plus generated-client checks,
+  Deploy 85 tests, Participant utility/static tests 4/4 each, and Participant
+  DOM tests 7/7 passed. All required PR checks passed. The Test Helm release is
+  deployed at revision 321 with all Deployments ready. Scoped S3
+  write/read/delete, unrelated-bucket denial, and anonymous-list denial passed;
+  the temporary object and Jobs were removed. Production was not changed.
+- **Deployment limitation:** Fleet's GitRepo still reports `ErrApplied` because
+  it references missing Helm revision secret `sh.helm.release.v1.myota-test.v317`.
+  Applying the merged Testing chart recovered the isolated release, but Fleet's
+  status remains stale. Follow up under
+  [myota #53](https://github.com/myota-platform/myota/issues/53).
+- **Documentation:** Added the canonical [profile policy and operations
+  page](../domain/identity/profile.md), updated Identity and architecture
+  indexes, and synchronized the object-storage diagram. Capacity, backup,
+  restore, credential rotation, privacy, Testing evidence, and recovery limits
+  are recorded there.
+- **Still open at record time:** Final issue checklist and parent roll-up
+  updates for [#9](https://github.com/myota-platform/myota/issues/9),
+  [#10](https://github.com/myota-platform/myota/issues/10),
+  [#12](https://github.com/myota-platform/myota/issues/12),
+  [#13](https://github.com/myota-platform/myota/issues/13), and
+  [#55](https://github.com/myota-platform/myota/issues/55). Contracts issue
+  [#11](https://github.com/myota-platform/myota/issues/11) was closed after
+  schema and CI evidence.
+
 ## 14 October 2026 — Identity account creation and role-grant gate
 
 - **Prompt used:** “Implement and close issues #60, #58, #57, and #55 with
@@ -115,7 +156,7 @@ etc...” Follow-up: “I have created the repository, continue.”
   through GitHub. The API then returned `archived: true`; `main` remains its
   default branch. Closed [issue #3](https://github.com/myota-platform/myota-operations-service/issues/3)
   after recording the archive result. No runtime or database changes were made.
-- **Record:** [Operations retirement evidence](docs/operations/evidence/operations-service-retirement-2026-10-11.md).
+- **Record:** [Operations retirement evidence](../operations/evidence/operations-service-retirement-2026-10-11.md).
 
 ## 13 October 2026 — Core, Activity, and Geodata rebuild closeout
 

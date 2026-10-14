@@ -14,6 +14,11 @@ flowchart LR
   Activity -->|manager signatures| SignatureBucket[(myota-award-signatures)]
   Activity -->|issued certificate PDFs| CertificateBucket[(myota-certificates)]
   Retention[30-day geodata import cleanup] -->|only| GeoBucket
+  Participant[Participant Web] -.->|authenticated API| Identity[Identity API]
+  Identity -.->|opaque reference| Core[(Identity account data in Core DB)]
+  Identity -.->|normalized WebP| ProfileBucket[(Private profile-image bucket)]
+  Maintenance[Identity maintenance] -.->|grace-period orphan cleanup| ProfileBucket
+  Maintenance -.->|read references| Core
 ```
 
 Background and signature bucket selection is server-side based on the asset
@@ -22,3 +27,13 @@ either import cleanup. ADIF cleanup deletes only source objects for completed
 imports; import results remain in the activity database. Queued and processing
 imports are excluded from the 15-day policy; both completed and failed imports
 are eligible.
+
+## Profile image flow
+
+The profile flow is deployed and storage permissions were verified in the
+isolated `myota-test` release; it has not been promoted to production. Identity
+owns profile metadata and authorization; the dedicated SeaweedFS bucket holds
+normalized private WebP objects. The existing service and volume are shared,
+but the Testing bucket and credentials are isolated from production. See
+[profile policy and operations](../../domain/identity/profile.md) for limits,
+retention, backup constraints, credential rotation, and verification status.

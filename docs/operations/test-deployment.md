@@ -1,30 +1,31 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-14 20:02 UTC
+**Current verification:** 2026-10-14 21:08 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota`, branch `testing`, commit
-[`5b33466`](https://github.com/myota-platform/myota/commit/5b33466155bf0bd3bd69a65fbfdc6d37a338b812), path `deploy/helm/myota-test`.
+[`f7f481b`](https://github.com/myota-platform/myota/commit/f7f481b560c4a9971c9a9f474ab5c143ccb43fc9), path `deploy/helm/myota-test`.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current monorepo rollout — 2026-10-14 20:02 UTC
+## Current monorepo rollout — 2026-10-14 21:08 UTC
 
 | Check | Result |
 |---|---|
-| Fleet | The Testing-only GitRepo `fleet-local/myota-deploy-testing` reads `myota-platform/myota`, branch `testing`, path `deploy/helm/myota-test`, at commit [`5b334661`](https://github.com/myota-platform/myota/commit/5b33466155bf0bd3bd69a65fbfdc6d37a338b812). Its bundle deployment is Ready. Production Fleet remains on `myota-platform/myota-deploy`, branch `main`, at `40a4bdb6be4e75146f0d74ab440db41e98c5d372`. |
-| Helm and storage | Release `myota-test` is deployed at revision 304. All 10 database and observability PVCs in `myota-test` are Bound. |
+| Fleet | The Testing-only GitRepo `fleet-local/myota-deploy-testing` reads `myota-platform/myota`, branch `testing`, path `deploy/helm/myota-test`, at commit [`f7f481b`](https://github.com/myota-platform/myota/commit/f7f481b560c4a9971c9a9f474ab5c143ccb43fc9). Fleet reports `ErrApplied` because its BundleDeployment references missing Helm release secret `sh.helm.release.v1.myota-test.v317`; the force-sync generation is 6 but the applied generation remains 5. Production Fleet remains on `myota-platform/myota-deploy`, branch `main`, at `40a4bdb6be4e75146f0d74ab440db41e98c5d372`. |
+| Helm and storage | The merged Testing chart was applied to recover the isolated release; `myota-test` is deployed at revision 321. All 10 database and observability PVCs in `myota-test` are Bound. |
 | Workloads | All 24 Deployments and all 3 StatefulSets report their desired replicas ready. |
+| Profile storage | `myota-test-user-profile-images` uses the dedicated Testing credential and static S3 policy. Authorized write/read/delete passed; access to `myota-adif` and anonymous bucket listing were denied. The temporary object and Jobs were removed. Production was not changed. |
 | MyOTA service health dashboard | Grafana's `myota-observability` ConfigMap and mounted dashboard file contain `myota-service-health.json` with title **MyOTA service health** and UID `myota-service-health`. It is provisioned in the **MyOTA** folder and uses the `MyOTA Prometheus` datasource (`myota-prometheus`). Live Prometheus queries return `myota_identity_users` values `OPERATOR=2` and `SWL=0`, and `myota_programmes=2`; these match the corrected dashboard expressions. The old `myota-operations` dashboard was retired and is not the current dashboard. |
 | Logs dashboard | The deployed `myota-observability` ConfigMap contains `myota-logs-failures.json` with UID `myota-logs-failures`; Grafana logged `finished to provision dashboards` at 19:42 UTC. It uses the MyOTA Loki datasource. |
 | Trace dashboard | The deployed `myota-observability` ConfigMap contains `myota-traces.json` with UID `myota-traces`. Grafana's read-only dashboard search returned `MyOTA Distributed Traces`; the Tempo datasource `myota-tempo` is configured. |
 | Existing telemetry | A read-only Tempo search returned 20 stored traces across Activity, Geodata, and outbox services. The current failed-trace and over-one-second queries each returned zero; no synthetic traces were inserted. |
-| Digest workflow | The workflow code is `.github/workflows/sync-testing-image-digests.yml` in `myota`. It executes on GitHub-hosted `ubuntu-latest` runners; the Kubernetes dispatcher is only a planned trigger and no digest-dispatch CronJob is installed in `myota-test`. Manual run [#38625702955](https://github.com/myota-platform/myota/actions/runs/38625702955) completed as `workflow_dispatch` on `main`, but skipped because the repository variable `TESTING_DIGEST_APP_ID` and secret `TESTING_DIGEST_APP_PRIVATE_KEY` are unset. It created no digest PR. |
-| Recent Admin image | Testing push [#38625361907](https://github.com/myota-platform/myota/actions/runs/38625361907) passed and published the Admin image. Its updated digest has not been recorded or reconciled because the digest-writer App is not configured. |
+| Digest workflow | The workflow code is `.github/workflows/sync-testing-image-digests.yml` in `myota`. It executes on GitHub-hosted `ubuntu-latest` runners; no Kubernetes dispatcher is installed in `myota-test`. Manual run [#38634904281](https://github.com/myota-platform/myota/actions/runs/38634904281) skipped because `TESTING_DIGEST_APP_ID` and `TESTING_DIGEST_APP_PRIVATE_KEY` are unset. The merged digest PR #78 was prepared through the local GH CLI; automatic digest synchronization still requires App credentials. |
+| Profile images | PR #78 recorded the Testing image digests. Identity runs `sha256:7cbecb4d64db98300312237e5d776d8f8ae5ab3126a6cbe8fada58e1f77ddfdf`; Participant Web runs `sha256:5a404d56b721532c09b60670de410653fa551cebb20d9b0afe72c8fad6542249`. |
 
 The Logs / Failures and Distributed Traces dashboards are provisioned in
 Grafana's **MyOTA** folder. Both default to a 30-minute time window and a

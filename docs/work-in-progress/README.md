@@ -8,6 +8,12 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
 
 ## Active work
 
+- [Shared account profile fields and private images](../domain/identity/profile.md)
+  — Contracts, Identity, Participant Web, and deployment PRs #76–#79 are
+  merged to Testing. The Test Helm release is at revision 321; all Deployments
+  are ready, and scoped/anonymous S3 permission checks passed with cleanup.
+  Fleet still reports a stale missing Helm revision under issue #53. Profile
+  docs and issue closeout are being finalized; production has not changed.
 - [Complete the monorepo release-path transition](../architecture/monorepo-and-scalability-assessment.md)
   — the first CI/Helm workflow PR merged to `myota/testing`, and all PR checks
   passed. Post-merge service/deployment test jobs passed, but image publishing

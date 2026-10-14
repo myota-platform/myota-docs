@@ -1,3 +1,21 @@
+## 14 October 2026
+
+- Implemented shared user profile fields, private image handling, and the
+  Participant editor in monorepo PRs
+  [#76](https://github.com/myota-platform/myota/pull/76)–
+  [#79](https://github.com/myota-platform/myota/pull/79). All required checks
+  passed; Participant DOM tests passed 7/7.
+- Deployed the Testing feature at Helm revision 321. Authorized profile-bucket
+  write/read/delete, unrelated-bucket denial, and anonymous-list denial checks
+  passed. The temporary object and Jobs were removed. No production data or
+  configuration changed.
+- Added the canonical [Identity profile policy and operations page](docs/domain/identity/profile.md),
+  updated the current-state record and diagrams, and documented the remaining
+  Fleet error: its BundleDeployment references missing Helm revision 317.
+  Fleet status recovery is tracked in [myota #53](https://github.com/myota-platform/myota/issues/53).
+- Closed Contracts issue [#11](https://github.com/myota-platform/myota/issues/11)
+  after contract and CI evidence; final profile issue roll-up is being recorded.
+
 ## 14 October 2026 — Correct and deploy Testing service-health dashboard queries
 
 - **Work items:** [myota #24](https://github.com/myota-platform/myota/issues/24),

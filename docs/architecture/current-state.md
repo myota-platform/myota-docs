@@ -75,6 +75,28 @@ deploy/services/identity.py, and contracts/openapi.yaml. It also recalculates
 account permissions from current Identity roles when validating access tokens,
 rather than trusting role claims cached at token issuance.
 
+## Shared profile fields and image workstream — checked 2026-10-14 21:08 UTC
+
+The Contracts, Identity, deployment, and Participant Web changes are merged to
+`myota/testing` in PRs [#76](https://github.com/myota-platform/myota/pull/76),
+[#77](https://github.com/myota-platform/myota/pull/77),
+[#78](https://github.com/myota-platform/myota/pull/78), and
+[#79](https://github.com/myota-platform/myota/pull/79). The profile feature is
+deployed in `myota-test` at Helm revision 321. All Deployments are ready. Live
+S3 checks verified scoped write/read/delete, denial to the unrelated
+`myota-adif` bucket, and denial of anonymous bucket listing; the temporary
+object and Jobs were removed. Production was not changed.
+
+Fleet's Testing GitRepo still reports `ErrApplied`: its BundleDeployment
+references missing Helm revision secret `sh.helm.release.v1.myota-test.v317`.
+The chart values were applied from the merged Testing source to recover the
+isolated release, but Fleet status has not yet reconciled. Track this separately
+under [myota #53](https://github.com/myota-platform/myota/issues/53). Profile
+implementation evidence and recovery limits are in the
+[profile policy and operations page](../domain/identity/profile.md). Contracts
+issue #11 is closed; #9, #10, #12, #13 and parent #55 are being closed after
+the final evidence and documentation review.
+
 This does not complete the Identity workstream. Durable Identity state still
 hydrates from and persists to the service_state JSONB snapshot through
 apps/identity/common.py. The relational authentication tables are not yet the
