@@ -15,13 +15,18 @@ The entity lifecycle is the source of truth for timing:
 2. **Entity materialization** queues an `only missing` lookup when a newly
    created candidate/approved entity lacks required location metadata. An
    imported update queues a full refresh only when its geometry changed.
-3. **Geometry edits and geometry-type changes** queue a refresh after the new
+3. **Lifecycle promotion** to `CANDIDATE` or `APPROVED` queues an `only
+   missing` lookup when required provider-managed fields are absent. The
+   status change and enrichment request are written in the same database
+   transaction. Provider calls remain asynchronous, so provider failure does
+   not reject a valid promotion.
+4. **Geometry edits and geometry-type changes** queue a refresh after the new
    normalized geometry and centroid are saved. Automatic values are refreshed
    for the new location; explicitly manual fields and their corresponding
    codes remain authoritative.
-4. **Manual metadata edits** do not trigger a lookup. Releasing fields from the
+5. **Manual metadata edits** do not trigger a lookup. Releasing fields from the
    manual override set clears those values and queues an `only missing` lookup.
-5. **Administrator retry** is available in Entity Management's Location
+6. **Administrator retry** is available in Entity Management's Location
    metadata section while required values are missing. It requests enrichment
    for the current geometry; complete entities cannot be refreshed through
    this button.
@@ -144,3 +149,29 @@ lookups of stored or imported coordinates. The service caches rounded
 centroids in-process and treats provider failures as non-fatal to entity or
 import persistence. Provider status values include `ENRICHED`, `SOURCE_DATA`,
 `FAILED`, `NOT_CONFIGURED`, and `SKIPPED_NO_CENTROID`.
+
+## 14 October 2026 lifecycle fix and backfill
+
+The review and status-update handlers previously persisted promotions without
+creating a location-enrichment request. That left existing entities dependent
+on a later geometry edit or manual retry. The Geodata fix queues an
+`onlyMissing` request in the same transaction for transitions into `CANDIDATE`
+or `APPROVED`; rejected entities are not enriched. The existing worker still
+checks the request ID and geometry hash and protects manual fields.
+
+The production inventory contained 10 approved entities and no active entity
+with required location fields missing. The isolated `myota-test` namespace had
+126 approved entities; 116 had geometry but lacked required location values.
+Testing values intentionally had `geodataPipeline.locationEnrichment.enabled`
+disabled, so prior attempts recorded `NOT_CONFIGURED`. A bounded one-time run
+queued those 116 entities as `onlyMissing` and processed them through the
+existing enrichment worker logic at one request per second. All 116 reached
+`COMPLETED` / `ENRICHED`, and a follow-up database read found no active entity
+missing required fields. The test worker was restored to 1/1 ready. The
+production database was not changed, and the production key was passed only
+through the one-off process; no key was copied into the test namespace or
+written to the repository. Future enrichment in `myota-test` remains disabled
+until a test provider key is provisioned and its Helm setting is enabled.
+
+The implementation and focused test evidence are tracked in
+[Geodata issue #27](https://github.com/myota-platform/myota-geodata-service/issues/27).

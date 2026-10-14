@@ -40,14 +40,15 @@ flowchart LR
   RepairIdentity --> Materialize
   Materialize --> Candidate[CANDIDATE entity]
   Materialize --> Approved[APPROVED entity]
-  Candidate -->|when missing or geometry changed| LocationOutbox[Location-enrichment outbox request]
-  Approved -->|when missing or geometry changed| LocationOutbox
+  Candidate -->|materialized or promoted; only missing| LocationOutbox[Location-enrichment outbox request]
+  Candidate --> Review[Geodata Review]
+  Review -->|promoted to APPROVED| Approved
+  Approved -->|materialized or promoted; only missing| LocationOutbox
   LocationAdmin[Entity Management retry] --> LocationOutbox
   LocationOutbox --> LocationNATS[NATS location-enrichment subject]
   LocationNATS --> LocationWorker[geodata-location-enrichment-v1 consumer]
   LocationWorker -->|persist only for matching request and geometry hash| LocationDB[(myota_geo PostGIS)]
   LocationWorker --> BDC[BigDataCloud reverse geocoder]
-  Candidate --> Review[Geodata Review]
   Admin --> Preview[Candidate name map preview]
   Admin --> Finalize[Mark import as PROCESSED]
   Finalize --> Cleanup[Delete staged candidate and queue rows]
@@ -117,9 +118,11 @@ audit/outbox changes commit atomically at promotion checkpoints. Queued
 candidates cannot be rejected or submitted to another promotion job.
 Location enrichment shares the geodata worker image/Deployment but has its own
 durable consumer, `geodata-location-enrichment-v1`, on
-`myota.geodata.entity.location-enrichment.v1`. It runs after candidate/approved
-materialization when metadata is missing, after geometry changes, or after an
-administrator releases manual fields. Preprocessing never calls the provider.
+`myota.geodata.entity.location-enrichment.v1`. It runs after
+candidate/approved materialization or lifecycle promotion when metadata is
+missing, after geometry changes, or after an administrator releases manual
+fields. Promotion and its enrichment request commit together. Preprocessing
+never calls the provider.
 The worker looks up the persisted geometry centroid and discards a result if a
 newer request or geometry revision exists; explicit manual values and their
 codes are not overwritten.
