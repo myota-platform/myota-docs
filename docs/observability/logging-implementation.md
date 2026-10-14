@@ -459,3 +459,17 @@ Logging is considered implemented when:
     logs are visible through the existing OpenTelemetry/Grafana stack.
 12. PostGIS-specific signals are covered directly where supported; otherwise the
     operations service exposes them through the existing telemetry path.
+
+## 15 October 2026 — Browser qualification corrections
+
+Authenticated Chromium inspection of Test Grafana exposed hidden application
+logs and an empty **View trace** query. PR
+[#84](https://github.com/myota-platform/myota/pull/84) corrects the application
+namespace filter, includes the observed `test` environment and `WARN` severity,
+uses `severity_text` grouping, and escapes the datasource trace macro during
+provisioning. Fourteen focused source/provisioning tests pass. PR #84 merged after all CI checks passed, its corrected files are mounted,
+and authenticated log-to-trace navigation succeeds. Reverse navigation still
+uses a body search instead of a structured-metadata predicate; full Compose
+dashboard-set/runtime parity and capacity/recovery remain open. The
+bidirectional roadmap checkbox is unchanged. See the
+[browser evidence](evidence/grafana-browser-qualification-2026-10-15.md).

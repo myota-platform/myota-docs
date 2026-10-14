@@ -30,7 +30,12 @@ not active belongs in [To do](../to-do/README.md); recommended order is in the
   runtime parity, and representative capacity/recovery evidence. Correlation
   and Identity/Programme metrics work already verified as complete is recorded
   in the [current-state page](../architecture/current-state.md) and linked
-  evidence. MyOTA #22 PRs #80 and #81 add finite Grafana filters; both bounded
+  evidence. Authenticated browser qualification found incorrect application
+  namespace/environment/severity filters and an empty trace link; PR #84 fixes
+  these and is merged/deployed. Log-to-trace navigation now succeeds;
+  trace-to-log metadata filtering and two missing Compose dashboards remain. See the
+  [browser evidence](../observability/evidence/grafana-browser-qualification-2026-10-15.md).
+  MyOTA #22 PRs #80 and #81 add finite Grafana filters; both bounded
   dashboards are mounted and Grafana logged successful provisioning. At the
   21:43 UTC check, Fleet displayed `WaitApplied` despite 76/76 resources ready;
   Helm revision 327 was still `pending-upgrade`. See the

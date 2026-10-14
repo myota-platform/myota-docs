@@ -1,3 +1,14 @@
+## 15 October 2026
+
+- Authenticated browser inspection of Test Grafana found application logs
+  hidden by a Kubernetes namespace filter and a trace link with an empty query.
+  Monorepo PR [#84](https://github.com/myota-platform/myota/pull/84) fixes
+  resource filtering, observed environment/severity values and datasource macro
+  escaping. Fourteen focused checks pass; all PR checks passed and it merged to `testing`. Corrected files are mounted
+  and log-to-trace navigation succeeds. Reverse metadata filtering, full Compose
+  parity and remaining acceptance gates are open. See the
+  [browser evidence](docs/observability/evidence/grafana-browser-qualification-2026-10-15.md).
+
 ## 14 October 2026
 
 - Completed profile deployment acceptance with real deployed-image HTTP/S3

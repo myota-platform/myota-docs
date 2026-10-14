@@ -3059,3 +3059,22 @@ resources are ready, and all Deployments meet their requested replica counts. Ph
   only for the verified Testing scope. No production promotion or off-node
   recovery qualification is claimed. See the
   [closeout record](../operations/storage/evidence/profile-deployment-closeout-2026-10-14.md).
+
+## 15 October 2026 — Correct Grafana filters and trace links
+
+- **Prompt used:** “Implement and close issues #60, #58, #57, and #55 and
+  their dependent issues until completion, following `AGENTS.md`.” This slice
+  addresses actual browser findings under #22 and #48.
+- **Implementation:** PR #84 aligns the Loki application namespace with emitted
+  resource attributes, accepts observed environment/severity values, groups by
+  `severity_text`, and escapes the derived-field macro in both datasource copies.
+- **Verification:** Authenticated Chromium loaded Test dashboards and existing
+  correlated logs. Tempo searches returned existing failed traces. The browser
+  demonstrated the empty link; fourteen focused tests, Ruff and diff checks
+  pass after corrections.
+- **Post-merge verification:** PR #84 merged after all checks passed; the mounted dashboard hash matched
+  and authenticated log-to-trace navigation succeeded. Reverse navigation
+  exposed an incorrect body-search query; full bidirectional acceptance remains
+  open, along with two missing Compose dashboards. Compose runtime/restart and capacity/recovery
+  qualification remain open. No telemetry fixtures were injected. See the
+  [browser record](../observability/evidence/grafana-browser-qualification-2026-10-15.md).
