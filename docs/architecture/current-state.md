@@ -54,27 +54,33 @@ action. Therefore rulesets are unverified and former repositories remain
 unarchived. See the
 [transition evidence](evidence/monorepo-transition-2026-10-14.md).
 
-## Identity account and role policy — repository status checked 2026-10-14
+## Identity account and role policy — source status checked 2026-10-15 08:32 UTC
 
-Identity account creation and role-grant hardening is in open monorepo PR
-[#70](https://github.com/myota-platform/myota/pull/70), based on the testing
-branch. It has not merged or deployed. No production or test-cluster data was
-changed for this work; the runtime snapshot above remains the latest verified
-state.
+Account-creation and grant-authority changes merged to monorepo `testing` in PR
+[#70](https://github.com/myota-platform/myota/pull/70); effective-permission
+refresh and delegated-role enforcement merged in PR
+[#72](https://github.com/myota-platform/myota/pull/72). Their reported CI
+checks passed. This source update does not assert a new runtime deployment; the
+isolated test and production runtime snapshots above keep their own timestamps.
 
-The implementation candidate gives every new account the least-privilege
-PARTICIPANT role, requires identity.accounts.create to create an account, and
-requires the separate identity.roles.assign permission for additional roles.
-Role grants must have permissions strictly below the actor's current
-permissions; actors cannot change their own role assignments. New accounts
-remain PENDING_SETUP and the API rejects permanent passwords. Public
+The merged implementation gives every administrator-created account the
+least-privilege PARTICIPANT role, requires `identity.accounts.create` to create
+an account, and requires the separate `identity.roles.assign` permission for
+additional roles. Role grants must have permissions strictly below the actor's
+current permissions; actors cannot change their own role assignments. New
+accounts remain PENDING_SETUP and the API rejects permanent passwords. Public
 registration returns 403 until email verification and abuse controls are
 implemented and deployed.
 
-The PR updates apps/identity/identity.py, the synchronized Compose copy
-deploy/services/identity.py, and contracts/openapi.yaml. It also recalculates
-account permissions from current Identity roles when validating access tokens,
-rather than trusting role claims cached at token issuance.
+Identity recalculates account permissions from current Identity roles when
+validating access tokens, rather than trusting role claims cached at token
+issuance. Database authority remains incomplete: accounts, credentials, roles,
+sessions, recovery state, revocations, and security events are still hydrated
+from and persisted to the `service_state` JSONB snapshot. See the current
+[Identity security and persistence record](../domain/identity/security.md) and
+issues [#19](https://github.com/myota-platform/myota/issues/19),
+[#34](https://github.com/myota-platform/myota/issues/34), and
+[#36](https://github.com/myota-platform/myota/issues/36).
 
 ## Shared profile fields and image workstream — checked 2026-10-14 21:57 UTC
 
@@ -111,13 +117,9 @@ Invitation/credential setup depends on email delivery. Admin role management,
 Gateway account-creation coverage, and registration deployment gates also
 remain open under issues #14–19 and #31–36.
 
-Focused local evidence for PR #70: Identity unit suite, 20/20 passed; Compose
-Identity and vertical-slice suite, 15/15 passed; authorization suite passed
-against both the app source and Compose mirror; Ruff checks passed; the
-OpenAPI route audit reported zero missing routes and zero duplicate operation
-IDs; generated-client checks passed. OpenAPI YAML syntax and a duplicate-key
-scan passed. The host lacks Ruby, so the repository's Ruby duplicate-key script
-was not run.
+Focused implementation evidence for PRs #70 and #72 is recorded on those
+pull requests. This document does not count a Compose-based deployment test as
+qualification; deployment behavior must be verified through Helm `myota-test`.
 
 ## Geodata import review status
 

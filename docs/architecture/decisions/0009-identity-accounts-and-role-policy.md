@@ -44,23 +44,32 @@ Registration responses must not reveal whether an address already exists.
 
 ## Current implementation evidence
 
-The proposed implementation is in
-[myota PR #70](https://github.com/myota-platform/myota/pull/70). It changes
-apps/identity/identity.py, contracts/openapi.yaml, and the synchronized
-deploy/services/identity.py Compose copy. The PR passed focused local Identity
-unit tests (20/20), Identity plus vertical-slice deployment tests (15/15),
-Ruff, the OpenAPI route audit (0 missing routes, 0 duplicate operation IDs),
-generated-client checks, YAML syntax, and duplicate-key scan. The PR is not
-merged and is not deployed.
+The account-creation and grant-authority implementation merged to monorepo
+`testing` in PR [#70](https://github.com/myota-platform/myota/pull/70), followed
+by effective-permission refresh and delegated-role enforcement in PR
+[#72](https://github.com/myota-platform/myota/pull/72). Their reported PR
+checks passed. The source implements one account record with a baseline
+`PARTICIPANT` role, requires `identity.accounts.create` for account creation,
+requires `identity.roles.assign` for additional roles, and rejects self- or
+equal/higher-authority grants. New accounts remain `PENDING_SETUP`; permanent
+passwords are rejected, and the public registration route remains disabled.
+These are merged-source facts; this paragraph does not claim a current Helm
+runtime qualification.
 
-The current runtime still hydrates Identity auth, role, session, and security
-event records into process memory from the PostgreSQL service_state JSONB
-snapshot in apps/identity/common.py. Existing relational auth tables are not
-yet the runtime source of truth. Concurrent service replicas, database-level
-email uniqueness, refresh rotation, revocation, lockout, recovery, backup, and
-restore remain open under
+The current Identity process still hydrates accounts, credentials, role
+assignments, sessions, recovery state, revocations, OIDC mappings, and security
+events into process memory from the PostgreSQL `service_state` JSONB snapshot
+in `apps/identity/common.py`. The Core baseline already defines relational
+account, credential, role, session, recovery, revocation, callsign, OIDC, and
+security-event tables, but Identity does not yet use them as its runtime source
+of truth. Cross-replica uniqueness and refresh/revocation/lockout/recovery
+consistency, plus backup and restore after a relational cutover, remain open
+under
 [issue #36](https://github.com/myota-platform/myota/issues/36) and
 [Deploy issue #35](https://github.com/myota-platform/myota/issues/35).
+
+The authentication state inventory and proposed relational mapping are in
+[Identity security and persistence](../../domain/identity/security.md).
 
 ## Follow-up work
 
@@ -75,4 +84,10 @@ restore remain open under
 
 See [workstream #60](https://github.com/myota-platform/myota/issues/60),
 [Identity #19](https://github.com/myota-platform/myota/issues/19), and
-[secure account creation #34](https://github.com/myota-platform/myota/issues/34).
+[secure account creation #34](https://github.com/myota-platform/myota/issues/34),
+[Admin UI role management #14](https://github.com/myota-platform/myota/issues/14),
+[shared account contracts #15](https://github.com/myota-platform/myota/issues/15),
+[participant registration #16](https://github.com/myota-platform/myota/issues/16),
+[registration deployment #17](https://github.com/myota-platform/myota/issues/17),
+[shared Identity documentation #18](https://github.com/myota-platform/myota/issues/18),
+and [Identity schema deployment #35](https://github.com/myota-platform/myota/issues/35).

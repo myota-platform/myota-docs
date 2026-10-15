@@ -26,6 +26,15 @@ Only `myota_geo` requires PostGIS. The logical relationships below therefore
 do not imply cross-database foreign keys: service APIs and versioned events
 carry those references.
 
+Identity uses one `ACCOUNT` identity with one or more assigned `ACCOUNT_ROLE`
+records; participant and administrator are not separate account populations.
+`PARTICIPANT` is the least-privilege base role, and administrator roles require
+Identity authorization. The Core baseline also defines relational credential,
+session, revocation, recovery, and security-event tables, but these tables are
+not yet Identity's runtime source of truth. The current authentication-state
+inventory and cutover gaps are documented in
+[Identity security and persistence](../../domain/identity/security.md).
+
 ```mermaid
 erDiagram
   ACCOUNT ||--o{ CALLSIGN : owns
