@@ -73,6 +73,27 @@ checksum guard, and PR
 [#96](https://github.com/myota-platform/myota/pull/96) refreshed Testing image
 digests before the successful migration rollout.
 
+## Identity process restart
+
+After the restore drill, the Identity Deployment was restarted through the
+Helm-backed `myota-test` release and returned Ready 1/1. Its `/healthz`
+endpoint returned HTTP 200 with `durable: true`. Counts queried in Core before
+and after restart were identical:
+
+| Auth table | Before | After |
+|---|---:|---:|
+| `account` | 2 | 2 |
+| `account_credential` | 2 | 2 |
+| `account_role` | 2 | 2 |
+| `auth_session` | 15 | 15 |
+| `auth_revocation` | 1 | 1 |
+| `account_recovery_token` | 0 | 0 |
+| `security_event` | 7 | 7 |
+| `identity_auth_state_migration` | 1 | 1 |
+
+This verifies that the Test Identity process restarted and continued to use
+the durable Core schema without losing the sampled authentication state.
+
 ## Limits
 
 This proves a custom-format Core backup can be restored into a separate Test
