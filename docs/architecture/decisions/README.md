@@ -23,3 +23,4 @@ summarized in the [repository map](../repository-map.md).
 ## Messaging and integration
 
 - [NATS JetStream event and work topology](0008-nats-jetstream-event-and-work-topology.md)
+- [Asynchronous email delivery](0010-asynchronous-email-delivery.md)

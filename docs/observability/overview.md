@@ -40,6 +40,15 @@ permissions, scrape interval, live query results, deployment status, and
 remaining limits are in the
 [dashboard evidence record](evidence/dashboard-enhancements-2026-10-12.md).
 
+Email delivery metrics, a Grafana dashboard, and bounded queue/SMTP/dead-letter
+alerts are proposed in open monorepo PR
+[#89](https://github.com/myota-platform/myota/pull/89). They are not provisioned
+or verified in Testing. The service records only bounded outcome/template
+labels and must not expose addresses, account IDs, work IDs, bodies, or SMTP
+credentials. See the [email delivery record](../operations/messaging/email-delivery.md)
+and [ADR-0010](../architecture/decisions/0010-asynchronous-email-delivery.md)
+for the target metrics and current gates.
+
 The original Grafana panels were not seeded with fabricated business values.
 They were incomplete: request counters lived in each process and reset on a
 restart, while most business panels had no durable user, entity, QSO, or award

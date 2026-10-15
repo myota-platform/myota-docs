@@ -799,3 +799,28 @@ See the [Phase 6 cutover evidence](evidence/phase6-fact-stream-cutover-2026-10-1
 and [migration plan](nats-event-migration-plan.md). Historical inventory
 statements are snapshots of their explicitly dated Phase 0–5 evidence and
 should not be read as the post-Phase-6 live state.
+
+## Email work command — current source status checked 15 October 2026
+
+The email command is registered in monorepo
+[`contracts/event-registry.json`](https://github.com/myota-platform/myota/blob/testing/contracts/event-registry.json)
+as `email.send.v1`, owned by Identity. Its immutable schema is
+[`email-send-v1.schema.json`](https://github.com/myota-platform/myota/blob/testing/contracts/schemas/work/email-send-v1.schema.json).
+The subject is `myota.work.email.send.v1`; the target is the dedicated
+`MYOTA_EMAIL_WORK` WorkQueue and `email-delivery-v1` pull durable. The bounded
+8 KiB work command carries a stable ID, recipient account reference, allowlisted
+template ID, and template-specific data. It excludes addresses, passwords,
+tokens, arbitrary HTML, and bodies.
+
+| Path | Owner and status |
+|---|---|
+| Producer and transactional outbox | Identity / `apps/identity`; not implemented. It depends on relational Identity state and outbox authority in issue #36. |
+| Pull consumer and durable policy | Email / `apps/email`; implementation submitted in open PR [#89](https://github.com/myota-platform/myota/pull/89), not merged or deployed. The worker validates the bounded command, resolves current recipient data only through the Identity API, persists delivery state before ACK, and records redacted retry/dead-letter state. |
+| Stream and durable provisioning | Deploy / `deploy`; Helm resources are in PR #89. The provisioner requires explicit finite age, byte, message, and max-message-size values plus a capacity-review gate. No email stream is claimed live. |
+| SMTP endpoint and credentials | Deploy/operator-owned configuration; no test endpoint or credentials are provisioned. The worker is disabled in `myota-test`. |
+| Replay authority | Identity producer outbox and stable `workId`; the email database stores delivery metadata, not the original command or address. SMTP is at-least-once and can duplicate after ambiguous provider acceptance. |
+
+The proposed target and limits are in
+[ADR-0010](../../architecture/decisions/0010-asynchronous-email-delivery.md).
+This appendix records repository ownership and the open implementation state;
+it does not claim a live JetStream object or an end-to-end delivery test.

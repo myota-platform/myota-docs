@@ -61,6 +61,9 @@ boundary, not a domain owner. The deployed topology separates bounded fact
 retention from service-owned work queues. See
 [ADR-0008](decisions/0008-nats-jetstream-event-and-work-topology.md) and the
 [NATS migration plan](../operations/messaging/nats-event-migration-plan.md).
+Asynchronous email's proposed isolated work path and its implementation gates
+are recorded in [ADR-0010](decisions/0010-asynchronous-email-delivery.md) and
+the [email service-boundary diagram](diagrams/service-boundaries.md#email-delivery-status).
 
 Operations is retired from runtime and its GitHub repository was archived on 2026-10-13 ([issue #3](https://github.com/myota-platform/myota-operations-service/issues/3), closed). The Collector reads bounded database statistics through least-privilege roles; Gateway checks live Identity session and role data for Grafana authorization. Broker/server metrics come from the
 cluster-local Surveyor exporter and Prometheus, with eleven dashboards in the

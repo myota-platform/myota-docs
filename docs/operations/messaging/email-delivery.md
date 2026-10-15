@@ -7,6 +7,8 @@ is open against `testing`; it contains the first worker and Helm deployment
 implementation. The worker is not deployed, remains disabled in `myota-test`,
 and no runtime path is authorized to send email yet.
 
+The ownership and delivery decision is [ADR-0010](../../architecture/decisions/0010-asynchronous-email-delivery.md).
+
 ## Current state
 
 - The versioned `email.send.v1` contract defines the subject
@@ -142,10 +144,47 @@ disabled and has not been rolled out; Deploy must verify these references in
 The password is injected as `EMAIL_SMTP_PASSWORD` from a named Secret key. Do
 not put actual credentials or account values in Helm values, ConfigMaps, Git,
 container images, issue comments, traces, logs, metrics, or health responses.
-Compose must use a secret file or equivalent local secret store, not a checked-
-in `.env` file. Test and production credentials must be separate. Rotation
-replaces the Secret value and rolls only the email worker after a successful
-Test verification.
+Use a secret manager or protected local files outside the checkout to stage
+values. In `myota-test`, the current Helm configuration expects
+`myota-email-runtime` keys `email-database-url`, `identity-client-secret`, and
+`smtp-password`; the separate `myota-email-postgres-auth` Secret supplies
+`username`, `password`, and `app-password`. Create or update these Secrets from
+private files without placing values in shell arguments or history, then
+enable the chart only after the queue-capacity gate and non-production SMTP
+review pass. The Identity Deployment and worker both receive the same client
+credential through Secret references. After rotating a value, roll the
+affected Deployment so its environment is refreshed; coordinate PostgreSQL
+role-password rotation with the database owner rather than treating it as an
+SMTP credential change.
+
+For K3s, stage individual values in permission-restricted files outside the
+checkout and create the namespace-scoped runtime Secret through a pipe. Keep
+shell tracing disabled so the generated Secret manifest is not printed:
+
+```sh
+kubectl -n myota-test create secret generic myota-email-runtime \
+  --from-file=email-database-url=/secure/path/email-database-url \
+  --from-file=identity-client-secret=/secure/path/identity-client-secret \
+  --from-file=smtp-password=/secure/path/smtp-password \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+Provision `myota-email-postgres-auth` separately with its three database role
+keys from the approved secret manager. Do not paste values into a shell
+argument, a Helm `--set`, a checked-in values file, or a command transcript.
+The chart keeps email disabled until explicitly enabled; test Secret creation
+alone does not start the worker.
+
+The Compose source uses file-backed secrets selected by `EMAIL_DATABASE_URL_FILE`,
+`MYOTA_EMAIL_SERVICE_CLIENT_SECRET_FILE`, and `EMAIL_SMTP_PASSWORD_FILE`; local
+files must remain outside Git and `.env` files must not contain secret values.
+This is source-level configuration guidance only. Under current repository
+policy, deployment testing and qualification use Helm `myota-test`; do not run
+Compose or Podman deployment checks. Keep test and production secret-manager
+entries, SMTP accounts, and recipient fixtures separate. Rotate SMTP credentials
+at the provider, update only the relevant Secret, roll the email worker, and
+verify the non-production connection before considering any production
+configuration change.
 
 ## Queue and persistence proposal
 
@@ -199,10 +238,13 @@ bound, HTML escaping, inactive-recipient rejection, bounded TLS configuration,
 and STARTTLS-before-authentication ordering. No real SMTP request or NATS
 publication occurred.
 
-PR #89's current head `1a0224c` passed the 20-test worker suite (fake SMTP and
+PR #89's functional-code head `4719813` passed the 20-test worker suite (fake SMTP and
 mocked Identity/NATS/store boundaries), six deployment checks, 14 JetStream
 topology checks, 19 observability checks, 12 Contracts tests, Ruff, Helm lint,
-and the corresponding email build, contract, and chart CI jobs. These checks do
+and all current monorepo CI jobs, including email image build, contract, chart,
+and repository-level tests. The latest PR head `be5a4d9` only adds a canonical
+README link; its full CI rerun is in progress. Feature and PR image-publish jobs
+are skipped by policy. These checks do
 not prove real PostgreSQL/NATS integration, live collector data, actual SMTP
 delivery, or Helm deployment behavior. One unrelated monorepo CI job was still
 pending at the time of this update. Feature and PR builds do not publish an

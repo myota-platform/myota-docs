@@ -4,7 +4,8 @@ This current-state view summarizes service boundaries. The admin web
 coordinates APIs but does not own domain data. Cross-service references are
 IDs, slugs, and versioned API/event payloads, never cross-database foreign keys.
 
-The service/data-flow diagram below represents unchanged runtime boundaries.
+The service/data-flow diagram below distinguishes current runtime boundaries
+from the proposed email worker path; dashed email edges are not live.
 Repository ownership is in transition: source snapshots are consolidated under
 `myota/apps/*`, `myota/web/*`, and `myota/deploy`, but production and
 Testing Fleet still track the split Deploy repository. The monorepo has not
@@ -21,6 +22,7 @@ flowchart LR
   Programme[Programme service]
   Activity[Activity API and workers]
   Geodata[Geodata API and workers]
+  Email[Email worker<br/>PR #89; disabled]
   Core[(myota_core)]
   ActivityDB[(myota_activity)]
   GeoDB[(myota_geo and PostGIS)]
@@ -28,6 +30,9 @@ flowchart LR
   Events[(MYOTA_EVENTS<br/>bounded fact stream)]
   ActivityWork[(MYOTA_ACTIVITY_WORK<br/>competing-consumer jobs)]
   GeoWork[(MYOTA_GEODATA_WORK<br/>competing-consumer jobs)]
+  EmailWork[(MYOTA_EMAIL_WORK<br/>bounded email work; gated)]
+  EmailDB[(myota_email<br/>delivery ledger; gated)]
+  SMTP[Non-production SMTP<br/>not configured]
   Surveyor[NATS Surveyor]
   Prometheus[(Prometheus)]
   Collector[OpenTelemetry Collector]
@@ -55,6 +60,11 @@ flowchart LR
   Geodata --> GeoWork
   ActivityWork --> Activity
   GeoWork --> Geodata
+  Identity -. durable intent after DB-authority gate .-> EmailWork
+  EmailWork -. when provisioned .-> Email
+  Email -. least-privilege lookup when enabled .-> Identity
+  Email -. only after delivery qualification .-> EmailDB
+  Email -. TLS; not enabled .-> SMTP
   Events --> Activity
 
   Surveyor --> Prometheus
@@ -71,6 +81,15 @@ NATS connection. Operations is retired. Deploy's Collector reads bounded databas
 private metrics listener through the Collector to Prometheus and Grafana;
 Operations does not sample storage or retain its history. PostgreSQL remains
 authoritative for domain state, job state, outbox delivery, and recovery.
+
+## Email delivery status
+
+The email service, stream, database, and SMTP edges in the diagram are target
+boundaries from [ADR-0010](../decisions/0010-asynchronous-email-delivery.md).
+The worker implementation is under review in PR #89. It is disabled in the
+Testing Helm values; Identity producer/outbox work, test secrets, measured
+queue limits, and Helm runtime qualification remain incomplete. The dashed
+edges do not represent deployed resources or an authorized send path.
 
 ## Ownership
 
