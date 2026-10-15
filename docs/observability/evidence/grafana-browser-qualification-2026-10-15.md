@@ -143,3 +143,26 @@ were removed after the check.
 Full Compose runtime/restart, representative capacity, operational recovery,
 and retention-expiry qualification remain separately open. Do not mark these
 complete from matching JSON, a mounted configuration, or one browser sample.
+
+## Helm runtime dashboard follow-up — 15 October
+
+PR [#87](https://github.com/myota-platform/myota/pull/87) merged to `testing`
+at `a5faedf72728783c87f2265a2706f63b6a156229` after all final-head checks
+passed. It adds `myota-outbox-relay.json` to the chart's observability
+ConfigMap and Grafana mounts; a regression check now asserts both entries.
+The focused observability suite passed 17 tests, Helm lint/render passed, and
+CI deployment checks passed.
+
+Fleet fetched the merged Testing commit and reports the `myota-test`
+BundleDeployment Ready. Grafana rolled out Ready 1/1, and its startup logs
+report dashboard provisioning finished. The chart source, ConfigMap key, and
+mounted `/etc/grafana/dashboards/myota-outbox-relay.json` file all have SHA-256
+`420ab9e3d77e09a120fa0b4fb704c90c02befc226ea3147b28b6a0d8f0f79c26`. All 24
+Deployments and all 3 StatefulSets are ready.
+
+Helm still reports revision 451 as `pending-upgrade` (`Preparing upgrade`),
+although Fleet reports the BundleDeployment Ready and the updated dashboard is
+running. Full Helm release reconciliation is therefore not claimed; issue #22
+remains open until the release reports a completed state. No Compose or Podman
+deployment checks were run. The existing source-parity unit checks compare the
+Compose and Helm dashboard definitions without starting Compose.
