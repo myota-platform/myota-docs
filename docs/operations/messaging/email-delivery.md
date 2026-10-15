@@ -3,9 +3,13 @@
 This page records the accepted design and current implementation boundary for
 the email workstream. Runtime behavior is current only when merged and backed
 by the evidence below. PR [#89](https://github.com/myota-platform/myota/pull/89)
-is open against `testing`; it contains the first worker and Helm deployment
-implementation. The worker is not deployed, remains disabled in `myota-test`,
-and no runtime path is authorized to send email yet.
+merged to `testing` at `cd5b5189`. Its Testing image was published as
+`ghcr.io/myota-platform/myota-email-service:testing-cd5b5189d150c41caff47170726aa28ff1959f48`
+with digest `sha256:044cd063195f783495a9fa5271df4dc863bd2be6900f70513dc937ef16b0c319`.
+The digest-sync workflow did not resolve or propose the digest because the
+MyOTA-scoped GitHub App credentials are not configured. The worker is not
+deployed, remains disabled in `myota-test`, and no runtime path is authorized
+to send email yet.
 
 The ownership and delivery decision is [ADR-0010](../../architecture/decisions/0010-asynchronous-email-delivery.md).
 
@@ -25,17 +29,17 @@ The ownership and delivery decision is [ADR-0010](../../architecture/decisions/0
 - PR [#83](https://github.com/myota-platform/myota/pull/83) adds the internal
   Identity recipient API and Gateway exclusion; it merged to `testing` after
   all PR checks passed. Runtime credential provisioning remains pending.
-- PR #89 adds the worker source, isolated delivery-ledger schema, retry and
+- PR #89 merged the worker source, isolated delivery-ledger schema, retry and
   redacted dead-letter handling, audited redrive command, Helm templates,
-  bounded metrics, dashboard, and alerts. These changes are not yet merged to
-  `testing`. The worker configuration in
-  [`myota/values.yaml`](https://github.com/myota-platform/myota/blob/testing/deploy/helm/myota/values.yaml)
-  defaults to disabled; test SMTP/Identity/database Secrets and measured queue
-  limits have not been provisioned.
+  bounded metrics, dashboard, and alerts to `testing`. The Testing image is
+  published, but the digest has not been synchronized to the Helm release. The
+  worker remains disabled; test SMTP/Identity/database Secrets and measured
+  queue limits have not been provisioned.
 - Identity's transactional email producer/outbox is not implemented. The
-  worker PR's local tests mock NATS, PostgreSQL, and Identity boundaries; real
+  worker's tests mock NATS, PostgreSQL, and Identity boundaries; real
   broker/database integration and `myota-test` runtime qualification remain
-  outstanding. A built feature-branch image is not published.
+  outstanding. No feature-branch image is published; the `testing` image is
+  published but not deployed.
 
 The workflow remains tracked by [myota #58](https://github.com/myota-platform/myota/issues/58)
 and its component issues [#23](https://github.com/myota-platform/myota/issues/23),
@@ -241,19 +245,23 @@ publication occurred.
 PR #89's functional-code head `4719813` passed the 20-test worker suite (fake SMTP and
 mocked Identity/NATS/store boundaries), six deployment checks, 14 JetStream
 topology checks, 19 observability checks, 12 Contracts tests, Ruff, Helm lint,
-and all current monorepo CI jobs, including email image build, contract, chart,
-and repository-level tests. The latest PR head `be5a4d9` only adds a canonical
-README link; its full CI rerun is in progress. Feature and PR image-publish jobs
-are skipped by policy. These checks do
+and all required PR CI jobs, including email image build, contract, chart, and
+repository-level tests. PR #89 merged to `testing` at `cd5b5189`; testing push
+run [38705095802](https://github.com/myota-platform/myota/actions/runs/38705095802)
+passed validation/build and published the immutable Testing image digest listed
+above. Digest-sync run
+[38705309558](https://github.com/myota-platform/myota/actions/runs/38705309558)
+completed without resolving a digest because the MyOTA-scoped GitHub App
+credentials are not configured. These checks do
 not prove real PostgreSQL/NATS integration, live collector data, actual SMTP
 delivery, or Helm deployment behavior. One unrelated monorepo CI job was still
-pending at the time of this update. Feature and PR builds do not publish an
-image.
+pending at the time of the PR update. Feature and PR builds do not publish an
+image; only a successful push to `testing` publishes the Testing image.
 
 The workstream remains open until the Identity producer/outbox and its database
 authority are implemented, the worker and topology pass real integration
 checks, measured queue limits and test-only credentials are provisioned, the
-worker is qualified in Helm `myota-test`, Testing image publication and digest
-rollout are verified, and the operator recovery path is exercised. Per the
+worker is qualified in Helm `myota-test`, the published Testing image digest is
+synced and rolled out, and the operator recovery path is exercised. Per the
 repository instruction, deployment testing and qualification use the Helm
 Testing release; no Compose or Podman deployment tests are run.

@@ -3,11 +3,11 @@
 ## Status
 
 Accepted on 14 October 2026. Implementation is partial and remains gated.
-Identity's internal recipient-resolution API and the versioned email command
-contract are merged to monorepo `testing`. PR
-[#89](https://github.com/myota-platform/myota/pull/89) proposes the standalone
-worker and Helm resources but is not yet merged. No worker, email stream, or
-SMTP send path is live. See the [current email record](../../operations/messaging/email-delivery.md)
+Identity's internal recipient-resolution API, the versioned email command
+contract, and the worker/Helm implementation are merged to monorepo `testing`.
+The Testing worker image is published, but the digest-sync workflow skipped
+digest resolution because the MyOTA-scoped GitHub App credentials are not
+configured. No worker, email stream, or SMTP send path is live. See the [current email record](../../operations/messaging/email-delivery.md)
 and [Testing deployment snapshot](../current-state.md).
 
 ## Context

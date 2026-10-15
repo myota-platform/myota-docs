@@ -25,7 +25,7 @@ commits, runs, issue migration, live Fleet paths, and exit criteria.
 | Contracts | `contracts` | OpenAPI, event registry/schemas, compatibility rules, and generated client. |
 | Runtime/deployment | `deploy` | Compose, Helm, migration orchestration, image builds, and environment configuration. |
 | Integration | `integration` | Cross-service integration tests; not a service data owner. |
-| Email delivery | `apps/email` | Validation/rendering core is merged to Testing. PR [#89](https://github.com/myota-platform/myota/pull/89) proposes the durable consumer and Helm resources; producer and runtime qualification remain open. See [ADR-0010](decisions/0010-asynchronous-email-delivery.md) and the [email delivery record](../operations/messaging/email-delivery.md). |
+| Email delivery | `apps/email` | Worker, durable consumer, and Helm resources merged to Testing in PR [#89](https://github.com/myota-platform/myota/pull/89); the Testing image is published. Digest synchronization and Helm runtime qualification remain open, as do the Identity producer and database authority. See [ADR-0010](decisions/0010-asynchronous-email-delivery.md) and the [email delivery record](../operations/messaging/email-delivery.md). |
 
 The repository consolidates source management, not runtime processes. Keep
 services separately deployable and scalable. Preserve independent database

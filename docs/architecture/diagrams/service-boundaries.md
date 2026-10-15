@@ -22,7 +22,7 @@ flowchart LR
   Programme[Programme service]
   Activity[Activity API and workers]
   Geodata[Geodata API and workers]
-  Email[Email worker<br/>PR #89; disabled]
+  Email[Email worker<br/>Testing image published; disabled]
   Core[(myota_core)]
   ActivityDB[(myota_activity)]
   GeoDB[(myota_geo and PostGIS)]
@@ -86,8 +86,9 @@ authoritative for domain state, job state, outbox delivery, and recovery.
 
 The email service, stream, database, and SMTP edges in the diagram are target
 boundaries from [ADR-0010](../decisions/0010-asynchronous-email-delivery.md).
-The worker implementation is under review in PR #89. It is disabled in the
-Testing Helm values; Identity producer/outbox work, test secrets, measured
+The worker implementation merged in PR #89 and its Testing image is published,
+but digest synchronization has not produced a rollout. It remains disabled in
+the Testing Helm values; Identity producer/outbox work, test secrets, measured
 queue limits, and Helm runtime qualification remain incomplete. The dashed
 edges do not represent deployed resources or an authorized send path.
 

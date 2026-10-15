@@ -815,12 +815,12 @@ tokens, arbitrary HTML, and bodies.
 | Path | Owner and status |
 |---|---|
 | Producer and transactional outbox | Identity / `apps/identity`; not implemented. It depends on relational Identity state and outbox authority in issue #36. |
-| Pull consumer and durable policy | Email / `apps/email`; implementation submitted in open PR [#89](https://github.com/myota-platform/myota/pull/89), not merged or deployed. The worker validates the bounded command, resolves current recipient data only through the Identity API, persists delivery state before ACK, and records redacted retry/dead-letter state. |
-| Stream and durable provisioning | Deploy / `deploy`; Helm resources are in PR #89. The provisioner requires explicit finite age, byte, message, and max-message-size values plus a capacity-review gate. No email stream is claimed live. |
+| Pull consumer and durable policy | Email / `apps/email`; implementation merged to `testing` in PR [#89](https://github.com/myota-platform/myota/pull/89) and its Testing image was published. It is not deployed. The worker validates the bounded command, resolves current recipient data only through the Identity API, persists delivery state before ACK, and records redacted retry/dead-letter state. |
+| Stream and durable provisioning | Deploy / `deploy`; Helm resources merged in PR #89. Digest synchronization is pending because the MyOTA-scoped GitHub App credentials are not configured. The provisioner requires explicit finite age, byte, message, and max-message-size values plus a capacity-review gate. No email stream is claimed live. |
 | SMTP endpoint and credentials | Deploy/operator-owned configuration; no test endpoint or credentials are provisioned. The worker is disabled in `myota-test`. |
 | Replay authority | Identity producer outbox and stable `workId`; the email database stores delivery metadata, not the original command or address. SMTP is at-least-once and can duplicate after ambiguous provider acceptance. |
 
 The proposed target and limits are in
 [ADR-0010](../../architecture/decisions/0010-asynchronous-email-delivery.md).
-This appendix records repository ownership and the open implementation state;
+This appendix records repository ownership and the incomplete deployment state;
 it does not claim a live JetStream object or an end-to-end delivery test.
