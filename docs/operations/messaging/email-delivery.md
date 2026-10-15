@@ -1,9 +1,11 @@
 # Asynchronous email delivery
 
-This page records the accepted target design and the current implementation
-boundary for the email workstream. The target is **proposed** unless a section
-explicitly labels a behavior current and links its evidence. No email worker is
-deployed and no runtime path is authorized to send email yet.
+This page records the accepted design and current implementation boundary for
+the email workstream. Runtime behavior is current only when merged and backed
+by the evidence below. PR [#89](https://github.com/myota-platform/myota/pull/89)
+is open against `testing`; it contains the first worker and Helm deployment
+implementation. The worker is not deployed, remains disabled in `myota-test`,
+and no runtime path is authorized to send email yet.
 
 ## Current state
 
@@ -21,10 +23,17 @@ deployed and no runtime path is authorized to send email yet.
 - PR [#83](https://github.com/myota-platform/myota/pull/83) adds the internal
   Identity recipient API and Gateway exclusion; it merged to `testing` after
   all PR checks passed. Runtime credential provisioning remains pending.
-- Identity's transactional email outbox,
-  the NATS consumer, PostgreSQL delivery/idempotency state, retry/dead-letter
-  behavior, SMTP Secret/ConfigMap deployment, and runtime telemetry are not
-  implemented. The core cannot send on its own and is not deployed.
+- PR #89 adds the worker source, isolated delivery-ledger schema, retry and
+  redacted dead-letter handling, audited redrive command, Helm templates,
+  bounded metrics, dashboard, and alerts. These changes are not yet merged to
+  `testing`. The worker configuration in
+  [`myota/values.yaml`](https://github.com/myota-platform/myota/blob/testing/deploy/helm/myota/values.yaml)
+  defaults to disabled; test SMTP/Identity/database Secrets and measured queue
+  limits have not been provisioned.
+- Identity's transactional email producer/outbox is not implemented. The
+  worker PR's local tests mock NATS, PostgreSQL, and Identity boundaries; real
+  broker/database integration and `myota-test` runtime qualification remain
+  outstanding. A built feature-branch image is not published.
 
 The workflow remains tracked by [myota #58](https://github.com/myota-platform/myota/issues/58)
 and its component issues [#23](https://github.com/myota-platform/myota/issues/23),
@@ -115,9 +124,10 @@ recipient API tests.
 
 ## SMTP configuration target
 
-The target deployment keeps non-secret settings in a ConfigMap and only the
-SMTP password in a Kubernetes Secret. These are proposed key names; Deploy
-must implement and verify them before rollout.
+The Helm implementation submitted in PR #89 keeps non-secret settings in a
+ConfigMap and SMTP/Identity credentials in Kubernetes Secrets. The worker is
+disabled and has not been rolled out; Deploy must verify these references in
+`myota-test` before enabling it.
 
 | ConfigMap key | Purpose |
 |---|---|
@@ -139,22 +149,22 @@ Test verification.
 
 ## Queue and persistence proposal
 
-The proposed stream uses WorkQueue retention with explicit pull ACKs, finite
-message/byte/age bounds, bounded consumer replicas and pending ACKs, and a
-finite retry/backoff policy. Do not derive capacity from an empty stream. Set
-the numeric limits in [Deploy #23](https://github.com/myota-platform/myota/issues/23)
+The submitted worker expects WorkQueue retention with explicit pull ACKs,
+finite message/byte/age bounds, one pull consumer, and bounded retries. Its
+Helm provisioner requires operator-supplied limits and an explicit capacity
+review gate; no default capacity is invented. Do not derive capacity from an
+empty stream. Set the numeric limits in [Deploy #23](https://github.com/myota-platform/myota/issues/23)
 after measuring the intended test capacity and choosing the recovery window.
 Keep the stream isolated from domain facts and other work queues.
 
-The proposed `myota_email` database stores the stable `workId`, template ID,
+The schema submitted in PR #89 stores the stable `workId`, template ID,
 bounded state and attempt counts, timestamps, and a redacted rejection code.
-It must not retain recipient addresses, message bodies, template values,
-credentials, or full broker payloads. ACK only after a completed delivery or a
-durable retry/dead-letter decision. A redrive operation must require an
-authorized operator, record actor/time/reason, and reuse the stable work ID.
-Retention for delivery metadata and dead-letter records remains a Deploy
-decision; choose the shortest period that supports the documented recovery
-procedure and audit requirement.
+It does not retain recipient addresses, message bodies, template values,
+credentials, or full broker payloads. The worker commits a delivered, retry, or
+dead-letter outcome before ACK/NAK/termination. Its `redrive` command records
+actor, reason, and time, and requires the producer to replay the same stable
+work ID. Database integration, access controls for the command, and retention
+limits still need review and runtime qualification.
 
 ## Operator procedure target
 
@@ -173,9 +183,11 @@ procedure and audit requirement.
    ID in Identity's outbox and republish under the approved replay procedure.
    Do not query another service's database from the email worker.
 
-These steps are an operating proposal, not an available live runbook until
-Deploy and service issues implement them. No SMTP credentials or actual message
-data were used in PR #82 verification.
+These steps describe the intended recovery workflow; they are not yet a
+qualified live runbook. PR #89 includes the redrive command interface, but
+operators must not invoke it until access controls and the full delivery path
+have been qualified. No SMTP credentials or real message data were used in
+worker tests.
 
 ## Verification and remaining gates
 
@@ -187,7 +199,19 @@ bound, HTML escaping, inactive-recipient rejection, bounded TLS configuration,
 and STARTTLS-before-authentication ordering. No real SMTP request or NATS
 publication occurred.
 
-The workstream remains open until Identity producer/API authorization,
-transactional outbox behavior, the JetStream durable consumer, database
-idempotency/retry/DLQ, privacy-safe OpenTelemetry, Compose/Helm deployment,
-Testing image publication, and operator recovery are implemented and verified.
+PR #89's current head `1a0224c` passed the 20-test worker suite (fake SMTP and
+mocked Identity/NATS/store boundaries), six deployment checks, 14 JetStream
+topology checks, 19 observability checks, 12 Contracts tests, Ruff, Helm lint,
+and the corresponding email build, contract, and chart CI jobs. These checks do
+not prove real PostgreSQL/NATS integration, live collector data, actual SMTP
+delivery, or Helm deployment behavior. One unrelated monorepo CI job was still
+pending at the time of this update. Feature and PR builds do not publish an
+image.
+
+The workstream remains open until the Identity producer/outbox and its database
+authority are implemented, the worker and topology pass real integration
+checks, measured queue limits and test-only credentials are provisioned, the
+worker is qualified in Helm `myota-test`, Testing image publication and digest
+rollout are verified, and the operator recovery path is exercised. Per the
+repository instruction, deployment testing and qualification use the Helm
+Testing release; no Compose or Podman deployment tests are run.
