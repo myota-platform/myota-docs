@@ -21,6 +21,8 @@ ownership and cutover evidence are documented in the
 
 ## Evidence
 
+- [Helm capacity and Loki recovery, 15 October](evidence/logging-capacity-recovery-2026-10-15.md)
+- [Authenticated Grafana browser qualification, 15 October](evidence/grafana-browser-qualification-2026-10-15.md)
 - [Dashboard enhancements](evidence/dashboard-enhancements-2026-10-12.md)
 - [Logging evidence, 12 October](evidence/logging-implementation-2026-10-12.md)
 - [Logging evidence, 11 October](evidence/logging-implementation-2026-10-11.md) —
