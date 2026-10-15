@@ -98,6 +98,32 @@ and [Deploy issue #35](https://github.com/myota-platform/myota/issues/35).
 | `idempotency` | Cached API result by idempotency key | `idempotency_record` | Account creation idempotency is currently process-local before persistence. |
 | Bootstrap environment | Optional initial administrator email/password | Kubernetes Secret / runtime environment; resulting account, credential hash, role, and audit row belong in the relational targets above | Startup currently checks and mutates the process-local projection; it must be idempotent against database constraints. |
 
+### Chosen relational target
+
+Identity will use the existing Core `account`, `account_credential`,
+`account_role`, `auth_session`, `auth_revocation`,
+`account_recovery_token`, `callsign`, `account_primary_callsign`,
+`callsign_evidence`, `oidc_provider_mapping`, `security_event`,
+`outbox_event`, and `idempotency_record` tables as the basis of its relational
+model. The migration adds a case-insensitive unique constraint for non-null
+account email, an `identity_role_definition` table for built-in/custom role
+permissions, an `identity_account_profile` one-to-one extension for website,
+biography, and opaque profile-image metadata, and an
+`identity_login_rate_limit` table keyed by a one-way hash of normalized email
+plus remote address. The rate-limit row stores only a bounded window, count,
+and expiry; raw email and address stay out of that table's key and all metrics.
+
+Account credentials, role assignments/definitions, sessions, revocations,
+recovery token hashes, OIDC mappings, callsign/evidence, rate-limit rows, audit
+events, outbox events, and idempotency records are written in the same database
+transaction as the corresponding account or authentication transition. Foreign
+keys bind account-owned rows to `account`; unique constraints protect account
+email, callsign ownership/primary selection, active session IDs, refresh-token
+hashes, recovery-token hashes, and idempotency keys. Session, revocation,
+recovery, and rate-limit expiry remains explicit so cleanup is repeatable.
+Signing keys and bootstrap passwords remain deployment secrets, never database
+fields.
+
 The migration must preserve every existing account ID, password hash, active
 role, session/revocation, recovery record, callsign, and audit event. It must
 run restartably with pre/post counts and deterministic checksums, fail closed
