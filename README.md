@@ -5,12 +5,13 @@ programmes. MPOTA is an optional programme configuration, not the platform
 definition. Each programme owns its charter, eligibility, rules, awards,
 content, and governance.
 
-This repository is the documentation hub. Runtime source is in the
-[myota monorepo](https://github.com/myota-platform/myota). The isolated Testing
-deployment tracks its `testing` branch; production continues to track the
-previous split Deploy repository until production promotion is completed. The
-original `ea7klk/mpota` repository remains untouched and is migration input
-only.
+This repository is the documentation hub. Ongoing clean-platform implementation
+belongs in the canonical
+[`myota-next` monorepo](https://github.com/myota-platform/myota-next). The
+original [`myota` monorepo](https://github.com/myota-platform/myota) remains a
+behavioral reference and migration input; live deployment ownership has not
+moved from the existing release sources. The original `ea7klk/mpota` repository
+remains untouched and is migration input only.
 
 ## Start here
 
