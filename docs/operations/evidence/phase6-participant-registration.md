@@ -58,3 +58,18 @@ throttling under abuse, resend behavior for verified and unverified accounts,
 and duplicate-address outcomes. Continue with the profile, callsign, activation,
 QSO, and ADIF journeys tracked by #96. Link those results here and from the
 Phase 6 readiness issue before changing its exit criteria.
+
+## Follow-up: profile and callsigns
+
+The same synthetic participant signed in and saved a profile website and short
+biography. Both values remained after a browser reload. The participant added a
+synthetic callsign, which appeared as `UNVERIFIED` and `Primary`, and it also
+remained after reload. The participant then signed out. The synthetic callsign
+is test-only and has no verification evidence.
+
+The deployment has one selectable programme (`part_jud_es`) but its public
+catalogue currently contains zero entities. The activation form therefore has
+no selectable entity, so activation, QSO entry/closure, and ADIF import could
+not be exercised. No fabricated activity data was written. Seed or import a
+reviewed test entity in the isolated deployment before continuing those
+workflows.
