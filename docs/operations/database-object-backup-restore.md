@@ -151,6 +151,44 @@ disposable data. It does not restore a full application database, verify
 cross-service object references, measure realistic restore time, or demonstrate
 recovery after PVC loss.
 
+## 2026-10-26 live-owner snapshot and isolated restore check
+
+A separate check used the existing `myota-test` owner databases and object
+buckets as sources. It did not replace or modify existing application records.
+The plaintext snapshots were kept under the ignored local
+`myota-next/runtime-secrets/` directory and were not committed.
+
+- The object-store backup covered all six configured MyOTA buckets. The source
+  inventory contained two objects (45,172,562 bytes total). The repository
+  `tools/s3-backup.mjs` restore command restored them to six newly created,
+  empty scratch buckets. Bucket counts, object sizes, and SHA-256 hashes
+  matched the backup manifest. The scratch buckets were deleted after
+  verification; the source buckets were left unchanged.
+- PostgreSQL 16 `pg_dump` ran inside each existing owner database pod and
+  produced custom-format dumps of `myota_core`, `myota_activity`, and
+  `myota_geo`. A unique marker table with one row was added temporarily to each
+  source, included in the dumps, and then removed from the sources. The dumps
+  were restored with `pg_restore --exit-on-error --single-transaction` into
+  same-named databases on a temporary PostgreSQL 16/PostGIS pod in a separate
+  namespace. All three marker rows were present after restore, all three dump
+  checksums matched their manifests, and exact counts for the pre-existing
+  tables matched: 46 Core, 27 Activity, and 66 Geodata tables/partitions. The
+  original databases had zero rows in those tables at the time of the check.
+  The temporary namespace was deleted after verification.
+- The restored databases and buckets were temporary qualification targets.
+  Existing MyOTA workloads and PVCs remained in place. The source marker
+  tables were confirmed absent after cleanup.
+
+This check demonstrates native PostgreSQL dump/restore and the object-store
+utility against the current test deployment. PostgreSQL was exercised with
+direct `pg_dump`/`pg_restore`, not the Node `db:backup`/`db:restore` wrappers.
+The database sources had no pre-existing table rows, and the two object files
+are not a representative production volume. The database and object snapshots
+were taken separately without quiescing all writers, so they do not establish
+a coordinated recovery point or cross-service object-reference integrity.
+This evidence does not qualify full-data recovery, realistic RTO, off-node
+backup, or permanent PVC-loss recovery; keep issue #89 open for those checks.
+
 ## Open operations decisions
 
 - Choose an off-node backup destination and verify it is isolated from the
