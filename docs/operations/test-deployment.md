@@ -1,107 +1,123 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-14 21:43 UTC
+**Current verification:** 2026-10-26 22:12 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
-**Current Fleet source:** `myota-platform/myota`, branch `testing`, commit
-[`1140d05`](https://github.com/myota-platform/myota/commit/1140d057ca9122665414dede665c1677536a6941), path `deploy/helm/myota-test`.
+**Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
+[`6fc6454`](https://github.com/myota-platform/myota-next/commit/6fc64541f37fa01facf76ba268bc9837f2c71eff), path `deploy/fleet/myota-test`.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 20:31 UTC
+## Current MyOTA Next rollout — 2026-10-26 22:12 UTC
 
-The active test release has not yet rolled forward to the latest approved
-immutable image digests. The current values source and the deployed Helm
-release have diverged:
+The protected rollout path installed the approved immutable images through
+Rancher's catalog operation. This closes the App ownership and recovery
+incident described in the historical entries below; it does not complete the
+remaining Phase 6 qualification work in
+[issue #10](https://github.com/myota-platform/myota-next/issues/10).
 
-| Check | Current state |
-|---|---|
-| Fleet source | `fleet-local/myota-next-test` is Ready at `myota-test-deploy`, commit [`680cfaad`](https://github.com/myota-platform/myota-next/commit/680cfaad776e6e112d3435e9b986b2e0ccf69325). |
-| Desired values | The Fleet `myota-test-values` release has updated the Rancher App to generation 53 with `buildVersion: testing-f270f1f` and immutable image digests. |
-| Actual application release | Helm release `myota-test` remains revision 26, chart `myota-next-1.1.6-testing.492a44b.1`, app version `testing-492a44b`. All 14 component image digests differ from the approved values. |
-| Chart availability | The public `myota` Helm index currently lists versions through 1.1.5; it does not contain the installed testing chart or a chart for the newly approved digests. |
-| Upgrade behavior | Updating the Rancher App's `spec.values` through the Fleet values bundle changed the App object but did not create a Helm revision. Rancher 2.15.2 routes catalog upgrades through the `?action=upgrade` operation handler and its chart operation controller ([source](https://github.com/rancher/rancher/blob/v2.15.2/pkg/api/steve/catalog/operation.go)); the chart version must be available to that catalog operation. |
+- **Fleet source:** `fleet-local/myota-next-test` is Ready at
+  `myota-test-deploy`, commit
+  [`6fc6454`](https://github.com/myota-platform/myota-next/commit/6fc64541f37fa01facf76ba268bc9837f2c71eff).
+  `Reconciling=False` and `Stalled=False`.
+- **Rancher catalog:** The protected workflow recreated the missing App
+  metadata and installed chart `1.1.6-testing.6fc64541f37f.1` as Helm release
+  `myota-test`, revision 29, status `deployed`.
+- **Immutable images:** Workflow
+  [40410227284](https://github.com/myota-platform/myota-next/actions/runs/40410227284)
+  verified all 15 chart-managed application Deployments ready at their
+  approved SHA-256 image digests. The release uses the merged `testing`
+  commit; no production release was changed.
+- **Public endpoints:**
+  `https://myota-admin-test.spainip.es/`,
+  `https://myota-participant-test.spainip.es/`, and API
+  `https://myota-test.spainip.es/healthz` returned HTTP 200. The API root is
+  not a web application and returns 404 by design.
+- **Testing image publication:** Workflow
+  [40410227270](https://github.com/myota-platform/myota-next/actions/runs/40410227270)
+  published changed images for commit `6fc6454`. Node CI for the merge is
+  tracked in [workflow 40410227233](https://github.com/myota-platform/myota-next/actions/runs/40410227233).
+- **Email qualification:** Deployment SMTP success, TLS, failure/retry,
+  deduplication, and notification outcomes are recorded under
+  [issue #13](https://github.com/myota-platform/myota-next/issues/13), which
+  is closed. The test deployment uses its Mailpit sink for synthetic email
+  flows.
 
-The values bundle is therefore not, by itself, a deployment mechanism. Keep
-[issue #118](https://github.com/myota-platform/myota-next/issues/118) open
-while establishing a protected, least-privilege catalog upgrade path, making
-the matching chart available, and verifying digest deployment and rollback.
-Do not count the newer values as deployed qualification evidence. Phase 6
-[issue #10](https://github.com/myota-platform/myota-next/issues/10) remains
-open until those deployment checks and the other launch gates pass.
+The earlier failed workflow after PR #131 did not start a catalog operation and
+did not modify the then-current Helm release or persistent volumes. PR #132
+changed the protected workflow to permit a missing App metadata baseline, then
+require Rancher to recreate it, advance the chart revision, and verify every
+approved image digest. PR #132 passed Node CI and all 18 image build/scan
+checks before merging to `testing`; the successful live run above proves the
+recovery path.
 
-The protected rollout implementation is under review in
-[myota-next PR #124](https://github.com/myota-platform/myota-next/pull/124),
-on branch `feature/issue118-rancher-catalog-upgrade`, based on `testing`
-commit [`680cfaa`](https://github.com/myota-platform/myota-next/commit/680cfaa776e6e112d3435e9b986b2e0ccf69325).
-It adds a `/testing`-only ClusterRepo whose catalog operations use a dedicated
-ServiceAccount in `myota-test`, and a GitHub Actions workflow that packages an
-immutable chart version, invokes Rancher's catalog upgrade API, and verifies
-ready Deployment image digests. The PR is not merged or deployed yet.
+### Remaining Phase 6 gates
 
-The `myota-test` GitHub Actions environment now exists, is restricted to the
-`testing` branch, and does not allow administrator bypass. Its
-`MYOTA_TEST_RANCHER_TOKEN` secret belongs to Rancher user
-`myota-test-catalog-upgrader`. That user's custom GlobalRole permits access to
-only the `myota-next-testing` ClusterRepo and read access to the `myota-test`
-App, catalog operations, and Deployments. Read-only authorization checks
-returned HTTP 200 for those test resources and HTTP 403 for the stable `myota`
-ClusterRepo, another namespace's App, and Deployments in `default`. The token
-expires on 2027-01-24. Its value and the generated account password are kept
-only in the ignored, mode-600 local file
-`myota-next/runtime-secrets/myota-test-secrets.yaml`; neither value is
-committed.
+- [Issue #88](https://github.com/myota-platform/myota-next/issues/88): scratch
+  databases were initialized from empty state, and migration locking and
+  database-owner isolation were checked. The installed release has since
+  restarted all application Deployments with owner-specific runtime
+  credentials. A clean, supported installation path using newly provisioned
+  database storage still needs evidence before this issue can close.
+- [Issue #89](https://github.com/myota-platform/myota-next/issues/89): database
+  and object-store snapshots were restored and integrity-checked, but the
+  source data volume was not representative, writers were not quiesced, and
+  off-node retention, RTO, and PVC-loss recovery remain unqualified.
+- [Issue #90](https://github.com/myota-platform/myota-next/issues/90):
+  `@nestjs/observe` dependencies, root hooks, stable service IDs, and the
+  no-credentials startup path are verified. Authenticated Observe credentials
+  and delivery to an Observe destination are not configured or verified.
+- [Issue #91](https://github.com/myota-platform/myota-next/issues/91):
+  Participant registration/email verification and profile/callsign
+  persistence were previously recorded on an earlier test chart and must be
+  repeated on revision 29. Activation, QSO, and ADIF journeys await
+  programme-associated selectable entities. Deployed delegated Admin account
+  management, denial cases, and correlated telemetry also remain to be
+  qualified.
+- [Issue #93](https://github.com/myota-platform/myota-next/issues/93): rollback
+  and compatibility with persisted database, object-store, and NATS work have
+  not been exercised.
 
-The test-only `ClusterRepo`, its namespace operation identity, the workflow,
-and its upgrade verifier still need the required PR checks and an actual
-Rancher catalog upgrade. The rendered chart includes 15 Deployments and two
-migration/provisioning Jobs; all 17 workloads use images pinned by SHA-256
-digest. Local Helm lint and rendering, workflow YAML parsing, Node syntax, and
-`git diff --check` pass. Helm reports only its informational recommendation
-to add a chart icon. `actionlint` is not installed in this environment. The
-catalog repository is not present in the live cluster yet, so chart
-publication, upgrade operation status, live digest verification, and rollback
-remain unproven.
+These are qualification gaps, not evidence that the deployment failed. Keep
+issue #10 open until its exit criteria pass or each residual limitation has an
+explicit accepted disposition and the required evidence is linked.
 
-### Fresh database and runtime-role evidence — 2026-10-26 20:31 UTC
+## Historical MyOTA Next rollout — 2026-10-26 20:31 UTC (superseded)
+
+At this time the Fleet values and deployed Helm release had diverged. Fleet
+was Ready at an earlier `myota-test-deploy` commit while Helm revision 26 was
+still serving chart `myota-next-1.1.6-testing.492a44b.1`. Updating the values
+bundle did not create a Helm revision. The protected catalog workflow
+introduced afterward addresses this limitation; see the current rollout above
+and [issue #118](https://github.com/myota-platform/myota-next/issues/118).
+
+The isolated GitHub Actions environment restricts catalog upgrades to the
+`testing` branch and does not allow administrator bypass. Credentials remain
+in the ignored, mode-600 local `runtime-secrets` file and Kubernetes secret
+store, not in Git. The successful protected workflow is the source of current
+release evidence; earlier PR #124 review, App conflict, and pre-rollout digest
+descriptions are retained only as incident history.
+
+#### Earlier database and runtime-role rehearsal — 2026-10-26 20:31 UTC
 
 Three uniquely named databases were confirmed absent, created on the isolated
 Core, Activity, and Geodata PostgreSQL instances, then initialized with the
-chart migration Job rendered from the current `testing` checkout. The Job used
-the immutable tools image
-`ghcr.io/myota-platform/myota-next-tools@sha256:b0167e81b787ef0e0a7eea1cbd0954020a02faebc8b3549ee91f864c7de1ea65`.
-The Job completed in each run. The first run applied the sorted migration sets
-and produced 21 Core, five Activity, and seven Geodata ledger entries. A second
-run reported all migrations current. The test then held the Core migration
-advisory lock for 20 seconds; a concurrent migration Job waited and completed
-after the lock was released. The three scratch databases, Jobs, and temporary
-migration-URL Secret were removed after verification.
+chart migration Job. The first run applied 21 Core, five Activity, and seven
+Geodata migrations; a second run reported all schemas current. A concurrent
+migration Job waited for a held Core advisory lock and completed after release.
+The scratch databases, Jobs, and temporary migration URL Secret were removed.
 
-The same migration Job was run against the three existing `myota-test`
-databases. It synchronized the new `myota_core_app`, `myota_activity_app`,
-and `myota_geo_app` roles and reported every schema current. The read-only role
-check authenticated to each owner's database, read no application rows, and
-denied all six cross-owner connection attempts. To prepare for the upcoming
-release, the Kubernetes `myota-postgres-auth` Secret now includes three
-independent runtime-role password keys, and `myota-database-urls` points to the
-corresponding owner roles. The legacy `myota_app` remains enabled while the
-existing pods continue to run with their previously loaded environment. The
-new chart release still needs to roll all workloads, after which service
-health and runtime-role usage must be checked again.
+The same Job reported the three existing `myota-test` schemas current and
+synchronized owner-specific runtime roles. Read-only checks authenticated to
+each database with its owning role and denied all six cross-owner attempts.
+These checks support, but do not replace, the clean newly provisioned storage
+installation evidence required by #88.
 
-The Admin and Participant web roots returned HTTP 200, and all 15 application
-Deployments were ready after these checks. These database Jobs were rendered
-from the deployment chart and run as one-off Kubernetes Jobs; they do not
-prove that Rancher's catalog operation, the PR workflow, or a full fresh
-release succeeds. Keep issues #88, #118, and #10 open until the chart is
-published and deployed through the reviewed release path, the workloads use
-the new credentials, and rollback is verified.
-
-## Current monorepo rollout — 2026-10-14 21:43 UTC
+## Historical monorepo rollout — 2026-10-14 21:43 UTC
 
 | Check | Result |
 |---|---|
