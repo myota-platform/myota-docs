@@ -12,7 +12,7 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 19:53 UTC
+## Current MyOTA Next rollout — 2026-10-26 20:16 UTC
 
 The active test release has not yet rolled forward to the latest approved
 immutable image digests. The current values source and the deployed Helm
@@ -34,16 +34,37 @@ Do not count the newer values as deployed qualification evidence. Phase 6
 [issue #10](https://github.com/myota-platform/myota-next/issues/10) remains
 open until those deployment checks and the other launch gates pass.
 
-One candidate for #118 is a separate test-only Rancher `ClusterRepo` with its
-`serviceAccount` set to a uniquely named account that exists only in
-`myota-test`. Rancher 2.15.2's catalog upgrade implementation selects that
-account for the Helm operation when the setting is present
-([Rancher source](https://github.com/rancher/rancher/blob/v2.15.2/pkg/catalogv2/helmop/operation.go)).
-This may let an upgrade trigger use a namespace-scoped operation identity
-without exposing a cluster-admin kubeconfig to GitHub Actions. The design is
-not yet deployed or tested: API caller permissions, the operation account's
-exact resource grants, out-of-namespace denial, chart publication, and
-rollback still require verification.
+The protected rollout implementation is being prepared on the
+`feature/issue118-rancher-catalog-upgrade` branch of `myota-next`, based on
+`testing` commit [`680cfaa`](https://github.com/myota-platform/myota-next/commit/680cfaa776e6e112d3435e9b986b2e0ccf69325). It adds a `/testing`-only
+ClusterRepo whose catalog operations use a dedicated ServiceAccount in
+`myota-test`, and a GitHub Actions workflow that packages an immutable chart
+version, invokes Rancher's supported catalog upgrade API, and checks ready
+Deployment image digests. This work is not merged or deployed yet.
+
+The `myota-test` GitHub Actions environment now exists, is restricted to the
+`testing` branch, and does not allow administrator bypass. Its
+`MYOTA_TEST_RANCHER_TOKEN` secret belongs to Rancher user
+`myota-test-catalog-upgrader`. That user's custom GlobalRole permits access to
+only the `myota-next-testing` ClusterRepo and read access to the `myota-test`
+App, catalog operations, and Deployments. Read-only authorization checks
+returned HTTP 200 for those test resources and HTTP 403 for the stable `myota`
+ClusterRepo, another namespace's App, and Deployments in `default`. The token
+expires on 2027-01-24. Its value and the generated account password are kept
+only in the ignored, mode-600 local file
+`myota-next/runtime-secrets/myota-test-secrets.yaml`; neither value is
+committed.
+
+The test-only `ClusterRepo`, its namespace operation identity, the workflow,
+and its upgrade verifier still need the required PR checks and an actual
+Rancher catalog upgrade. The rendered chart includes 15 Deployments and two
+migration/provisioning Jobs; all 17 workloads use images pinned by SHA-256
+digest. Local Helm lint and rendering, workflow YAML parsing, Node syntax, and
+`git diff --check` pass. Helm reports only its informational recommendation
+to add a chart icon. `actionlint` is not installed in this environment. The
+catalog repository is not present in the live cluster yet, so chart
+publication, upgrade operation status, live digest verification, and rollback
+remain unproven.
 
 ## Current monorepo rollout — 2026-10-14 21:43 UTC
 
