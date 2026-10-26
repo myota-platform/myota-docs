@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-26 23:45 UTC
+**Current verification:** 2026-10-26 23:50 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -12,7 +12,7 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 23:45 UTC
+## Current MyOTA Next rollout — 2026-10-26 23:50 UTC
 
 The protected rollout path installed the approved immutable images through
 Rancher's catalog operation. This closes the App ownership and recovery
@@ -108,9 +108,16 @@ recovery path.
   credentials. A clean, supported installation path using newly provisioned
   database storage still needs evidence before this issue can close.
 - [Issue #89](https://github.com/myota-platform/myota-next/issues/89): database
-  and object-store snapshots were restored and integrity-checked, but the
-  source data volume was not representative, writers were not quiesced, and
-  off-node retention, RTO, and PVC-loss recovery remain unqualified.
+  and object-store snapshots were restored and integrity-checked. The
+  repository PostgreSQL backup/restore wrapper also passed against newly
+  created disposable databases on each isolated owner instance using
+  PostgreSQL 16 tools: it created checksummed custom-format dumps, rejected an
+  incorrect restore confirmation, restored mutated marker values, and removed
+  its probe tables, backup directory, and scratch databases. This exercises the
+  wrappers against the test PostgreSQL endpoints, but the earlier source
+  snapshot was not representative and writers were not quiesced. Off-node
+  retention, measured RTO, full-data consistency, and PVC-loss recovery remain
+  unqualified.
 - [Issue #90](https://github.com/myota-platform/myota-next/issues/90):
   `@nestjs/observe` dependencies, root hooks, stable service IDs, and the
   no-credentials startup path are verified. Authenticated Observe credentials
