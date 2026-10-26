@@ -13,6 +13,8 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
   messaging procedures.
 - [Database migrations and recovery](databases/README.md) — schema ownership,
   baseline history, and verified rebuild records.
+- [Phase 6 fresh-database qualification](evidence/phase6-fresh-database-qualification-2026-10-26.md) — disposable-database migration and readiness evidence,
+  including the new-volume follow-up.
 - [Production core setup](production-core.md)
 - [Storage operations](storage/README.md)
 - [Messaging and NATS](messaging/README.md)
