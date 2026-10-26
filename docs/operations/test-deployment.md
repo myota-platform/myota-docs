@@ -12,6 +12,28 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
+## Current MyOTA Next rollout — 2026-10-26 19:53 UTC
+
+The active test release has not yet rolled forward to the latest approved
+immutable image digests. The current values source and the deployed Helm
+release have diverged:
+
+| Check | Current state |
+|---|---|
+| Fleet source | `fleet-local/myota-next-test` is Ready at `myota-test-deploy`, commit [`680cfaad`](https://github.com/myota-platform/myota-next/commit/680cfaad776e6e112d3435e9b986b2e0ccf69325). |
+| Desired values | The Fleet `myota-test-values` release has updated the Rancher App to generation 53 with `buildVersion: testing-f270f1f` and immutable image digests. |
+| Actual application release | Helm release `myota-test` remains revision 26, chart `myota-next-1.1.6-testing.492a44b.1`, app version `testing-492a44b`. All 14 component image digests differ from the approved values. |
+| Chart availability | The public `myota` Helm index currently lists versions through 1.1.5; it does not contain the installed testing chart or a chart for the newly approved digests. |
+| Upgrade behavior | Updating the Rancher App's `spec.values` through the Fleet values bundle changed the App object but did not create a Helm revision. Rancher 2.15.2 routes catalog upgrades through the `?action=upgrade` operation handler and its chart operation controller ([source](https://github.com/rancher/rancher/blob/v2.15.2/pkg/api/steve/catalog/operation.go)); the chart version must be available to that catalog operation. |
+
+The values bundle is therefore not, by itself, a deployment mechanism. Keep
+[issue #118](https://github.com/myota-platform/myota-next/issues/118) open
+while establishing a protected, least-privilege catalog upgrade path, making
+the matching chart available, and verifying digest deployment and rollback.
+Do not count the newer values as deployed qualification evidence. Phase 6
+[issue #10](https://github.com/myota-platform/myota-next/issues/10) remains
+open until those deployment checks and the other launch gates pass.
+
 ## Current monorepo rollout — 2026-10-14 21:43 UTC
 
 | Check | Result |
