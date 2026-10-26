@@ -21,6 +21,9 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
 - [Fresh-database qualification](evidence/phase6-fresh-database-qualification-2026-10-26.md) —
   disposable-database migration and readiness evidence,
   including the new-volume follow-up.
+- [Participant registration qualification](evidence/phase6-participant-registration.md) —
+  deployed email verification and sign-in evidence, with remaining abuse-control
+  coverage gaps.
 - [Dependency-recovery qualification][phase6-dependency-recovery] —
   deployed single-instance
   NATS, PostgreSQL, and object-storage recovery evidence and limits.
