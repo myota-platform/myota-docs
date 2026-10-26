@@ -106,7 +106,7 @@ integrity check is complete.
    exactly match the object backup directory's basename:
 
    ```sh
-   MYOTA_RESTORE_BUCKET_MAP="${BUCKET_MAP_JSON:?map every source bucket to an empty target bucket}" \
+   export MYOTA_RESTORE_BUCKET_MAP="${BUCKET_MAP_JSON:?set the source-to-target bucket map}"
    MYOTA_RESTORE_CONFIRM="RESTORE objects" \
      npm run object-store:restore -- "${restore_dir}/objects"
    ```
