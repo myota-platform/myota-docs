@@ -12,7 +12,7 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 20:16 UTC
+## Current MyOTA Next rollout — 2026-10-26 20:31 UTC
 
 The active test release has not yet rolled forward to the latest approved
 immutable image digests. The current values source and the deployed Helm
@@ -34,13 +34,14 @@ Do not count the newer values as deployed qualification evidence. Phase 6
 [issue #10](https://github.com/myota-platform/myota-next/issues/10) remains
 open until those deployment checks and the other launch gates pass.
 
-The protected rollout implementation is being prepared on the
-`feature/issue118-rancher-catalog-upgrade` branch of `myota-next`, based on
-`testing` commit [`680cfaa`](https://github.com/myota-platform/myota-next/commit/680cfaa776e6e112d3435e9b986b2e0ccf69325). It adds a `/testing`-only
-ClusterRepo whose catalog operations use a dedicated ServiceAccount in
-`myota-test`, and a GitHub Actions workflow that packages an immutable chart
-version, invokes Rancher's supported catalog upgrade API, and checks ready
-Deployment image digests. This work is not merged or deployed yet.
+The protected rollout implementation is under review in
+[myota-next PR #124](https://github.com/myota-platform/myota-next/pull/124),
+on branch `feature/issue118-rancher-catalog-upgrade`, based on `testing`
+commit [`680cfaa`](https://github.com/myota-platform/myota-next/commit/680cfaa776e6e112d3435e9b986b2e0ccf69325).
+It adds a `/testing`-only ClusterRepo whose catalog operations use a dedicated
+ServiceAccount in `myota-test`, and a GitHub Actions workflow that packages an
+immutable chart version, invokes Rancher's catalog upgrade API, and verifies
+ready Deployment image digests. The PR is not merged or deployed yet.
 
 The `myota-test` GitHub Actions environment now exists, is restricted to the
 `testing` branch, and does not allow administrator bypass. Its
@@ -65,6 +66,40 @@ to add a chart icon. `actionlint` is not installed in this environment. The
 catalog repository is not present in the live cluster yet, so chart
 publication, upgrade operation status, live digest verification, and rollback
 remain unproven.
+
+### Fresh database and runtime-role evidence — 2026-10-26 20:31 UTC
+
+Three uniquely named databases were confirmed absent, created on the isolated
+Core, Activity, and Geodata PostgreSQL instances, then initialized with the
+chart migration Job rendered from the current `testing` checkout. The Job used
+the immutable tools image
+`ghcr.io/myota-platform/myota-next-tools@sha256:b0167e81b787ef0e0a7eea1cbd0954020a02faebc8b3549ee91f864c7de1ea65`.
+The Job completed in each run. The first run applied the sorted migration sets
+and produced 21 Core, five Activity, and seven Geodata ledger entries. A second
+run reported all migrations current. The test then held the Core migration
+advisory lock for 20 seconds; a concurrent migration Job waited and completed
+after the lock was released. The three scratch databases, Jobs, and temporary
+migration-URL Secret were removed after verification.
+
+The same migration Job was run against the three existing `myota-test`
+databases. It synchronized the new `myota_core_app`, `myota_activity_app`,
+and `myota_geo_app` roles and reported every schema current. The read-only role
+check authenticated to each owner's database, read no application rows, and
+denied all six cross-owner connection attempts. To prepare for the upcoming
+release, the Kubernetes `myota-postgres-auth` Secret now includes three
+independent runtime-role password keys, and `myota-database-urls` points to the
+corresponding owner roles. The legacy `myota_app` remains enabled while the
+existing pods continue to run with their previously loaded environment. The
+new chart release still needs to roll all workloads, after which service
+health and runtime-role usage must be checked again.
+
+The Admin and Participant web roots returned HTTP 200, and all 15 application
+Deployments were ready after these checks. These database Jobs were rendered
+from the deployment chart and run as one-off Kubernetes Jobs; they do not
+prove that Rancher's catalog operation, the PR workflow, or a full fresh
+release succeeds. Keep issues #88, #118, and #10 open until the chart is
+published and deployed through the reviewed release path, the workloads use
+the new credentials, and rollback is verified.
 
 ## Current monorepo rollout — 2026-10-14 21:43 UTC
 
