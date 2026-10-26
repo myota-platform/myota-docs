@@ -1,9 +1,63 @@
 # Geodata location enrichment
 
-`myota-geodata-service` enriches location metadata from an entity's
-representative point using BigDataCloud's server-side Reverse Geocoding to City
-API. Enrichment is asynchronous: the entity mutation and request event commit
-together, and a durable geodata worker performs the provider lookup.
+The Geodata worker enriches location metadata from an entity's representative
+point using BigDataCloud's server-side Reverse Geocoding to City API.
+Enrichment is asynchronous: the entity mutation and request event commit
+together, and a durable worker performs the provider lookup.
+
+> **MyOTA Next chart configuration:** use the current monorepo settings below.
+> The dated deployment notes later in this page include legacy split-repository
+> evidence and should not be used as the current chart configuration.
+
+## MyOTA Next API configuration and Secret
+
+The `geodata-worker` is the only MyOTA Next component that calls the provider.
+The Geodata API and Admin browser do not need the provider credential. The
+chart reads the API key from the Kubernetes Secret configured by
+`secrets.geodataEnrichment` (default `myota-geodata-enrichment`), key
+`api-key`. This Secret reference is optional: with no key, the worker remains
+available and records reverse geocoding as `NOT_CONFIGURED`.
+
+The non-secret Helm settings are:
+
+```yaml
+geodataWorker:
+  locationEnrichment:
+    reverseGeocodeUrl: https://api-bdc.net/data/reverse-geocode
+    localityLanguage: en
+    timeoutSeconds: '10'
+```
+
+`reverseGeocodeUrl` defaults to the server-side BigDataCloud
+`/data/reverse-geocode` endpoint; `localityLanguage` defaults to English and
+accepts ISO 639-1 language codes; `timeoutSeconds` defaults to 10. The worker
+rounds representative coordinates to five decimal places and sends the API key
+as the provider's `key` query parameter. Do not log or trace the full provider
+request URL. See BigDataCloud's [Reverse Geocoding to City API
+reference](https://www.bigdatacloud.com/geocoding-apis/reverse-geocode-to-city-api).
+
+Use the server-side API for stored entity coordinates. BigDataCloud's free
+client-side endpoint is limited to a user's current location obtained on that
+client; it must not be used for stored or batch coordinates. Review the
+provider's [fair-use guidance](https://www.bigdatacloud.com/docs/article/why-is-reverse-geocoding-api-free)
+and select an account plan/quota appropriate for the expected backfill volume.
+
+Provision the key from a permission-restricted file outside the repository or
+through the approved secret manager. For example:
+
+```sh
+kubectl -n myota-test create secret generic myota-geodata-enrichment \
+  --from-file=api-key=/secure/path/bigdatacloud-api-key \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+Do not use `--from-literal`, Helm `--set`, a checked-in values file, or a
+ConfigMap for the key. Use separate provider credentials and quota budgets for
+test and production. After creating or rotating the Secret, restart the
+`geodata-worker` Deployment so the process reads the new environment value.
+The API key is never sent to the browser. Keep asynchronous imports and
+backfills within the provider plan's monthly request allowance; failed lookups
+remain retryable and do not reject entity creation or promotion.
 
 ## When enrichment runs
 
@@ -127,7 +181,7 @@ The location fields were introduced by
 request and status metadata are stored in the entity's service-owned JSON
 properties; the asynchronous lifecycle adds no shared infrastructure table.
 
-## Configuration
+## Historical split-repository configuration
 
 For local development, put the server-side key in the ignored
 `myota-geodata-service/.env` file:
