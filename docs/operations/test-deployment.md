@@ -1,18 +1,18 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-26 22:31 UTC
+**Current verification:** 2026-10-26 23:38 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`6fc6454`](https://github.com/myota-platform/myota-next/commit/6fc64541f37fa01facf76ba268bc9837f2c71eff), path `deploy/fleet/myota-test`.
+[`c10df2f`](https://github.com/myota-platform/myota-next/commit/c10df2f22479a676318256c637d90d4f9eb89fd5), path `deploy/fleet/myota-test`.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 22:31 UTC
+## Current MyOTA Next rollout — 2026-10-26 23:38 UTC
 
 The protected rollout path installed the approved immutable images through
 Rancher's catalog operation. This closes the App ownership and recovery
@@ -22,35 +22,61 @@ remaining Phase 6 qualification work in
 
 - **Fleet source:** `fleet-local/myota-next-test` is Ready at
   `myota-test-deploy`, commit
-  [`6fc6454`](https://github.com/myota-platform/myota-next/commit/6fc64541f37fa01facf76ba268bc9837f2c71eff).
+  [`c10df2f`](https://github.com/myota-platform/myota-next/commit/c10df2f22479a676318256c637d90d4f9eb89fd5).
   `Reconciling=False` and `Stalled=False`.
-- **Rancher catalog:** The protected workflow recreated the missing App
-  metadata and installed chart `1.1.6-testing.6fc64541f37f.1` as Helm release
-  `myota-test`, revision 29, status `deployed`. After a rollback rehearsal,
-  the same chart is restored at revision 31 and status `deployed`.
+- **Rancher catalog:** The protected workflow installed chart
+  `1.1.6-testing.c10df2f22479.1` as Helm release `myota-test`, revision 32,
+  status
+  `deployed`. Fleet reports `Ready=True`, `Reconciling=False`, and
+  `Stalled=False` at the same commit.
 - **Immutable images:** Workflow
-  [40410227284](https://github.com/myota-platform/myota-next/actions/runs/40410227284)
-  verified all 15 chart-managed application Deployments ready at their
-  approved SHA-256 image digests. The release uses the merged `testing`
-  commit; no production release was changed.
+  [40420558153](https://github.com/myota-platform/myota-next/actions/runs/40420558153)
+  completed the protected Rancher catalog upgrade and verified the release.
+  All 15 chart-managed application Deployments are ready. The Activity worker
+  runs
+  `ghcr.io/myota-platform/myota-next-activity-worker@sha256:eb1e4bc419b2ee459e40734f99ce0465e9a3a824bb2751cc8564516e5e871411`.
+- **CI:** Node CI
+  [40420558220](https://github.com/myota-platform/myota-next/actions/runs/40420558220)
+  passed on merge commit `c10df2f`; this included the OSM PBF decoder setup,
+  dependency and source scans, migrations, unit/e2e tests, browser tests, and
+  builds. The testing image publication workflow
+  [40420558179](https://github.com/myota-platform/myota-next/actions/runs/40420558179)
+  also succeeded for the merge; the release change pinned the already
+  published Activity worker digest and did not rebuild application images.
 - **Public endpoints:**
   `https://myota-admin-test.spainip.es/`,
   `https://myota-participant-test.spainip.es/`, and API
   `https://myota-test.spainip.es/healthz` returned HTTP 200. The API root is
   not a web application and returns 404 by design.
-- **Testing image publication:** Workflow
-  [40410227270](https://github.com/myota-platform/myota-next/actions/runs/40410227270)
-  published changed images for commit `6fc6454`. Node CI for the merge also
-  passed in [workflow
-  40410227233](https://github.com/myota-platform/myota-next/actions/runs/40410227233).
+- **Activity worker image publication:** Workflow
+  [40419038331](https://github.com/myota-platform/myota-next/actions/runs/40419038331)
+  published the worker built from testing commit `8ac4b99`; the protected
+  rollout now pins its immutable digest. The digest-only promotion did not
+  rebuild application images.
 - **Email qualification:** Deployment SMTP success, TLS, failure/retry,
   deduplication, and notification outcomes are recorded under
   [issue #13](https://github.com/myota-platform/myota-next/issues/13), which
   is closed. The test deployment uses its Mailpit sink for synthetic email
   flows.
-- **Rollback rehearsal:** The previous catalog chart
-  `1.1.6-testing.0e4eb202bda2.1` was restored as revision 30, then the approved
-  chart above was re-applied as revision 31 by protected workflow
+- **Participant Activity journey:** A signed-in synthetic Participant used
+  the browser UI to upload a one-record ADIF file against an open activation.
+  Import `e5a1cc51-7542-47f2-989b-fdb55e9ff24b` completed with 1 record seen,
+  1 accepted, and 0 rejected. Activity PostgreSQL contains one `VALID` QSO
+  linked to that import, and the activation's QSO count is 1. This verifies a
+  successful browser-to-worker-to-database import path.
+- **ADIF terminal failure:** An earlier synthetic import used a QSO timestamp
+  before the activation start, so the fixture was invalid. That failure
+  exposed a real worker retry loop: retries were emitted as new JetStream
+  messages and the broker delivery count reset. The fix caps attempts using
+  durable job state and persists terminal import failure, one dead-letter, and
+  one deduplicated failure notification together. In the isolated deployment,
+  the invalid job ended `FAILED` at attempt 906, its import ended `FAILED` with
+  one rejected record, and one dead-letter plus one failure notification were
+  present. A 10-second follow-up query showed no additional attempts. The
+  separate valid import above passed afterward.
+- **Rollback rehearsal:** Catalog chart
+  `1.1.6-testing.0e4eb202bda2.1` was restored as revision 30, then chart
+  `1.1.6-testing.6fc64541f37f.1` was re-applied as revision 31 by workflow
   [40412857182](https://github.com/myota-platform/myota-next/actions/runs/40412857182).
   All 16 namespace Deployments were ready after restoration and the three
   public endpoints above returned HTTP 200. Revisions 29 and 30 had identical
@@ -89,9 +115,10 @@ recovery path.
   searched for a Participant, suspended and reactivated sign-in, and received
   API 403 plus UI denial for broader Identity administration. The temporary
   support account was anonymized, the test email was deleted, and the target
-  account was restored to `ACTIVE`. Activation, QSO, and ADIF journeys still
-  await programme-associated selectable entities; correlated telemetry and
-  audit evidence remain unqualified.
+  account was restored to `ACTIVE`. On revision 32, a Participant created and
+  used an activation, and the browser ADIF workflow completed with a persisted
+  valid QSO; see the evidence above. Correlated telemetry and audit evidence
+  remain unqualified, as do additional activation/QSO edit and closure cases.
 - [Issue #93](https://github.com/myota-platform/myota-next/issues/93): the
   catalog/Helm rollback path is exercised, but only between releases with the
   same values and image digests. Compatibility across changed code, image
