@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-26 22:12 UTC
+**Current verification:** 2026-10-26 22:23 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -39,8 +39,9 @@ remaining Phase 6 qualification work in
   not a web application and returns 404 by design.
 - **Testing image publication:** Workflow
   [40410227270](https://github.com/myota-platform/myota-next/actions/runs/40410227270)
-  published changed images for commit `6fc6454`. Node CI for the merge is
-  tracked in [workflow 40410227233](https://github.com/myota-platform/myota-next/actions/runs/40410227233).
+  published changed images for commit `6fc6454`. Node CI for the merge also
+  passed in [workflow
+  40410227233](https://github.com/myota-platform/myota-next/actions/runs/40410227233).
 - **Email qualification:** Deployment SMTP success, TLS, failure/retry,
   deduplication, and notification outcomes are recorded under
   [issue #13](https://github.com/myota-platform/myota-next/issues/13), which
@@ -71,13 +72,16 @@ recovery path.
   `@nestjs/observe` dependencies, root hooks, stable service IDs, and the
   no-credentials startup path are verified. Authenticated Observe credentials
   and delivery to an Observe destination are not configured or verified.
-- [Issue #91](https://github.com/myota-platform/myota-next/issues/91):
-  Participant registration/email verification and profile/callsign
-  persistence were previously recorded on an earlier test chart and must be
-  repeated on revision 29. Activation, QSO, and ADIF journeys await
-  programme-associated selectable entities. Deployed delegated Admin account
-  management, denial cases, and correlated telemetry also remain to be
-  qualified.
+- [Issue #91](https://github.com/myota-platform/myota-next/issues/91): on
+  revision 29, Participant sign-in, sign-out, profile persistence across a
+  fresh session, registration/email verification through Mailpit, and base
+  `PARTICIPANT` role assignment passed. A `PARTICIPANT_ADMIN` browser session
+  searched for a Participant, suspended and reactivated sign-in, and received
+  API 403 plus UI denial for broader Identity administration. The temporary
+  support account was anonymized, the test email was deleted, and the target
+  account was restored to `ACTIVE`. Activation, QSO, and ADIF journeys still
+  await programme-associated selectable entities; correlated telemetry and
+  audit evidence remain unqualified.
 - [Issue #93](https://github.com/myota-platform/myota-next/issues/93): rollback
   and compatibility with persisted database, object-store, and NATS work have
   not been exercised.
