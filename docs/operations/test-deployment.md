@@ -34,6 +34,17 @@ Do not count the newer values as deployed qualification evidence. Phase 6
 [issue #10](https://github.com/myota-platform/myota-next/issues/10) remains
 open until those deployment checks and the other launch gates pass.
 
+One candidate for #118 is a separate test-only Rancher `ClusterRepo` with its
+`serviceAccount` set to a uniquely named account that exists only in
+`myota-test`. Rancher 2.15.2's catalog upgrade implementation selects that
+account for the Helm operation when the setting is present
+([Rancher source](https://github.com/rancher/rancher/blob/v2.15.2/pkg/catalogv2/helmop/operation.go)).
+This may let an upgrade trigger use a namespace-scoped operation identity
+without exposing a cluster-admin kubeconfig to GitHub Actions. The design is
+not yet deployed or tested: API caller permissions, the operation account's
+exact resource grants, out-of-namespace denial, chart publication, and
+rollback still require verification.
+
 ## Current monorepo rollout — 2026-10-14 21:43 UTC
 
 | Check | Result |
