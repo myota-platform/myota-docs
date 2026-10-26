@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-26 23:38 UTC
+**Current verification:** 2026-10-26 23:45 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -12,7 +12,7 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 23:38 UTC
+## Current MyOTA Next rollout — 2026-10-26 23:45 UTC
 
 The protected rollout path installed the approved immutable images through
 Rancher's catalog operation. This closes the App ownership and recovery
@@ -74,6 +74,13 @@ remaining Phase 6 qualification work in
   one rejected record, and one dead-letter plus one failure notification were
   present. A 10-second follow-up query showed no additional attempts. The
   separate valid import above passed afterward.
+- **JetStream restart and redelivery:** A temporary file-backed stream held an
+  unacknowledged probe message while the single `myota-test-nats-0` pod was
+  deleted and recreated by its StatefulSet. The client reconnected and received
+  delivery 2 for the same message ID, acknowledged it, then observed zero
+  acknowledged-pending and zero queued messages. The probe deleted its durable
+  consumer and stream afterward. The replacement NATS pod returned to Ready
+  with its existing persistent volume.
 - **Rollback rehearsal:** Catalog chart
   `1.1.6-testing.0e4eb202bda2.1` was restored as revision 30, then chart
   `1.1.6-testing.6fc64541f37f.1` was re-applied as revision 31 by workflow
@@ -108,6 +115,12 @@ recovery path.
   `@nestjs/observe` dependencies, root hooks, stable service IDs, and the
   no-credentials startup path are verified. Authenticated Observe credentials
   and delivery to an Observe destination are not configured or verified.
+- [Issue #92](https://github.com/myota-platform/myota-next/issues/92): the
+  single-instance dependency restart paths are verified. JetStream redelivered
+  an unacknowledged message after pod recreation; the Activity worker's durable
+  attempt cap, terminal import failure, single dead-letter, and deduplicated
+  notification were verified alongside a successful ADIF import. HA and
+  multi-instance recovery are outside this Phase 6 scope.
 - [Issue #91](https://github.com/myota-platform/myota-next/issues/91): on
   revision 29, Participant sign-in, sign-out, profile persistence across a
   fresh session, registration/email verification through Mailpit, and base
