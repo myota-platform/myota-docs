@@ -15,6 +15,8 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
   baseline history, and verified rebuild records.
 - [Phase 6 fresh-database qualification](evidence/phase6-fresh-database-qualification-2026-10-26.md) — disposable-database migration and readiness evidence,
   including the new-volume follow-up.
+- [Phase 6 dependency-recovery qualification](evidence/phase6-dependency-recovery-qualification-2026-10-26.md) — deployed single-instance
+  NATS, PostgreSQL, and object-storage recovery evidence and limits.
 - [Production core setup](production-core.md)
 - [Storage operations](storage/README.md)
 - [Messaging and NATS](messaging/README.md)
