@@ -13,6 +13,9 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
   messaging procedures.
 - [Database migrations and recovery](databases/README.md) — schema ownership,
   baseline history, and verified rebuild records.
+- [PostgreSQL and object-storage backup/restore](database-object-backup-restore.md) —
+  encrypted operator procedure, disposable-data rehearsal, and remaining
+  RPO/retention decisions.
 - [Phase 6 fresh-database qualification](evidence/phase6-fresh-database-qualification-2026-10-26.md) — disposable-database migration and readiness evidence,
   including the new-volume follow-up.
 - [Phase 6 dependency-recovery qualification](evidence/phase6-dependency-recovery-qualification-2026-10-26.md) — deployed single-instance

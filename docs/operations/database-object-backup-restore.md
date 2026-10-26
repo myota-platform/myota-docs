@@ -1,0 +1,167 @@
+# PostgreSQL and object-storage backup and restore
+
+This runbook describes the current MyOTA Next backup tools and their Phase 6
+qualification limits. It does not configure a schedule or provide an off-node
+backup destination. Do not treat a local test archive as a production backup.
+
+Related work: [Phase 6 issue #10](https://github.com/myota-platform/myota-next/issues/10),
+[backup/restore qualification #89](https://github.com/myota-platform/myota-next/issues/89),
+and [fresh database setup #88](https://github.com/myota-platform/myota-next/issues/88).
+The object-storage utility is introduced in
+[myota-next PR #119](https://github.com/myota-platform/myota-next/pull/119).
+
+## Scope and consistency boundary
+
+The PostgreSQL tool backs up the three independent owner databases: Core,
+Activity, and Geodata. It writes one PostgreSQL custom-format dump per owner
+and a manifest with database names and SHA-256 checksums. Restore verifies the
+manifest, dump checksums, archive readability, target database names, and
+distinct owner targets before replacing database contents. Each owner restore
+uses one transaction. The three databases are not restored atomically as a
+group; a later owner failure does not undo an earlier successful restore.
+
+The object-storage tool backs up only the bucket names explicitly supplied in
+`MYOTA_BACKUP_BUCKETS`. It streams current objects into a local directory and
+records keys, sizes, SHA-256 checksums, content headers, user metadata, and
+object tags. It rejects versioned buckets because historical versions and
+delete markers are not included. It does not copy bucket policies, ACLs,
+lifecycle rules, or object-lock settings. Restore requires pre-created empty
+destination buckets and an explicit source-to-destination mapping; it never
+overwrites a non-empty bucket.
+
+Neither tool creates a coordinated point-in-time snapshot across services.
+Before a real recovery backup, put the deployment into a write-quiescent state:
+pause API writes and background work that can change database or object-store
+state, then keep that state until both backups finish. The object-store
+enumeration is not atomic while objects are changing. Resume writers only
+after verifying the archive. Record the backup completion time as the recovery
+point. Until an operator-selected frequency is configured, there is no
+guaranteed RPO.
+
+## Credentials and encrypted artifacts
+
+Load credentials only into the process environment from the secret store:
+
+- `CORE_DATABASE_URL`, `ACTIVITY_DATABASE_URL`, and `GEO_DATABASE_URL` come
+  from the database URL Secret used by the deployment.
+- `S3_ENDPOINT`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` come from the
+  object-storage configuration and Secret.
+- The `age` recipient used to encrypt an archive is public. Keep the matching
+  private identity in the operator secret store, separate from the archive.
+
+The tools do not put credentials into the dump or object manifest. The
+PostgreSQL dumps and object files are plaintext until encrypted. Create the
+working directory on a private encrypted filesystem, keep it mode `0700`,
+encrypt the completed archive immediately with `age`, and remove the plaintext
+working directory after checking the encrypted archive. Do not commit either
+the archive or a private age identity.
+
+Example structure; set credentials in the environment from the secret store
+before running it:
+
+```sh
+umask 077
+work_dir="$(mktemp -d)"
+archive_path="${work_dir}.tar.gz.age"
+
+npm run db:backup -- "${work_dir}/postgres"
+MYOTA_BACKUP_BUCKETS="${MYOTA_BACKUP_BUCKETS:?set the explicit bucket allowlist}" \
+  npm run object-store:backup -- "${work_dir}/objects"
+
+tar -C "${work_dir}" -czf - postgres objects \
+  | age -R "${AGE_RECIPIENT_FILE:?set the recipient file}" \
+      -o "${archive_path}"
+```
+
+The PostgreSQL tool requires PostgreSQL 16 client tools. Set `PG_DUMP_PATH`
+if `pg_dump` is not on `PATH`. Keep the tool output directory and generated
+timestamped database backup directory with the encrypted archive until its
+integrity check is complete.
+
+## Restore procedure
+
+1. Select an isolated restore target. For PostgreSQL, prepare three empty
+   databases whose names match the backup manifest and whose service endpoints
+   are distinct. For object storage, pre-create empty destination buckets.
+2. Decrypt into a private temporary directory. Keep the private identity
+   outside the archive:
+
+   ```sh
+   restore_dir="$(mktemp -d)"
+   age -d -i "${AGE_IDENTITY_FILE:?set the private identity path}" \
+     "${ARCHIVE_PATH:?set the encrypted archive path}" \
+     | tar -xz -C "${restore_dir}"
+   ```
+
+3. Inspect the PostgreSQL manifest, then restore to the isolated database
+   targets. The confirmation must exactly match the timestamped backup
+   directory name:
+
+   ```sh
+   MYOTA_RESTORE_CONFIRM="RESTORE ${POSTGRES_BACKUP_DIRECTORY_NAME}" \
+     npm run db:restore -- "${restore_dir}/postgres/${POSTGRES_BACKUP_DIRECTORY_NAME}"
+   ```
+
+4. Restore object data into the mapped, empty buckets. The confirmation must
+   exactly match the object backup directory's basename:
+
+   ```sh
+   MYOTA_RESTORE_BUCKET_MAP="${BUCKET_MAP_JSON:?map every source bucket to an empty target bucket}" \
+   MYOTA_RESTORE_CONFIRM="RESTORE objects" \
+     npm run object-store:restore -- "${restore_dir}/objects"
+   ```
+
+5. Compare the restored database rows and object checksums with the known
+   backup state. Before switching an application to restored buckets, update
+   its configured bucket names through the reviewed deployment process and
+   verify object references with the owning service.
+6. Remove temporary decrypted files after recording checksums and outcomes.
+
+The PostgreSQL restore command is destructive to its configured target
+databases, so never point it at a live deployment during a rehearsal. Object
+restore refuses non-empty targets. If an object restore fails partway through,
+discard and recreate only those disposable target buckets before repeating.
+
+## Current test evidence
+
+On 2026-10-26, the tools were rehearsed against disposable data on the isolated
+`myota-test` services. No live application database or existing object bucket
+was replaced.
+
+- Created one disposable database on each Core, Activity, and Geodata
+  PostgreSQL instance, inserted a marker row, and used the repository
+  `db:backup` tool with the test deployment's owner-database endpoints. All
+  three custom dumps had non-zero length and passed manifest checksum and
+  archive-list validation. An incorrect restore confirmation was rejected.
+- Mutated each marker, restored the three dumps twice with the repository
+  `db:restore` tool, and confirmed the original values were recovered through
+  the `myota_app` service credentials. One three-database restore took 1.32
+  seconds at this small fixture size. The disposable databases were dropped.
+- Created a separate disposable SeaweedFS source bucket and an empty restore
+  bucket. Backed up one synthetic object with a Unicode key, changed the
+  source object, restored the archive into the empty bucket, and verified its
+  bytes, SHA-256, content type, cache control, and user metadata. A separate
+  age-encrypted archive was decrypted for the restore rehearsal. Both buckets,
+  the object, archive, and temporary private age key were removed.
+- The current test workload deployments remained Ready, all five dependency
+  StatefulSets remained Ready, and all test PVCs remained Bound.
+
+This rehearsal demonstrates backup and restore mechanics on test services with
+disposable data. It does not restore a full application database, verify
+cross-service object references, measure realistic restore time, or demonstrate
+recovery after PVC loss.
+
+## Open operations decisions
+
+- Choose an off-node backup destination and verify it is isolated from the
+  source storage failure domain.
+- Define a schedule, retention window, encryption-key rotation and recovery
+  procedure, and an accepted RPO/RTO. No automated schedule or retention policy
+  is configured today.
+- Rehearse a full, quiesced service backup and restore, including database
+  references to objects, against an isolated target. Keep the source release
+  and its PVCs untouched.
+- Measure realistic database and object volumes. The synthetic restore timing
+  above is not an operational SLO.
+
+Track these remaining checks in [issue #89](https://github.com/myota-platform/myota-next/issues/89).
