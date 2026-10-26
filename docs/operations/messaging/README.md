@@ -19,6 +19,8 @@ The migration plan and phase records hold detailed decisions and verification.
 
 - [Asynchronous email delivery](email-delivery.md) — accepted request path,
   implementation status, privacy rules, and operator procedures.
+- [Outgoing email configuration](outgoing-email-configuration.md) — MyOTA Next
+  Helm settings, required Kubernetes Secrets, TLS trust, and deployment checks.
 - [Activity notification consumer](activity-notification-consumer.md) — exact
   fact filters, deduplication, retries, and audited redrive.
 - [Activity work queues](activity-work-queues.md) — six durable job kinds,

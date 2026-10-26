@@ -1,5 +1,11 @@
 # Asynchronous email delivery
 
+> **Current MyOTA Next configuration:** use the
+> [outgoing email configuration guide](outgoing-email-configuration.md) for
+> Helm values, Kubernetes Secret names and keys, SMTP TLS trust, and deployment
+> checks. This page retains the accepted architecture and historical workstream
+> record; snapshots below may predate the current monorepo implementation.
+
 This page records the accepted design and current implementation boundary for
 the email workstream. Runtime behavior is current only when merged and backed
 by the evidence below. PR [#89](https://github.com/myota-platform/myota/pull/89)
