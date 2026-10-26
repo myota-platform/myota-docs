@@ -155,8 +155,9 @@ recovery after PVC loss.
 
 A separate check used the existing `myota-test` owner databases and object
 buckets as sources. It did not replace or modify existing application records.
-The plaintext snapshots were kept under the ignored local
-`myota-next/runtime-secrets/` directory and were not committed.
+The temporary plaintext snapshots were kept under the ignored local
+`myota-next/runtime-secrets/` directory while the checks ran, then removed;
+they were not committed.
 
 - The object-store backup covered all six configured MyOTA buckets. The source
   inventory contained two objects (45,172,562 bytes total). The repository
