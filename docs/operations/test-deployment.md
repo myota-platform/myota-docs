@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-26 23:50 UTC
+**Current verification:** 2026-10-26 23:58 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -12,7 +12,7 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 23:50 UTC
+## Current MyOTA Next rollout — 2026-10-26 23:58 UTC
 
 The protected rollout path installed the approved immutable images through
 Rancher's catalog operation. This closes the App ownership and recovery
@@ -101,12 +101,16 @@ recovery path.
 
 ### Remaining Phase 6 gates
 
-- [Issue #88](https://github.com/myota-platform/myota-next/issues/88): scratch
-  databases were initialized from empty state, and migration locking and
-  database-owner isolation were checked. The installed release has since
-  restarted all application Deployments with owner-specific runtime
-  credentials. A clean, supported installation path using newly provisioned
-  database storage still needs evidence before this issue can close.
+- [Issue #88](https://github.com/myota-platform/myota-next/issues/88): a
+  disposable namespace with new 10/20/50 GiB PVCs was initialized through the
+  repository infrastructure and migration charts. The migration hook applied
+  21/5/7 Core/Activity/Geodata migrations and repeated them successfully on a
+  second Helm upgrade. The runtime-role isolation Job verified owner-only
+  access without reading rows. The namespace and PVCs were removed after the
+  run. This proves fresh-volume initialization and role setup, but the
+  NestJS APIs and workers were disabled in that scratch release; verify their
+  readiness against these newly initialized databases before closing #88. Full
+  procedure: [fresh-database evidence](evidence/phase6-fresh-database-qualification-2026-10-26.md).
 - [Issue #89](https://github.com/myota-platform/myota-next/issues/89): database
   and object-store snapshots were restored and integrity-checked. The
   repository PostgreSQL backup/restore wrapper also passed against newly

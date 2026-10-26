@@ -1,8 +1,9 @@
 # Phase 6 fresh-database qualification evidence — 2026-10-26
 
-This record covers migration and service-readiness checks for disposable databases
-in the isolated `myota-test` PostgreSQL instances. It does not claim that a new
-PostgreSQL PVC was initialized end to end.
+This record covers both disposable databases in the isolated `myota-test`
+PostgreSQL instances and a separate migration rehearsal on newly provisioned
+Core, Activity, and Geodata PVCs. The new-volume rehearsal did not start the
+NestJS APIs or workers against those databases.
 
 Related work: [myota-next issue #88](https://github.com/myota-platform/myota-next/issues/88),
 [Phase 6 issue #10](https://github.com/myota-platform/myota-next/issues/10), and
@@ -34,6 +35,36 @@ Related work: [myota-next issue #88](https://github.com/myota-platform/myota-nex
 The PostgreSQL/object-storage backup checks are recorded separately under
 [issue #89](https://github.com/myota-platform/myota-next/issues/89).
 
+## New PVC migration rehearsal — 2026-10-26 23:58 UTC
+
+- Created a separate `myota-issue10-fresh` namespace and installed the
+  repository's `myota-infrastructure` chart with newly provisioned 10 GiB,
+  20 GiB, and 50 GiB `local-path` PVCs for Core, Activity, and Geodata. The
+  PostgreSQL image was pinned to
+  `ghcr.io/myota-platform/myota-next-postgres@sha256:e1e22f4378280e67dc0c91493ef8fcdd421f1f37ae7c7f2af6bd860e093988b2`,
+  and PostGIS to
+  `ghcr.io/myota-platform/myota-next-postgis@sha256:fca1ef15923a2c45c84c3b758955bf73a024829a3fb92e99cfc6f8903338da0c`.
+  No existing `myota-test` database, PVC, or application was changed.
+- Installed the `myota-next` chart with its application components disabled
+  and the migration hook enabled. The normal pre-install migration Job used
+  tools image
+  `ghcr.io/myota-platform/myota-next-tools@sha256:b0167e81b787ef0e0a7eea1cbd0954020a02faebc8b3549ee91f864c7de1ea65`,
+  initialized the databases from empty volumes, and recorded 21 Core, 5
+  Activity, and 7 Geodata migrations.
+- Upgraded the migration-only Helm release to run the pre-upgrade hook again.
+  It completed and the three migration ledgers remained at 21/5/7.
+- Ran the deployed runtime-role-isolation utility in a temporary Job. It
+  verified the Core, Activity, and Geodata runtime roles can access only their
+  respective databases; cross-owner connections were denied. The check read no
+  application rows.
+- All three new PostgreSQL pods reached Ready. The temporary namespace and its
+  PVCs were deleted after verification; no scratch resources remain.
+
+The new-volume test verifies the database role-init scripts, Helm migration
+hooks, schema counts, repeat migration, and owner isolation on newly provisioned
+storage. It did not start the NestJS APIs or workers against these new databases.
+Verify application readiness on fresh storage before closing #88.
+
 ## Limitation and follow-up
 
 The disposable databases were created inside already initialized PostgreSQL
@@ -45,10 +76,10 @@ only, grants and default privileges were added to the three disposable databases
 Identity then became Ready. The manual grants and all scratch databases were
 removed afterward.
 
-This setup is not equivalent to a new PostgreSQL volume. Before closing #88,
-repeat the migration and readiness check using newly initialized test database
-volumes, allowing the normal PostgreSQL role-init script to create the app role
-and default grants. Keep the test release isolated and preserve all existing
+The earlier disposable-database setup is not equivalent to a new PostgreSQL
+volume. The new PVC rehearsal above now covers initial role setup and migrations;
+application API/worker readiness against those fresh databases remains a
+follow-up for #88. Keep the test release isolated and preserve all existing
 `myota-test` PVCs.
 
 ## Related deployment state
