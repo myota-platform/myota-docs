@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-26 22:23 UTC
+**Current verification:** 2026-10-26 22:31 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -12,7 +12,7 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 22:12 UTC
+## Current MyOTA Next rollout — 2026-10-26 22:31 UTC
 
 The protected rollout path installed the approved immutable images through
 Rancher's catalog operation. This closes the App ownership and recovery
@@ -26,7 +26,8 @@ remaining Phase 6 qualification work in
   `Reconciling=False` and `Stalled=False`.
 - **Rancher catalog:** The protected workflow recreated the missing App
   metadata and installed chart `1.1.6-testing.6fc64541f37f.1` as Helm release
-  `myota-test`, revision 29, status `deployed`.
+  `myota-test`, revision 29, status `deployed`. After a rollback rehearsal,
+  the same chart is restored at revision 31 and status `deployed`.
 - **Immutable images:** Workflow
   [40410227284](https://github.com/myota-platform/myota-next/actions/runs/40410227284)
   verified all 15 chart-managed application Deployments ready at their
@@ -47,6 +48,15 @@ remaining Phase 6 qualification work in
   [issue #13](https://github.com/myota-platform/myota-next/issues/13), which
   is closed. The test deployment uses its Mailpit sink for synthetic email
   flows.
+- **Rollback rehearsal:** The previous catalog chart
+  `1.1.6-testing.0e4eb202bda2.1` was restored as revision 30, then the approved
+  chart above was re-applied as revision 31 by protected workflow
+  [40412857182](https://github.com/myota-platform/myota-next/actions/runs/40412857182).
+  All 16 namespace Deployments were ready after restoration and the three
+  public endpoints above returned HTTP 200. Revisions 29 and 30 had identical
+  release values and all 15 rendered application Deployment images, so this
+  only verifies the catalog/Helm rollback path. It does not verify compatibility
+  across changed code, image digests, schemas, or persisted NATS work.
 
 The earlier failed workflow after PR #131 did not start a catalog operation and
 did not modify the then-current Helm release or persistent volumes. PR #132
@@ -82,9 +92,11 @@ recovery path.
   account was restored to `ACTIVE`. Activation, QSO, and ADIF journeys still
   await programme-associated selectable entities; correlated telemetry and
   audit evidence remain unqualified.
-- [Issue #93](https://github.com/myota-platform/myota-next/issues/93): rollback
-  and compatibility with persisted database, object-store, and NATS work have
-  not been exercised.
+- [Issue #93](https://github.com/myota-platform/myota-next/issues/93): the
+  catalog/Helm rollback path is exercised, but only between releases with the
+  same values and image digests. Compatibility across changed code, image
+  digests, schemas, and persisted database, object-store, or NATS work remains
+  unqualified.
 
 These are qualification gaps, not evidence that the deployment failed. Keep
 issue #10 open until its exit criteria pass or each residual limitation has an
