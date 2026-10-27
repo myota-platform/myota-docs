@@ -59,6 +59,31 @@ The API key is never sent to the browser. Keep asynchronous imports and
 backfills within the provider plan's monthly request allowance; failed lookups
 remain retryable and do not reject entity creation or promotion.
 
+## MyOTA Next test deployment status — 2026-10-27
+
+The lifecycle enrichment and Admin catalogue backfill are present in the
+monorepo. The Admin action scans all entities matching the current filters,
+queues an asynchronous per-entity request only for records with missing
+provider-managed fields and usable geometry, and reports queued, skipped, and
+failed counts. The implementation is in
+[`myota-next` commit `0d2874c`](https://github.com/myota-platform/myota-next/commit/0d2874ca91bc3ed3a59490ab783b17859f60b3a9).
+
+The isolated test deployment was upgraded successfully by
+[workflow run 40542812965](https://github.com/myota-platform/myota-next/actions/runs/40542812965):
+Helm revision 54, chart `myota-next-1.1.6-testing.932925b8fdd4.1`, app version
+`testing-f767c84`. The Admin Web is ready at 1/1 replicas on immutable image
+`ghcr.io/myota-platform/myota-next-admin-web@sha256:c47e84eff92ed698e8dc912b0a326bcbb1ca691faf02d4de8b9cbf9c0f4bb49b`;
+the Geodata worker is ready at 1/1 on
+`ghcr.io/myota-platform/myota-next-geodata-worker@sha256:2a97a8cdb00abc695174c0d24ba0b79fe807c92915d6deb6a8400a06d76c4af1`.
+The chart renders the optional `myota-geodata-enrichment` / `api-key`
+reference only into the worker. That Secret is absent in `myota-test`, and the
+worker remains ready. Therefore this deployment verifies configuration and
+no-key availability, but not provider-backed enrichment or a live Admin
+backfill. Those remain open under
+[myota-next #110](https://github.com/myota-platform/myota-next/issues/110),
+[#111](https://github.com/myota-platform/myota-next/issues/111), and
+[#112](https://github.com/myota-platform/myota-next/issues/112).
+
 ## When enrichment runs
 
 The entity lifecycle is the source of truth for timing:
