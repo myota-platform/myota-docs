@@ -36,6 +36,14 @@ asset, or PDF record was written by the preview request.
   `testing` as `5519181f`; its Node CI and image-build/scan checks passed.
 - [PR #144](https://github.com/myota-platform/myota-next/pull/144) pins the
   award test images by digest and merged to `testing` as `5ed913ce`.
+- [PR #160](https://github.com/myota-platform/myota-next/pull/160) adds a
+  published-edit scope-denial service test and Admin browser coverage for
+  validation and stale-version conflict feedback. It merged as `1d54a05` after
+  Node CI and all image-build/scan checks passed.
+- Post-merge Node CI and the testing image-source workflow passed. No application
+  image changed: the Helm release remained at chart `myota-next-1.1.6-testing.458de92a1f78.1`,
+  app `testing-33f10fe`, revision 43. All 16 deployments remained ready, and
+  `/healthz` and `/readyz` returned HTTP 200.
 - The Activity compatibility tests cover published-version creation, stale
   version conflicts, Award Text validation, backwards-compatible empty text,
   supported print profiles, and source-resolution readiness.
@@ -51,8 +59,10 @@ asset, or PDF record was written by the preview request.
 
 ## Remaining evidence gaps
 
-- Add direct API authorization-denial coverage and browser feedback coverage for
-  invalid and conflicting published-version edits before closing issue #105.
+- Add an HTTP-level authorization-denial test for the published-edit endpoint;
+  PR #160 currently proves scope denial at the Activity service boundary.
+- Verify a saved award revision and print-ready publication against the deployed
+  test service using a sufficiently detailed background.
 - The currently deployed low-resolution asset cannot verify successful
   publication. A suitable high-resolution source is needed for a live
   `myota-test` publication and print-readiness check.
