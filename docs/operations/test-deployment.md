@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 07:37 UTC
+**Current verification:** 2026-10-27 07:41 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -82,7 +82,7 @@ issues, [#91](https://github.com/myota-platform/myota-next/issues/91), and
 until the remaining expiry, conflict, delivery-failure, and broader workflow
 acceptance criteria are verified.
 
-## Participant session, profile, and data-scope recheck — 2026-10-27 07:37 UTC
+## Participant session, profile, and history recheck — 2026-10-27 07:41 UTC
 
 - Rechecked the live Participant page on Helm revision 42, chart
   `myota-next-1.1.6-testing.04fccdd32a98.1`. The release had all 16 Deployments
@@ -105,13 +105,20 @@ acceptance criteria are verified.
   persisted. The original profile values were then restored and confirmed after
   another reload. Two callsign rows rendered in the self-service workspace;
   this check did not alter them.
+- The authenticated activation-list request returned five own-activation
+  summaries with matching status/QSO-count displays. Direct detail requests for
+  those same activation IDs returned HTTP 403; the current Participant page
+  shows summaries and has no detail view. This is recorded as a missing
+  detailed-history capability in child issue
+  [#154](https://github.com/myota-platform/myota-next/issues/154), rather than
+  being described as an unexpected failure of an existing UI action.
 
 This verifies public discovery, basic keyboard use, responsive width, profile
 save/persistence/restoration, and denial of out-of-scope account/activity reads
 for this session. It does not requalify callsign mutations or the activation,
 QSO, and ADIF workflows on revision 42. The remaining Participant and Admin
 workflow criteria in [#91](https://github.com/myota-platform/myota-next/issues/91),
-including telemetry correlation, remain open.
+including telemetry correlation and detailed activity history, remain open.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
