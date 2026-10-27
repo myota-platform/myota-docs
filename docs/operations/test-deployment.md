@@ -19,14 +19,16 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 | Testing CI and publication | Node CI [run 40445095599](https://github.com/myota-platform/myota-next/actions/runs/40445095599), changed-image publication [run 40445095579](https://github.com/myota-platform/myota-next/actions/runs/40445095579), and Rancher catalog upgrade [run 40445095573](https://github.com/myota-platform/myota-next/actions/runs/40445095573) completed successfully for `testing` commit `5ed913c`. |
 | Fleet and Helm | Fleet GitRepo `myota-next-test` reports commit `5ed913cee4117433e3aa149edc9da64b21f10fa9` and 1/1 ready bundle. Helm release `myota-test` is `deployed` at revision 38, chart `myota-next-1.1.6-testing.5ed913cee411.1`, with description `Upgrade complete`. |
 | Workloads and web endpoints | All 16 Deployments have their desired replicas ready. `https://myota-admin-test.spainip.es/` and `https://myota-participant-test.spainip.es/` both return HTTP 200 over TLS. |
+| Admin sign-in | One authenticated browser session received HTTP 200 from login and current-session APIs, returned the `GLOBAL_OPERATOR` role, and reached `/dashboard` with the Overview heading. This confirms access to the landing page only; Admin award workflows were not exercised after the current image update. |
 | Participant sign-in and public data | A browser session received HTTP 200 from the login and current-session APIs, showed only the `PARTICIPANT` role, and loaded the public entity catalogue and the account's activation history. Credentials and personal email were not recorded. |
 | Participant activation and QSO | Using the synthetic Phase 6 entity, the activation API returned 201, QSO creation returned 201, and close returned 200. The closed activation with its QSO remained visible after sign-out and a fresh sign-in. This verifies this one synthetic workflow only; it does not qualify profile/callsign edits or participant data isolation. |
-| ADIF import | Not yet qualified. The live upload attempt stopped before submission because no open activation remained; subsequent sign-in attempts were temporarily rate-limited. No ADIF import outcome is claimed. Retry after the limit clears with a fresh synthetic activation. |
-| Remaining Phase 6 evidence | Admin workflows, ADIF terminal outcomes, profile/callsign changes, Observe credentialed reporting, correlated telemetry, dependency recovery, and end-to-end recovery evidence remain open under [myota-next #10](https://github.com/myota-platform/myota-next/issues/10) and [#91](https://github.com/myota-platform/myota-next/issues/91). |
+| ADIF import | Successful browser-to-worker import and terminal failure paths were qualified on earlier `myota-test` revisions (see the Activity and Participant evidence below). They have not been rerun after the current award-related Activity image update. A fresh upload probe stopped before submission because the previous activation had been closed; subsequent sign-in attempts were temporarily rate-limited. |
+| Remaining Phase 6 evidence | Admin award editing/print workflows after the current image update, credentialed Observe delivery, correlated telemetry for the current journeys, and the documented database/object-storage recovery limitations remain open under [myota-next #10](https://github.com/myota-platform/myota-next/issues/10) and [#91](https://github.com/myota-platform/myota-next/issues/91). Earlier participant profile/callsign and single-instance JetStream recovery evidence is recorded below. |
 
 The three successful Actions runs establish build publication and the chart
-upgrade, while the browser checks establish only the Participant path above.
-They do not complete Phase 6 readiness or authorize production cutover.
+upgrade. The new browser checks above verify the post-upgrade sign-in, public
+catalogue, activation, and QSO path. They do not complete Phase 6 readiness or
+authorize production cutover.
 
 ## Activity worker rollback qualification — 2026-10-27 02:34 UTC
 
