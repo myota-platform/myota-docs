@@ -107,13 +107,17 @@ recovery path.
   21/5/7 Core/Activity/Geodata migrations and repeated them successfully on a
   second Helm upgrade. The runtime-role isolation Job verified owner-only
   access without reading rows. A later isolated Helm release started all API
-  and browser Deployments against fresh PVCs: all 8 Deployments and all 13
-  application replicas were available, as were all 3 PostgreSQL pods. Gateway
-  `/healthz` and
-  `/readyz` both returned HTTP 200. NATS-backed workers, SMTP and ingress were
-  disabled in this check, leaving worker readiness as a follow-up before
-  closing #88. Both temporary namespaces and their PVCs were removed. Full
-  procedure: [fresh-database evidence](evidence/phase6-fresh-database-qualification-2026-10-26.md).
+  and browser Deployments plus Activity/Geodata/outbox/email workers against
+  fresh PVCs: all 15 Deployments and 20 application replicas were available;
+  all 3 PostgreSQL pods and the isolated JetStream pod were healthy. The
+  provisioner validated four streams and eleven durables. Gateway `/healthz`
+  and `/readyz` returned HTTP 200. The runtime-role-isolation tool also passed
+  against the current `myota-test` database URLs, denying all six cross-owner
+  credential attempts without reading application rows. Ingress was disabled,
+  SMTP delivery was not exercised in this scratch release, and the optional
+  Geodata source importer remained disabled. Both temporary namespaces and
+  their PVCs were removed. Full procedure:
+  [fresh-database evidence](evidence/phase6-fresh-database-qualification-2026-10-26.md).
 - [Issue #89](https://github.com/myota-platform/myota-next/issues/89): database
   and object-store snapshots were restored and integrity-checked. The
   repository PostgreSQL backup/restore wrapper also passed against newly

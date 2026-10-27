@@ -84,30 +84,66 @@ release isolated and preserve all existing `myota-test` PVCs.
 
 ## Fresh-database application readiness — 2026-10-27
 
-- Recreated a temporary namespace with new Core, Activity, and Geodata PVCs
-  and deployed the current `myota-test` immutable application image digests
-  through the repository Helm chart. Migration hooks initialized each database
-  from empty storage; the migration ledgers contained 21 Core, 5 Activity, and
-  7 Geodata migrations.
-- Started the Gateway, Identity, Identity maintenance, Programmes, Activity,
-  Geodata, Admin web, and Participant web workloads. All 8 Deployments had all
-  13 desired application replicas available, and all 3 PostgreSQL pods were
-  ready (16/16 pods total), with no restarts at verification time. The
-  isolated Gateway returned HTTP
-  200 with `status: ok` from `/healthz` and HTTP 200 with `status: ready` from
-  `/readyz` through a temporary local port-forward.
-- Ingress was disabled. Activity and Geodata workers, notification delivery,
-  email delivery, and the three outbox workers were disabled, so this did not
-  verify NATS-backed work consumption or worker readiness on the fresh
-  databases. The first chart revision briefly created outbox pods without the
-  NATS Secret; the corrected second revision disabled those workers and
-  reached the ready state recorded above. The temporary namespace, Helm
-  releases, PVCs, and port-forward were removed. The persistent `myota-test`
-  release and its data were untouched.
+- The image baseline was the live `myota-test` Helm release, chart
+  `myota-next-1.1.6-testing.c10df2f22479.1`, revision 32, status `deployed`.
+  The temporary app release used the immutable image values captured from that
+  release. The relevant chart directories in the checkout matched
+  `origin/testing` at qualification time. Its 14 application image digests
+  were:
 
-This closes only the fresh-database API and browser readiness portion. Keep
-the worker-readiness task in #88 open until the NATS-backed workers have been
-verified against fresh storage.
+  - `activity`: `ec1628d3f27034359a21f273b480d8a4f724edc59dfc87f50f11d973a3f0b019`
+  - `activity-notifications`: `62575d4b7132071755fcad311d9887f1157e807f935e4dc3fc3d22471bc3dd78`
+  - `activity-worker`: `eb1e4bc419b2ee459e40734f99ce0465e9a3a824bb2751cc8564516e5e871411`
+  - `admin-web`: `b92eb97b09bc91b47cbeb09340536e3aa97115d0f65428e0418759a985192a90`
+  - `email-worker`: `ac010dda6dad59b65a9df932cf212c5200d352a3e880a21e93c7040f18fa8141`
+  - `gateway`: `3efad20c67882d0aba3975f42372f5f50882dbb5433367cc423ae058c1194778`
+  - `geodata`: `20a08a24ab0b30622a42358113e9e9e73247766b65f4f0e8db8c67692bcda252`
+  - `geodata-importer`: `09fd8c74466ec7c56fb11d044901ceadbc7c260157c5104d562a66041f7045c4`
+  - `geodata-worker`: `a4ce4f04aa79097e995eefddd5d4ee63013034c0ce60ad023a3c0d61aa08300f`
+  - `identity`: `4e053a54daf9f36a3567d0e700c61131e01fa1d4ec4297a3d13af687743bade9`
+  - `identity-maintenance`: `047c24e5af50a345dec336ec3f9960af643421056b55062a14da8ad192dba70f`
+  - `outbox-worker`: `1782c25b138c3fb89912531e20f799bfd3a353e38fa24ad2df4643a91c03c814`
+  - `participant-web`: `8777645271f6d0382d3281660918a233c023184735a6a5cc16be4b53f6a8e101`
+  - `programmes`: `c2188951f407c224f9cc99164657bdb4aba0c6ea1771323705680422685d599d`
+
+- Recreated the temporary namespace with new Core, Activity, and Geodata PVCs
+  (10/20/50 GiB) and installed the repository infrastructure and application
+  charts. PostgreSQL and PostGIS used the pinned images recorded above in the
+  2026-10-26 procedure; the tools image was
+  `ghcr.io/myota-platform/myota-next-tools@sha256:b0167e81b787ef0e0a7eea1cbd0954020a02faebc8b3549ee91f864c7de1ea65`.
+  Migration hooks initialized the databases from empty storage; direct ledger
+  queries returned 21 Core, 5 Activity, and 7 Geodata migrations.
+- Installed a separate NATS 2.11.8 / Helm chart 1.3.12 instance with an 8 GiB
+  JetStream PVC and 6 GiB store cap. The provisioner validated all 4 streams
+  and all 11 configured durable consumers. The initial 512 MiB scratch-store
+  cap was too small for the reviewed stream limits; after correcting it to
+  6 GiB, the provisioner completed successfully. No live NATS stream was used.
+- Started all launch-profile APIs, browser applications, and enabled workers:
+  15 Deployments and all 20 desired replicas were available. This included
+  Activity and Geodata workers, Activity notifications, all 3 outbox workers,
+  and the email worker configured with the test SMTP sink and its CA Secret.
+  PostgreSQL (3 pods) and NATS (1 pod, 2 ready containers) were healthy. No
+  running pod had a restart or readiness failure in the final check. The
+  Geodata source importer remained disabled as in the test profile. SMTP
+  delivery itself remains covered separately by #13.
+- The Gateway returned HTTP 200 with `status: ok` from `/healthz` and HTTP 200
+  with `status: ready` from `/readyz` through a temporary local port-forward.
+  Ingress was disabled. The workers used the fresh NATS instance; object
+  storage pointed at the existing test SeaweedFS service, but no messages were
+  available for processing and no object operation was performed.
+- The runtime-role-isolation tool passed against the new databases and was
+  rerun against the current `myota-test` database URLs: each owner credential
+  passed its own database checks, all six cross-owner attempts were denied,
+  and no application rows were read. The test deployment was at chart revision
+  32 with 21/21 application replicas available after the check.
+- Removed the temporary namespace, its PostgreSQL and NATS PVCs, and the
+  read-only role-check Job in `myota-test`. The persistent test release and its
+  data were not changed.
+
+This completes the fresh-volume initialization, runtime-role isolation, and
+API/worker readiness checks for #88. It does not qualify application workflows
+on these temporary databases, SMTP delivery from this temporary release,
+object-store recovery, or the remaining #10 observability and rollback gates.
 
 ## Related deployment state
 
