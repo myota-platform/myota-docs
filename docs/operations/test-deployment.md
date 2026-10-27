@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 07:35 UTC
+**Current verification:** 2026-10-27 07:37 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -82,7 +82,7 @@ issues, [#91](https://github.com/myota-platform/myota-next/issues/91), and
 until the remaining expiry, conflict, delivery-failure, and broader workflow
 acceptance criteria are verified.
 
-## Participant responsive, keyboard, and data-scope recheck — 2026-10-27 07:35 UTC
+## Participant session, profile, and data-scope recheck — 2026-10-27 07:37 UTC
 
 - Rechecked the live Participant page on Helm revision 42, chart
   `myota-next-1.1.6-testing.04fccdd32a98.1`. The release had all 16 Deployments
@@ -98,14 +98,20 @@ acceptance criteria are verified.
   browser errors.
 - At viewport sizes 390×844 and 1280×800, the page had no horizontal overflow.
   Authenticated requests for an unrelated account UUID and its activations both
-  returned HTTP 403. No account or activation data was changed.
+  returned HTTP 403. No account or activation data was changed during this
+  access-scope check.
+- In a separate profile check at 390×844, the signed-in Participant saved a
+  temporary website and biography, reloaded the page, and confirmed both values
+  persisted. The original profile values were then restored and confirmed after
+  another reload. Two callsign rows rendered in the self-service workspace;
+  this check did not alter them.
 
-This verifies public discovery, basic keyboard use, responsive width, and
-denial of out-of-scope account/activity reads for this session. It does not
-requalify profile/callsign mutations or the activation, QSO, and ADIF workflows
-on revision 42. The remaining Participant and Admin workflow criteria in
-[#91](https://github.com/myota-platform/myota-next/issues/91), including
-telemetry correlation, remain open.
+This verifies public discovery, basic keyboard use, responsive width, profile
+save/persistence/restoration, and denial of out-of-scope account/activity reads
+for this session. It does not requalify callsign mutations or the activation,
+QSO, and ADIF workflows on revision 42. The remaining Participant and Admin
+workflow criteria in [#91](https://github.com/myota-platform/myota-next/issues/91),
+including telemetry correlation, remain open.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
