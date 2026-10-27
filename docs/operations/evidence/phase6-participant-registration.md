@@ -95,3 +95,55 @@ This verifies the browser-to-API path for manual QSO entry, activation closure,
 and persistence across a fresh session. That activation is now closed. QSO
 correction/edit behavior and correlated logs, metrics, traces, and audit
 evidence remain open under #91.
+
+## Fresh-account profile, callsign, activation, QSO, and ADIF qualification — 2026-10-27
+
+This follow-up used a fresh synthetic Participant because an older local test
+credential no longer authenticated. The fresh account was registered and
+email-verified through the deployed Participant web and the test Mailpit SMTP
+sink. Its generated credential remains in the ignored local `runtime-secrets/`
+directory and is not included here.
+
+The isolated release was Helm `myota-test`, chart
+`myota-next-1.1.6-testing.458de92a1f78.1`, app version `testing-33f10fe`,
+revision 43. All 15 application Deployments were ready at the check; the
+release's `/healthz` and `/readyz`, Participant web, and Admin web returned
+HTTP 200. The relevant immutable images were:
+
+- Identity: `sha256:e9904e04ca1227af302be100e7090500be4b5ef8499aeadcf84e5ad78a8b04b0`.
+- Activity API: `sha256:88039880a117dc4d0fba5ba08f8958521ab7e0bc3ec6fee0fc2fb79b009e0fb9`.
+- Activity worker: `sha256:74cd1cb279a078451e0172690f6b434c72bbd0b4795abf2245fb50f37060d151`.
+- Participant web: `sha256:a324b3d01fa9edbe7463215e55d7eb11f1eea3bc64394fc38cca070765755623`.
+
+The browser ran at 390×844. The Participant added a synthetic callsign and
+submitted evidence explicitly marked as a test fixture. An Admin reviewed and
+verified that callsign through the Admin identity UI so the Participant could
+exercise programme rules that require a verified callsign. This synthetic
+fixture does not represent verification of a real operator's callsign.
+
+The Participant then completed these deployed journeys:
+
+- Signed in with Enter, edited the synthetic profile, saved it with Enter, and
+  confirmed the website and biography remained after reloading the browser.
+- Started and closed an activation after recording two manual QSOs. The API
+  returned `CLOSED`, `ruleEvaluation.valid=true`, and a count of two.
+- Started another activation, uploaded a one-record ADIF file, and observed the
+  terminal import result `COMPLETED`, one accepted, and zero rejected. After a
+  manual QSO, this activation also closed with `ruleEvaluation.valid=true` and
+  two QSOs, one from ADIF and one manual.
+- Re-read both activation records and the ADIF import through the authenticated
+  Activity API. Both records persisted with no rule violations, and the import
+  returned HTTP 200 with no errors.
+
+The generated verification email was deleted from Mailpit after use. The
+synthetic Participant, callsign, evidence, activations, and QSOs remain in the
+isolated test database for further qualification. The earlier unrelated failed
+ADIF import remains test data and is not counted as a passing result.
+
+This closes the deployed minimum Participant self-service journey for #96,
+including mobile-sized and keyboard use. Cross-participant detail isolation is
+also covered by [activation-history evidence][activation-history]. Observe
+telemetry delivery, complete Phase 6 observability, and the broader Admin
+readiness journey remain open under #91 and #10.
+
+[activation-history]: https://github.com/myota-platform/myota-docs/blob/main/docs/operations/evidence/phase6-participant-activation-history-2026-10-27.md
