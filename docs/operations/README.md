@@ -32,6 +32,8 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
 - [Participant password recovery qualification](evidence/phase6-participant-password-recovery-2026-10-27.md) —
   deployed email delivery, successful password reset, credential revocation,
   and remaining security checks.
+- [Participant email-change qualification](evidence/phase6-participant-email-change-2026-10-27.md) —
+  deployed token replay denial, two-address delivery, and UI cancellation.
 - [Dependency-recovery qualification][phase6-dependency-recovery] —
   deployed single-instance
   NATS, PostgreSQL, and object-storage recovery evidence and limits.

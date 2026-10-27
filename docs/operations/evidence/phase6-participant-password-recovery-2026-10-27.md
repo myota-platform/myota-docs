@@ -26,8 +26,10 @@ and overall qualification [#10](https://github.com/myota-platform/myota-next/iss
   with HTTP 403; the old refresh credential was also denied with HTTP 403.
 - Signed in successfully with the temporary new password, then reset the
   account back to its original password and verified that sign-in succeeded.
-- Deleted the two generated Mailpit messages. No password, token, message body,
-  or account identifier is recorded in this document.
+- Removed all five reset emails generated across the live reset and Participant
+  UI checks. The two older verification messages already in Mailpit were
+  preserved. No password, token, message body, or account identifier is
+  recorded in this document.
 
 ## Limits and remaining work
 
