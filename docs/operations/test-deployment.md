@@ -47,6 +47,24 @@ path `deploy/fleet/myota-test`.
   passed its pre-merge checks; this post-merge issue remains outside the
   telemetry rollout.
 
+## Local Observe SDK integration check
+
+PR [#180](https://github.com/myota-platform/myota-next/pull/180) adds an
+integration test that runs the real `@nestjs/observe` agent against an
+ephemeral loopback collector. It verifies gzip delivery to the telemetry
+ingest path, test-only authentication headers, service ID/version, an HTTP
+trace, and a forwarded log line correlated to that trace ID. A second case
+verifies the app starts and serves requests without credentials while sending
+no telemetry. The local full suite and repository checks passed before the PR
+was opened; required GitHub checks are pending.
+
+This test validates Nest integration and the SDK transport contract only. It
+does not represent the deployed `myota-test` service, a real Observe account,
+or delivery to a production dashboard. The `myota-observe` Secret and approved
+destination remain unconfigured, so live telemetry and workflow correlation
+remain open under [#90](https://github.com/myota-platform/myota-next/issues/90)
+and [#91](https://github.com/myota-platform/myota-next/issues/91).
+
 ## Current deployment and failed-upgrade recovery rollout — 2026-10-27 14:05 UTC
 
 - Rollback PR [#166](https://github.com/myota-platform/myota-next/pull/166)
