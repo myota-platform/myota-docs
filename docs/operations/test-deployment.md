@@ -1,11 +1,43 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 04:07 UTC
+**Current verification:** 2026-10-27 05:02 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`5ed913c`](https://github.com/myota-platform/myota-next/commit/5ed913cee4117433e3aa149edc9da64b21f10fa9), path `deploy/fleet/myota-test`.
+[`5459f7b`](https://github.com/myota-platform/myota-next/commit/5459f7bce4e9f06885474a9aa16d9bea5dcd01f0), path `deploy/fleet/myota-test`.
+
+## Participant session recovery requalification — 2026-10-27 05:02 UTC
+
+- PR [#147](https://github.com/myota-platform/myota-next/pull/147) merged to
+  `testing` as [`5459f7b`](https://github.com/myota-platform/myota-next/commit/5459f7bce4e9f06885474a9aa16d9bea5dcd01f0).
+  Node CI [run 40451972265](https://github.com/myota-platform/myota-next/actions/runs/40451972265)
+  passed all 76 browser tests; the image build and scan workflow
+  [40451972266](https://github.com/myota-platform/myota-next/actions/runs/40451972266)
+  passed all image jobs. Feature builds did not publish release images.
+- Protected Rancher deployment
+  [run 40452607084](https://github.com/myota-platform/myota-next/actions/runs/40452607084)
+  succeeded. Fleet is Ready at commit `5459f7b`; Helm release `myota-test` is
+  deployed at revision 39, chart `myota-next-1.1.6-testing.5459f7bce4e9.1`,
+  app version `testing-917efb2d8abb6144d92b72cf38290e619ce7b8ba`.
+- All 16 Deployments are ready (21/21 replicas). The Participant Web runs
+  immutable image
+  `ghcr.io/myota-platform/myota-next-participant-web@sha256:b748c37054d3563d371207300ced4251f419c274194f050b096a16ecba739959`
+  with 1/1 replicas ready. Admin and Participant HTTPS roots and Gateway
+  `/healthz` and `/readyz` returned HTTP 200.
+- A browser signed in to the synthetic Participant account and signed out
+  successfully. After replacing browser storage with deliberately invalid
+  access and refresh tokens, the live API rejected both, the UI returned to
+  sign-in with “Your session has expired. Please sign in again to continue.”,
+  the private profile stayed hidden, and both stored tokens were cleared.
+  Credential values and account email were not recorded.
+- The post-merge CI rerun fixed a transient callsign-workflow test race by
+  waiting for a temporarily disabled control to become enabled before keyboard
+  focus. The application behavior did not require a change in this follow-up.
+
+This requalifies Participant session recovery on the deployed image. Other
+Participant and Admin workflow evidence and remaining Phase 6 gaps remain
+tracked below; this does not complete [myota-next #10](https://github.com/myota-platform/myota-next/issues/10).
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
