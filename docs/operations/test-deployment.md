@@ -1,12 +1,45 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 14:05 UTC
+**Current verification:** 2026-10-27 16:14 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`95e8342`](https://github.com/myota-platform/myota-next/commit/95e8342a90bd604b07b86a03e18826ab67555e68),
+[`a289b15`](https://github.com/myota-platform/myota-next/commit/a289b159951f854c965dd2f2ff7282980bdc9363),
 path `deploy/fleet/myota-test`.
+
+## Worker telemetry rollout — 2026-10-27 16:14 UTC
+
+- Telemetry implementation PR [#175](https://github.com/myota-platform/myota-next/pull/175)
+  merged to `testing` at [`0e1e1fb`](https://github.com/myota-platform/myota-next/commit/0e1e1fbe7ce29479804de754d70b113b34ce96ed).
+  Promotion PR [#176](https://github.com/myota-platform/myota-next/pull/176)
+  merged to `main` at [`9e12cec`](https://github.com/myota-platform/myota-next/commit/9e12cecadc668730852b3d342dfa88a532534242).
+- The first chart upgrade still referenced the prior worker image digests and
+  Prometheus returned HTTP 404 for both new `/metrics` targets. PR
+  [#177](https://github.com/myota-platform/myota-next/pull/177) updated the
+  approved immutable digests and merged to `testing` at
+  [`a289b15`](https://github.com/myota-platform/myota-next/commit/a289b159951f854c965dd2f2ff7282980bdc9363).
+- Protected Rancher deployment
+  [run 40538003299](https://github.com/myota-platform/myota-next/actions/runs/40538003299)
+  succeeded. Fleet is Ready at `a289b15`; Helm release `myota-test` is
+  deployed at revision 53 with chart
+  `myota-next-1.1.6-testing.a289b159951f.1` and app version `testing-0e1e1fb`.
+  All 15 chart-managed Deployments are ready (20/20 replicas).
+- Activity worker is pinned to
+  `ghcr.io/myota-platform/myota-next-activity-worker@sha256:3d2042ec04b3272899da1e8e569e2bf10c7b9a9f2bbd2276df212ac83c197506`;
+  Geodata worker is pinned to
+  `ghcr.io/myota-platform/myota-next-geodata-worker@sha256:2a97a8cdb00abc695174c0d24ba0b79fe807c92915d6deb6a8400a06d76c4af1`.
+  Both Deployments are ready at 1/1 replicas.
+- In-cluster Prometheus reports both new worker targets `up=1` and four
+  `myota_worker_dependency_up` series, covering NATS and PostgreSQL for both
+  workers. No work-total or duration series exist yet because no work was
+  settled after this rollout; this verifies scraping and dependency gauges,
+  not worker processing outcomes.
+- Gateway `/healthz`, the Admin Web root, and the Participant Web root returned
+  HTTP 200. This deployment still has no `myota-observe` Secret or approved
+  Observe destination, so authenticated Observe delivery and log/trace
+  correlation remain unverified. Do not mark issue #10 complete on this
+  evidence alone.
 
 ## Current deployment and failed-upgrade recovery rollout — 2026-10-27 14:05 UTC
 
