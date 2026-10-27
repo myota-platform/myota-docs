@@ -43,12 +43,16 @@ The work is part of the authenticated Phase 6 workflows in
 ## Coverage and remaining qualification
 
 PR [#101](https://github.com/myota-platform/myota-next/pull/101) implemented
-the role, scoped Identity APIs, Admin workspace, and service/browser coverage.
-Its checks passed before merging to `testing`. The live check above adds the
-deployed role-catalogue, display-name persistence, audit attribution, and
-out-of-scope denial results.
+the role, scoped Identity APIs, Admin workspace, and initial service/browser
+coverage. Follow-up PR
+[#158](https://github.com/myota-platform/myota-next/pull/158) added automated
+regression coverage for paging, search, display-name edits and persistence,
+suspension/reactivation, conflict feedback, and denied Identity navigation. Its
+focused local checks and all applicable pull-request CI jobs passed before it
+merged to `testing` as
+[`e532c5a`](https://github.com/myota-platform/myota-next/commit/e532c5a325611914a6952e52299e8267658d918f).
 
-The Admin browser regression suite still needs to cover paging and display-name
-editing/persistence as reusable automated tests. This record also does not
-qualify the broader launch-critical Admin workflow or correlated telemetry;
-those remain tracked by #91 and #10.
+The live evidence above and automated regression coverage complete the scoped
+Participant Administrator role and account workspace tracked by #98 and #99.
+The broader launch-critical Admin workflows and correlated telemetry remain
+tracked by #91 and #10.
