@@ -322,6 +322,16 @@ recovery path.
   Geodata source importer remained disabled. Both temporary namespaces and
   their PVCs were removed. Full procedure:
   [fresh-database evidence](evidence/phase6-fresh-database-qualification-2026-10-26.md).
+- **2026-10-27 runtime-role recheck:** an in-cluster read-only probe verified
+  the current `myota-test` credentials against all three databases. Each
+  owner-specific role (`myota_core_app`, `myota_activity_app`, and
+  `myota_geo_app`) passed its own database checks; all six cross-owner
+  attempts were denied. The probe also confirmed that runtime roles cannot
+  read or modify the schema migration ledger. It inspected database catalogs
+  only and read no application rows. The three application Deployment specs
+  reference no migration/admin URL Secret; their URLs use only the matching
+  owner roles. The release remained at chart revision 38 with 16/16
+  Deployments ready. The temporary probe Job and ConfigMap were deleted.
 - [Issue #89](https://github.com/myota-platform/myota-next/issues/89): database
   and object-store snapshots were restored and integrity-checked. The
   repository PostgreSQL backup/restore wrapper also passed against newly
