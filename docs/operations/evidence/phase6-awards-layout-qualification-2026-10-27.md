@@ -30,6 +30,16 @@ This preview verifies the endpoint and output path only. It does **not** qualify
 publication or print readiness for that low-resolution source. No award, issuance,
 asset, or PDF record was written by the preview request.
 
+After PR #160, a separate synthetic qualification award was created through the
+deployed Activity API. Its registered A4 landscape background source measured
+3167×2240 pixels. The saved award was published as version 1 with Award Text,
+and a subsequent read confirmed that the text and layout element persisted.
+The source passed the 150 DPI crop-detail check; the service recorded target
+dimensions of 3508×2481 pixels. A mock-data preview returned a 26,925-byte PDF.
+An anonymous direct HTTP `PATCH` to the published definition returned 403; a
+follow-up authenticated read confirmed that the award remained published at the
+same version with its name unchanged.
+
 ## Code and CI evidence
 
 - [PR #143](https://github.com/myota-platform/myota-next/pull/143) merged to
@@ -40,6 +50,9 @@ asset, or PDF record was written by the preview request.
   published-edit scope-denial service test and Admin browser coverage for
   validation and stale-version conflict feedback. It merged as `1d54a05` after
   Node CI and all image-build/scan checks passed.
+- The deployed synthetic qualification confirms that a mismatched background
+  can be resized for A4 landscape 300 DPI, published as print-ready, and used by
+  the preview renderer. An anonymous request cannot change the published record.
 - Post-merge Node CI and the testing image-source workflow passed. No application
   image changed: the Helm release remained at chart `myota-next-1.1.6-testing.458de92a1f78.1`,
   app `testing-33f10fe`, revision 43. All 16 deployments remained ready, and
@@ -59,16 +72,12 @@ asset, or PDF record was written by the preview request.
 
 ## Remaining evidence gaps
 
-- Add an HTTP-level authorization-denial test for the published-edit endpoint;
-  PR #160 currently proves scope denial at the Activity service boundary.
-- Verify a saved award revision and print-ready publication against the deployed
-  test service using a sufficiently detailed background.
-- The currently deployed low-resolution asset cannot verify successful
-  publication. A suitable high-resolution source is needed for a live
-  `myota-test` publication and print-readiness check.
 - The Admin browser editor test uses API fixtures; it does not exercise the
   deployed browser against the current `myota-test` API.
+- The synthetic publication verifies the API path, but not a saved published
+  revision in the Admin browser with a prior issuance retained. Keep issue #105
+  open until that version-history workflow is demonstrated end to end.
 
-Do not mark the four child issues or issue #104 complete until their remaining
-acceptance criteria are verified and linked from the issues and Phase 6
-qualification issue #91.
+Keep the four child issues and issue #104 open until their remaining acceptance
+criteria are verified and linked from the issues and Phase 6 qualification
+issue #91.
