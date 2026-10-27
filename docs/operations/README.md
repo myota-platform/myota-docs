@@ -27,6 +27,8 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
 - [Participant activation-history qualification](evidence/phase6-participant-activation-history-2026-10-27.md) —
   owner-only activation details, QSO history, ADIF outcomes, and deployed UI
   evidence.
+- [Delegated Participant administration qualification](evidence/phase6-participant-admin-qualification-2026-10-27.md) —
+  scoped role, UI persistence, audit attribution, and denied Identity actions.
 - [Dependency-recovery qualification][phase6-dependency-recovery] —
   deployed single-instance
   NATS, PostgreSQL, and object-storage recovery evidence and limits.
