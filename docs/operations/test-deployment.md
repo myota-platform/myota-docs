@@ -886,7 +886,7 @@ K3s namespace and their source files are stored under the host's
   It does not qualify single-node failure recovery, production capacity, or
   continuous data synchronization.
 
-## Current Testing telemetry check — 2026-10-27 14:17 UTC
+## Testing telemetry check — 2026-10-27 14:17 UTC
 
 The live `myota-test` Helm release is chart
 `myota-next-1.1.6-testing.95e8342a90bd.1`, revision 48. Its effective values
@@ -906,3 +906,32 @@ correlation. Activity and Geodata workers are not among the 15 scrape targets.
 These remaining gates stay open under
 [myota-next #90](https://github.com/myota-platform/myota-next/issues/90) and
 [#91](https://github.com/myota-platform/myota-next/issues/91).
+
+## Live Rancher failure-recovery qualification — 2026-10-27 14:50 UTC
+
+PR [#173](https://github.com/myota-platform/myota-next/pull/173) added a
+manual-only recovery exercise to the protected `testing` catalog workflow.
+After all PR checks passed, it was merged as
+[`0a27b65`](https://github.com/myota-platform/myota-next/commit/0a27b65729fff747c5073ff360bdb3962e02b465).
+The normal push rollout completed successfully at chart
+`1.1.6-testing.0a27b65729ff.1`, revision 49. Node CI, the image build, and the
+baseline Admin, Participant, and API health checks passed.
+
+The manual recovery qualification used workflow run
+[40523748668](https://github.com/myota-platform/myota-next/actions/runs/40523748668).
+It published a unique candidate chart and injected an all-zero, nonexistent
+Participant web image digest. Rancher reached terminal `Stalled` with exit
+code 123. The workflow then requested the previous chart and its committed
+values, verified the previous chart version, and checked all prior Deployment
+images, replica counts, and readiness. The workflow exited with code 1 and a
+clear message that the candidate failed and the previous release was restored;
+this failing status is the expected result of the fault-injection run.
+
+After restoration, Helm reported chart `1.1.6-testing.0a27b65729ff.1`, revision
+51, status `deployed`. All 15 chart-managed Deployments were ready at all 20
+desired replicas. The Participant web returned HTTP 200 with certificate
+verification success during the injected failure and afterward. After
+restoration, the Admin and Participant roots and API `/healthz` all returned
+HTTP 200 with certificate verification success. Production was not targeted.
+The mock and live failure evidence closes the controlled catalog restoration
+criterion in [myota-next #118](https://github.com/myota-platform/myota-next/issues/118).
