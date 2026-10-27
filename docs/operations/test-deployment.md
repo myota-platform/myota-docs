@@ -1,14 +1,14 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 12:48 UTC
+**Current verification:** 2026-10-27 13:18 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`9ca3f07`](https://github.com/myota-platform/myota-next/commit/9ca3f07b3352eeb83a5093023ca194b9a308a70a),
+[`95e8342`](https://github.com/myota-platform/myota-next/commit/95e8342a90bd604b07b86a03e18826ab67555e68),
 path `deploy/fleet/myota-test`.
 
-## Current deployment after rollback and restoration qualification — 2026-10-27 12:48 UTC
+## Current deployment and failed-upgrade recovery rollout — 2026-10-27 13:18 UTC
 
 - Rollback PR [#166](https://github.com/myota-platform/myota-next/pull/166)
   deployed the exact previously qualified immutable image set through protected
@@ -22,6 +22,26 @@ path `deploy/fleet/myota-test`.
   Helm revision 47 is deployed with chart
   `myota-next-1.1.6-testing.9ca3f07b3352.1`, app version `testing-16bb2c3`.
   The workflow verified all 15 Deployments ready at the revision-45 digests.
+- Recovery PR [#168](https://github.com/myota-platform/myota-next/pull/168)
+  was merged as commit
+  [`95e8342`](https://github.com/myota-platform/myota-next/commit/95e8342a90bd604b07b86a03e18826ab67555e68).
+  Protected deployment run
+  [40510424873](https://github.com/myota-platform/myota-next/actions/runs/40510424873)
+  published chart `myota-next-1.1.6-testing.95e8342a90bd.1` and upgraded
+  Helm revision 48. All 15 Deployments are ready, all five PVCs are Bound,
+  and Admin/Participant roots plus `/healthz` and `/readyz` returned HTTP 200.
+- The deployment workflow records the prior chart, reads its values from the
+  source commit encoded in that immutable chart version, and snapshots the
+  ready Deployment image digests and replica counts. A terminal Rancher
+  `Stalled` operation triggers a catalog upgrade back to that prior chart and
+  values, followed by verification of the old chart and Deployment set. An
+  ambiguous or timed-out operation does not trigger a competing upgrade. After
+  a successful restoration, the workflow still reports the candidate deployment
+  as failed. This recovery code has been deployed but has not been fault-injected
+  against a failed Rancher reconciliation.
+- The restore covers chart values and application Deployment images/readiness.
+  It does not reverse a database migration that already completed; rollback
+  across an incompatible schema change remains outside this qualification.
 - During the rollback and after restoration, Admin `/healthz`, `/readyz`, and
   Admin and Participant web roots returned HTTP 200. The Activity database
   contained 9 activations and 15 QSOs after both operations, and all five
@@ -31,17 +51,19 @@ path `deploy/fleet/myota-test`.
   active. Each requires pull requests and the 19 Node/image build and scan
   checks, enforces up-to-date status checks, and has no bypass actors. The
   `myota-test` deployment environment remains limited to the `testing` branch.
-- A failed required PR check cannot advance either branch. The automatic
-  rollback behavior after a failed Rancher reconciliation remains open under
-  [#118](https://github.com/myota-platform/myota-next/issues/118): the Rancher
+- A failed required PR check cannot advance either branch. Automatic restoration
+  after a terminal Rancher failure is implemented and deployed under
+  [#118](https://github.com/myota-platform/myota-next/issues/118), but remains
+  unqualified until a controlled failure exercises that path. The Rancher
   v2.15.2 catalog upgrade action exposes `cleanupOnFail` but no atomic rollback
   option in its
   [upgrade request type](https://github.com/rancher/rancher/blob/v2.15.2/pkg/api/steve/catalog/types/rest.go).
   Helm documents `cleanupOnFail` and rollback-on-failure as different
   behaviors in its
   [upgrade command reference](https://helm.sh/docs/v3/helm/helm_upgrade/).
-  The workflow reports stalled or timed-out operations as failures; do not
-  assume Rancher automatically restored the previous chart and values.
+  Do not assume Rancher automatically restored the previous chart and values;
+  only the workflow's explicitly verified restoration path provides that
+  evidence.
 - `@nestjs/observe` delivery and cross-service signal correlation remain
   unqualified because the `myota-observe` Secret and approved credentials are
   absent. The separate 04:07 metrics and datasource snapshot below is historical.
