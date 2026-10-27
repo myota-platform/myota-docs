@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 07:24 UTC
+**Current verification:** 2026-10-27 07:35 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -81,6 +81,31 @@ issues, [#91](https://github.com/myota-platform/myota-next/issues/91), and
 [Phase 6 #10](https://github.com/myota-platform/myota-next/issues/10) open
 until the remaining expiry, conflict, delivery-failure, and broader workflow
 acceptance criteria are verified.
+
+## Participant responsive, keyboard, and data-scope recheck — 2026-10-27 07:35 UTC
+
+- Rechecked the live Participant page on Helm revision 42, chart
+  `myota-next-1.1.6-testing.04fccdd32a98.1`. The release had all 16 Deployments
+  ready with 21/21 replicas. Identity ran digest
+  `sha256:e9904e04ca1227af302be100e7090500be4b5ef8499aeadcf84e5ad78a8b04b0`,
+  Activity ran `sha256:9518f0c85df755b572a856927dc530874880ebd78abfd55fa65150bee490183b`,
+  and Participant Web ran
+  `sha256:7ba73389f107ddb9b2f79c4c738333c6c8394da2314c0e3875fbe62c90d7ff49`.
+- Before sign-in, the page showed the active Partidos Judiciales programme and
+  its approved synthetic Phase 6 catalogue entity. A synthetic Participant
+  signed in by keyboard, reached the `PARTICIPANT` session, and signed out by
+  keyboard. The email-to-password focus transition worked; the page reported no
+  browser errors.
+- At viewport sizes 390×844 and 1280×800, the page had no horizontal overflow.
+  Authenticated requests for an unrelated account UUID and its activations both
+  returned HTTP 403. No account or activation data was changed.
+
+This verifies public discovery, basic keyboard use, responsive width, and
+denial of out-of-scope account/activity reads for this session. It does not
+requalify profile/callsign mutations or the activation, QSO, and ADIF workflows
+on revision 42. The remaining Participant and Admin workflow criteria in
+[#91](https://github.com/myota-platform/myota-next/issues/91), including
+telemetry correlation, remain open.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
