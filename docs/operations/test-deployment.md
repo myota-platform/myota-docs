@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 04:03 UTC
+**Current verification:** 2026-10-27 04:05 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -12,7 +12,7 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## MyOTA Next deployment and authenticated qualification — 2026-10-27 04:03 UTC
+## MyOTA Next deployment and authenticated qualification — 2026-10-27 04:05 UTC
 
 ### Deployment and health
 
@@ -23,12 +23,12 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 ### Metrics and alerts
 
 - In-cluster Prometheus reports all 15 `myota-test` scrape targets `up=1` and no active alerts for the namespace.
-- The Gateway request metric has 20 series with observed statuses 200, 201, and 403, and no 5xx series. This verifies metrics collection and current alert state, not correlated logs/traces or Observe delivery.
+- After the ADIF run, the Gateway request metric has 23 series with observed statuses 200, 201, 202, and 403, and no 5xx series. It includes `POST /v1/adif/` with status 202. This is route-level evidence, not trace-ID correlation, and does not prove Observe delivery.
 
 ### Admin workflows
 
 - An authenticated browser session received HTTP 200 from login and current-session APIs, returned the `GLOBAL_OPERATOR` role, and reached `/dashboard`. In-app navigation opened Participant accounts and Awards workspaces with no API responses at 400 or higher.
-- The Awards workspace generated a mock preview for an existing award. The preview API returned HTTP 200 and an `application/pdf` response of 15,397,223 bytes; a browser window opened and the UI confirmed that no award was saved or issued. Published-layout editing, publishing, and issuance remain untested after this image update.
+- The Awards workspace generated a mock preview for an existing award. The preview API returned HTTP 200 and an `application/pdf` response of 15,397,223 bytes; a browser window opened and the UI confirmed that no award was saved or issued. The test catalogue currently has one `APPROVED` award and no `PUBLISHED` definition, so published-layout editing cannot be qualified without adding persistent test data. Publishing and issuance also remain untested after this image update.
 
 ### Participant workflows
 
