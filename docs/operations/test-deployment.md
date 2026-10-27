@@ -332,6 +332,17 @@ recovery path.
   reference no migration/admin URL Secret; their URLs use only the matching
   owner roles. The release remained at chart revision 38 with 16/16
   Deployments ready. The temporary probe Job and ConfigMap were deleted.
+- After that verified transition, the legacy shared `myota_app` login was
+  retired on all three databases through the documented role-sync command.
+  Catalog checks confirmed `NOLOGIN`, zero remaining sessions, no database
+  `CONNECT`, no schema `CREATE`, and no application-table DML or migration-ledger
+  read privilege. The owner-only runtime check was rerun successfully after
+  retirement; all 16 Deployments remained ready and Gateway `/healthz` and
+  `/readyz` returned HTTP 200. No application rows were read or changed. The
+  temporary Jobs and ConfigMaps were removed. The first combined verification
+  attempt used migration URLs for the runtime probe and failed its role-name
+  assertion; it made no data changes. The separate corrected runtime probe
+  passed.
 - [Issue #89](https://github.com/myota-platform/myota-next/issues/89): database
   and object-store snapshots were restored and integrity-checked. The
   repository PostgreSQL backup/restore wrapper also passed against newly
