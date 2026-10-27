@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 13:18 UTC
+**Current verification:** 2026-10-27 13:38 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -8,7 +8,7 @@
 [`95e8342`](https://github.com/myota-platform/myota-next/commit/95e8342a90bd604b07b86a03e18826ab67555e68),
 path `deploy/fleet/myota-test`.
 
-## Current deployment and failed-upgrade recovery rollout — 2026-10-27 13:18 UTC
+## Current deployment and failed-upgrade recovery rollout — 2026-10-27 13:38 UTC
 
 - Rollback PR [#166](https://github.com/myota-platform/myota-next/pull/166)
   deployed the exact previously qualified immutable image set through protected
@@ -30,6 +30,12 @@ path `deploy/fleet/myota-test`.
   published chart `myota-next-1.1.6-testing.95e8342a90bd.1` and upgraded
   Helm revision 48. All 15 Deployments are ready, all five PVCs are Bound,
   and Admin/Participant roots plus `/healthz` and `/readyz` returned HTTP 200.
+- Intermediate promotion PR
+  [#170](https://github.com/myota-platform/myota-next/pull/170) merged the
+  validated branch history to `main` as
+  [`6a99b84`](https://github.com/myota-platform/myota-next/commit/6a99b84083d42dd3fa354ccd5578aa5766ddfd01)
+  after all 19 required checks passed. No release was created and production
+  was not changed.
 - The deployment workflow records the prior chart, reads its values from the
   source commit encoded in that immutable chart version, and snapshots the
   ready Deployment image digests and replica counts. A terminal Rancher
