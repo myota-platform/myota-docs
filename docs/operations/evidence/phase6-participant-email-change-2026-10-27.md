@@ -37,8 +37,15 @@ Earlier sequential, concurrent, and cancellation results are recorded in the
   preserved. No account email, password, token, message body, or identifier is
   recorded here.
 
+## Existing-address conflict
+
+- Submitted an email change to an address already assigned to a different
+  active, verified synthetic Participant. Identity returned HTTP 400, the
+  signed-in account retained its original email, and no pending change was
+  created. The other Participant's address is not recorded here.
+
 ## Remaining qualification
 
-The deployed expiry path, conflict with another account's address, SMTP
-delivery-failure recovery, and production SMTP provider trust roots remain
-unverified. Keep #115 and #10 open until their remaining criteria are met.
+The deployed expiry path, SMTP delivery-failure recovery, and production SMTP
+provider trust roots remain unverified. Keep #115 and #10 open until their
+remaining criteria are met.
