@@ -106,14 +106,16 @@ Implementation is tracked in [MyOTA Next PR #148](https://github.com/myota-platf
 with work packages [#114](https://github.com/myota-platform/myota-next/issues/114)
 and [#115](https://github.com/myota-platform/myota-next/issues/115). Password
 reset, access/refresh revocation, replay rejection, sequential dual-address
-verification, partial verification, and cancellation were exercised with
-Mailpit and synthetic participant accounts in deployed `myota-test` revision
-41. The live check also exposed a concurrency defect: two simultaneous email
-confirmations did not both succeed, and the address stayed unchanged.
-[PR #152](https://github.com/myota-platform/myota-next/pull/152) fixes the lock
-order and adds a concurrency regression test, but has not yet been deployed.
-Repeat the simultaneous check after rollout, then verify the remaining expiry,
-conflict, and recovery outcomes before closing #114 or #115.
+verification, partial verification, cancellation, and simultaneous confirmation
+were exercised with Mailpit and synthetic participant accounts in deployed
+`myota-test` revision 42. Both simultaneous confirmations returned HTTP 200,
+exactly one completed the email change, and the resulting address persisted.
+An earlier apparent HTTP 400 was caused by the qualification script reusing a
+stale old-address message from a canceled operation; the corrected test selects
+the two links for the active operation. [PR #152](https://github.com/myota-platform/myota-next/pull/152)
+serializes confirmation on the shared pending-change row and adds a concurrency
+regression test. Verify the remaining expiry, conflict, delivery-failure, and
+recovery outcomes before closing #114 or #115.
 
 ## Authentication-state inventory and persistence boundary
 
