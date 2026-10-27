@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-26 23:58 UTC
+**Current verification:** 2026-10-27 00:31 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -64,6 +64,11 @@ remaining Phase 6 qualification work in
   1 accepted, and 0 rejected. Activity PostgreSQL contains one `VALID` QSO
   linked to that import, and the activation's QSO count is 1. This verifies a
   successful browser-to-worker-to-database import path.
+- **Participant manual QSO and activation closure:** On 2026-10-27, the same
+  synthetic Participant account recorded a manual contact against the open
+  activation (HTTP 201), closed it (HTTP 200), signed out, and signed back in.
+  The browser and Activity response both showed `CLOSED` with two QSOs. This
+  used synthetic test data; the activation is no longer open.
 - **ADIF terminal failure:** An earlier synthetic import used a QSO timestamp
   before the activation start, so the fixture was invalid. That failure
   exposed a real worker retry loop: retries were emitted as new JetStream
@@ -150,8 +155,13 @@ recovery path.
   support account was anonymized, the test email was deleted, and the target
   account was restored to `ACTIVE`. On revision 32, a Participant created and
   used an activation, and the browser ADIF workflow completed with a persisted
-  valid QSO; see the evidence above. Correlated telemetry and audit evidence
-  remain unqualified, as do additional activation/QSO edit and closure cases.
+  valid QSO. On 2026-10-27, the browser also recorded a manual QSO and closed
+  that activation; the `CLOSED` state and two-QSO total persisted across
+  sign-out and sign-in. Participant registration throttle behavior was
+  exercised against the live endpoint. PR #136 adds the matching service and
+  invalid-link browser regressions; required checks are pending. Correlated
+  telemetry/audit evidence and QSO correction/edit behavior remain
+  unqualified. See the [Participant qualification record](evidence/phase6-participant-registration.md).
 - [Issue #93](https://github.com/myota-platform/myota-next/issues/93): the
   catalog/Helm rollback path is exercised, but only between releases with the
   same values and image digests. Compatibility across changed code, image

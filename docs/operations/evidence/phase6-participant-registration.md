@@ -52,12 +52,20 @@ login before verification.
 
 ## Remaining work
 
-This is not sufficient to close #100 or #91. Add explicit automated coverage and
-deployment checks for expired and malformed tokens, registration and resend
-throttling under abuse, resend behavior for verified and unverified accounts,
-and duplicate-address outcomes. Continue with the profile, callsign, activation,
-QSO, and ADIF journeys tracked by #96. Link those results here and from the
-Phase 6 readiness issue before changing its exit criteria.
+This is not sufficient to close #100 or #91. PR #136 adds focused service
+coverage for malformed and expired tokens, resend token replacement, verified
+address responses, and the five-request throttle, plus a browser check that an
+invalid verification token is removed from the URL. The focused Identity
+service suite (7 tests), Participant registration browser suite (2 tests), and
+Prettier check pass locally; required PR checks are still pending.
+
+On 2026-10-27, the deployed resend endpoint returned the same generic HTTP 200
+for five requests to a unique unregistered `example.test` address, then
+returned HTTP 400 with problem code `invalid_request` and detail `too many
+registration requests; try again later` on the sixth. A malformed verification
+token also returned HTTP 400. These requests used the resend endpoint and did
+not create participant accounts. The rate-limit records contain hashed keys
+and expire after 15 minutes.
 
 ## Follow-up: profile and callsigns
 
@@ -67,9 +75,19 @@ synthetic callsign, which appeared as `UNVERIFIED` and `Primary`, and it also
 remained after reload. The participant then signed out. The synthetic callsign
 is test-only and has no verification evidence.
 
-The deployment has one selectable programme (`part_jud_es`) but its public
-catalogue currently contains zero entities. The activation form therefore has
-no selectable entity, so activation, QSO entry/closure, and ADIF import could
-not be exercised. No fabricated activity data was written. Seed or import a
-reviewed test entity in the isolated deployment before continuing those
-workflows.
+## Follow-up: activation, manual QSO, and closure — 2026-10-27
+
+This follow-up supersedes the earlier note that the public catalogue had no
+selectable entity. The current test deployment includes a synthetic Phase 6 QA
+entity. A signed-in Participant account with only the `PARTICIPANT` role had
+an open activation with one QSO from the previously qualified ADIF import. In
+the deployed Participant browser, the account recorded another contact
+(Activity API HTTP 201), closed the activation (HTTP 200), signed out, and
+signed back in. The activation remained `CLOSED` with two QSOs in the page and
+the Activity API response. The account, entity, activation, and contact are
+synthetic test data.
+
+This verifies the browser-to-API path for manual QSO entry, activation closure,
+and persistence across a fresh session. That activation is now closed. QSO
+correction/edit behavior and correlated logs, metrics, traces, and audit
+evidence remain open under #91.
