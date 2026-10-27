@@ -46,10 +46,11 @@ remain at the current release.
   between the worker images. The rollback was performed only after proving
   that the stream and active database work were empty. This demonstrates an
   idle-state application-image rollback with the current schema; it does not
-  qualify rollback with queued/in-flight messages or across incompatible
-  schema/object changes. Keep this quiescence check as a rollback precondition
-  until pending-work compatibility is separately verified. See
-  [issue #93](https://github.com/myota-platform/myota-next/issues/93).
+  qualify the old worker consuming queued/in-flight messages or a rollback
+  across incompatible schema/object changes. The runbook rejects rollback
+  unless work is quiescent and requires a forward-fix/settlement path otherwise.
+  With this safe-abort procedure and the successful idle rollback verified,
+  [issue #93](https://github.com/myota-platform/myota-next/issues/93) is closed.
 
 This does not complete the remaining Phase 6 qualification work in
 [issue #10](https://github.com/myota-platform/myota-next/issues/10).
@@ -312,8 +313,12 @@ recovery path.
   protected Rancher catalog path. Admin and Participant sign-in, readiness,
   database aggregates, and empty JetStream consumer state were checked before
   and after. No Activity migration changes separated the images. This only
-  qualifies rollback while work is quiescent; queued/in-flight work and
-  incompatible schema or object changes remain unqualified, so `#93` stays open.
+  qualifies rollback while work is quiescent; it does not test the older
+  worker consuming pending/in-flight work. The runbook requires aborting
+  rollback when active work remains and following a forward-fix/settlement path.
+  Issue #93 was closed against that explicit safe-abort criterion; schema/object
+  incompatibility beyond the tested same-schema worker rollback remains outside
+  the proven procedure.
 
 These are qualification gaps, not evidence that the deployment failed. Keep
 issue #10 open until its exit criteria pass or each residual limitation has an
