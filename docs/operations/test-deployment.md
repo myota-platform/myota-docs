@@ -40,6 +40,12 @@ path `deploy/fleet/myota-test`.
   Observe destination, so authenticated Observe delivery and log/trace
   correlation remain unverified. Do not mark issue #10 complete on this
   evidence alone.
+- Testing branch Node CI
+  [run 40538003300](https://github.com/myota-platform/myota-next/actions/runs/40538003300)
+  failed one live Admin entity-map accessibility assertion for Leaflet popup
+  text contrast (82 other browser tests passed). The values-only digest PR
+  passed its pre-merge checks; this post-merge issue remains outside the
+  telemetry rollout.
 
 ## Current deployment and failed-upgrade recovery rollout — 2026-10-27 14:05 UTC
 
