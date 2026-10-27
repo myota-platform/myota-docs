@@ -190,6 +190,21 @@ a coordinated recovery point or cross-service object-reference integrity.
 This evidence does not qualify full-data recovery, realistic RTO, off-node
 backup, or permanent PVC-loss recovery; keep issue #89 open for those checks.
 
+## 2026-10-27 repository object-store utility check
+
+The repository `tools/s3-backup.mjs` utility was also exercised against a
+temporary synthetic source bucket and empty restore bucket on the test
+SeaweedFS service. It backed up and restored one 51-byte object, then verified
+the restored object content, SHA-256, length, metadata, and tag. The utility
+rejected an incorrect restore confirmation. Both temporary buckets and the
+local archive were removed after the check; no configured application bucket
+was changed.
+
+This is a tool-path check with one synthetic object. It does not add evidence
+for a representative backup volume, a coordinated database/object recovery
+point, cross-service reference integrity, off-node retention, or PVC-loss
+recovery. Keep issue #89 open for those remaining qualification requirements.
+
 ## Open operations decisions
 
 - Choose an off-node backup destination and verify it is isolated from the
