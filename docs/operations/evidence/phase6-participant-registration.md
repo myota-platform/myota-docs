@@ -1,4 +1,4 @@
-# Phase 6 Participant registration qualification evidence — 2026-10-26
+# Phase 6 Participant registration qualification evidence
 
 This record covers the real Participant registration and email-verification
 journey against the isolated `myota-test` deployment. It uses a synthetic
@@ -13,7 +13,7 @@ Related work: [Participant workflow #96][issue-96], [registration #100][issue-10
 [issue-91]: https://github.com/myota-platform/myota-next/issues/91
 [issue-10]: https://github.com/myota-platform/myota-next/issues/10
 
-## Deployed revision
+## Initial registration qualification revision
 
 - Helm release: `myota-test`, chart `myota-next-1.1.6-testing.492a44b.1`,
   app version `testing-492a44b`, revision 26.
@@ -24,8 +24,10 @@ Related work: [Participant workflow #96][issue-96], [registration #100][issue-10
 - Participant page: `https://myota-participant-test.spainip.es/`.
   The API was reached through the configured same-origin `/v1/` route.
 
-The tested application images are the ones currently deployed in revision 26;
-this is not a claim that the newer backup tooling from PR #119 has been deployed.
+This records the release used for the initial registration happy path. The
+current `myota-test` Helm release is revision 32, chart
+`myota-next-1.1.6-testing.c10df2f22479.1`; the live throttle recheck below was
+performed against the current public Participant endpoint.
 
 ## Procedure and results
 
@@ -50,22 +52,24 @@ suites. Service tests cover participant-only role assignment, token replay
 rejection, generic responses for an existing unverified address, and denial of
 login before verification.
 
-## Remaining work
+## Abuse controls and invalid-link regressions — 2026-10-27
 
-This is not sufficient to close #100 or #91. PR #136 adds focused service
-coverage for malformed and expired tokens, resend token replacement, verified
-address responses, and the five-request throttle, plus a browser check that an
+PR #136 merged to `testing` as commit
+[`1083718`](https://github.com/myota-platform/myota-next/commit/1083718a362c1bec66bb9386d95c245ae53b0b0d).
+The merge request's Node CI and all image build/scan checks passed; the
+post-merge Node CI [run](https://github.com/myota-platform/myota-next/actions/runs/40427700456)
+and testing publisher [run](https://github.com/myota-platform/myota-next/actions/runs/40427700526)
+also succeeded. The change adds Identity tests for malformed and expired
+tokens, resend token replacement, generic responses for verified addresses,
+and the five-request throttle, plus a Participant browser check that an
 invalid verification token is removed from the URL. The focused Identity
-service suite (7 tests), Participant registration browser suite (2 tests), and
-Prettier check pass locally; required PR checks are still pending.
+suite passed 7 tests and the Participant registration browser suite passed 2.
 
-On 2026-10-27, the deployed resend endpoint returned the same generic HTTP 200
-for five requests to a unique unregistered `example.test` address, then
-returned HTTP 400 with problem code `invalid_request` and detail `too many
-registration requests; try again later` on the sixth. A malformed verification
-token also returned HTTP 400. These requests used the resend endpoint and did
-not create participant accounts. The rate-limit records contain hashed keys
-and expire after 15 minutes.
+On the live endpoint, five resends to a unique unregistered `example.test`
+address returned the same generic HTTP 200 response; the sixth returned HTTP
+400 with problem code `invalid_request` and a rate-limit detail. A malformed
+verification token also returned HTTP 400. These requests did not create
+accounts; the hashed rate-limit records expire after 15 minutes.
 
 ## Follow-up: profile and callsigns
 

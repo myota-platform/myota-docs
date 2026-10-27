@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 00:37 UTC
+**Current verification:** 2026-10-27 00:50 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -139,13 +139,18 @@ recovery path.
   created disposable databases on each isolated owner instance using
   PostgreSQL 16 tools: it created checksummed custom-format dumps, rejected an
   incorrect restore confirmation, restored mutated marker values, and removed
-  its probe tables, backup directory, and scratch databases. This exercises the
-  wrappers against the test PostgreSQL endpoints. The object-store utility
-  also restored one synthetic 51-byte object and verified its content, hash,
-  metadata and tag. These checks exercise the tool paths, but the earlier source
-  snapshot was not representative and writers were not quiesced. Off-node
-  retention, measured RTO, full-data consistency, and PVC-loss recovery remain
-  unqualified.
+  its probe tables, backup directory, and scratch databases. On 2026-10-27,
+  all 16 application Deployments were quiesced for a coordinated three-database
+  and six-bucket snapshot, then restored into a separate PostGIS target and six
+  empty mapped buckets. Exact row counts matched in all 139 restored tables;
+  five objects (45,173,156 bytes) passed SHA-256/size verification, and both
+  persisted ADIF object references resolved through the bucket mapping. The
+  deployment returned to 21 available replicas and its public health endpoints
+  returned HTTP 200. The full procedure and remaining limits are recorded in
+  the [backup/restore evidence](database-object-backup-restore.md#2026-10-27-quiesced-database-and-object-restore).
+  Off-node retention, an accepted schedule/RPO, realistic RTO, and PVC-loss
+  recovery remain unqualified; the current migration URL role is privileged,
+  so a least-privilege backup identity is still needed.
 - [Issue #90](https://github.com/myota-platform/myota-next/issues/90):
   `@nestjs/observe` dependencies, root hooks, stable service IDs, and the
   no-credentials startup path are verified. The authenticated Grafana proxy
@@ -171,8 +176,12 @@ recovery path.
   valid QSO. On 2026-10-27, the browser also recorded a manual QSO and closed
   that activation; the `CLOSED` state and two-QSO total persisted across
   sign-out and sign-in. Participant registration throttle behavior was
-  exercised against the live endpoint. PR #136 adds the matching service and
-  invalid-link browser regressions; required checks are pending. Correlated
+  exercised against the live endpoint. PR #136 merged to `testing` as
+  [`1083718`](https://github.com/myota-platform/myota-next/commit/1083718a362c1bec66bb9386d95c245ae53b0b0d);
+  post-merge Node CI [40427700456](https://github.com/myota-platform/myota-next/actions/runs/40427700456)
+  and the changed-image publisher [40427700526](https://github.com/myota-platform/myota-next/actions/runs/40427700526)
+  succeeded. The PR adds Identity safeguards and invalid-link browser
+  regressions. Correlated
   telemetry/audit evidence and QSO correction/edit behavior remain
   unqualified. See the [Participant qualification record](evidence/phase6-participant-registration.md).
 - [Issue #93](https://github.com/myota-platform/myota-next/issues/93): the

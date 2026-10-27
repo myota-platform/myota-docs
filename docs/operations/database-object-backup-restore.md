@@ -43,7 +43,12 @@ guaranteed RPO.
 Load credentials only into the process environment from the secret store:
 
 - `CORE_DATABASE_URL`, `ACTIVITY_DATABASE_URL`, and `GEO_DATABASE_URL` come
-  from the database URL Secret used by the deployment.
+  from a database backup identity held in the secret store. On the current
+  `myota-test` deployment, the runtime URL Secret cannot lock/read
+  `myota_nest_schema_migration`; the migration URL Secret can dump the live
+  databases, but its role is privileged. Production backup should use a
+  dedicated least-privilege backup identity rather than the runtime
+  application role or a broad migration/superuser role.
 - `S3_ENDPOINT`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` come from the
   object-storage configuration and Secret.
 - The `age` recipient used to encrypt an archive is public. Keep the matching
@@ -204,6 +209,38 @@ This is a tool-path check with one synthetic object. It does not add evidence
 for a representative backup volume, a coordinated database/object recovery
 point, cross-service reference integrity, off-node retention, or PVC-loss
 recovery. Keep issue #89 open for those remaining qualification requirements.
+
+## 2026-10-27 quiesced database and object restore
+
+For a coordinated check, all 16 `myota-test` Deployments (21 replicas) were
+scaled to zero while the repository PostgreSQL and object-store tools captured
+the three owner databases and six configured buckets. The encrypted local
+archive passed decryption and tar-integrity validation. Only the application
+Deployments were paused; PostgreSQL, SeaweedFS, and JetStream remained up.
+
+- Restored the Core, Activity, and Geodata dumps into three same-named
+  databases on a separate disposable PostgreSQL 16/PostGIS instance. Exact
+  counts matched for every table: 46 Core, 27 Activity, and 66 Geodata tables.
+- Restored all six source buckets into six new, empty scratch buckets using an
+  explicit source-to-target map. All five objects (45,173,156 bytes) were
+  downloaded from the restored buckets and matched their recorded SHA-256 and
+  size.
+- The restored Activity database contains two ADIF import rows (one completed,
+  one failed) and one QSO linked to an import. Both stored bucket/key
+  references resolved to the corresponding restored ADIF objects through the
+  explicit bucket mapping.
+- Removed the temporary restore namespace, scratch buckets, encrypted archive,
+  and local age identity after validation. Restored the original deployment to
+  21 available replicas; Admin, Participant, and API health endpoints each
+  returned HTTP 200.
+
+The source snapshot was taken while application writers were stopped, and the
+restore was isolated from application traffic. This verifies a quiesced,
+test-sized database/object recovery point and the stored cross-store reference
+mapping. The migration URL role used for the dump is privileged; provision a
+dedicated least-privilege backup identity before relying on this procedure for
+production. Off-node storage, a schedule and retention policy, production-sized
+data, realistic RTO, and PVC-loss recovery remain unqualified.
 
 ## Open operations decisions
 
