@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 04:05 UTC
+**Current verification:** 2026-10-27 04:07 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -12,7 +12,7 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## MyOTA Next deployment and authenticated qualification — 2026-10-27 04:05 UTC
+## MyOTA Next deployment and authenticated qualification — 2026-10-27 04:07 UTC
 
 ### Deployment and health
 
@@ -24,6 +24,7 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 
 - In-cluster Prometheus reports all 15 `myota-test` scrape targets `up=1` and no active alerts for the namespace.
 - After the ADIF run, the Gateway request metric has 23 series with observed statuses 200, 201, 202, and 403, and no 5xx series. It includes `POST /v1/adif/` with status 202. This is route-level evidence, not trace-ID correlation, and does not prove Observe delivery.
+- The authenticated Admin Grafana datasource API returned HTTP 200 and listed only Prometheus and Alertmanager. No Loki/Tempo datasource or matching in-cluster pod was found, so logs and traces are not currently inspectable through this deployment's Grafana view.
 
 ### Admin workflows
 
@@ -38,7 +39,7 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 
 ### Remaining Phase 6 evidence
 
-Published award-layout editing, publishing and issuance after the current image update; credentialed Observe delivery; correlated telemetry for the current journeys; and the documented database/object-storage recovery limitations remain open under [myota-next #10](https://github.com/myota-platform/myota-next/issues/10) and [#91](https://github.com/myota-platform/myota-next/issues/91). Earlier participant profile/callsign and single-instance JetStream recovery evidence is recorded below.
+Published award-layout editing, publishing and issuance after the current image update; credentialed Observe delivery; log/trace backends and workflow correlation; and the documented database/object-storage recovery limitations remain open under [myota-next #10](https://github.com/myota-platform/myota-next/issues/10) and [#91](https://github.com/myota-platform/myota-next/issues/91). Earlier participant profile/callsign and single-instance JetStream recovery evidence is recorded below.
 
 The three successful Actions runs establish build publication and the chart
 upgrade. The new browser checks above verify the post-upgrade sign-in, public
