@@ -54,6 +54,49 @@ remain at the current release.
 This does not complete the remaining Phase 6 qualification work in
 [issue #10](https://github.com/myota-platform/myota-next/issues/10).
 
+### Rollback preflight and recovery
+
+Use the protected pull-request and Rancher catalog workflow described above
+to change image digests. Do not run an independent Helm upgrade on this
+Fleet-managed release. Before authorizing a rollback, require no queued or
+running Activity database jobs, no JetStream stream messages, and no pending
+or unacknowledged consumer deliveries. Compare the same state after rollback.
+
+Read-only verification commands used for this qualification:
+
+```sh
+kubectl -n myota-test get applications myota-test -o wide
+kubectl -n myota-test get deploy myota-test-activity-worker -o jsonpath='{.spec.template.spec.containers[0].image}{"\t"}{.status.readyReplicas}/{.spec.replicas}{"\n"}'
+curl --fail --silent --show-error https://myota-test.spainip.es/readyz
+
+# In a separate terminal, stop the port-forward after querying:
+kubectl -n myota-test port-forward pod/myota-test-nats-0 18222:8222
+curl --fail --silent --show-error 'http://127.0.0.1:18222/jsz?streams=true&consumers=true&accounts=true' |
+  jq '[.account_details[]?.stream_detail[]? |
+       select(.name == "MYOTA_ACTIVITY_WORK") |
+       {messages: .state.messages,
+        consumers: [.consumer_detail[]? |
+                    {name, num_pending, num_ack_pending}]}]'
+
+# ACTIVITY_DATABASE_URL must be obtained through the approved secret store.
+psql "$ACTIVITY_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+SELECT status, count(*) FROM activity_job GROUP BY status ORDER BY status;
+SELECT status, count(*) FROM activity_import GROUP BY status ORDER BY status;
+SELECT count(*) AS unresolved
+FROM activity_work_dead_letter WHERE resolved_at IS NULL;
+SQL
+```
+
+If any database job is QUEUED or RUNNING, any stream message exists, or any
+consumer has pending or unacknowledged messages, do not switch to the older
+image. Keep the current digest selected and let compatible work settle. If the
+current worker is unhealthy, ship a forward fix at the current schema and
+reconcile database jobs through the owning Activity workflows. Keep completed
+and failed job/import counts stable; do not replay an unresolved dead letter
+as part of rollback. Repeat the preflight only after active work has been safely
+settled. If safe settlement cannot be established, cancel rollback and keep
+the known-good current release active.
+
 ## Prometheus scrape rollout — 2026-10-27 01:56 UTC
 
 The optional Prometheus scrape configuration is now installed in the
