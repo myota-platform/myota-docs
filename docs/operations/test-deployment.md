@@ -106,10 +106,13 @@ recovery path.
   repository infrastructure and migration charts. The migration hook applied
   21/5/7 Core/Activity/Geodata migrations and repeated them successfully on a
   second Helm upgrade. The runtime-role isolation Job verified owner-only
-  access without reading rows. The namespace and PVCs were removed after the
-  run. This proves fresh-volume initialization and role setup, but the
-  NestJS APIs and workers were disabled in that scratch release; verify their
-  readiness against these newly initialized databases before closing #88. Full
+  access without reading rows. A later isolated Helm release started all API
+  and browser Deployments against fresh PVCs: all 8 Deployments and all 13
+  application replicas were available, as were all 3 PostgreSQL pods. Gateway
+  `/healthz` and
+  `/readyz` both returned HTTP 200. NATS-backed workers, SMTP and ingress were
+  disabled in this check, leaving worker readiness as a follow-up before
+  closing #88. Both temporary namespaces and their PVCs were removed. Full
   procedure: [fresh-database evidence](evidence/phase6-fresh-database-qualification-2026-10-26.md).
 - [Issue #89](https://github.com/myota-platform/myota-next/issues/89): database
   and object-store snapshots were restored and integrity-checked. The
@@ -118,7 +121,9 @@ recovery path.
   PostgreSQL 16 tools: it created checksummed custom-format dumps, rejected an
   incorrect restore confirmation, restored mutated marker values, and removed
   its probe tables, backup directory, and scratch databases. This exercises the
-  wrappers against the test PostgreSQL endpoints, but the earlier source
+  wrappers against the test PostgreSQL endpoints. The object-store utility
+  also restored one synthetic 51-byte object and verified its content, hash,
+  metadata and tag. These checks exercise the tool paths, but the earlier source
   snapshot was not representative and writers were not quiesced. Off-node
   retention, measured RTO, full-data consistency, and PVC-loss recovery remain
   unqualified.

@@ -62,8 +62,9 @@ The PostgreSQL/object-storage backup checks are recorded separately under
 
 The new-volume test verifies the database role-init scripts, Helm migration
 hooks, schema counts, repeat migration, and owner isolation on newly provisioned
-storage. It did not start the NestJS APIs or workers against these new databases.
-Verify application readiness on fresh storage before closing #88.
+storage. The 2026-10-27 application-readiness follow-up below covers the APIs
+and browser applications. NATS-backed workers remain unqualified on these new
+databases, so #88 stays open.
 
 ## Limitation and follow-up
 
@@ -78,9 +79,35 @@ removed afterward.
 
 The earlier disposable-database setup is not equivalent to a new PostgreSQL
 volume. The new PVC rehearsal above now covers initial role setup and migrations;
-application API/worker readiness against those fresh databases remains a
-follow-up for #88. Keep the test release isolated and preserve all existing
-`myota-test` PVCs.
+the later application check covers API and browser readiness. Keep the test
+release isolated and preserve all existing `myota-test` PVCs.
+
+## Fresh-database application readiness — 2026-10-27
+
+- Recreated a temporary namespace with new Core, Activity, and Geodata PVCs
+  and deployed the current `myota-test` immutable application image digests
+  through the repository Helm chart. Migration hooks initialized each database
+  from empty storage; the migration ledgers contained 21 Core, 5 Activity, and
+  7 Geodata migrations.
+- Started the Gateway, Identity, Identity maintenance, Programmes, Activity,
+  Geodata, Admin web, and Participant web workloads. All 8 Deployments had all
+  13 desired application replicas available, and all 3 PostgreSQL pods were
+  ready (16/16 pods total), with no restarts at verification time. The
+  isolated Gateway returned HTTP
+  200 with `status: ok` from `/healthz` and HTTP 200 with `status: ready` from
+  `/readyz` through a temporary local port-forward.
+- Ingress was disabled. Activity and Geodata workers, notification delivery,
+  email delivery, and the three outbox workers were disabled, so this did not
+  verify NATS-backed work consumption or worker readiness on the fresh
+  databases. The first chart revision briefly created outbox pods without the
+  NATS Secret; the corrected second revision disabled those workers and
+  reached the ready state recorded above. The temporary namespace, Helm
+  releases, PVCs, and port-forward were removed. The persistent `myota-test`
+  release and its data were untouched.
+
+This closes only the fresh-database API and browser readiness portion. Keep
+the worker-readiness task in #88 open until the NATS-backed workers have been
+verified against fresh storage.
 
 ## Related deployment state
 
