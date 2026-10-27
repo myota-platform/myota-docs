@@ -1,18 +1,56 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 00:50 UTC
+**Current verification:** 2026-10-27 01:57 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`c10df2f`](https://github.com/myota-platform/myota-next/commit/c10df2f22479a676318256c637d90d4f9eb89fd5), path `deploy/fleet/myota-test`.
+[`fa7bbe5`](https://github.com/myota-platform/myota-next/commit/fa7bbe557ecfc3dda8abee35c6ac6eed39dcbcc3), path `deploy/fleet/myota-test`.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-26 23:58 UTC
+## Current MyOTA Next rollout — 2026-10-27 01:56 UTC
+
+The optional Prometheus scrape configuration is now installed in the
+Rancher-managed `myota-test` release. Two PRs corrected the test-only catalog
+upgrader Role after the first upgrade attempts exposed its missing
+ServiceMonitor permissions: [PR #139](https://github.com/myota-platform/myota-next/pull/139)
+added `list`, and [PR #140](https://github.com/myota-platform/myota-next/pull/140)
+added `watch`.
+Both changes passed Node CI and image build/scan checks before merging to
+`testing`. The Role remains restricted to the `myota-test` namespace and the
+`monitoring.coreos.com/servicemonitors` resource.
+
+- **Fleet source:** `fleet-local/myota-next-test` is Ready at commit
+  [`fa7bbe5`](https://github.com/myota-platform/myota-next/commit/fa7bbe557ecfc3dda8abee35c6ac6eed39dcbcc3).
+  `GitPolling=True`, `Reconciling=False`, and `Stalled=False`.
+- **Rancher catalog:** The protected rollout
+  [40435365127](https://github.com/myota-platform/myota-next/actions/runs/40435365127)
+  succeeded. Helm release `myota-test` is deployed at revision 35 with chart
+  `1.1.6-testing.fa7bbe557ecf.1`.
+- **ServiceMonitors:** `myota-test-apis` scrapes the five APIs and
+  `myota-test-workers` scrapes Activity notifications, Email, and three outbox
+  workers. Both scrape `/metrics` every 30 seconds. Prometheus reports all 15
+  discovered targets healthy (`up=1`), and the Prometheus API returned 321
+  samples with the `myota-test` namespace labels.
+- **Workload and endpoint health:** All 21 application replicas are ready.
+  Admin and Participant web roots return HTTPS 200 with certificate
+  verification. The unauthenticated `GET /v1/identity/me` API route returns
+  403, as expected for this protected endpoint.
+- **Observe distinction:** Prometheus scraping verifies metrics collection by
+  the in-cluster Prometheus stack; it does not prove `@nestjs/observe` delivery.
+  The `myota-observe` Secret is absent, so authenticated Observe delivery
+  remains open under
+  [issue #90](https://github.com/myota-platform/myota-next/issues/90).
+
+This closes the ServiceMonitor/RBAC deployment issue but does not complete the
+remaining Phase 6 qualification work in
+[issue #10](https://github.com/myota-platform/myota-next/issues/10).
+
+## Previous MyOTA Next rollout — 2026-10-26 23:58 UTC
 
 The protected rollout path installed the approved immutable images through
 Rancher's catalog operation. This closes the App ownership and recovery
