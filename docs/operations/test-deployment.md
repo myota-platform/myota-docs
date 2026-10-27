@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 00:31 UTC
+**Current verification:** 2026-10-27 00:37 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -58,6 +58,16 @@ remaining Phase 6 qualification work in
   [issue #13](https://github.com/myota-platform/myota-next/issues/13), which
   is closed. The test deployment uses its Mailpit sink for synthetic email
   flows.
+- **Grafana through the Admin proxy:** An authenticated Admin browser session
+  opened the embedded `/grafana` view. Grafana served the default dashboard
+  with six panels; all 13 dashboard/search/query API responses and 49 CSS,
+  JavaScript, and image assets returned HTTP 200, with no browser errors. The
+  dashboard catalogue returned 52 dashboards and `/observability/api/health`
+  returned JSON with database status `ok`. An unauthenticated request to the
+  protected proxy returned HTTP 302. Grafana's own user and star APIs return
+  401 because this shared instance uses anonymous dashboard access; those
+  profile features are not part of the Admin dashboard qualification. No
+  shared Grafana configuration was changed. See [issue #116](https://github.com/myota-platform/myota-next/issues/116).
 - **Participant Activity journey:** A signed-in synthetic Participant used
   the browser UI to upload a one-record ADIF file against an open activation.
   Import `e5a1cc51-7542-47f2-989b-fdb55e9ff24b` completed with 1 record seen,
@@ -138,8 +148,11 @@ recovery path.
   unqualified.
 - [Issue #90](https://github.com/myota-platform/myota-next/issues/90):
   `@nestjs/observe` dependencies, root hooks, stable service IDs, and the
-  no-credentials startup path are verified. Authenticated Observe credentials
-  and delivery to an Observe destination are not configured or verified.
+  no-credentials startup path are verified. The authenticated Grafana proxy
+  and dashboard path are also live-qualified under [issue #116](https://github.com/myota-platform/myota-next/issues/116);
+  this does not prove Observe telemetry ingestion. Authenticated Observe
+  credentials and delivery to an Observe destination are not configured or
+  verified.
 - [Issue #92](https://github.com/myota-platform/myota-next/issues/92): the
   single-instance dependency restart paths are verified. JetStream redelivered
   an unacknowledged message after pod recreation; the Activity worker's durable
