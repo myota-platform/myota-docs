@@ -935,3 +935,11 @@ restoration, the Admin and Participant roots and API `/healthz` all returned
 HTTP 200 with certificate verification success. Production was not targeted.
 The mock and live failure evidence closes the controlled catalog restoration
 criterion in [myota-next #118](https://github.com/myota-platform/myota-next/issues/118).
+
+PR [#174](https://github.com/myota-platform/myota-next/pull/174) promoted
+the verified change to `main` as
+[`3ef33c3`](https://github.com/myota-platform/myota-next/commit/3ef33c3ed0c1863bb0f0c558c8f4eac99df80a36).
+All required PR checks and post-merge Node CI
+[40526732995](https://github.com/myota-platform/myota-next/actions/runs/40526732995)
+passed. The merge triggered no release-image publication or production
+deployment.
