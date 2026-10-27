@@ -1,14 +1,55 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 12:16 UTC
+**Current verification:** 2026-10-27 12:48 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`cfb1af6`](https://github.com/myota-platform/myota-next/commit/cfb1af644f91715a84db1f11cf6b03c5721b4858),
+[`9ca3f07`](https://github.com/myota-platform/myota-next/commit/9ca3f07b3352eeb83a5093023ca194b9a308a70a),
 path `deploy/fleet/myota-test`.
 
-## Current deployment after shared image digest update — 2026-10-27 12:09 UTC
+## Current deployment after rollback and restoration qualification — 2026-10-27 12:48 UTC
+
+- Rollback PR [#166](https://github.com/myota-platform/myota-next/pull/166)
+  deployed the exact previously qualified immutable image set through protected
+  workflow [40503936415](https://github.com/myota-platform/myota-next/actions/runs/40503936415).
+  Helm revision 46 used chart `myota-next-1.1.6-testing.204854d9cff4.1`,
+  app version `testing-39cb632`. The workflow verified all 15 Deployments
+  ready at the prior approved image digests.
+- Restoration PR [#167](https://github.com/myota-platform/myota-next/pull/167)
+  returned the release to the current approved immutable image set through
+  protected workflow [40505916800](https://github.com/myota-platform/myota-next/actions/runs/40505916800).
+  Helm revision 47 is deployed with chart
+  `myota-next-1.1.6-testing.9ca3f07b3352.1`, app version `testing-16bb2c3`.
+  The workflow verified all 15 Deployments ready at the revision-45 digests.
+- During the rollback and after restoration, Admin `/healthz`, `/readyz`, and
+  Admin and Participant web roots returned HTTP 200. The Activity database
+  contained 9 activations and 15 QSOs after both operations, and all five
+  database, object-store, and JetStream PVCs remained Bound. No production
+  release or data was changed.
+- GitHub rulesets `testing-pr-and-ci-gates` and `main-pr-and-ci-gates` are
+  active. Each requires pull requests and the 19 Node/image build and scan
+  checks, enforces up-to-date status checks, and has no bypass actors. The
+  `myota-test` deployment environment remains limited to the `testing` branch.
+- A failed required PR check cannot advance either branch. The automatic
+  rollback behavior after a failed Rancher reconciliation remains open under
+  [#118](https://github.com/myota-platform/myota-next/issues/118): the Rancher
+  v2.15.2 catalog upgrade action exposes `cleanupOnFail` but no atomic rollback
+  option in its
+  [upgrade request type](https://github.com/rancher/rancher/blob/v2.15.2/pkg/api/steve/catalog/types/rest.go).
+  Helm documents `cleanupOnFail` and rollback-on-failure as different
+  behaviors in its
+  [upgrade command reference](https://helm.sh/docs/v3/helm/helm_upgrade/).
+  The workflow reports stalled or timed-out operations as failures; do not
+  assume Rancher automatically restored the previous chart and values.
+- `@nestjs/observe` delivery and cross-service signal correlation remain
+  unqualified because the `myota-observe` Secret and approved credentials are
+  absent. The separate 04:07 metrics and datasource snapshot below is historical.
+
+This is the current deployment record. Earlier blocks below retain the states
+they measured at their recorded timestamps.
+
+## Previous deployment after shared image digest update — 2026-10-27 12:09 UTC
 
 - Protected deployment run [40500836170](https://github.com/myota-platform/myota-next/actions/runs/40500836170)
   completed successfully for testing commit `cfb1af644f91715a84db1f11cf6b03c5721b4858`.
@@ -31,8 +72,8 @@ path `deploy/fleet/myota-test`.
   and approved credentials are not present in the test namespace. No delivery
   or end-to-end telemetry correlation is claimed.
 
-This block is the current deployment record. The dated 04:07 snapshot below
-describes the earlier revision and is retained as historical evidence.
+This records the revision-45 state before the rollback qualification and is
+superseded by the revision-47 current-state block above.
 
 ## Participant session recovery requalification — 2026-10-27 05:02 UTC
 
@@ -153,7 +194,7 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 
 ## Earlier MyOTA Next deployment and authenticated qualification — 2026-10-27 04:07 UTC (historical)
 
-This snapshot predates the current revision 45 deployment above. Its image,
+This snapshot predates the current revision 47 deployment above. Its image,
 metrics, datasource, and award-catalogue observations describe that earlier
 state and must not be read as current status.
 
