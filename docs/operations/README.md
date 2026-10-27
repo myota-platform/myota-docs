@@ -34,6 +34,9 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
   and remaining security checks.
 - [Participant email-change qualification](evidence/phase6-participant-email-change-2026-10-27.md) —
   deployed token replay denial, two-address delivery, and UI cancellation.
+- [Award layout and print qualification](evidence/phase6-awards-layout-qualification-2026-10-27.md) —
+  published revision semantics, Award Text, print-profile resizing, CI coverage,
+  and limits of the current low-resolution deployed source.
 - [Dependency-recovery qualification][phase6-dependency-recovery] —
   deployed single-instance
   NATS, PostgreSQL, and object-storage recovery evidence and limits.

@@ -19,6 +19,13 @@ relationship APIs; the browser never accesses a database directly.
 Choose a programme and an existing draft, or create a new award. List summaries
 are not used as editable records: the UI fetches `GET /v1/awards/{awardId}`.
 Published definitions remain read-only. Draft edits use `PATCH /v1/awards/{awardId}`.
+To edit a published award, select **Create editable version**. Saving creates a
+new draft version linked to the published definition; it does not alter the
+published version or existing issuances. The request includes the version that
+was loaded. If another edit wins first, the API returns a conflict and the
+administrator must reload before trying again. The new draft keeps the same
+programme and award code and can proceed through the normal review and
+publication workflow.
 Existing template coordinates/styles, print metadata and legacy background keys
 are retained when editing. Effective dates are displayed and entered in UTC; an
 unchanged date retains its original instant (including seconds) rather than
@@ -27,9 +34,17 @@ award name, callsign, participant name, date obtained, manager name and signatur
 See the platform-wide [UTC time policy](../../platform/utc-time-policy.md).
 The defaults also appear immediately when opening the page for the first time.
 
-Fields can be dragged or positioned using normalized coordinates. Restore default
-elements asks before replacing a layout; additional custom text is supported.
-A4/Letter and portrait/landscape control both canvas proportions and PDF dimensions.
+The separate **Award Text** field holds up to 200 characters; it does not replace
+the award name or description. Existing awards with no value behave as though it
+were blank. The default layout places its text element immediately below the
+award name at normalized `y = 0.21`. Fields can be dragged or positioned using
+normalized coordinates. Restore default elements asks before replacing a layout;
+additional custom text is supported.
+
+A4/Letter and portrait/landscape control canvas proportions and PDF dimensions.
+At a chosen DPI, the pixel width and height are each rounded up from the page's
+millimetre dimensions. Supported print settings are 150–300 DPI. Changing page
+orientation updates the displayed target dimensions.
 
 ### Backgrounds and signatures
 
@@ -56,8 +71,14 @@ the authenticated content resource; the service selects and validates the
 storage destination.
 An interrupted upload can leave registered metadata without content; registration
 alone does not imply print readiness. No existing asset or award is deleted.
-Publication retains aspect-ratio and resolution checks: use about 2481×3508
-pixels for A4 portrait at 300 DPI, or 2550×3300 for Letter (swap for landscape).
+The renderer resizes a supported source background to the exact selected page
+dimensions using a centered cover crop; it does not replace or mutate the
+registered source. Print readiness checks the usable crop area, which must retain
+at least 150 DPI of source detail. A source can therefore have different pixel
+dimensions from the output and still be usable. If it is too small after
+cropping, publication is blocked with a message to choose a higher-resolution
+image. For reference, A4 portrait at 300 DPI is 2481×3508 pixels and Letter
+portrait is 2550×3300 (landscape swaps the dimensions).
 
 ### Preview PDF
 
@@ -101,3 +122,5 @@ previews. They use isolated API fixtures, not live data. Activity HTTP tests in
 validation/authorization, draft round trips, preview backpressure, all four
 paper/orientation combinations and absence of persisted preview side effects.
 See [delivery evidence and remaining verification limits](evidence/programme-awards-2026-10-09.md).
+Published award revision, Award Text and background-resizing qualification is
+recorded in the [Phase 6 award-layout evidence](../../operations/evidence/phase6-awards-layout-qualification-2026-10-27.md).

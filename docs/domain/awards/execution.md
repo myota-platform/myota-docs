@@ -86,13 +86,23 @@ uploads PNG/JPEG bytes through authenticated `PUT /v1/awards/assets/{assetId}/co
 (20 MiB / 16 million pixel bounds). Named backgrounds and signatures populate
 the designer selectors. Content replacement uses authenticated binary upload.
 See the [programme and award designer guide](admin-designer.md).
-The certificate
-template stores normalized `x`, `y`, `width`, and `height` positions for the
-award name, callsign, participant name, date obtained, manager name and manager
-signature. The admin web provides a draggable preview plus numeric adjustments.
-The six default elements are restored for empty legacy templates, and custom
-text can be added. A transient mock-data PDF preview opens separately without
-saving or issuing an award, using the same orientation-aware print renderer.
+The certificate template stores normalized `x`, `y`, `width`, and `height`
+positions for the award name, optional Award Text, callsign, participant name,
+date obtained, manager name and manager signature. Award Text is a separate
+optional value (up to 200 characters); older definitions without it remain
+compatible and render no placeholder. Its default element is below the award
+name at `y = 0.21`. The admin web provides a draggable preview plus numeric
+adjustments. The six original default elements are restored for empty legacy
+templates, and custom text can be added. A transient mock-data PDF preview opens
+separately without saving or issuing an award, using the same orientation-aware
+print renderer.
+
+Published definitions are immutable. Editing one creates a new draft revision
+with the same programme and award code, an incremented version, and a link to
+the source definition. The API requires the version loaded by the editor and
+rejects stale edits with a conflict. The previous published version and its
+issuances remain unchanged; the new draft uses the normal review and publication
+flow.
 
 For 300 DPI print output, the recommended profiles are:
 
@@ -101,11 +111,16 @@ For 300 DPI print output, the recommended profiles are:
 | A4 | 2481 × 3508 px | 3508 × 2481 px |
 | Letter | 2550 × 3300 px | 3300 × 2550 px |
 
-The service rejects publication when the background aspect ratio is outside the
-configured tolerance or the image is materially below the recommended
-resolution. The issuance record permanently stores the award name, callsign,
-participant name, date obtained, manager name, signature asset reference,
-background reference, print profile and element positions.
+The exact output width and height are `ceil(page millimetres / 25.4 × DPI)`;
+supported DPI is 150–300. The renderer applies a centered cover crop and resizes
+the source to those dimensions without modifying the original asset. Print
+readiness is based on the remaining source detail after the crop: the usable
+source area must be at least 150 DPI for the selected page. A source with
+different pixel dimensions is accepted when it meets that minimum; a small
+source that does not meet it is blocked from publication. The issuance record
+permanently stores the award name, Award Text, callsign, participant name, date
+obtained, manager name, signature asset reference, background reference, print
+profile and element positions.
 
 When the background and signature objects are present and the Pillow renderer is
 available, issuing an award renders a PDF into the certificate bucket and the
@@ -114,6 +129,10 @@ available, the issuance remains permanent with `renderStatus:
 WAITING_FOR_ASSETS`; an administrator can retry `/render` later. This keeps
 achievement history durable even when object storage or rendering is
 temporarily unavailable.
+
+The [Phase 6 award-layout qualification record](../../operations/evidence/phase6-awards-layout-qualification-2026-10-27.md)
+lists the code and CI coverage and the limits of the preview performed against
+the current `myota-test` release.
 
 The public programme web lists published awards, signs participants in through
 the identity service, displays server-calculated progress, and submits eligible
