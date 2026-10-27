@@ -73,6 +73,43 @@ through the durable outbox. Retention jobs should purge expired recovery
 tokens, revoked sessions and security events according to the deployment's
 policy.
 
+## Participant password recovery and email change
+
+The password-reset flow returns the same public response for unknown,
+unverified, inactive, rate-limited, and eligible accounts. Eligible requests
+create a durable, expiring request record and queue only its ID and an
+allowlisted template. Identity mints a random 30-minute token when the Email
+worker resolves a still-current request, stores only its SHA-256 hash, and
+returns the link to the worker for delivery. The request ID binds delivery to
+the latest reset request, so delayed work from a superseded request cannot
+mint another valid link. Reset changes the password, consumes all outstanding
+tokens for that request/account, and revokes existing sessions in one Core
+transaction. The token is carried in the page URL fragment and removed from the
+address bar before page assets load; fragments are not sent in the HTTP request
+or Referer header.
+
+Changing a Participant email requires an active `PARTICIPANT` account and the
+current password. Identity reserves a pending target address and sends
+separate, purpose-bound confirmation links to the old and proposed addresses.
+Each token is stored only as a hash, expires after 30 minutes, and can be used
+once; the pending operation expires after 24 hours. The existing email remains
+the sign-in and notification address until both addresses confirm the same
+operation. Identity then updates the account email and normalized identity key
+atomically, and queues completion notices to both addresses. An authenticated
+Participant can inspect or cancel the pending operation; starting a replacement
+invalidates its earlier links. Requests require reauthentication and are
+throttled. No SMTP credentials or new secret values are introduced by these
+flows; deployment uses the existing [outgoing Email
+configuration](../../operations/messaging/outgoing-email-configuration.md).
+
+Implementation and local qualification are tracked in [MyOTA Next PR
+#148](https://github.com/myota-platform/myota-next/pull/148), with work packages
+[#114](https://github.com/myota-platform/myota-next/issues/114) and
+[#115](https://github.com/myota-platform/myota-next/issues/115). These behaviors
+are documented as the intended implementation; they are not yet evidence of
+successful email delivery or workflow qualification in `myota-test`. Keep the
+issues open until CI, rollout, and deployed email outcomes are verified.
+
 ## Authentication-state inventory and persistence boundary
 
 The current runtime still uses `Store` in `apps/identity/common.py`. It loads
