@@ -198,6 +198,19 @@ remaining Phase 6 qualification work in
   1 accepted, and 0 rejected. Activity PostgreSQL contains one `VALID` QSO
   linked to that import, and the activation's QSO count is 1. This verifies a
   successful browser-to-worker-to-database import path.
+- **Participant end-to-end Activity journey (2026-10-27 02:48 UTC):** On the
+  protected deployment at chart revision 37 (`1.1.6-testing.b1bd3b9bd765.1`,
+  Fleet commit `b1bd3b9`), the synthetic Participant signed in and started an
+  activation on the approved synthetic QA entity. Activation creation and
+  manual QSO entry returned HTTP 201. The browser submitted a one-record ADIF
+  file (HTTP 202); the authenticated status query reached `COMPLETED` with 1
+  accepted and 0 rejected records. The Participant closed the activation
+  (HTTP 200), signed out, signed in again, and saw the persisted `CLOSED`
+  activation with two QSOs. The synthetic activation and its two QSOs remain
+  in `myota-test` as qualification data. This verifies the complete deployed
+  browser-to-Gateway-to-Activity-worker path, but does not provision or approve
+  the production judicial-district catalogue; programme rules and bulk entity
+  assignment remain tracked separately in [issue #79](https://github.com/myota-platform/myota-next/issues/79).
 - **Participant manual QSO and activation closure:** On 2026-10-27, the same
   synthetic Participant account recorded a manual contact against the open
   activation (HTTP 201), closed it (HTTP 200), signed out, and signed back in.
