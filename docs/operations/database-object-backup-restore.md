@@ -255,4 +255,48 @@ data, realistic RTO, and PVC-loss recovery remain unqualified.
 - Measure realistic database and object volumes. The synthetic restore timing
   above is not an operational SLO.
 
+## Candidate launch policy (not approved or configured)
+
+The following defaults make the remaining operations decisions reviewable. They
+are a proposal for the single-instance `myota-test` topology; they do not
+describe current deployment behavior and must not be used to claim an achieved
+RPO or RTO.
+
+- **Scope and trigger:** run one coordinated, write-quiesced backup of Core,
+  Activity, Geodata, and the six configured object buckets every 24 hours. Run
+  an additional on-demand backup before a database migration, bulk geodata
+  operation, or release with a data migration. Keep writers paused until both
+  database and object artifacts pass integrity checks.
+- **Destination and failure domain:** copy completed artifacts to a dedicated
+  versioned object-storage bucket outside the K3s host and its local storage
+  failure domain. Deny public access and application-service access. Require a
+  separate backup identity limited to writing and listing backup objects, and
+  a separate restore identity for recovery. Do not use the MyOTA runtime or
+  migration database credentials for scheduled backups.
+- **Retention:** retain 14 daily recovery points and 8 weekly recovery points.
+  Apply lifecycle expiration only after a newer artifact has passed its
+  manifest, checksum, and decryptability checks. Preserve an additional
+  pre-migration recovery point until the migration is accepted.
+- **Encryption and keys:** encrypt each completed archive with `age` before
+  upload. Keep the public recipient in deployment configuration and the
+  private identity in the operator secret store, outside the cluster and
+  backup destination. Review key access quarterly and rotate the recipient
+  through an overlap period that keeps retained archives decryptable.
+- **Recovery objectives:** use a 24-hour target RPO after the daily job is
+  operational. Set no RTO target until restore time is measured with a
+  representative data volume and the required application restart and
+  validation steps. Alert if the most recent verified off-node artifact is
+  older than 26 hours or if a scheduled run fails.
+- **Restore rehearsal:** monthly, restore the latest complete recovery point to
+  isolated databases and empty object buckets, verify cross-store references,
+  and record elapsed time, data volume, and operator actions. Never rehearse by
+  replacing the live test release.
+
+Before adopting this policy, confirm that the selected object-storage provider
+supports the required versioning, lifecycle, identity, and encryption controls
+and provision its endpoint and credentials through the secret store. Until the
+provider and credentials exist, no off-node copy, retention enforcement,
+scheduled alert, or 24-hour RPO is active. Keep #89 open until those controls
+are configured and a scheduled backup and isolated restore are verified.
+
 Track these remaining checks in [issue #89](https://github.com/myota-platform/myota-next/issues/89).
