@@ -40,6 +40,13 @@ and the isolated release image digests were updated through
   mapping of QSO import links and safe import fields. The Participant browser
   regression test verifies the rendered detail and avoids loading it before
   the disclosure is opened.
+- [PR #157](https://github.com/myota-platform/myota-next/pull/157) adds a
+  browser regression for a non-owner whose stale activation row receives the
+  API's generic not-found response. The UI displays the denial state without
+  rendering QSO details. The focused browser suite passed all three tests, and
+  PR CI passed 19 checks; two release-only jobs were skipped as intended. The
+  test uses a mocked 404 response; the separate live API check above verifies
+  deployed owner isolation.
 
 ## Limits and remaining qualification
 
