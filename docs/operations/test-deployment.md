@@ -1,12 +1,38 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 07:41 UTC
+**Current verification:** 2026-10-27 12:16 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`04fccdd`](https://github.com/myota-platform/myota-next/commit/04fccdd32a98f409c2ada2dff4df98dc3a816faa),
+[`cfb1af6`](https://github.com/myota-platform/myota-next/commit/cfb1af644f91715a84db1f11cf6b03c5721b4858),
 path `deploy/fleet/myota-test`.
+
+## Current deployment after shared image digest update — 2026-10-27 12:09 UTC
+
+- Protected deployment run [40500836170](https://github.com/myota-platform/myota-next/actions/runs/40500836170)
+  completed successfully for testing commit `cfb1af644f91715a84db1f11cf6b03c5721b4858`.
+  Helm release `myota-test` is deployed at revision 45, chart
+  `myota-next-1.1.6-testing.cfb1af644f91.1`, app version `testing-16bb2c3`.
+- The workflow verified all 15 Deployments ready at the approved immutable
+  image digests. Activity and Activity Worker are running the pinned digests
+  qualified by PRs [#163](https://github.com/myota-platform/myota-next/pull/163)
+  and [#164](https://github.com/myota-platform/myota-next/pull/164). The
+  digest update itself was delivered through [PR #165](https://github.com/myota-platform/myota-next/pull/165).
+- Gateway `/healthz` and `/readyz`, plus the Admin and Participant web roots,
+  returned HTTP 200 after rollout. Post-merge Node CI
+  [run 40500836233](https://github.com/myota-platform/myota-next/actions/runs/40500836233)
+  also passed.
+- Award layout and print profile qualification is recorded in
+  [the Phase 6 award evidence](evidence/phase6-awards-layout-qualification-2026-10-27.md).
+  This deployment updated shared-platform service images; it did not repeat
+  the separately documented participant account journeys.
+- `@nestjs/observe` delivery remains unqualified: the `myota-observe` Secret
+  and approved credentials are not present in the test namespace. No delivery
+  or end-to-end telemetry correlation is claimed.
+
+This block is the current deployment record. The dated 04:07 snapshot below
+describes the earlier revision and is retained as historical evidence.
 
 ## Participant session recovery requalification — 2026-10-27 05:02 UTC
 
@@ -125,7 +151,11 @@ and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## MyOTA Next deployment and authenticated qualification — 2026-10-27 04:07 UTC
+## Earlier MyOTA Next deployment and authenticated qualification — 2026-10-27 04:07 UTC (historical)
+
+This snapshot predates the current revision 45 deployment above. Its image,
+metrics, datasource, and award-catalogue observations describe that earlier
+state and must not be read as current status.
 
 ### Deployment and health
 
