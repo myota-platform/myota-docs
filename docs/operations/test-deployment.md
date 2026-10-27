@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 02:34 UTC
+**Current verification:** 2026-10-27 02:51 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
