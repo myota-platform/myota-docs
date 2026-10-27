@@ -21,6 +21,39 @@ At qualification time, the Fleet-managed `myota-test` Helm release was healthy:
 - Admin and Participant web roots: HTTP 200
 - Activity image: `sha256:0d05c9b98ab20fe357d81090db30a5a0d88db1e9a9cc54e9394db4438e3c39da`
 
+## Four print profiles and latest rollout
+
+The deployed Admin editor was exercised with a local unsaved draft. Changing
+page size and orientation updated the required background dimensions
+immediately:
+
+| Profile | Required background at 300 DPI | Rendered PDF page size |
+| --- | ---: | ---: |
+| A4 portrait | 2481 × 3508 px | 595.28 × 841.89 pt |
+| A4 landscape | 3508 × 2481 px | 841.89 × 595.28 pt |
+| Letter portrait | 2550 × 3300 px | 612 × 792 pt |
+| Letter landscape | 3300 × 2550 px | 792 × 612 pt |
+
+Activity API preview requests produced valid PDFs for all four profiles from a
+stored 3167 × 2240 px background. The renderer resized and center-cropped each
+copy to the selected profile without changing the source asset. Invalid profiles
+(149 DPI, 301 DPI, and A3) returned HTTP 400. These calls did not create award,
+issuance, or asset records.
+
+The latest protected rollout used:
+
+- Chart: `myota-next-1.1.6-testing.cfb1af644f91.1`
+- App version: `testing-16bb2c3`, Helm revision 45
+- Activity image: `sha256:1f269f2cf5c4c8945bc15098b433581ec26bac65723f76faf30747894a93aeb1`
+- Activity Worker image: `sha256:961b0bbeb9321c5777803b02dd99444be96b6a92765db83db07a8dcbd252ca0e`
+- [Protected Rancher rollout run](https://github.com/myota-platform/myota-next/actions/runs/40500836170) verified 15 Deployments ready at the approved immutable image digests.
+- [Post-merge Node CI run](https://github.com/myota-platform/myota-next/actions/runs/40500836233) passed.
+
+The Activity and Activity Worker images both contain the shared renderer change.
+An explicit 16-million-pixel guard rejects oversized images before resizing;
+unit coverage checks that limit and invalid image inputs. The Activity upload
+compatibility test verifies malformed content is rejected before object storage.
+
 The deployed award list contained one approved version 1 definition and one
 background asset (1491×1055 pixels). A non-mutating preview request returned a
 PDF successfully and included the supplied Award Text. Its selected A4 landscape
@@ -84,6 +117,18 @@ request also returned a valid PDF whose mock data contained the revised text.
 - [PR #162](https://github.com/myota-platform/myota-next/pull/162) pins the
   deployed Activity image to its immutable digest. Node CI and all image
   build/scan checks passed; it merged to `testing` as `29a54b7`.
+- [PR #163](https://github.com/myota-platform/myota-next/pull/163) adds
+  all-profile Admin browser coverage, resize-preservation coverage, and clear
+  invalid-image handling. It merged to `testing` as `ac0b831` after all PR
+  checks passed.
+- [PR #164](https://github.com/myota-platform/myota-next/pull/164) fixes the
+  testing publisher's shared-library image selection and enforces the explicit
+  pixel limit. Node CI and image build/scan checks passed; it merged to
+  `testing` as `16bb2c3`.
+- [PR #165](https://github.com/myota-platform/myota-next/pull/165) pins all
+  NestJS service images to immutable digests from `testing-16bb2c3`. Helm
+  checks passed; it merged to `testing` as `cfb1af6`, and the protected rollout
+  verified chart revision 45 and all 15 Deployments.
 - The deployed synthetic qualification confirms that a mismatched background
   can be resized for A4 landscape 300 DPI, published as print-ready, and used by
   the preview renderer. An anonymous request cannot change the published record.
@@ -94,8 +139,8 @@ request also returned a valid PDF whose mock data contained the revised text.
   version conflicts, Award Text validation, backwards-compatible empty text,
   supported print profiles, and source-resolution readiness.
 - Renderer tests cover all A4/Letter portrait/landscape dimensions at 300 DPI,
-  resizing a mismatched background without modifying its source, and rendering
-  Award Text.
+  resizing a mismatched background without modifying its source, invalid image
+  content, the 16-million-pixel processing limit, and rendering Award Text.
 - The Admin browser test covers loading a published version, creating a draft
   revision, default Award Text placement, A4 landscape dimensions, and saving
   with the expected source version. Its API is fixture-backed.
@@ -112,6 +157,7 @@ request also returned a valid PDF whose mock data contained the revised text.
   qualification; the synthetic requests were created with an Admin-scoped
   Activity API token. This remains a separate Phase 6 workflow qualification.
 
-Keep parent issue #104 and remaining child issues #106–#108 open until their
-remaining acceptance criteria are verified and linked from the issues and
-Phase 6 qualification issue #91.
+The deployed Admin editor and Activity preview/render path meet the page-profile
+and resize criteria for child issues #106–#108. The earlier published-revision
+and issuance evidence above closes child issue #105. The broader Participant
+request-screen qualification remains separate and is tracked under #91 and #96.
