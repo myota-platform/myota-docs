@@ -29,6 +29,9 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
   evidence.
 - [Delegated Participant administration qualification](evidence/phase6-participant-admin-qualification-2026-10-27.md) —
   scoped role, UI persistence, audit attribution, and denied Identity actions.
+- [Participant password recovery qualification](evidence/phase6-participant-password-recovery-2026-10-27.md) —
+  deployed email delivery, successful password reset, credential revocation,
+  and remaining security checks.
 - [Dependency-recovery qualification][phase6-dependency-recovery] —
   deployed single-instance
   NATS, PostgreSQL, and object-storage recovery evidence and limits.
