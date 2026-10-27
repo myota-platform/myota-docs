@@ -24,6 +24,9 @@ See the [retirement record](evidence/operations-service-retirement-2026-10-11.md
 - [Participant registration qualification](evidence/phase6-participant-registration.md) —
   deployed email verification and sign-in evidence, with remaining abuse-control
   coverage gaps.
+- [Participant activation-history qualification](evidence/phase6-participant-activation-history-2026-10-27.md) —
+  owner-only activation details, QSO history, ADIF outcomes, and deployed UI
+  evidence.
 - [Dependency-recovery qualification][phase6-dependency-recovery] —
   deployed single-instance
   NATS, PostgreSQL, and object-storage recovery evidence and limits.
