@@ -1,18 +1,60 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 01:57 UTC
+**Current verification:** 2026-10-27 02:34 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`fa7bbe5`](https://github.com/myota-platform/myota-next/commit/fa7bbe557ecfc3dda8abee35c6ac6eed39dcbcc3), path `deploy/fleet/myota-test`.
+[`b1bd3b9`](https://github.com/myota-platform/myota-next/commit/b1bd3b9bd7652037649bef1849333bab2616e5dd), path `deploy/fleet/myota-test`.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
 copy is a one-time seed, and production data is not continuously replicated.
 The live `myota` namespace and its persistent volumes were left unchanged.
 
-## Current MyOTA Next rollout — 2026-10-27 01:56 UTC
+## Activity worker rollback qualification — 2026-10-27 02:34 UTC
+
+The test release was deliberately rolled back to the previously deployed
+Activity worker image, then restored through the protected Rancher catalog
+workflow. This validates an image rollback while databases and shared services
+remain at the current release.
+
+- **Rollback:** PR [#141](https://github.com/myota-platform/myota-next/pull/141)
+  merged as [`37f3b73`](https://github.com/myota-platform/myota-next/commit/37f3b73b435d783b96798bd872df8b270e517dd2).
+  Protected deployment [40437074286](https://github.com/myota-platform/myota-next/actions/runs/40437074286)
+  deployed chart `1.1.6-testing.37f3b73b435d.1` at Helm revision 36 and
+  selected the prior worker image
+  `sha256:07b206434addf75a4c1ee33cc47214e63e70c94cf679653c93abf5bf83c54597`.
+- **Forward restore:** PR [#142](https://github.com/myota-platform/myota-next/pull/142)
+  merged as [`b1bd3b9`](https://github.com/myota-platform/myota-next/commit/b1bd3b9bd7652037649bef1849333bab2616e5dd).
+  Node CI passed on retry after one transient live callsign browser focus
+  assertion; all 19 non-publishing image build/scan jobs passed. Protected
+  deployment [40438930034](https://github.com/myota-platform/myota-next/actions/runs/40438930034)
+  restored chart `1.1.6-testing.b1bd3b9bd765.1`, Helm revision 37, and worker
+  image `sha256:eb1e4bc419b2ee459e40734f99ce0465e9a3a824bb2751cc8564516e5e871411`.
+- **Post-restore health:** Fleet is Ready at `b1bd3b9`; all 16 Deployments
+  are fully ready (21/21 replicas). Admin and Participant roots and gateway
+  `/readyz` returned HTTPS 200. Authenticated Admin sign-in reached
+  `/dashboard`; Participant sign-in and `/v1/identity/me` both returned 200.
+- **Persisted state:** Before and after both worker changes, the Activity
+  database had 2 failed and 11 succeeded jobs, no queued/running jobs, 1
+  completed and 1 failed import, and 1 unresolved work dead letter. The
+  `MYOTA_ACTIVITY_WORK` stream contained 0 messages/bytes; all six consumers
+  had 0 pending and 0 ack-pending messages, with delivered and acknowledged
+  floors equal. The unresolved dead letter was not replayed.
+- **Scope and limitation:** There were no Activity database migration changes
+  between the worker images. The rollback was performed only after proving
+  that the stream and active database work were empty. This demonstrates an
+  idle-state application-image rollback with the current schema; it does not
+  qualify rollback with queued/in-flight messages or across incompatible
+  schema/object changes. Keep this quiescence check as a rollback precondition
+  until pending-work compatibility is separately verified. See
+  [issue #93](https://github.com/myota-platform/myota-next/issues/93).
+
+This does not complete the remaining Phase 6 qualification work in
+[issue #10](https://github.com/myota-platform/myota-next/issues/10).
+
+## Prometheus scrape rollout — 2026-10-27 01:56 UTC
 
 The optional Prometheus scrape configuration is now installed in the
 Rancher-managed `myota-test` release. Two PRs corrected the test-only catalog
@@ -222,11 +264,13 @@ recovery path.
   regressions. Correlated
   telemetry/audit evidence and QSO correction/edit behavior remain
   unqualified. See the [Participant qualification record](evidence/phase6-participant-registration.md).
-- [Issue #93](https://github.com/myota-platform/myota-next/issues/93): the
-  catalog/Helm rollback path is exercised, but only between releases with the
-  same values and image digests. Compatibility across changed code, image
-  digests, schemas, and persisted database, object-store, or NATS work remains
-  unqualified.
+- [Issue #93](https://github.com/myota-platform/myota-next/issues/93): a
+  previous Activity worker digest was deployed and then restored through the
+  protected Rancher catalog path. Admin and Participant sign-in, readiness,
+  database aggregates, and empty JetStream consumer state were checked before
+  and after. No Activity migration changes separated the images. This only
+  qualifies rollback while work is quiescent; queued/in-flight work and
+  incompatible schema or object changes remain unqualified, so `#93` stays open.
 
 These are qualification gaps, not evidence that the deployment failed. Keep
 issue #10 open until its exit criteria pass or each residual limitation has an
