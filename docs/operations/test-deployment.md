@@ -885,3 +885,24 @@ K3s namespace and their source files are stored under the host's
 - This snapshot proves readiness and endpoint responses at the stated time.
   It does not qualify single-node failure recovery, production capacity, or
   continuous data synchronization.
+
+## Current Testing telemetry check — 2026-10-27 14:17 UTC
+
+The live `myota-test` Helm release is chart
+`myota-next-1.1.6-testing.95e8342a90bd.1`, revision 48. Its effective values
+enable the chart Prometheus ServiceMonitors at a 30-second interval and keep
+`observe.enabled` false. Prometheus currently discovers 15 `myota-test`
+targets, and every target reports `up=1`: two replicas each for Gateway,
+Identity, Programmes, Activity, and Geodata, plus Activity notifications,
+Email, and the three owner-specific outbox workers.
+
+This is evidence of in-cluster Prometheus collection only. The scrape covers
+HTTP request counters and the metrics exposed by the selected worker endpoints;
+it does not qualify authenticated `@nestjs/observe` delivery. The
+`myota-observe` Secret is absent. A cluster-wide pod and Service search found
+no Loki, Tempo, or OpenTelemetry Collector, so this release has no verified
+central log or trace backend and no end-to-end Admin/Participant trace
+correlation. Activity and Geodata workers are not among the 15 scrape targets.
+These remaining gates stay open under
+[myota-next #90](https://github.com/myota-platform/myota-next/issues/90) and
+[#91](https://github.com/myota-platform/myota-next/issues/91).
