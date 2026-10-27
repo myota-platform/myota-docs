@@ -84,19 +84,6 @@ backfill. Those remain open under
 [#111](https://github.com/myota-platform/myota-next/issues/111), and
 [#112](https://github.com/myota-platform/myota-next/issues/112).
 
-### Latest live catalogue inventory — 2026-10-27
-
-A read-only API inventory after the deployment check found 432 entities. All
-432 had geometry, lacked country and country-code values, and reported
-`locationEnrichmentStatus: FAILED`; none were queued or running. The
-`myota-geodata-enrichment` Secret is still absent, while the Geodata worker is
-ready at 1/1 and has the optional Secret reference configured. This supersedes
-the earlier one-time inventory of 126 test entities and its 116 successful
-backfill: the current catalogue has since changed and is incomplete again.
-Do not start the Admin catalogue backfill until a test-only provider key is
-provisioned and a fresh single-entity enrichment confirms provider access.
-Then run the backfill and verify completion against a fresh catalogue read.
-
 ## When enrichment runs
 
 The entity lifecycle is the source of truth for timing:
