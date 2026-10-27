@@ -211,6 +211,12 @@ remaining Phase 6 qualification work in
   browser-to-Gateway-to-Activity-worker path, but does not provision or approve
   the production judicial-district catalogue; programme rules and bulk entity
   assignment remain tracked separately in [issue #79](https://github.com/myota-platform/myota-next/issues/79).
+- **Participant callsign self-service (2026-10-27):** The signed-in synthetic
+  Participant added a secondary QA callsign through the profile UI (HTTP 201)
+  and retired it through the same UI (HTTP 200). The profile reloaded and
+  displayed the callsign as `RETIRED`; the existing primary callsign remained
+  available. This left only a retired synthetic QA callsign record on the test
+  account.
 - **Participant manual QSO and activation closure:** On 2026-10-27, the same
   synthetic Participant account recorded a manual contact against the open
   activation (HTTP 201), closed it (HTTP 200), signed out, and signed back in.
