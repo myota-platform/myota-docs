@@ -102,13 +102,18 @@ throttled. No SMTP credentials or new secret values are introduced by these
 flows; deployment uses the existing [outgoing Email
 configuration](../../operations/messaging/outgoing-email-configuration.md).
 
-Implementation and local qualification are tracked in [MyOTA Next PR
-#148](https://github.com/myota-platform/myota-next/pull/148), with work packages
-[#114](https://github.com/myota-platform/myota-next/issues/114) and
-[#115](https://github.com/myota-platform/myota-next/issues/115). These behaviors
-are documented as the intended implementation; they are not yet evidence of
-successful email delivery or workflow qualification in `myota-test`. Keep the
-issues open until CI, rollout, and deployed email outcomes are verified.
+Implementation is tracked in [MyOTA Next PR #148](https://github.com/myota-platform/myota-next/pull/148),
+with work packages [#114](https://github.com/myota-platform/myota-next/issues/114)
+and [#115](https://github.com/myota-platform/myota-next/issues/115). Password
+reset, access/refresh revocation, replay rejection, sequential dual-address
+verification, partial verification, and cancellation were exercised with
+Mailpit and synthetic participant accounts in deployed `myota-test` revision
+41. The live check also exposed a concurrency defect: two simultaneous email
+confirmations did not both succeed, and the address stayed unchanged.
+[PR #152](https://github.com/myota-platform/myota-next/pull/152) fixes the lock
+order and adds a concurrency regression test, but has not yet been deployed.
+Repeat the simultaneous check after rollout, then verify the remaining expiry,
+conflict, and recovery outcomes before closing #114 or #115.
 
 ## Authentication-state inventory and persistence boundary
 

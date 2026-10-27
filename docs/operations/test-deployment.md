@@ -1,11 +1,12 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 05:02 UTC
+**Current verification:** 2026-10-27 07:01 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
 **Current Fleet source:** `myota-platform/myota-next`, branch `testing`, commit
-[`5459f7b`](https://github.com/myota-platform/myota-next/commit/5459f7bce4e9f06885474a9aa16d9bea5dcd01f0), path `deploy/fleet/myota-test`.
+[`53b623c`](https://github.com/myota-platform/myota-next/commit/53b623ce108cc7ee35dcb9eb985714aac3c6d7d7),
+path `deploy/fleet/myota-test`.
 
 ## Participant session recovery requalification — 2026-10-27 05:02 UTC
 
@@ -38,6 +39,43 @@
 This requalifies Participant session recovery on the deployed image. Other
 Participant and Admin workflow evidence and remaining Phase 6 gaps remain
 tracked below; this does not complete [myota-next #10](https://github.com/myota-platform/myota-next/issues/10).
+
+## Participant password reset and email-change edge cases — 2026-10-27 07:01 UTC
+
+- **Deployed revision:** Helm release `myota-test` is deployed at revision 41,
+  chart `myota-next-1.1.6-testing.53b623ce108c.1`, from Fleet commit
+  `53b623ce108cc7ee35dcb9eb985714aac3c6d7d7`. All 16 Deployments were ready
+  (21/21 replicas); Identity was 2/2 and the Participant root returned HTTP
+  200. The deployed Identity image uses immutable digest
+  `sha256:3322a6edc0534e787ae03d2ef5d4ee35d16914ac036021ff4b982da477d97247`.
+- **Password reset:** a synthetic verified participant received the reset
+  email, set a new password, and signed in with it. The previous access and
+  refresh credentials were rejected, and replaying the reset link failed.
+  The workflow used Mailpit; no credential or token is recorded here.
+- **Sequential email change:** separate links arrived at the current and
+  proposed addresses. Confirming only one left the current address authoritative
+  and the proposed address unable to sign in. Confirming the other completed
+  the change; the new address could sign in, the old address could not, and
+  completion notices reached both addresses.
+- **Cancellation:** after one address was confirmed, canceling the pending
+  change cleared its status, preserved the old address, and made the remaining
+  link unusable.
+- **Concurrent confirmation defect:** on the same deployed revision, confirming
+  both address links at once returned one HTTP 400 and one
+  `one_address_verified`; the email remained unchanged. This is a real gap in
+  #115, not a passing qualification. [PR #152](https://github.com/myota-platform/myota-next/pull/152)
+  serializes confirmation on the shared pending-change row and adds a
+  concurrency regression test. The fix is not deployed yet; repeat this check
+  after the protected testing rollout.
+- The test messages were removed from Mailpit. Synthetic participant records
+  remain in the isolated deployment; no production account or data was used.
+
+The work is tracked in [#114](https://github.com/myota-platform/myota-next/issues/114)
+and [#115](https://github.com/myota-platform/myota-next/issues/115). Keep both
+issues, [#91](https://github.com/myota-platform/myota-next/issues/91), and
+[Phase 6 #10](https://github.com/myota-platform/myota-next/issues/10) open
+until the new concurrency fix is deployed and the remaining acceptance criteria
+are verified.
 
 This is a separate Helm release with its own PostgreSQL, JetStream, SeaweedFS,
 and observability storage. It is not a production replica service: the initial
