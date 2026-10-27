@@ -41,6 +41,18 @@ The live `myota` namespace and its persistent volumes were left unchanged.
 
 Published award-layout editing, publishing and issuance after the current image update; credentialed Observe delivery; log/trace backends and workflow correlation; and the documented database/object-storage recovery limitations remain open under [myota-next #10](https://github.com/myota-platform/myota-next/issues/10) and [#91](https://github.com/myota-platform/myota-next/issues/91). Earlier participant profile/callsign and single-instance JetStream recovery evidence is recorded below.
 
+### Observe provisioning procedure
+
+The MyOTA Next chart currently defaults `observe.enabled` to `false`. To
+qualify delivery, first create the `myota-observe` Secret in namespace
+`myota-test` with the `app-key` and `app-secret` keys using the approved
+secret store. Then set `observe.enabled: true` in the Fleet values and apply
+the change through the protected pull-request and Rancher catalog workflow.
+Do not commit the credential values. After rollout, verify stable service IDs,
+instrumentation hooks, startup, and actual signal delivery in the configured
+Observe destination. This procedure is pending because neither the Secret nor
+approved credentials are currently available in the test namespace.
+
 The three successful Actions runs establish build publication and the chart
 upgrade. The new browser checks above verify the post-upgrade sign-in, public
 catalogue, activation, and QSO path. They do not complete Phase 6 readiness or
