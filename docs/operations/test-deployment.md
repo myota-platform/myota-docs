@@ -1,6 +1,6 @@
 # Isolated test deployment
 
-**Current verification:** 2026-10-27 13:38 UTC
+**Current verification:** 2026-10-27 14:05 UTC
 **Initial seed verification:** 2026-10-14 11:09 UTC
 **Cluster:** local single-node K3s on `spainip-k3s`
 **Namespace:** `myota-test`
@@ -8,7 +8,7 @@
 [`95e8342`](https://github.com/myota-platform/myota-next/commit/95e8342a90bd604b07b86a03e18826ab67555e68),
 path `deploy/fleet/myota-test`.
 
-## Current deployment and failed-upgrade recovery rollout — 2026-10-27 13:38 UTC
+## Current deployment and failed-upgrade recovery rollout — 2026-10-27 14:05 UTC
 
 - Rollback PR [#166](https://github.com/myota-platform/myota-next/pull/166)
   deployed the exact previously qualified immutable image set through protected
@@ -36,6 +36,16 @@ path `deploy/fleet/myota-test`.
   [`6a99b84`](https://github.com/myota-platform/myota-next/commit/6a99b84083d42dd3fa354ccd5578aa5766ddfd01)
   after all 19 required checks passed. No release was created and production
   was not changed.
+- Script-level recovery test PR [#171](https://github.com/myota-platform/myota-next/pull/171)
+  merged to `testing` as `d8e2de8`; its four focused recovery tests passed along
+  with all required image and Node checks. Promotion PR
+  [#172](https://github.com/myota-platform/myota-next/pull/172) merged the two
+  test files to `main` as
+  [`d5b5555`](https://github.com/myota-platform/myota-next/commit/d5b55550f7ef291ceb32819b5a95fcc35158c8d4)
+  after all 19 required checks passed. The mock test exercises terminal
+  `Stalled` recovery end to end, but does not replace controlled failure
+  injection against the live Rancher release. No release or production change
+  resulted from these test-only changes.
 - The deployment workflow records the prior chart, reads its values from the
   source commit encoded in that immutable chart version, and snapshots the
   ready Deployment image digests and replica counts. A terminal Rancher
